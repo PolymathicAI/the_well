@@ -43,4 +43,4 @@ credentials.json
 # Ignore generated files
 *.min.js
 *.min.css
-__pycache__/
+__pycache__
