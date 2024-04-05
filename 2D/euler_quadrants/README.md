@@ -1,14 +1,14 @@
 # Euler equations - Riemann problems
 
-**One line description of the data:**  Evolution starting with piecewise constant initial data in quadrants.
+**One line description of the data:**  Evolution starting with piecewise constant initial data in quadrants, for different gases.
 
-**Longer description of the data:**  The evolution can give rise to shocks, rarefaction waves, contact discontinuities, interaction witheach other and domain walls
+**Longer description of the data:**  The evolution can give rise to shocks, rarefaction waves, contact discontinuities, interaction witheach other and domain walls.
 
-**Associated paper**:
+**Associated paper**: [ADD PAPER]
 
 **Domain scientist**: Marsha Berger [ADD WEBSITE], Flatiron Institute and NYU.
 
-**Code or software used to generate the data**:
+**Code or software used to generate the data**: Clawpack [ADD WEBSITE]
 
 [ADD GIF OF THE SIMULATION]
 
