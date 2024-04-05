@@ -1,4 +1,4 @@
-# Euler equations - Riemann problems
+# Euler equations - Riemann problems (compressible, inviscid fluid)
 
 **One line description of the data:**  Evolution starting with piecewise constant initial data in quadrants, for different gases.
 
@@ -9,6 +9,8 @@
 **Domain scientist**: Marsha Berger [ADD WEBSITE], Flatiron Institute and NYU.
 
 **Code or software used to generate the data**: Clawpack [ADD WEBSITE]
+
+**Equation**: [ADD EQUATION]
 
 [ADD GIF OF THE SIMULATION]
 

@@ -45,7 +45,7 @@ class Units:
             self.velocity = UnitValue(1, "km/s")
             self.mass = UnitValue(1.989e+43, "g")  # [g]
         
-        # u_presの計算
+        # u_pres
         self.pressure = UnitValue(self.mass.value / (self.length.value * self.time.value ** 2), "g/(cm⋅s^2)")
 
 
