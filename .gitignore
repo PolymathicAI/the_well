@@ -39,3 +39,8 @@ credentials.json
 # Ignore backup files
 *.bak
 *.swp
+
+# Ignore generated files
+*.min.js
+*.min.css
+__pycache__/
