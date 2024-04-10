@@ -10,9 +10,11 @@ Thumbs.db
 #Ignoring the data
 2D/active_matter/data/
 2D/euler_quadrants/data/
+2D/pattern_formation/data/
 3D/supernova_explosion/data/
 3D/turbulence_gravity_cooling/data/
 3D/turbulent_radiative_layer/data/
+
 testing_before_adding/
 
 # Ignore logs and temporary files
