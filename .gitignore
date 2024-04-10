@@ -12,6 +12,7 @@ Thumbs.db
 2D/euler_quadrants/data/
 3D/supernova_explosion/data/
 3D/turbulence_gravity_cooling/data/
+3D/turbulent_radiative_layer/data/
 testing_before_adding/
 
 # Ignore logs and temporary files
