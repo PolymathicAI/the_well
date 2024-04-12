@@ -10,8 +10,8 @@ datasets = {
 
 # Define the sample files for each dataset
 sample_files = {
-    "dataset1": "sample_dataset1.hdf5",
-    "dataset2": "sample_dataset2.hdf5",
+    "active_matter": "L_10.0_zeta_1.0_alpha_-1.0.hdf5.hdf5", #select best
+    "euler_quadrants": "gamma1.4_Dry_air_20.0_extrap.hdf5", #select best
     # Add more sample files as needed
 }
 
@@ -22,11 +22,10 @@ def download_files(dataset_name=None, sample_only=False):
     :param dataset_name: Name of the dataset to download. If None, download all datasets.
     :param sample_only: If True, download only the sample file.
     """
-    if dataset_name:
-        datasets_to_download = {dataset_name: datasets[dataset_name]}
-    else:
-        # If no specific dataset name is provided, download from all datasets
+    if dataset_name == 'all':
         datasets_to_download = datasets
+    else:
+        datasets_to_download = {dataset_name: datasets[dataset_name]}
     
     for name, data in datasets_to_download.items():
         base_url = data["base_url"]
@@ -47,7 +46,7 @@ def download_files(dataset_name=None, sample_only=False):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Download files from specified datasets.')
-    parser.add_argument('--dataset', type=str, help='Name of the dataset to download. If omitted, all datasets will be downloaded.')
+    parser.add_argument('--dataset', type=str, help='Name of the dataset to download. If all, all datasets will be downloaded.')
     parser.add_argument('--sample_only', action='store_true', help='Download only the sample file if specified.')
 
     args = parser.parse_args()
