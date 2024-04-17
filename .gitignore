@@ -12,6 +12,9 @@ Thumbs.db
 2D/euler_quadrants/data/
 2D/pattern_formation/data/
 2D/turbulent_radiative_layer/data/
+2D/helmholtz_staircase/data/
+2D/viscoelastic_instability/data/
+2D/helmholtz_staircase/data_old/
 2D/turbulent_radiative_layer/data_old/
 3D/supernova_explosion/data/
 3D/turbulence_gravity_cooling/data/

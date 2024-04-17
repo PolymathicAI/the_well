@@ -9,9 +9,7 @@ datasets = {
 
     "pattern_formation": {"base_url": "https://users.flatironinstitute.org/~polymathic/data/the_well/2D/pattern_formation/data/", "files": ["bubbles_F=0.098_k=0.057.h5","gliders_F=0.014_k=0.054.h5","maze_F=0.029_k=0.057.h5","spots_F=0.03_k=0.062.h5", "worms_F=0.058_k=0.065.h5"], "target_directory": "2D/pattern_formation/data/"},
 
-    "turbulent_radiative_layer": {"base_url": "https://users.flatironinstitute.org/~polymathic/data/the_well/2D/turbulent_radiative_layer/data/", "files": [f"tcool_{tcool:.2f}" for tcool in [0.03, 0.06, 0.10, 0.18, 0.32, 0.56, 1.00, 1.78, 3.16]]
-
-    },
+    "turbulent_radiative_layer_2D": {"base_url": "https://users.flatironinstitute.org/~polymathic/data/the_well/2D/turbulent_radiative_layer/data/", "files": [f"tcool_{tcool:.2f}" for tcool in [0.03, 0.06, 0.10, 0.18, 0.32, 0.56, 1.00, 1.78, 3.16]]},
     # Add more datasets as needed
 }
 
@@ -20,6 +18,7 @@ sample_files = {
     "active_matter": "L_10.0_zeta_1.0_alpha_-1.0.hdf5.hdf5", #select best
     "euler_quadrants": "gamma1.4_Dry_air_20.0_extrap.hdf5", #select best
     "pattern_formation": "bubbles_F=0.098_k=0.057.h5", #select best
+    "turbulent_radiative_layer_2D": "tcool_0.03.hdf5", #select best
     # Add more sample files as needed
 }
 
