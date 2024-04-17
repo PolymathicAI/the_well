@@ -6,7 +6,7 @@
 
 **Associated paper**: https://arxiv.org/abs/2308.06675
 
-**Domain scientist**: Suryanarayana Maddu [ADD WEBSITE], CCB, Flatiron Institute.
+**Domain scientist**: Suryanarayana Maddu [ADD WEBSITE], CCB, Flatiron Institute. 
 
 **Code or software used to generate the data**: https://github.com/SuryanarayanaMK/Learning_closures/tree/master
 
