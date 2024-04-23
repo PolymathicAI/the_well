@@ -9,7 +9,9 @@ datasets = {
 
     "pattern_formation": {"base_url": "https://users.flatironinstitute.org/~polymathic/data/the_well/2D/pattern_formation/data/", "files": ["bubbles_F=0.098_k=0.057.h5","gliders_F=0.014_k=0.054.h5","maze_F=0.029_k=0.057.h5","spots_F=0.03_k=0.062.h5", "worms_F=0.058_k=0.065.h5"], "target_directory": "2D/pattern_formation/data/"},
 
-    "turbulent_radiative_layer_2D": {"base_url": "https://users.flatironinstitute.org/~polymathic/data/the_well/2D/turbulent_radiative_layer/data/", "files": [f"tcool_{tcool:.2f}" for tcool in [0.03, 0.06, 0.10, 0.18, 0.32, 0.56, 1.00, 1.78, 3.16]]},
+    "turbulent_radiative_layer_2D": {"base_url": "https://users.flatironinstitute.org/~polymathic/data/the_well/2D/turbulent_radiative_layer/data/", "files": [f"tcool_{tcool:.2f}.h5" for tcool in [0.03, 0.06, 0.10, 0.18, 0.32, 0.56, 1.00, 1.78, 3.16]]},
+
+    "helmholtz_staircase": {"base_url": "https://users.flatironinstitute.org/~polymathic/data/the_well/2D/helmholtz_staircase/data/", "files": [f"omega_{omega}.hdf5" for omega in ["006","02", "04", "06", "08", "09", "11", "13", "15", "17", "18", "20", "21", "23", "24", "25"]] },
     # Add more datasets as needed
 }
 
@@ -49,7 +51,7 @@ def download_files(dataset_name=None, sample_only=False):
         else:
             # Download all files from the dataset
             for file_name in data["files"]:
-                os.system(f"wget -P -b {target_directory} {base_url}{file_name}") # -P is for saving the file in the specified directory. -b is for running the download in the background.
+                os.system(f"wget -b -P {target_directory} {base_url}{file_name}") # -P is for saving the file in the specified directory. -b is for running the download in the background.
             print(f"Downloaded all files for {name}")
 
 if __name__ == "__main__":
