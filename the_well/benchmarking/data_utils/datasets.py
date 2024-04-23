@@ -11,7 +11,7 @@ well_paths = {'active_matter': '/2D/active_matter'}
 
 
 
-class GenericWellLoader(Dataset):
+class GenericWellDataset(Dataset):
     """
     Generic dataset for any Well data. Returns data in B x T x C x H ...(x W) (x D) format.
 
