@@ -330,6 +330,8 @@ class GenericWellDataset(Dataset):
         """
         bcs = file['boundary_conditions']
         periodic_dims = [False] * len(file['dimensions'].attrs['spatial_dims'])
+        if 'boundary_masks' in self.constant_cache:
+            boundary_masks = self.constant_cache['boundary_masks']
         for bc_name in bcs.keys():
             bc = bcs[bc_name]
             bc_type = bc.attrs['bc_type']
@@ -339,12 +341,9 @@ class GenericWellDataset(Dataset):
                 if dim in dims:
                     if bc_type == 'periodic':
                         periodic_dims[i] = True
-
                     used_dims.append(True)
                 else:
-                    used_dims.append(False)
-                
-                print(dims.name)
+                    used_dims.append(False)    
             if bc.attrs['sample_varying']:
                 bc_mask = bc['mask'][sample_idx]
             else:
@@ -378,8 +377,8 @@ class GenericWellDataset(Dataset):
         time_varying_scalars, constant_scalars = self._reconstruct_scalars(self.files[file_idx], sample_idx,
                                                                             time_idx, self.n_steps_input + self.n_steps_output,
                                                                               dt)
-        bcs = self._reconstruct_bcs(self.files[file_idx], sample_idx, time_idx,  
-                                     self.n_steps_input + self.n_steps_output, dt)
+        bcs = [] #self._reconstruct_bcs(self.files[file_idx], sample_idx, time_idx,  
+                   #                  self.n_steps_input + self.n_steps_output, dt)
         # bcs = []
         sample =  {'input_fields': trajectory[:self.n_steps_input], # Tin x H x W x D x C tensor of input trajectory
                 'output_fields': trajectory[self.n_steps_input:], # Tpred x H x W x D x C tensor of output trajectory
