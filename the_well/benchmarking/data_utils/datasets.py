@@ -1,10 +1,8 @@
 import torch
 import h5py as h5
-import os
 import glob
 import numpy as np
-
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 
 
 well_paths = {'active_matter': '/2D/active_matter'}
@@ -106,6 +104,10 @@ class GenericWellDataset(Dataset):
     def _get_specific_bcs(self, f):
         raise NotImplementedError # Per dset
     
+    def _get_space_grid(self, file):
+        raise NotImplementedError
+
+    
     def _build_metadata(self):
         """ Builds multi-file indices and checks that folder contains consistent dataset
         """
@@ -121,7 +123,7 @@ class GenericWellDataset(Dataset):
         ndims = set()
         for index, file in enumerate(self.files_paths):
             with h5.File(file, 'r') as _f:
-                # Run sanity checks
+                # Run sanity checks - all files should have same ndims, size_tuple, and names
                 samples = _f.attrs['n_trajectories']
                 steps = _f['dimensions']['time'].shape[0]
                 size_tuple = [_f['dimensions'][d].shape[0] 
@@ -130,23 +132,29 @@ class GenericWellDataset(Dataset):
                 names.add(_f.attrs['dataset_name'])
                 size_tuples.add(tuple(size_tuple))
                 # Fast enough that I'd rather check each file rather than processing extra files before checking
-                assert len(names) == 1, 'Multiple dataset names found in files'
-                assert len(ndims) == 1, 'Multiple ndims found in files'
-                assert len(size_tuples) == 1, 'Multiple resolutions found in files'
-                # Check that the described steps make sense
+                assert len(names) == 1, 'Multiple dataset names found in specified path'
+                assert len(ndims) == 1, 'Multiple ndims found in specified path'
+                assert len(size_tuples) == 1, 'Multiple resolutions found in specified path'
+                # Check that the requested steps make sense
                 assert steps - self.dt_stride*(self.n_steps_input + self.n_steps_output) > 0, \
-                    'Not enough steps in file {} for {} input and {} output steps'.format(file,                                                               self.n_steps_input, self.n_steps_output)
+                    'Not enough steps in file {} for {} input and {} output steps'.format(file,
+                                                                                          self.n_steps_input,
+                                                                                          self.n_steps_output)
                 self.file_steps.append(steps)
                 self.file_samples.append(samples)
                 self.offsets.append(self.offsets[-1] +  samples * (steps 
                                     - self.dt_stride*(self.n_steps_input-1 + self.n_steps_output)))
                 # Populate field names
                 if index == 0:
+                    self.num_fields_by_tensor_order = {}
+                    self.num_constants = len(_f.attrs['simulation_parameters'])
                     for field in _f['t0_fields'].attrs['field_names']:
                         self.field_names.append(field)
+                    self.num_fields_by_tensor_order[0] = len(_f['t0_fields'].attrs['field_names'])
                     for field in _f['t1_fields'].attrs['field_names']:
                         for dim in _f['dimensions'].attrs['spatial_dims']:
                             self.field_names.append(f'{field}_{dim}')
+                    self.num_fields_by_tensor_order[1] = len(_f['t1_fields'].attrs['field_names'])
                     for field in _f['t2_fields'].attrs['field_names']:
                         for i, dim1 in enumerate(_f['dimensions'].attrs['spatial_dims']):
                             for j, dim2 in enumerate(_f['dimensions'].attrs['spatial_dims']):
@@ -156,6 +164,7 @@ class GenericWellDataset(Dataset):
                                 #     if i > j:
                                 #         continue
                                 self.field_names.append(f'{field}_{dim1}{dim2}')
+                    self.num_fields_by_tensor_order[2] = len(_f['t2_fields'].attrs['field_names'])
                                 
         self.offsets[0] = -1 # Just to make sure it doesn't put us in file -1
         self.files = [None for _ in self.files_paths] # We open file references as they come
@@ -163,21 +172,16 @@ class GenericWellDataset(Dataset):
         self.ndims = list(ndims)[0]
         self.size_tuple = list(size_tuples)[0]
         self.dataset_name = list(names)[0]
+        self.num_total_fields = len(self.field_names)
                 
     def _open_file(self, file_ind):
         _file = h5.File(self.files_paths[file_ind], 'r')
         self.files[file_ind] = _file
 
-    def _pad_axes(self, field, sample_idx, time_idx, n_steps, dt, tensor_order=0):
+    def _pad_axes(self, field_data, use_dims, time_varying=False, tensor_order=0):
         """Repeats data over axes not used in storage"""
-        field_data = field
-        use_dims = field.attrs['dim_varying']
-        if field.attrs['sample_varying']:
-            field_data = field_data[sample_idx]
-        if field.attrs['time_varying']:
-            field_data = field_data[time_idx:time_idx+n_steps*dt:dt]
-        # Tile based on missing dimensions
-        expand_dims = (1,) if field.attrs['time_varying'] else (n_steps,)
+        # Look at which dimensions currently are not used and tile based on their sizes
+        expand_dims = (1,) if time_varying else ()
         expand_dims = expand_dims + tuple([self.size_tuple[i] if not use_dim else 1 
                                            for i, use_dim in enumerate(use_dims)])
         expand_dims = expand_dims + (1,)*tensor_order
@@ -186,28 +190,41 @@ class GenericWellDataset(Dataset):
     def _reconstruct_sample(self, file, sample_idx, time_idx, n_steps, dt):
         """ Reconstruct sample starting at index sample_idx, time_idx, with 
         n_steps and dt stride. Apply transformations if provided."""
-        fields = []
-        # T0 Fields
+        variable_fields = []
+        constant_fields = []
+        # Iterate through field types and apply appropriate transforms to stack them
         for i, order_fields in enumerate(['t0_fields', 't1_fields', 't2_fields']):
             sub_fields = []
-            for field in file[order_fields].attrs['field_names']:
-                field_data = file[order_fields][field]
+            for field_name in file[order_fields].attrs['field_names']:
+                field = file[order_fields][field_name]
+                use_dims = field.attrs['dim_varying']
+                # TODO if we have slow loading, it might be better to apply both indices at once
+                field_data = field
+                if field.attrs['sample_varying']:
+                    field_data = field_data[sample_idx]
+                if field.attrs['time_varying']:
+                    field_data = field_data[time_idx:time_idx+n_steps*dt:dt]
                 field_data = torch.tensor(
-                    self._pad_axes(field_data, sample_idx, time_idx, n_steps, dt, tensor_order=i)
+                    self._pad_axes(field_data, use_dims, time_varying=True, tensor_order=i)
                 )
                 sub_fields.append(field_data)
-            if i == 0:
-                sub_fields = torch.stack(sub_fields, -1)
-            if i == 1:
-                sub_fields = torch.stack(sub_fields, -2)
-            if i == 2:
-                sub_fields = torch.stack(sub_fields, -3)
+            # Stack fields such that the last i dims are the tensor dims
+            sub_fields = torch.stack(sub_fields, -(i+1))
             for tensor_transform in self.tensor_transforms:
                 sub_fields = tensor_transform(sub_fields, order=i)
-            if i >= 1 and self.flatten_tensors:
+            # If we're flattening tensors, we can then flatten last i dims
+            if self.flatten_tensors:
                 sub_fields = sub_fields.flatten(-(i+1))
-            fields.append(sub_fields)
-        return torch.concatenate(fields, -1)
+            if field.attrs['time_varying']:
+                variable_fields.append(sub_fields)
+            else:
+                constant_fields.append(sub_fields)
+
+        constant_scalars = []
+        return tuple([torch.concatenate(field_group, -1) 
+                      if len(field_group) > 0 else None 
+                      for field_group in [variable_fields, constant_fields, 
+                                          constant_scalars]])
 
     def __getitem__(self, index):
         # Find specific file and local index
@@ -234,11 +251,19 @@ class GenericWellDataset(Dataset):
         for field in t0.attrs['field_names']:
             field_list.append(t0[field][sample_idx, time_idx])
         self.files[file_idx]
-        trajectory = self._reconstruct_sample(self.files[file_idx], sample_idx, 
+        trajectory, constant_fields, constant_scalars = self._reconstruct_sample(self.files[file_idx], sample_idx, 
                                                 time_idx, self.n_steps_input + self.n_steps_output, dt)
         # TODO - Add BCS for real
         bcs = [] 
-        return {'x': trajectory[:self.n_steps_input], 'y': trajectory[self.n_steps_input:], 'bcs': np.array(bcs)}
+        return {'input_state': trajectory[:self.n_steps_input], # Tin x H x W x D x C tensor of input trajectory
+                'constant_fields': constant_fields, # H (x W x D) x (num constant) tensor. 
+                'space_grid': None, # H (x W x D) x (num dims) tensor with coordinate values
+                'time_grid': None, # T x 1 tensor with time values
+                'constant_scalars': None, # 1 x C tensor with constant values corresponding to parameters
+                'time_varying_scalars': None, # Tin x C tensor with time varying scalars
+                 'output_state': trajectory[self.n_steps_input:], # Tpred x H x W x D x C tensor of output trajectory
+                   'boundary_conditions': torch.tensor(bcs) # WIP - currently ()
+                   }
 
     def __len__(self):
         return self.len
