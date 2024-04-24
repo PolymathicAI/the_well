@@ -7,6 +7,12 @@ from torch.utils.data import Dataset
 
 well_paths = {'active_matter': '/2D/active_matter'}
 
+boundary_condition_codes = {
+                            'wall': 0,
+                            'open': 1,
+                            'periodic': 2,
+                            }
+
 
 
 class GenericWellDataset(Dataset):
@@ -41,13 +47,17 @@ class GenericWellDataset(Dataset):
         Maximum stride between samples
     flatten_tensors : bool, default=True
         Whether to flatten tensor valued field into channels
-    return_grid : bool, default=False
-        Whether to return grid coordinates
     cache_constants : bool, default=True
         Whether to cache all values that do not vary in time or sample
           in memory for faster access
     max_cache_size : int, default=1e9
         Maximum numel of constant tensor to cache
+    return_grid : bool, default=False
+        Whether to return grid coordinates
+    return_boundary_mask : bool, default=False
+        Whether to return boundary condition type as mask
+    return_periodic_dims : bool, default=False
+        Whether to return boolean vector of nDim indicating which dims are periodic
     name_override : str, default=None
         Override name of dataset (used for more precise logging)
     transforms : List[function], default=[]
@@ -55,11 +65,12 @@ class GenericWellDataset(Dataset):
     tensor_transformers : List[function], default=[]
         List of transforms to apply to tensor fields
     """
-    def __init__(self, path=None, well_base_path=None, well_dataset_name=None, 
+    def __init__(self, path=None, normalization_path=None, well_base_path=None, well_dataset_name=None, 
                  include_string=None, exclude_string=None,
                     n_steps_input=1, n_steps_output=1, dt_stride=1, max_dt_stride=1,
-                    flatten_tensors=True, return_grid=True, cache_constants=True,
-                    max_cache_size=1e9, name_override=None, transforms=[], tensor_transforms=[]):
+                    flatten_tensors=True, cache_constants=True, max_cache_size=1e9,
+                    return_periodic_dims=True, return_grid=True, return_boundary_mask=True, 
+                    name_override=None, transforms=[], tensor_transforms=[]):
         super().__init__()
         assert path is not None or (well_base_path is not None and well_dataset_name is not None), \
                  'Must specify path or well_base_path and well_dataset_name'
@@ -76,6 +87,8 @@ class GenericWellDataset(Dataset):
         self.max_dt_stride = max_dt_stride
         self.flatten_tensors = flatten_tensors
         self.return_grid = return_grid
+        self.return_boundary_mask = return_boundary_mask
+        self.return_periodic_dims = return_periodic_dims
         self.cache_constants = cache_constants
         self.max_cache_size = max_cache_size
         self.transforms = transforms
@@ -121,6 +134,7 @@ class GenericWellDataset(Dataset):
         size_tuples = set()
         names = set()
         ndims = set()
+        bcs = set()
         for index, file in enumerate(self.files_paths):
             with h5.File(file, 'r') as _f:
                 # Run sanity checks - all files should have same ndims, size_tuple, and names
@@ -144,6 +158,11 @@ class GenericWellDataset(Dataset):
                 self.file_samples.append(samples)
                 self.offsets.append(self.offsets[-1] +  samples * (steps 
                                     - self.dt_stride*(self.n_steps_input-1 + self.n_steps_output)))
+                
+                # Check BCs
+                for bc in _f['boundary_conditions'].keys():
+                    print(bc)
+                    bcs.add(_f['boundary_conditions'][bc].attrs['bc_type'])
                 # Populate field names
                 if index == 0:
                     self.num_fields_by_tensor_order = {}
@@ -173,6 +192,8 @@ class GenericWellDataset(Dataset):
         self.size_tuple = list(size_tuples)[0] # Size of spatial dims
         self.dataset_name = list(names)[0] # Name of dataset
         self.num_total_fields = len(self.field_names) # Total number of fields (flattening tensor-valued fields)
+        self.num_bcs = len(bcs) # Number of boundary condition type included in data
+        self.bc_types = list(bcs) # List of boundary condition types
                 
     def _open_file(self, file_ind):
         _file = h5.File(self.files_paths[file_ind], 'r')
@@ -282,7 +303,6 @@ class GenericWellDataset(Dataset):
         time_grid = time_grid - time_grid.min() 
 
         # Space - TODO - support time-varying grids or non-tensor product grids
-        
         if 'space_grid' in self.constant_cache:
             space_grid = self.constant_cache['space_grid']
         else:
@@ -295,10 +315,42 @@ class GenericWellDataset(Dataset):
                 else:
                     coords = torch.tensor(file['dimensions'][dim][:])
                 space_grid.append(coords)
-            space_grid = torch.cartesian_prod(*space_grid)
+            space_grid = torch.stack(torch.meshgrid(*space_grid), -1)
             if sample_invariant: 
                 self._check_cache(dim, space_grid)
         return space_grid, time_grid
+    
+    def _reconstruct_bcs(self, file, sample_idx, time_idx, n_steps, dt):
+        """Needs work to support arbitrary BCs.
+         
+        Currently supports finite set of boundary condition types that describe
+        the geometry of the domain. Implements these as mask channels. The total
+        number of channels is determined by the number of BC types in the 
+        data.  
+        """
+        bcs = file['boundary_conditions']
+        periodic_dims = [False] * len(file['dimensions'].attrs['spatial_dims'])
+        for bc_name in bcs.keys():
+            bc = bcs[bc_name]
+            bc_type = bc.attrs['bc_type']
+            dims = bc.attrs['associated_dims']
+            used_dims = []
+            for i, dim in enumerate(file['dimensions'].attrs['spatial_dims']):
+                if dim in dims:
+                    if bc_type == 'periodic':
+                        periodic_dims[i] = True
+
+                    used_dims.append(True)
+                else:
+                    used_dims.append(False)
+                
+                print(dims.name)
+            if bc.attrs['sample_varying']:
+                bc_mask = bc['mask'][sample_idx]
+            else:
+                bc_mask = bc['mask'][:]
+            
+            
 
     def __getitem__(self, index):
         # Find specific file and local index
@@ -312,7 +364,7 @@ class GenericWellDataset(Dataset):
         if self.files[file_idx] is None:
             self._open_file(file_idx)
 
-        #if we overflow into the next sample/file then shift backward. Double counting until we bother fixing this.
+        # If we gave a stride range, decide the largest size we can use given the sample location
         if self.max_dt_stride > self.dt_stride:
             sample_steps = self.n_steps_input + self.n_steps_output
             effective_max_dt = min(int((file_steps - time_idx) // sample_steps), self.max_dt_stride)
@@ -326,9 +378,9 @@ class GenericWellDataset(Dataset):
         time_varying_scalars, constant_scalars = self._reconstruct_scalars(self.files[file_idx], sample_idx,
                                                                             time_idx, self.n_steps_input + self.n_steps_output,
                                                                               dt)
-        # bcs = self._get_specific_bcs(self.files[file_idx], sample_idx, time_idx,  
-        #                              self.n_steps_input + self.n_steps_output, dt)
-        bcs = []
+        bcs = self._reconstruct_bcs(self.files[file_idx], sample_idx, time_idx,  
+                                     self.n_steps_input + self.n_steps_output, dt)
+        # bcs = []
         sample =  {'input_fields': trajectory[:self.n_steps_input], # Tin x H x W x D x C tensor of input trajectory
                 'output_fields': trajectory[self.n_steps_input:], # Tpred x H x W x D x C tensor of output trajectory
                 'constant_fields': constant_fields, # H (x W x D) x (num constant) tensor. 
