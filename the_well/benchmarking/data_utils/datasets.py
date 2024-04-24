@@ -43,6 +43,11 @@ class GenericWellDataset(Dataset):
         Whether to flatten tensor valued field into channels
     return_grid : bool, default=False
         Whether to return grid coordinates
+    cache_constants : bool, default=True
+        Whether to cache all values that do not vary in time or sample
+          in memory for faster access
+    max_cache_size : int, default=1e9
+        Maximum numel of constant tensor to cache
     name_override : str, default=None
         Override name of dataset (used for more precise logging)
     transforms : List[function], default=[]
@@ -53,8 +58,8 @@ class GenericWellDataset(Dataset):
     def __init__(self, path=None, well_base_path=None, well_dataset_name=None, 
                  include_string=None, exclude_string=None,
                     n_steps_input=1, n_steps_output=1, dt_stride=1, max_dt_stride=1,
-                    flatten_tensors=True, return_grid=False, 
-                    name_override=None, transforms=[], tensor_transforms=[]):
+                    flatten_tensors=True, return_grid=True, cache_constants=True,
+                    max_cache_size=1e9, name_override=None, transforms=[], tensor_transforms=[]):
         super().__init__()
         assert path is not None or (well_base_path is not None and well_dataset_name is not None), \
                  'Must specify path or well_base_path and well_dataset_name'
@@ -71,6 +76,8 @@ class GenericWellDataset(Dataset):
         self.max_dt_stride = max_dt_stride
         self.flatten_tensors = flatten_tensors
         self.return_grid = return_grid
+        self.cache_constants = cache_constants
+        self.max_cache_size = max_cache_size
         self.transforms = transforms
         self.tensor_transforms = tensor_transforms
         # Check the directory has hdf5 that meet our exclusion criteria
@@ -82,6 +89,7 @@ class GenericWellDataset(Dataset):
         assert len(sub_files) > 0, 'No HDF5 files found in path {}'.format(self.path)
         self.files_paths = sub_files
         self.files_paths.sort()
+        self.constant_cache = {}
         # Build multi-index
         self._build_metadata()
         # Override name if necessary for logging
@@ -101,19 +109,11 @@ class GenericWellDataset(Dataset):
                 sub_dsets.append(subd)
             return sub_dsets
     
-    def _get_specific_bcs(self, f):
-        raise NotImplementedError # Per dset
-    
-    def _get_space_grid(self, file):
-        raise NotImplementedError
-
-    
     def _build_metadata(self):
         """ Builds multi-file indices and checks that folder contains consistent dataset
         """
         self.n_files = len(self.files_paths)
         self.file_steps = []
-        self.file_nsteps = []
         self.file_samples = []
         self.offsets = [0]
         self.field_names = []
@@ -168,15 +168,20 @@ class GenericWellDataset(Dataset):
                                 
         self.offsets[0] = -1 # Just to make sure it doesn't put us in file -1
         self.files = [None for _ in self.files_paths] # We open file references as they come
-        self.len = self.offsets[-1]
-        self.ndims = list(ndims)[0]
-        self.size_tuple = list(size_tuples)[0]
-        self.dataset_name = list(names)[0]
-        self.num_total_fields = len(self.field_names)
+        self.len = self.offsets[-1] # Dataset length is last number of samples
+        self.ndims = list(ndims)[0] # Number of spatial dims
+        self.size_tuple = list(size_tuples)[0] # Size of spatial dims
+        self.dataset_name = list(names)[0] # Name of dataset
+        self.num_total_fields = len(self.field_names) # Total number of fields (flattening tensor-valued fields)
                 
     def _open_file(self, file_ind):
         _file = h5.File(self.files_paths[file_ind], 'r')
         self.files[file_ind] = _file
+
+    def _check_cache(self, field_name, field_data):
+        if self.cache_constants:
+            if field_data.numel() < self.max_cache_size:
+                self.constant_cache[field_name] = field_data
 
     def _pad_axes(self, field_data, use_dims, time_varying=False, tensor_order=0):
         """Repeats data over axes not used in storage"""
@@ -187,8 +192,8 @@ class GenericWellDataset(Dataset):
         expand_dims = expand_dims + (1,)*tensor_order
         return np.tile(field_data, expand_dims)
 
-    def _reconstruct_sample(self, file, sample_idx, time_idx, n_steps, dt):
-        """ Reconstruct sample starting at index sample_idx, time_idx, with 
+    def _reconstruct_fields(self, file, sample_idx, time_idx, n_steps, dt):
+        """ Reconstruct space fields starting at index sample_idx, time_idx, with 
         n_steps and dt stride. Apply transformations if provided."""
         variable_fields = []
         constant_fields = []
@@ -199,14 +204,20 @@ class GenericWellDataset(Dataset):
                 field = file[order_fields][field_name]
                 use_dims = field.attrs['dim_varying']
                 # TODO if we have slow loading, it might be better to apply both indices at once
-                field_data = field
-                if field.attrs['sample_varying']:
-                    field_data = field_data[sample_idx]
-                if field.attrs['time_varying']:
-                    field_data = field_data[time_idx:time_idx+n_steps*dt:dt]
-                field_data = torch.tensor(
-                    self._pad_axes(field_data, use_dims, time_varying=True, tensor_order=i)
-                )
+                # If the field is constant and in the cache, use it, otherwise go through read/pad
+                if field_name in self.constant_cache:
+                    field_data = self.constant_cache[field_name]
+                else:
+                    field_data = field
+                    if field.attrs['sample_varying']:
+                        field_data = field_data[sample_idx]
+                    if field.attrs['time_varying']:
+                        field_data = field_data[time_idx:time_idx+n_steps*dt:dt]
+                    field_data = torch.tensor(
+                        self._pad_axes(field_data, use_dims, time_varying=True, tensor_order=i)
+                    )
+                    if not field.attrs['time_varying'] and not field.attrs['sample_varying']:
+                        self._check_cache(field_name, field_data) # If constant and processed, cache
                 sub_fields.append(field_data)
             # Stack fields such that the last i dims are the tensor dims
             sub_fields = torch.stack(sub_fields, -(i+1))
@@ -220,11 +231,74 @@ class GenericWellDataset(Dataset):
             else:
                 constant_fields.append(sub_fields)
 
-        constant_scalars = []
         return tuple([torch.concatenate(field_group, -1) 
-                      if len(field_group) > 0 else None 
+                      if len(field_group) > 0 else torch.tensor([]) 
                       for field_group in [variable_fields, constant_fields, 
-                                          constant_scalars]])
+                                          ]])
+    
+    def _reconstruct_scalars(self, file, sample_idx, time_idx, n_steps, dt):
+        """ Reconstruct scalar values (not fields) starting at index sample_idx, time_idx, with 
+        n_steps and dt stride."""
+        constant_scalars = []
+        time_varying_scalars = []
+        for scalar_name in file['scalars'].attrs['field_names']:
+            scalar = file['scalars'][scalar_name]
+            # These shouldn't be large so the cache probably doesn't matter
+            # but we'll cache them anyway since they're constant.
+            if scalar_name in self.constant_cache:
+                scalar_data = self.constant_cache[scalar_name]
+            else:
+                scalar_data = scalar
+                if scalar.attrs['sample_varying']:
+                    scalar_data = torch.tensor(scalar_data[sample_idx])
+                if scalar.attrs['time_varying']:
+                    scalar_data = torch.tensor(scalar_data[time_idx:time_idx+n_steps*dt:dt])
+                if not scalar.attrs['time_varying'] and not scalar.attrs['sample_varying']:
+                    scalar_data = torch.tensor(scalar_data[()]).unsqueeze(0)
+                    self._check_cache(scalar_name, scalar_data)
+            if scalar.attrs['time_varying']:
+                time_varying_scalars.append(scalar_data)
+            else:
+                constant_scalars.append(scalar_data)
+        return tuple([torch.concatenate(field_group, -1) 
+                      if len(field_group) > 0 else torch.tensor([]) 
+                      for field_group in [time_varying_scalars, constant_scalars
+                                          ]])
+    
+    def _reconstruct_grids(self, file, sample_idx, time_idx, n_steps, dt):
+        """ Reconstruct grid values starting at index sample_idx, time_idx, with 
+        n_steps and dt stride."""
+        # Time 
+        if 'time_grid' in self.constant_cache:
+            time_grid = self.constant_cache['time_grid']
+        elif file['dimensions']['time'].attrs['sample_varying']:
+            time_grid = file['dimensions']['time'][sample_idx, time_idx:time_idx+n_steps*dt:dt]
+        else:
+            time_grid = torch.tensor(file['dimensions']['time'][:])
+            self._check_cache('time_grid', time_grid)
+        # Use actual timesteps in case we eventually decide to support non-uniform in time
+        time_grid = time_grid[time_idx:time_idx+n_steps*dt:dt]
+        # Nothing should depend on absolute time - might change if we add weather
+        time_grid = time_grid - time_grid.min() 
+
+        # Space - TODO - support time-varying grids or non-tensor product grids
+        
+        if 'space_grid' in self.constant_cache:
+            space_grid = self.constant_cache['space_grid']
+        else:
+            space_grid = []
+            sample_invariant = True
+            for i, dim in enumerate(file['dimensions'].attrs['spatial_dims']):
+                if file['dimensions'][dim].attrs['sample_varying']:
+                    sample_invariant = False
+                    coords = torch.tensor(file['dimensions'][dim][sample_idx])                     
+                else:
+                    coords = torch.tensor(file['dimensions'][dim][:])
+                space_grid.append(coords)
+            space_grid = torch.cartesian_prod(*space_grid)
+            if sample_invariant: 
+                self._check_cache(dim, space_grid)
+        return space_grid, time_grid
 
     def __getitem__(self, index):
         # Find specific file and local index
@@ -246,24 +320,32 @@ class GenericWellDataset(Dataset):
                 dt = np.random.randint(self.dt, effective_max_dt)
         else:
             dt = self.dt_stride
-        field_list = []
-        t0 = self.files[file_idx]['t0_fields']
-        for field in t0.attrs['field_names']:
-            field_list.append(t0[field][sample_idx, time_idx])
-        self.files[file_idx]
-        trajectory, constant_fields, constant_scalars = self._reconstruct_sample(self.files[file_idx], sample_idx, 
+        # Now build the data
+        trajectory, constant_fields = self._reconstruct_fields(self.files[file_idx], sample_idx, 
                                                 time_idx, self.n_steps_input + self.n_steps_output, dt)
-        # TODO - Add BCS for real
-        bcs = [] 
-        return {'input_state': trajectory[:self.n_steps_input], # Tin x H x W x D x C tensor of input trajectory
+        time_varying_scalars, constant_scalars = self._reconstruct_scalars(self.files[file_idx], sample_idx,
+                                                                            time_idx, self.n_steps_input + self.n_steps_output,
+                                                                              dt)
+        # bcs = self._get_specific_bcs(self.files[file_idx], sample_idx, time_idx,  
+        #                              self.n_steps_input + self.n_steps_output, dt)
+        bcs = []
+        sample =  {'input_fields': trajectory[:self.n_steps_input], # Tin x H x W x D x C tensor of input trajectory
+                'output_fields': trajectory[self.n_steps_input:], # Tpred x H x W x D x C tensor of output trajectory
                 'constant_fields': constant_fields, # H (x W x D) x (num constant) tensor. 
-                'space_grid': None, # H (x W x D) x (num dims) tensor with coordinate values
-                'time_grid': None, # T x 1 tensor with time values
-                'constant_scalars': None, # 1 x C tensor with constant values corresponding to parameters
-                'time_varying_scalars': None, # Tin x C tensor with time varying scalars
-                 'output_state': trajectory[self.n_steps_input:], # Tpred x H x W x D x C tensor of output trajectory
-                   'boundary_conditions': torch.tensor(bcs) # WIP - currently ()
+                'input_time_varying_scalars': time_varying_scalars[:self.n_steps_input], # Tin x C tensor with time varying scalars
+                'output_time_varying_scalars': time_varying_scalars[self.n_steps_input:],
+                'constant_scalars': constant_scalars, # 1 x C tensor with constant values corresponding to parameters
+                'boundary_conditions': torch.tensor(bcs) # WIP - currently ()
                    }
+        if self.return_grid:
+            space_grid, time_grid = self._reconstruct_grids(self.files[file_idx], sample_idx, time_idx,
+                                                            self.n_steps_input + self.n_steps_output, dt)
+            sample['space_grid'] = space_grid # H (x W x D) x (num dims) tensor with coordinate values
+            sample['time_grid'] = time_grid # T x 1 tensor with time values
+
+        # Return only non-empty keys - maybe change this later
+        return {k: v for k, v in sample.items() if v.numel() > 0}
+
 
     def __len__(self):
         return self.len
