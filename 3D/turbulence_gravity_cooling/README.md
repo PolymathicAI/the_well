@@ -4,7 +4,7 @@
 
 **Longer description of the data:**  These simulations are a turbulent fluid with gravity model interstellar medium in galaxies. These fluids make dense filaments, which will form new stars. The timescale and frequency of making new filaments are varied depending on the strength of cooling. It is parametrized by the amount of metal (metallicity), density, and temperature.
 
-**Associated paper**: [PLESE KEIYA FILL THAT]
+**Associated paper**: [[Hirashima et al. 2023b](https://arxiv.org/abs/2311.08460)]
 
 **Domain scientist**: Keiya Hirashima (The University of Tokyo/CCA) [[WEBSITE](https://kyafuk.github.io/utokyo-hirashima/index.html)]
 

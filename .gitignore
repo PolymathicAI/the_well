@@ -9,6 +9,7 @@ Thumbs.db
 
 #Ignoring the data
 2D/active_matter/data/
+2D/active_matter/data_revised/
 2D/euler_quadrants/data/
 2D/pattern_formation/data/
 2D/turbulent_radiative_layer/data/

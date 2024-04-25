@@ -30,10 +30,10 @@ with outwards radiation conditions as described in [1]. The region $\Omega$ lies
 # About the data
 
 Dimension of discretized data: 
-$1024\times256$ images with $50$timesteps.
+$1024\times256$ images with $50$ timesteps.
 Fields available in the data:
 real and imaginary part of accoustic pressure $u(\mathbf{x}) = u(x_1, x_2)$. [Double check]
-Number of trajectories: $512$ (combinations of $16$ imput parameter $\omega$ and $32$ source positions $\mathbf{x}_0$)
+Number of trajectories: $512$ (combinations of $16$ input parameter $\omega$ and $32$ source positions $\mathbf{x}_0$)
 
 Estimated size of the ensemble of all simulations: 51GB
 
@@ -55,7 +55,7 @@ Data are stored separated by ($\Delta t$): $\Delta t =\frac{2\pi}{\omega N}$, wi
 Total time range ($t_{min}$ to $t_{max}$): $t_{\mathrm{min}} = 0$, $t_{\mathrm{max}} =
 \frac{2\pi}{\omega}$
 
-Spatial domain size ($L_x$, $L_y$, $L_z$): $ -8.0 \geq x_1 \geq 8.0$ horizontally, and $ -
+Spatial domain size ($L_x$, $L_y$, $L_z$): $ -8.0 \leq x_1 \leq 8.0$ horizontally, and $ -
 0.5 \geq x_2 \geq 3.5 $ vertically.
 
 Set of coefficients or non-dimensional parameters evaluated: [ADD OMEGA VALUES]

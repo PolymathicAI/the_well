@@ -1,3 +1,4 @@
+
 # Periodic shear flow
 
 **One line description of the data:** 2D periodic incompressible shear flow. 
@@ -36,10 +37,26 @@ $$
 The tracer is passive and here for visualization purposes only.
 
 ![Simulation GIF](gif_data/shearflow_final.gif)
+=======
+# Name of the simulation
+
+**One line description of the data:** 
+
+**Longer description of the data:** 
+
+**Associated paper**:
+
+**Domain scientist**:
+
+**Code or software used to generate the data**:
+
+[ADD GIF OF THE SIMULATION]
+
 
 # About the data
 
 Dimension of discretized data: 
+
 $128\times256$ images with $200$ timesteps.
 Five fields are available in the data: tracer, shear, vorticity, velocity, pressure.
 Number of simulations: $1120$ ($28$ PDE parameters $\times$ $40$ initial conditions).
@@ -74,3 +91,37 @@ Hardware used to generate the data and precision used for generating the data: 7
 Shear flow are non-linear phenomena arrising in fluid mechanics and turbulence.
 Predicting the behavior of the shear flow under different Reynolds and Schmidt numbers is essential for a number of applications in aerodynamics, automotive, biomedical. 
 Furthermore, such flow are unstable at large Reynolds number. 
+=======
+
+Fields available in the data:
+
+Number of trajectories:
+
+Estimated size of the ensemble of all simulations:
+
+Grid type
+
+Initial conditions:
+
+Boundary conditions:
+
+Simulation time-step:
+
+Data are stored separated by ($\Delta t$):
+
+Total time range ($t_{min}$ to $t_{max}$):
+
+Spatial domain size ($L_x$, $L_y$, $L_z$):
+
+Set of coefficients or non-dimensional parameters evaluated:
+
+Approximate time to generate the data:
+
+Hardware used to generate the data and precision used for generating the data:
+
+# What is interesting and challenging about the data:
+
+What phenomena of physical interest are catpured in the data:
+
+How to evaluate a new simulator operating in this space:
+
