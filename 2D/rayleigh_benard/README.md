@@ -1,3 +1,51 @@
+# Rayleigh Bénard convection
+
+**One line description of the data:** 2D horizontally-periodic Rayleigh-Benard convection.
+
+**Longer description of the data:** 
+Rayleigh-Bénard convection involves fluid dynamics and thermodynamics, seen in a horizontal fluid layer heated from below, forming convective cells due to a temperature gradient. With the lower plate heated and the upper cooled, thermal energy creates density variations, initiating fluid motion. This results in Bénard cells, showcasing warm fluid rising and cool fluid descending. The interplay of buoyancy, conduction, and viscosity leads to complex fluid motion, including vortices and boundary layers. 
+
+
+**Associated paper**: https://journals.aps.org/prresearch/abstract/10.1103/PhysRevResearch.2.023068 [SHOULD WE PUT DEDALUS PAPER?]
+
+**Domain scientist**: Keaton Burns?, MIT Applied Mathematics.
+
+**Code or software used to generate the data**: https://dedalus-project.readthedocs.io/en/latest/pages/examples/ivp_2d_rayleigh_benard.html
+
+**Equation**:
+
+While we solve equations in the frequency domain, the original time-domain problem is 
+$$ 
+\begin{align*}
+\frac{\partial b}{\partial t} - \kappa\,\Delta b & = -u\nabla b\,,
+\\
+\frac{\partial u}{\partial t} - \nu\,\Delta u + \nabla p - b \vec{e}_z & = -u \nabla u\,, 
+\end{align*}
+$$
+where $\Delta = \nabla \cdot \nabla$ is the spatial Laplacian, $b$ is the buoyancy, $u = (u_1,u_2)$ with $u_1$ the [TO CHECK] and $u_2$ the [TO CHECK], and $p$ is the pressure, $\vec{e}_z$ is the unit vector in the vertical direction, with the additional constraints $\int p = 0$ (pressure gauge).
+
+The boundary conditions vertically are as follows:
+$$
+\begin{align*}
+b(z=0) = Lz ~~~,~~~ b(z=Lz) = 0
+\\
+u(z=0) = u(z=Lz) = 0
+
+
+\end{align*}
+$$
+
+These PDE are parameterized by the Rayleigh and Prandtl numbers through $\kappa$ and $\nu$.
+$$
+\begin{align*}
+\text{(thermal diffusivity)} ~~~~~~~ \kappa & = \big(\text{Rayleigh} * \text{Prandtl}\big)^{-\frac12}
+\\
+\text{(viscosity)} ~~~~~~~ \nu & = \bigg(\frac{\text{Rayleigh}}{\text{Prandtl}}\bigg)^{-\frac12}.
+\end{align*}
+$$
+
+![Simulation GIF](gif_data/rbc2d_final.gif)
+=======
 # Name of the simulation
 
 **One line description of the data:** 
@@ -12,9 +60,42 @@
 
 [ADD GIF OF THE SIMULATION]
 
+
 # About the data
 
 Dimension of discretized data: 
+
+$512\times128$ images with $200$ timesteps.
+Five fields are available in the data: buoyancy, pressure, vorticity, [TO CHECK], [TO CHECK].
+Number of simulations: $1750$ ($35$ PDE parameters $\times$ $50$ initial conditions).
+
+Size of the ensemble of all simulations: 859GB
+
+Grid type: real Fourier (horizontal), Chebyshev (vertical)
+
+Initial conditions: the buoyancy is composed of a dumped noise added to a linear background  $b(t=0) = (Lz-z)\times\delta b_0 + z(Lz-z) \times\epsilon$ where $\epsilon$ is a Gaussian white noise of scale $10^{-3}$.
+The other fields $u$ and $p$ are initialized to $0$.
+
+Boundary conditions: 1D-periodic on the horizontal direction, Dirichlet conditions on the vertical direction.
+
+Simulation time-step: 0.25.
+
+Total time range ($t_{min}$ to $t_{max}$): $t_{\mathrm{min}} = 0$, $t_{\mathrm{max}} = 50$.
+
+Spatial domain size: $ 0 \leq x \leq 4$ horizontally, and $0 \leq z \leq 1$ vertically.
+
+Set of coefficients or non-dimensional parameters evaluated: $\text{Rayleigh}\in[1e6,1e7,1e8,1e9,1e10], \text{Prandtl}\in[0.1,0.2,0.5,1.0,2.0,5.0,10.0]$. For initial conditions $\delta b_0\in[0.2,0.4,0.6,0.8,1.0]$, the seed used to generate the initial Gaussian white noise are $40,\ldots,49$.
+
+
+Approximate time to generate the data: per input parameter: $\sim 6000s$, total: $\sim 10$ hours 
+[THIS IS THE TIME AFTER HEAVY PARALLELIZATION, BUT SHOULD WE INCLUDE THE TIME AS IF THE COMPUTATION WAS DONE ON A SINGLE GPU?].
+
+Hardware used to generate the data and precision used for generating the data: 10 nodes of 64 CPU cores each with 32 tasks running in parallel on each node, in single precision.
+
+# What is interesting and challenging about the data:
+
+Rayleigh-Bénard convection datasets offer valuable insights into fluid dynamics under thermal gradients, revealing phenomena like thermal plumes and turbulent eddies. Understanding these dynamics is crucial for applications in engineering and environmental science.
+=======
 
 Fields available in the data:
 
@@ -47,3 +128,4 @@ Hardware used to generate the data and precision used for generating the data:
 What phenomena of physical interest are catpured in the data:
 
 How to evaluate a new simulator operating in this space:
+
