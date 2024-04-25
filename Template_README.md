@@ -10,6 +10,8 @@
 
 **Code or software used to generate the data**:
 
+**Equation**:
+
 [ADD GIF OF THE SIMULATION]
 
 # About the data
