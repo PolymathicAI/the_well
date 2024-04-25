@@ -2,6 +2,7 @@ import torch
 import h5py as h5
 import glob
 import numpy as np
+import os
 from torch.utils.data import Dataset
 
 
@@ -29,14 +30,22 @@ class GenericWellDataset(Dataset):
     ----------
     path : str, default=None
         Path to directory of HDF5 files, one of path or well_base_path+well_dataset_name must be specified
+    normalization_path: str, default='.../stats/'
+        Path to normalization constants - assumed to be in same format as constructed data.
     well_base_path : str, default=None
         Path to well dataset directory, only used with dataset_name
     well_dataset_name : str, default=None
         Name of well dataset to load - overrides path if specified
+    well_split_name : str, default='train'
+        Name of split to load - options are 'train', 'valid', 'test'
     include_string : str, default=None
         Only include files with this string in name
     exclude_string : str, default=None
         Exclude files with this string in name
+    use_normalization: bool, default=True
+        Whether to normalize data in the dataset
+    include_normalization_in_sample: bool, default=False
+        Whether to include normalization constants in the sample
     n_steps_input : int, default=1
         Number of steps to include in each sample
     n_steps_output : int, default=1
@@ -54,8 +63,8 @@ class GenericWellDataset(Dataset):
         Maximum numel of constant tensor to cache
     return_grid : bool, default=False
         Whether to return grid coordinates
-    return_boundary_mask : bool, default=False
-        Whether to return boundary condition type as mask
+    boundary_return_type : str, default='padding', options=['padding', 'mask', 'exact']
+        How to return boundary conditions. Currently only padding supported. 
     return_periodic_dims : bool, default=False
         Whether to return boolean vector of nDim indicating which dims are periodic
     name_override : str, default=None
@@ -65,20 +74,28 @@ class GenericWellDataset(Dataset):
     tensor_transformers : List[function], default=[]
         List of transforms to apply to tensor fields
     """
-    def __init__(self, path=None, normalization_path=None, well_base_path=None, well_dataset_name=None, 
-                 include_string=None, exclude_string=None,
-                    n_steps_input=1, n_steps_output=1, dt_stride=1, max_dt_stride=1,
-                    flatten_tensors=True, cache_constants=True, max_cache_size=1e9,
-                    return_periodic_dims=True, return_grid=True, return_boundary_mask=True, 
-                    name_override=None, transforms=[], tensor_transforms=[]):
+    def __init__(self, path=None, normalization_path='.../stats/', 
+                 well_base_path=None, well_dataset_name=None, well_split_name='train',
+                 include_string=None, exclude_string=None, use_normalization=False, 
+                 n_steps_input=1, n_steps_output=1, dt_stride=1, max_dt_stride=1,
+                flatten_tensors=True, cache_constants=True, max_cache_size=1e9,
+                return_periodic_dims=True, return_grid=True, boundary_return_type='padding', 
+                name_override=None, transforms=[], tensor_transforms=[]):
         super().__init__()
         assert path is not None or (well_base_path is not None and well_dataset_name is not None), \
                  'Must specify path or well_base_path and well_dataset_name'
         if path is not None:
             self.path = path
+            # Note - if the second path is absolute, this op just uses second
+            self.normalization_path = os.path.join(path, normalization_path)
         else:
-            self.path = well_base_path + well_paths[well_dataset_name]
+            self.path = os.path.join(well_base_path, well_paths[well_dataset_name],
+                                      well_split_name)
+            self.normalization_path = os.path.join(self.path, '../stats/')
+
         # Copy params
+        self.use_normalization = use_normalization
+
         self.include_string = include_string
         self.exclude_string = exclude_string
         self.n_steps_input = n_steps_input
@@ -87,7 +104,9 @@ class GenericWellDataset(Dataset):
         self.max_dt_stride = max_dt_stride
         self.flatten_tensors = flatten_tensors
         self.return_grid = return_grid
-        self.return_boundary_mask = return_boundary_mask
+        self.boundary_return_type = boundary_return_type
+        assert self.boundary_return_type == 'padding', \
+            'Only padding supported for boundary conditions'
         self.return_periodic_dims = return_periodic_dims
         self.cache_constants = cache_constants
         self.max_cache_size = max_cache_size
@@ -161,7 +180,6 @@ class GenericWellDataset(Dataset):
                 
                 # Check BCs
                 for bc in _f['boundary_conditions'].keys():
-                    print(bc)
                     bcs.add(_f['boundary_conditions'][bc].attrs['bc_type'])
                 # Populate field names
                 if index == 0:
@@ -315,10 +333,36 @@ class GenericWellDataset(Dataset):
                 else:
                     coords = torch.tensor(file['dimensions'][dim][:])
                 space_grid.append(coords)
-            space_grid = torch.stack(torch.meshgrid(*space_grid), -1)
+            space_grid = torch.stack(torch.meshgrid(*space_grid, indexing='ij'), -1)
             if sample_invariant: 
                 self._check_cache(dim, space_grid)
         return space_grid, time_grid
+    
+    def _padding_bcs(self, file, sample_idx, time_idx, n_steps, dt):
+        """Handles BC case where BC corresponds to a specific padding type
+        
+        Note/TODO - currently assumes boundaries to be axis-aligned and cover the entire
+        domain. This is a simplification that will need to be addressed in the future.
+        """
+        if 'boundary_output' in self.constant_cache:
+            boundary_output = self.constant_cache['boundary_output']
+        else:
+            bcs = file['boundary_conditions']
+            dim_indices = {dim: i for i, dim in enumerate(file['dimensions'].attrs['spatial_dims'])}
+            boundary_output = torch.zeros((2,)*self.ndims)
+            self._check_cache('boundary_output', boundary_output)
+        for bc_name in bcs.keys():
+            bc = bcs[bc_name]
+            bc_type = bc.attrs['bc_type']
+            if len(bc.attrs['associated_dims']) > 1:
+                raise NotImplementedError('Only axis-aligned boundaries supported for now')
+            dim = bc.attrs['associated_dims'][0]
+            mask = bc['mask']
+            if mask[0]:
+                boundary_output[dim_indices[dim]][0] = boundary_condition_codes[bc_type]
+            if mask[1]:
+                boundary_output[dim_indices[dim]][1] = boundary_condition_codes[bc_type]
+        return boundary_output
     
     def _reconstruct_bcs(self, file, sample_idx, time_idx, n_steps, dt):
         """Needs work to support arbitrary BCs.
@@ -327,30 +371,12 @@ class GenericWellDataset(Dataset):
         the geometry of the domain. Implements these as mask channels. The total
         number of channels is determined by the number of BC types in the 
         data.  
-        """
-        bcs = file['boundary_conditions']
-        periodic_dims = [False] * len(file['dimensions'].attrs['spatial_dims'])
-        if 'boundary_masks' in self.constant_cache:
-            boundary_masks = self.constant_cache['boundary_masks']
-        for bc_name in bcs.keys():
-            bc = bcs[bc_name]
-            bc_type = bc.attrs['bc_type']
-            dims = bc.attrs['associated_dims']
-            used_dims = []
-            for i, dim in enumerate(file['dimensions'].attrs['spatial_dims']):
-                if dim in dims:
-                    if bc_type == 'periodic':
-                        periodic_dims[i] = True
-                    used_dims.append(True)
-                else:
-                    used_dims.append(False)    
-            if bc.attrs['sample_varying']:
-                bc_mask = bc['mask'][sample_idx]
-            else:
-                bc_mask = bc['mask'][:]
-            
-            
 
+        #TODO generalize boundary types
+        """
+        if self.boundary_return_type == 'padding':
+            return self._padding_bcs(file, sample_idx, time_idx, n_steps, dt)            
+            
     def __getitem__(self, index):
         # Find specific file and local index
         file_idx = int(np.searchsorted(self.offsets, index, side='right')-1) #which file we are on
@@ -392,7 +418,8 @@ class GenericWellDataset(Dataset):
             space_grid, time_grid = self._reconstruct_grids(self.files[file_idx], sample_idx, time_idx,
                                                             self.n_steps_input + self.n_steps_output, dt)
             sample['space_grid'] = space_grid # H (x W x D) x (num dims) tensor with coordinate values
-            sample['time_grid'] = time_grid # T x 1 tensor with time values
+            sample['input_time_grid'] = time_grid[:self.n_steps_input] # Tin x 1 tensor with time values
+            sample['output_time_grid'] = time_grid[self.n_steps_input:] # Tpred x 1 tensor with time values
 
         # Return only non-empty keys - maybe change this later
         return {k: v for k, v in sample.items() if v.numel() > 0}
