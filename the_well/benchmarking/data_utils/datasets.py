@@ -29,7 +29,8 @@ class GenericWellDataset(Dataset):
     Parameters
     ----------
     path : str, default=None
-        Path to directory of HDF5 files, one of path or well_base_path+well_dataset_name must be specified
+        Path to directory of HDF5 files, one of path or well_base_path+well_dataset_name
+          must be specified
     normalization_path: str, default='.../stats/'
         Path to normalization constants - assumed to be in same format as constructed data.
     well_base_path : str, default=None
