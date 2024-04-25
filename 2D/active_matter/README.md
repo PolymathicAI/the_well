@@ -6,11 +6,11 @@
 
 **Associated paper**: https://arxiv.org/abs/2308.06675
 
-**Domain scientist**: Suryanarayana Maddu [ADD WEBSITE], CCB, Flatiron Institute. 
+**Domain scientist**: [Suryanarayana Maddu](https://sbalzarini-lab.org/?q=alumni/surya), CCB, Flatiron Institute. 
 
 **Code or software used to generate the data**: https://github.com/SuryanarayanaMK/Learning_closures/tree/master
 
-**Equation**: [ADD EQUATION]
+**Equation**: Equations (1) to (5) of the associated paper.
 
 [ADD GIF OF THE SIMULATION]
 
@@ -18,9 +18,9 @@
 
 **Dimension of discretized data:** $81$ time-steps of $256\times256$ images with 1 channel for concentration $c$, 2 channels for velocity {$U_x$, $U_y$}, 3 channels for the orientation tensor {$D_{xx}$, $D_{xy}$, $D_{yy}$}, and 3 channels for the strain-rate tensor {$E_{xx}$, $E_{xy}$, $E_{yy}$}.
 
-**Fields available in the data:** {$c$, $U_x$, $U_y$, $D_{xx}$, $D_{xy}$, $D_{yy}$, $E_{xx}$, $E_{xy}$, $E_{yy}$, time}.
+**Fields available in the data:** 1 for concentration $c$, 2 for velocity {$U_x$, $U_y$}, 3 for the orientation tensor {$D_{xx}$, $D_{xy}$, $D_{yy}$}, 3 for the strain-rate tensor {$E_{xx}$, $E_{xy}$, $E_{yy}$}, and 1 for time:{$c$, $U_x$, $U_y$, $D_{xx}$, $D_{xy}$, $D_{yy}$, $E_{xx}$, $E_{xy}$, $E_{yy}$, $t$}.
 
-**Number of trajectories:** $5$ trajectories per parameter-set, each generated with a different initialization of the state field {$c,D,U$}.
+**Number of trajectories:** $5$ trajectories per parameter-set, each trajectory being generated with a different initialization of the state field {$c,D,U$}.
 
 **Size of the ensemble of all simulations:** 36GB.
 
@@ -48,4 +48,4 @@ $\zeta = \{1,3,5,7,9,11,13,15,17\}$;
 **What phenomena of physical interest are catpured in the data:** How is energy being transferred between scales? How is vorticity coupled to the orientation field? Where does the transition from isotropic state to nematic state occur with the change in alignment ($\zeta$) or dipole strength ($\alpha$)? 
 
 
-**How to evaluate a new simulator operating in this space:** Reproducing some summary statistics like power spectra and average scalar order parameters. Additionally, being able to accurately capture the phase transition from isotropic to nematic state.
+**How to evaluate a new simulator operating in this space:** Reproducing some summary statistics like power spectra and average scalar order parameters. Additionally, being able to accurately capture the phase transition from isotropic to nematic state. [ASK FOR THESE METRICS]
