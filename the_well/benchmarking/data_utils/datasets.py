@@ -75,9 +75,9 @@ class GenericWellDataset(Dataset):
     tensor_transformers : List[function], default=[]
         List of transforms to apply to tensor fields
     """
-    def __init__(self, path=None, normalization_path='.../stats/', 
+    def __init__(self, path=None, normalization_path='stats/', 
                  well_base_path=None, well_dataset_name=None, well_split_name='train',
-                 include_string=None, exclude_string=None, use_normalization=False, 
+                 include_string=None, exclude_string=None, use_normalization=True, 
                  n_steps_input=1, n_steps_output=1, dt_stride=1, max_dt_stride=1,
                 flatten_tensors=True, cache_constants=True, max_cache_size=1e9,
                 return_periodic_dims=True, return_grid=True, boundary_return_type='padding', 
@@ -88,15 +88,17 @@ class GenericWellDataset(Dataset):
         if path is not None:
             self.path = path
             # Note - if the second path is absolute, this op just uses second
-            self.normalization_path = os.path.join(path, normalization_path)
+            self.normalization_path = os.path.join(os.path.dirname(path), normalization_path)
         else:
             self.path = os.path.join(well_base_path, well_paths[well_dataset_name],
                                       well_split_name)
-            self.normalization_path = os.path.join(self.path, '../stats/')
-
+            self.normalization_path = os.path.join(os.path.dirname(self.path), 'stats/')
+            
+        if use_normalization:
+            self.means = torch.load(os.path.join(self.normalization_path, 'means.pkl'))
+            self.stds = torch.load(os.path.join(self.normalization_path, 'stds.pkl'))
         # Copy params
         self.use_normalization = use_normalization
-
         self.include_string = include_string
         self.exclude_string = exclude_string
         self.n_steps_input = n_steps_input
@@ -351,18 +353,18 @@ class GenericWellDataset(Dataset):
             bcs = file['boundary_conditions']
             dim_indices = {dim: i for i, dim in enumerate(file['dimensions'].attrs['spatial_dims'])}
             boundary_output = torch.zeros((2,)*self.ndims)
+            for bc_name in bcs.keys():
+                bc = bcs[bc_name]
+                bc_type = bc.attrs['bc_type']
+                if len(bc.attrs['associated_dims']) > 1:
+                    raise NotImplementedError('Only axis-aligned boundaries supported for now')
+                dim = bc.attrs['associated_dims'][0]
+                mask = bc['mask']
+                if mask[0]:
+                    boundary_output[dim_indices[dim]][0] = boundary_condition_codes[bc_type]
+                if mask[1]:
+                    boundary_output[dim_indices[dim]][1] = boundary_condition_codes[bc_type]
             self._check_cache('boundary_output', boundary_output)
-        for bc_name in bcs.keys():
-            bc = bcs[bc_name]
-            bc_type = bc.attrs['bc_type']
-            if len(bc.attrs['associated_dims']) > 1:
-                raise NotImplementedError('Only axis-aligned boundaries supported for now')
-            dim = bc.attrs['associated_dims'][0]
-            mask = bc['mask']
-            if mask[0]:
-                boundary_output[dim_indices[dim]][0] = boundary_condition_codes[bc_type]
-            if mask[1]:
-                boundary_output[dim_indices[dim]][1] = boundary_condition_codes[bc_type]
         return boundary_output
     
     def _reconstruct_bcs(self, file, sample_idx, time_idx, n_steps, dt):
@@ -404,17 +406,25 @@ class GenericWellDataset(Dataset):
         time_varying_scalars, constant_scalars = self._reconstruct_scalars(self.files[file_idx], sample_idx,
                                                                             time_idx, self.n_steps_input + self.n_steps_output,
                                                                               dt)
-        bcs = [] #self._reconstruct_bcs(self.files[file_idx], sample_idx, time_idx,  
-                   #                  self.n_steps_input + self.n_steps_output, dt)
-        # bcs = []
+
         sample =  {'input_fields': trajectory[:self.n_steps_input], # Tin x H x W x D x C tensor of input trajectory
                 'output_fields': trajectory[self.n_steps_input:], # Tpred x H x W x D x C tensor of output trajectory
                 'constant_fields': constant_fields, # H (x W x D) x (num constant) tensor. 
                 'input_time_varying_scalars': time_varying_scalars[:self.n_steps_input], # Tin x C tensor with time varying scalars
                 'output_time_varying_scalars': time_varying_scalars[self.n_steps_input:],
                 'constant_scalars': constant_scalars, # 1 x C tensor with constant values corresponding to parameters
-                'boundary_conditions': torch.tensor(bcs) # WIP - currently ()
                    }
+        
+        if self.use_normalization:
+            # Load normalization constants
+            for k in self.means.keys():
+                if k in sample:
+                    sample[k] = (sample[k] - self.means[k]) / (self.stds[k]+1e-4)
+        
+        # For complex BCs, might need to do this pre_normalization
+        bcs = self._reconstruct_bcs(self.files[file_idx], sample_idx, time_idx,  
+                                     self.n_steps_input + self.n_steps_output, dt)
+        sample['boundary_conditions'] = bcs # Currently only mask is an option
         if self.return_grid:
             space_grid, time_grid = self._reconstruct_grids(self.files[file_idx], sample_idx, time_idx,
                                                             self.n_steps_input + self.n_steps_output, dt)
