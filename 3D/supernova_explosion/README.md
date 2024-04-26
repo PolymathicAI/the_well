@@ -9,7 +9,9 @@ Blastwave in dense cool gas cloud
 
 **Domain scientist**: Keiya Hirashima (The University of Tokyo/CCA) [[WEBSITE](https://kyafuk.github.io/utokyo-hirashima/index.html)]
 
+
 **Code or software used to generate the data**:
+**Code or software used to generate the data**: ASURA-FDPS (Smoothed Particle Hydrodynamics) [[Github](https://github.com/FDPS/FDPS), TBA]
 
 **Equation**: $\begin{align}
 P&=(\gamma-1) \rho u \\
@@ -23,33 +25,52 @@ where $P$, $\rho$, and $u$ are the pressure. $r$ is the position, $a_{\rm visc}$
 
 # About the data
 
-Dimension of discretized data: $50\times 64\times 64\times 64$ (Cubes of $64\times 64\times 64$ with 50 timesteps).
+Dimension of discretized data: $59\times 64\times 64\times 64$ (Cubes of $64\times 64\times 64$ with 59 timesteps).
 
-Fields available in the data:
+
+
+Fields available in the data: ['pressure', 'Vx', 'Vy', 'Vz', 'density', 'temperature']
 
 Number of trajectories:
 
-Estimated size of the ensemble of all simulations:
+|           || 1M $_\odot$ | 0.1 M $\odot$ |
+|----------|-|:----------:|:----------:|
+| **$64^3$** || 500 | 260 |
+| **$128^3$** || - | 60 |
 
-Grid type
+
+Estimated size of the ensemble of all simulations:
+|           || 1M $_\odot$ | 0.1 M $\odot$ |
+|----------|-|:----------:|:----------:|
+| **$64^3$** || $173$ GB | $83$ GB |
+| **$128^3$** || - | $168$ GB |
+
+Grid type: Uniform grid
 
 Initial conditions:
+Initial conditions: $820$ random seeds generated using https://github.com/amusecode/amuse/blob/main/src/amuse/ext/molecular_cloud.py (Virialized isothermal gas sphere with turbulence following the velocity spectrum $E(k) \propto k^{-2}$, which is Burgers turbulence (Burgers 1948 and Kupilas+2021 for reference [ADD IT KEIYA]))
 
-Boundary conditions:
+Boundary conditions: Open boundary condition.
 
 Simulation time-step:
 
-Data are stored separated by ($\Delta t$):
+Data are stored separated by ($\Delta t$): $100$~$10,000$ years (variable timesteps)
 
-Total time range ($t_{min}$ to $t_{max}$):
+Total time range ($t_{min}$ to $t_{max}$):$0$ yr to $0.2$ Myr
 
-Spatial domain size ($L_x$, $L_y$, $L_z$):
+Spatial domain size ($L_x$, $L_y$, $L_z$): 60 pc
 
-Set of coefficients or non-dimensional parameters evaluated:
+Set of coefficients or non-dimensional parameters evaluated: Initial temperature $T_0$=\{100K\}, Initial number density of hydrogen $\rho_0=$\{44.5/cc\}, metallicity (effectively strength of cooling) $Z=\{Z_0\}$
 
-Approximate time to generate the data:
+Approximate time to generate the data (CPU hours):
+| 1M $_\odot$ | 0.1 M $\odot$ |
+|:----------:|:----------:|
+| $300$ | $3500$ |
 
-Hardware used to generate the data and precision used for generating the data:
+Hardware used to generate the data and precision used for generating the data: up to 1040 CPU cores per run.
+
+
+
 
 # What is interesting and challenging about the data:
 
