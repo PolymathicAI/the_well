@@ -79,7 +79,7 @@ datasets = {
 
 # Define the sample files for each dataset
 sample_files = {
-    "active_matter": "L_10.0_zeta_1.0_alpha_-1.0.hdf5.hdf5",  # select best
+    "active_matter": "L_10.0_zeta_1.0_alpha_-1.0.hdf5",  # select best
     "euler_quadrants": "gamma1.4_Dry_air_20.0_extrap.hdf5",  # select best
     "pattern_formation": "bubbles_F=0.098_k=0.057.h5",  # select best
     "turbulent_radiative_layer_2D": "tcool_0.03.hdf5",  # select best
