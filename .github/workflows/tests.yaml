@@ -1,4 +1,4 @@
-name: Static Tests
+name: Tests
 
 on: [pull_request]
 jobs:
