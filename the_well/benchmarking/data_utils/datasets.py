@@ -18,7 +18,7 @@ class BoundaryCondition(Enum):
 
 class GenericWellDataset(Dataset):
     """
-    Generic dataset for any Well data. Returns data in B x T x C x H ...(x W) (x D) format.
+    Generic dataset for any Well data. Returns data in B x T x H [x W [x D]] x C format.
 
     Note - doesn't currently normalize internally
 
@@ -92,7 +92,7 @@ class GenericWellDataset(Dataset):
             self.data_path = os.path.join(well_base_path, well_paths[well_dataset_name],
                                       well_split_name)
             self.normalization_path = os.path.abspath(os.path.join(self.data_path, '../stats/'))
-            
+        
         if use_normalization:
             self.means = torch.load(os.path.join(self.normalization_path, 'means.pkl'))
             self.stds = torch.load(os.path.join(self.normalization_path, 'stds.pkl'))
