@@ -73,7 +73,7 @@ class GenericWellDataset(Dataset):
     tensor_transformers : List[function], default=[]
         List of transforms to apply to tensor fields
     """
-    def __init__(self, path=None, normalization_path='stats/', 
+    def __init__(self, path=None, normalization_path='../stats/', 
                  well_base_path=None, well_dataset_name=None, well_split_name='train',
                  include_string=None, exclude_string=None, use_normalization=True, 
                  n_steps_input=1, n_steps_output=1, dt_stride=1, max_dt_stride=1,
@@ -84,13 +84,14 @@ class GenericWellDataset(Dataset):
         assert path is not None or (well_base_path is not None and well_dataset_name is not None), \
                  'Must specify path or well_base_path and well_dataset_name'
         if path is not None:
-            self.path = path
+            path = os.path.abspath(path)
+            self.data_path = path
             # Note - if the second path is absolute, this op just uses second
-            self.normalization_path = os.path.join(os.path.dirname(path), normalization_path)
+            self.normalization_path = os.path.abspath(os.path.join(self.data_path, normalization_path))
         else:
-            self.path = os.path.join(well_base_path, well_paths[well_dataset_name],
+            self.data_path = os.path.join(well_base_path, well_paths[well_dataset_name],
                                       well_split_name)
-            self.normalization_path = os.path.join(os.path.dirname(self.path), 'stats/')
+            self.normalization_path = os.path.abspath(os.path.join(self.data_path, '../stats/'))
             
         if use_normalization:
             self.means = torch.load(os.path.join(self.normalization_path, 'means.pkl'))
