@@ -1,11 +1,12 @@
-import os
-import imageio
 import glob
+import os
 import re
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 import shutil
+
+import imageio
+import matplotlib.animation as animation
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 def create_gif(time_series, saving_directory, name_file = 'density', delete_imgs=True):

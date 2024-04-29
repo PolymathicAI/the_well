@@ -1,11 +1,11 @@
-import torch
-import h5py as h5
 import glob
-import numpy as np
 import os
-from torch.utils.data import Dataset
 from enum import Enum
 
+import h5py as h5
+import numpy as np
+import torch
+from torch.utils.data import Dataset
 
 well_paths = {'active_matter': '2D/active_matter'}
 
@@ -19,8 +19,6 @@ class BoundaryCondition(Enum):
 class GenericWellDataset(Dataset):
     """
     Generic dataset for any Well data. Returns data in B x T x H [x W [x D]] x C format.
-
-    Note - doesn't currently normalize internally
 
     Train/Test/Valid is assumed to occur on a folder level.
 

@@ -1,5 +1,5 @@
-import os
 import argparse
+import os
 
 # Define the base URLs for your datasets
 datasets = {
