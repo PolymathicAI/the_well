@@ -4,16 +4,16 @@ import glob
 import numpy as np
 import os
 from torch.utils.data import Dataset
+from enum import Enum
 
 
 well_paths = {'active_matter': '/2D/active_matter'}
 
-boundary_condition_codes = {
-                            'wall': 0,
-                            'open': 1,
-                            'periodic': 2,
-                            }
-
+# Boundary condition codes
+class BoundaryCondition(Enum):
+    WALL = 0
+    OPEN = 1
+    PERIODIC = 2
 
 
 class GenericWellDataset(Dataset):
@@ -361,9 +361,9 @@ class GenericWellDataset(Dataset):
                 dim = bc.attrs['associated_dims'][0]
                 mask = bc['mask']
                 if mask[0]:
-                    boundary_output[dim_indices[dim]][0] = boundary_condition_codes[bc_type]
+                    boundary_output[dim_indices[dim]][0] = BoundaryCondition[bc_type]
                 if mask[1]:
-                    boundary_output[dim_indices[dim]][1] = boundary_condition_codes[bc_type]
+                    boundary_output[dim_indices[dim]][1] = BoundaryCondition[bc_type]
             self._check_cache('boundary_output', boundary_output)
         return boundary_output
     
@@ -418,6 +418,7 @@ class GenericWellDataset(Dataset):
         if self.use_normalization:
             # Load normalization constants
             for k in self.means.keys():
+                k = k.replace('output', 'input') # Use fields computed from input
                 if k in sample:
                     sample[k] = (sample[k] - self.means[k]) / (self.stds[k]+1e-4)
         
