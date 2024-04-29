@@ -141,7 +141,7 @@ class GenericWellDataset(Dataset):
         self.n_files = len(self.files_paths)
         self.file_steps = []
         self.file_samples = []
-        self.offsets = [0]
+        self.file_index_offsets = [0] # Used to track where each file starts
         self.field_names = []
         # Things where we just care every file has same value
         size_tuples = set()
@@ -169,7 +169,7 @@ class GenericWellDataset(Dataset):
                                                                                           self.n_steps_output)
                 self.file_steps.append(steps)
                 self.file_samples.append(samples)
-                self.offsets.append(self.offsets[-1] +  samples * (steps 
+                self.file_index_offsets.append(self.file_index_offsets[-1] +  samples * (steps 
                                     - self.dt_stride*(self.n_steps_input-1 + self.n_steps_output)))
                 
                 # Check BCs
@@ -197,9 +197,9 @@ class GenericWellDataset(Dataset):
                                 self.field_names.append(f'{field}_{dim1}{dim2}')
                     self.num_fields_by_tensor_order[2] = len(_f['t2_fields'].attrs['field_names'])
                                 
-        self.offsets[0] = -1 # Just to make sure it doesn't put us in file -1
+        self.file_index_offsets[0] = -1 # Just to make sure it doesn't put us in file -1
         self.files = [None for _ in self.files_paths] # We open file references as they come
-        self.len = self.offsets[-1] # Dataset length is last number of samples
+        self.len = self.file_index_offsets[-1] # Dataset length is last number of samples
         self.ndims = list(ndims)[0] # Number of spatial dims
         self.size_tuple = list(size_tuples)[0] # Size of spatial dims
         self.dataset_name = list(names)[0] # Name of dataset
@@ -373,9 +373,9 @@ class GenericWellDataset(Dataset):
             
     def __getitem__(self, index):
         # Find specific file and local index
-        file_idx = int(np.searchsorted(self.offsets, index, side='right')-1) #which file we are on
+        file_idx = int(np.searchsorted(self.file_index_offsets, index, side='right')-1) #which file we are on
         file_steps = self.file_steps[file_idx]
-        local_idx = index - max(self.offsets[file_idx], 0) # First offset is -1
+        local_idx = index - max(self.file_index_offsets[file_idx], 0) # First offset is -1
         sample_idx = local_idx // file_steps
         time_idx = local_idx % file_steps
 
