@@ -101,6 +101,8 @@ class GenericWellDataset(Dataset):
             raise NotImplementedError('Transforms not yet implemented')
         if boundary_return_type not in ['padding']:
             raise NotImplementedError('Only padding boundary conditions supported')
+        if not flatten_tensors:
+            raise NotImplementedError('Only flattened tensors supported right now')
     
         # Copy params
         self.use_normalization = use_normalization
