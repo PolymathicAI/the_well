@@ -20,5 +20,7 @@ jobs:
             ruff format --check
             isort . --check
         - name: Run tests
+          env: 
+            PY_COLORS: "1"
           run: |
             python -m pytest .
