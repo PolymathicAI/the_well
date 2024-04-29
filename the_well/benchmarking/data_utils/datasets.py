@@ -7,7 +7,7 @@ from torch.utils.data import Dataset
 from enum import Enum
 
 
-well_paths = {'active_matter': '/2D/active_matter'}
+well_paths = {'active_matter': '2D/active_matter'}
 
 # Boundary condition codes
 class BoundaryCondition(Enum):
@@ -134,20 +134,7 @@ class GenericWellDataset(Dataset):
         # Override name if necessary for logging
         if name_override is not None:
             self.dataset_name = name_override
-    
-    def get_per_file_dsets(self):
-        # TODO Not implemented for real yet.
-        if self.split_level == 'file' or len(self.files_paths) == 1 or 'pa' in self.type:
-            return [self]
-        else:
-            sub_dsets = []
-            for file in self.files_paths:
-                subd = self.__class__(self.path, file, n_steps=self.n_steps, dt=self.dt, split=self.split,
-                               train_val_test=self.train_val_test, subname=self.subname,
-                                 extra_specific=True)
-                sub_dsets.append(subd)
-            return sub_dsets
-    
+
     def _build_metadata(self):
         """ Builds multi-file indices and checks that folder contains consistent dataset
         """
