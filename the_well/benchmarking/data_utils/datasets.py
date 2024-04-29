@@ -66,8 +66,6 @@ class GenericWellDataset(Dataset):
         Whether to return grid coordinates
     boundary_return_type : str, default='padding', options=['padding', 'mask', 'exact']
         How to return boundary conditions. Currently only padding supported. 
-    return_periodic_dims : bool, default=False
-        Whether to return boolean vector of nDim indicating which dims are periodic
     name_override : str, default=None
         Override name of dataset (used for more precise logging)
     transforms : List[function], default=[]
@@ -80,7 +78,7 @@ class GenericWellDataset(Dataset):
                  include_string=None, exclude_string=None, use_normalization=True, 
                  n_steps_input=1, n_steps_output=1, dt_stride=1, max_dt_stride=1,
                 flatten_tensors=True, cache_constants=True, max_cache_size=1e9,
-                return_periodic_dims=True, return_grid=True, boundary_return_type='padding', 
+                return_grid=True, boundary_return_type='padding', 
                 name_override=None, transforms=[], tensor_transforms=[]):
         super().__init__()
         assert path is not None or (well_base_path is not None and well_dataset_name is not None), \
@@ -97,6 +95,13 @@ class GenericWellDataset(Dataset):
         if use_normalization:
             self.means = torch.load(os.path.join(self.normalization_path, 'means.pkl'))
             self.stds = torch.load(os.path.join(self.normalization_path, 'stds.pkl'))
+
+        # Input checks 
+        if len(transforms) > 0 or len(tensor_transforms) > 0:
+            raise NotImplementedError('Transforms not yet implemented')
+        if boundary_return_type not in ['padding']:
+            raise NotImplementedError('Only padding boundary conditions supported')
+    
         # Copy params
         self.use_normalization = use_normalization
         self.include_string = include_string
@@ -108,9 +113,6 @@ class GenericWellDataset(Dataset):
         self.flatten_tensors = flatten_tensors
         self.return_grid = return_grid
         self.boundary_return_type = boundary_return_type
-        assert self.boundary_return_type == 'padding', \
-            'Only padding supported for boundary conditions'
-        self.return_periodic_dims = return_periodic_dims
         self.cache_constants = cache_constants
         self.max_cache_size = max_cache_size
         self.transforms = transforms
@@ -361,9 +363,9 @@ class GenericWellDataset(Dataset):
                 dim = bc.attrs['associated_dims'][0]
                 mask = bc['mask']
                 if mask[0]:
-                    boundary_output[dim_indices[dim]][0] = BoundaryCondition[bc_type]
+                    boundary_output[dim_indices[dim]][0] = BoundaryCondition[bc_type].value
                 if mask[1]:
-                    boundary_output[dim_indices[dim]][1] = BoundaryCondition[bc_type]
+                    boundary_output[dim_indices[dim]][1] = BoundaryCondition[bc_type].value
             self._check_cache('boundary_output', boundary_output)
         return boundary_output
     
