@@ -144,7 +144,7 @@ class GenericWellDataset(Dataset):
         self.transforms = transforms
         self.tensor_transforms = tensor_transforms
         # Check the directory has hdf5 that meet our exclusion criteria
-        sub_files = glob.glob(self.path + "/*.h5") + glob.glob(self.path + "/*.hdf5")
+        sub_files = glob.glob(self.data_path + "/*.h5") + glob.glob(self.data_path + "/*.hdf5")
         # Check filters - only use file if include_filters are present and exclude_filters are not
         if len(self.include_filters) > 0:
             retain_files = []
@@ -154,7 +154,7 @@ class GenericWellDataset(Dataset):
         if len(self.exclude_filters) > 0:
             for exclude_string in self.exclude_filters:
                 sub_files = [f for f in sub_files if exclude_string not in f]
-        assert len(sub_files) > 0, "No HDF5 files found in path {}".format(self.path)
+        assert len(sub_files) > 0, "No HDF5 files found in path {}".format(self.data_path)
         self.files_paths = sub_files
         self.files_paths.sort()
         self.constant_cache = {}
