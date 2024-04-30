@@ -249,17 +249,17 @@ class GenericWellDataset(Dataset):
                     )
 
         # Just to make sure it doesn't put us in file -1
-        self.file_index_offsets[0] = -1  
+        self.file_index_offsets[0] = -1
         self.files = [
             None for _ in self.files_paths
         ]  # We open file references as they come
         # Dataset length is last number of samples
-        self.len = self.file_index_offsets[-1]  
+        self.len = self.file_index_offsets[-1]
         self.ndims = list(ndims)[0]  # Number of spatial dims
         self.size_tuple = list(size_tuples)[0]  # Size of spatial dims
         self.dataset_name = list(names)[0]  # Name of dataset
         # Total number of fields (flattening tensor-valued fields)
-        self.num_total_fields = len(self.field_names)  
+        self.num_total_fields = len(self.field_names)
         self.num_bcs = len(bcs)  # Number of boundary condition type included in data
         self.bc_types = list(bcs)  # List of boundary condition types
 
