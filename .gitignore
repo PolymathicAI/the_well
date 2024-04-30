@@ -9,6 +9,7 @@ Thumbs.db
 
 #Ignoring the data
 2D/active_matter/data/
+2D/active_matter/data_revised/
 2D/euler_quadrants/data/
 2D/pattern_formation/data/
 2D/turbulent_radiative_layer/data/
@@ -16,10 +17,15 @@ Thumbs.db
 2D/viscoelastic_instability/data/
 2D/helmholtz_staircase/data_old/
 2D/turbulent_radiative_layer/data_old/
+2D/rayleigh_benard/data/
+2D/shear_flow/data/
 3D/supernova_explosion/data/
 3D/turbulence_gravity_cooling/data/
 3D/turbulent_radiative_layer/data/
 3D/stefan_data/data/
+3D/convective_envelope_rsg/data/
+3D/MHD/data/
+3D/convective_envelope_rsg/sim.mp4
 testing_before_adding/
 
 # Ignore logs and temporary files
