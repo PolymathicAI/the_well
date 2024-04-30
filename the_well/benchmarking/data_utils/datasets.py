@@ -39,10 +39,10 @@ class GenericWellDataset(Dataset):
         Name of well dataset to load - overrides path if specified
     well_split_name :
         Name of split to load - options are 'train', 'valid', 'test'
-    include_string :
-        Only include files with this string in name
-    exclude_string :
-        Exclude files with this string in name
+    include_filters :
+        Only include files whose name contains at least one of these strings
+    exclude_filters :
+        Exclude any files whose name contains at least one of these strings
     use_normalization:
         Whether to normalize data in the dataset
     include_normalization_in_sample: bool, default=False
@@ -81,8 +81,8 @@ class GenericWellDataset(Dataset):
         well_base_path: Optional[str] = None,
         well_dataset_name: Optional[str] = None,
         well_split_name: str = "train",
-        include_string: Optional[str] = None,
-        exclude_string: Optional[str] = None,
+        include_filters: List[str] = [],
+        exclude_filters: List[str] = [],
         use_normalization: bool = True,
         n_steps_input: int = 1,
         n_steps_output: int = 1,
@@ -130,8 +130,8 @@ class GenericWellDataset(Dataset):
 
         # Copy params
         self.use_normalization = use_normalization
-        self.include_string = include_string
-        self.exclude_string = exclude_string
+        self.include_filters = include_filters
+        self.exclude_filters = exclude_filters
         self.n_steps_input = n_steps_input
         self.n_steps_output = n_steps_output
         self.dt_stride = dt_stride
@@ -145,10 +145,15 @@ class GenericWellDataset(Dataset):
         self.tensor_transforms = tensor_transforms
         # Check the directory has hdf5 that meet our exclusion criteria
         sub_files = glob.glob(self.path + "/*.h5") + glob.glob(self.path + "/*.hdf5")
-        if include_string is not None and len(include_string) > 0:
-            sub_files = [f for f in sub_files if include_string in f]
-        if exclude_string is not None and len(exclude_string) > 0:
-            sub_files = [f for f in sub_files if exclude_string not in f]
+        # Check filters - only use file if include_filters are present and exclude_filters are not
+        if len(self.include_filters) > 0:
+            retain_files = []
+            for include_string in self.include_filters:
+                retain_files += [f for f in sub_files if include_string in f]
+            sub_files = retain_files
+        if len(self.exclude_filters) > 0:
+            for exclude_string in self.exclude_filters:
+                sub_files = [f for f in sub_files if exclude_string not in f]
         assert len(sub_files) > 0, "No HDF5 files found in path {}".format(self.path)
         self.files_paths = sub_files
         self.files_paths.sort()
@@ -243,21 +248,18 @@ class GenericWellDataset(Dataset):
                         _f["t2_fields"].attrs["field_names"]
                     )
 
-        self.file_index_offsets[
-            0
-        ] = -1  # Just to make sure it doesn't put us in file -1
+        # Just to make sure it doesn't put us in file -1
+        self.file_index_offsets[0] = -1  
         self.files = [
             None for _ in self.files_paths
         ]  # We open file references as they come
-        self.len = self.file_index_offsets[
-            -1
-        ]  # Dataset length is last number of samples
+        # Dataset length is last number of samples
+        self.len = self.file_index_offsets[-1]  
         self.ndims = list(ndims)[0]  # Number of spatial dims
         self.size_tuple = list(size_tuples)[0]  # Size of spatial dims
         self.dataset_name = list(names)[0]  # Name of dataset
-        self.num_total_fields = len(
-            self.field_names
-        )  # Total number of fields (flattening tensor-valued fields)
+        # Total number of fields (flattening tensor-valued fields)
+        self.num_total_fields = len(self.field_names)  
         self.num_bcs = len(bcs)  # Number of boundary condition type included in data
         self.bc_types = list(bcs)  # List of boundary condition types
 
