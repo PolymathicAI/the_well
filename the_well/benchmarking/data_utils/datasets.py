@@ -351,7 +351,7 @@ class GenericWellDataset(Dataset):
 
     def _reconstruct_scalars(self, file, sample_idx, time_idx, n_steps, dt):
         """Reconstruct scalar values (not fields) starting at index sample_idx, time_idx, with
-        n_steps and dt stride."""
+        n_steps and dt stride. """
         constant_scalars = []
         time_varying_scalars = []
         for scalar_name in file["scalars"].attrs["field_names"]:
