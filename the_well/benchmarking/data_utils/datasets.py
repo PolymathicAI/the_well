@@ -1,6 +1,7 @@
 import glob
 import os
 from enum import Enum
+from typing import Any, Callable, List, Optional
 
 import h5py as h5
 import numpy as np
@@ -27,74 +28,74 @@ class GenericWellDataset(Dataset):
 
     Parameters
     ----------
-    path : str, default=None
+    path :
         Path to directory of HDF5 files, one of path or well_base_path+well_dataset_name
           must be specified
-    normalization_path: str, default='.../stats/'
+    normalization_path:
         Path to normalization constants - assumed to be in same format as constructed data.
-    well_base_path : str, default=None
+    well_base_path :
         Path to well dataset directory, only used with dataset_name
-    well_dataset_name : str, default=None
+    well_dataset_name :
         Name of well dataset to load - overrides path if specified
-    well_split_name : str, default='train'
+    well_split_name :
         Name of split to load - options are 'train', 'valid', 'test'
-    include_string : str, default=None
+    include_string :
         Only include files with this string in name
-    exclude_string : str, default=None
+    exclude_string :
         Exclude files with this string in name
-    use_normalization: bool, default=True
+    use_normalization:
         Whether to normalize data in the dataset
     include_normalization_in_sample: bool, default=False
         Whether to include normalization constants in the sample
-    n_steps_input : int, default=1
+    n_steps_input :
         Number of steps to include in each sample
-    n_steps_output : int, default=1
+    n_steps_output :
         Number of steps to include in y
-    dt_stride : int, default=1
+    dt_stride :
         Minimum stride between samples
-    max_dt_stride : int, default=1
+    max_dt_stride :
         Maximum stride between samples
-    flatten_tensors : bool, default=True
+    flatten_tensors :
         Whether to flatten tensor valued field into channels
-    cache_constants : bool, default=True
+    cache_constants :
         Whether to cache all values that do not vary in time or sample
           in memory for faster access
-    max_cache_size : int, default=1e9
+    max_cache_size :
         Maximum numel of constant tensor to cache
-    return_grid : bool, default=False
+    return_grid :
         Whether to return grid coordinates
-    boundary_return_type : str, default='padding', options=['padding', 'mask', 'exact']
+    boundary_return_type : options=['padding', 'mask', 'exact']
         How to return boundary conditions. Currently only padding supported.
-    name_override : str, default=None
+    name_override :
         Override name of dataset (used for more precise logging)
-    transforms : List[function], default=[]
+    transforms :
         List of transforms to apply to data
-    tensor_transformers : List[function], default=[]
+    tensor_transformers :
         List of transforms to apply to tensor fields
     """
 
     def __init__(
         self,
-        path=None,
-        normalization_path="../stats/",
-        well_base_path=None,
-        well_dataset_name=None,
-        well_split_name="train",
-        include_string=None,
-        exclude_string=None,
-        use_normalization=True,
-        n_steps_input=1,
-        n_steps_output=1,
-        dt_stride=1,
-        max_dt_stride=1,
-        flatten_tensors=True,
-        cache_constants=True,
-        max_cache_size=1e9,
-        return_grid=True,
-        boundary_return_type="padding",
-        name_override=None,
-        transforms=[],
-        tensor_transforms=[],
+        path: Optional[str] = None,
+        normalization_path: str = "../stats/",
+        well_base_path: Optional[str] = None,
+        well_dataset_name: Optional[str] = None,
+        well_split_name: str = "train",
+        include_string: Optional[str] = None,
+        exclude_string: Optional[str] = None,
+        use_normalization: bool = True,
+        n_steps_input: int = 1,
+        n_steps_output: int = 1,
+        dt_stride: int = 1,
+        max_dt_stride: int = 1,
+        flatten_tensors: bool = True,
+        cache_constants: bool = True,
+        max_cache_size: float = 1e9,
+        return_grid: bool = True,
+        boundary_return_type: str = "padding",
+        name_override: Optional[str] = None,
+        transforms: List[Callable] = [],
+        tensor_transforms: List[Callable] = [],
     ):
         super().__init__()
         assert path is not None or (
@@ -260,16 +261,22 @@ class GenericWellDataset(Dataset):
         self.num_bcs = len(bcs)  # Number of boundary condition type included in data
         self.bc_types = list(bcs)  # List of boundary condition types
 
-    def _open_file(self, file_ind):
+    def _open_file(self, file_ind: int):
         _file = h5.File(self.files_paths[file_ind], "r")
         self.files[file_ind] = _file
 
-    def _check_cache(self, field_name, field_data):
+    def _check_cache(self, field_name: str, field_data: Any):
         if self.cache_constants:
             if field_data.numel() < self.max_cache_size:
                 self.constant_cache[field_name] = field_data
 
-    def _pad_axes(self, field_data, use_dims, time_varying=False, tensor_order=0):
+    def _pad_axes(
+        self,
+        field_data: Any,
+        use_dims,
+        time_varying: bool = False,
+        tensor_order: int = 0,
+    ):
         """Repeats data over axes not used in storage"""
         # Look at which dimensions currently are not used and tile based on their sizes
         expand_dims = (1,) if time_varying else ()
