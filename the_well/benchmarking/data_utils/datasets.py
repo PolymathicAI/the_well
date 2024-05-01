@@ -111,7 +111,7 @@ class GenericWellDataset(Dataset):
         else:
             well_base_path = os.path.abspath(well_base_path)
             self.data_path = os.path.join(
-                well_base_path, well_paths[well_dataset_name], 'data', well_split_name
+                well_base_path, well_paths[well_dataset_name], "data", well_split_name
             )
             self.normalization_path = os.path.abspath(
                 os.path.join(well_base_path, well_paths[well_dataset_name], "stats/")
@@ -444,7 +444,7 @@ class GenericWellDataset(Dataset):
             boundary_output = torch.zeros((2,) * self.ndims)
             for bc_name in bcs.keys():
                 bc = bcs[bc_name]
-                bc_type = bc.attrs["bc_type"].upper() # Enum is in upper case
+                bc_type = bc.attrs["bc_type"].upper()  # Enum is in upper case
                 if len(bc.attrs["associated_dims"]) > 1:
                     raise NotImplementedError(
                         "Only axis-aligned boundaries supported for now"
