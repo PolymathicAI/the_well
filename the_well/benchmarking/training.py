@@ -47,11 +47,14 @@ loss_fn = MSELoss()
 max_epochs = 500
 model.train()
 for epoch in range(max_epochs):
+    epoch_loss = 0.0
     for batch in train_dataloader:
         x = batch.to(device)
         y = model(x)
         loss = loss_fn(x, y)
+        epoch_loss += loss.item() * batch_size / len(train_dataset)
         loss.backward()
         optimizer.step()
         optimizer.zero_grad()
     scheduler.step()
+    logger.info(f"Epoch {epoch+1}/{max_epochs}: training loss {epoch_loss}")
