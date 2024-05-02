@@ -7,3 +7,6 @@ name = "the_well"
 requires-python = ">=3.8"
 version = "0.0.1"
 readme = "README.md"
+
+[project.scripts]
+the-well-download = "the_well.utils.download_script:main"
