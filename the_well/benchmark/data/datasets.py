@@ -295,7 +295,7 @@ class GenericWellDataset(Dataset):
         )
         expand_dims = expand_dims + (1,) * tensor_order
         return np.tile(field_data, expand_dims)
-    
+
     def _postprocess_field_list(self, field_list, output_list, order):
         """Postprocesses field list to apply tensor transforms"""
         if len(field_list) > 0:
@@ -345,10 +345,14 @@ class GenericWellDataset(Dataset):
                     variable_subfields.append(field_data)
                 else:
                     constant_subfields.append(field_data)
-                
+
             # Stack fields such that the last i dims are the tensor dims
-            variable_fields = self._postprocess_field_list(variable_subfields, variable_fields, i)
-            constant_fields = self._postprocess_field_list(constant_subfields, constant_fields, i)
+            variable_fields = self._postprocess_field_list(
+                variable_subfields, variable_fields, i
+            )
+            constant_fields = self._postprocess_field_list(
+                constant_subfields, constant_fields, i
+            )
 
         return tuple(
             [
