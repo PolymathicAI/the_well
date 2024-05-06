@@ -1,5 +1,17 @@
 # Welcome to the Well. 
-## WIP
+## Installation
+
+You can install the code with the following command, which will directly download the code. The package is not yet available on PyPi.
+
+```bash
+pip install git+https://https://github.com/PolymathicAI/the_well.git
+```
+
+Once installed, you can use the `the-well-download` utility to download dataset.
+For instance, run the following to download only samples of the `active_matter` dataset.
+```bash
+the-well-download --dataset active_matter --sample-only
+```
 
 ## How To Contribute
 

@@ -2,7 +2,7 @@ import glob
 import os
 from unittest import TestCase
 
-from download_script import download_files
+from the_well.utils.download_script import download_files
 
 
 class TestDownload(TestCase):
