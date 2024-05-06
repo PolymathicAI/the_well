@@ -303,6 +303,8 @@ class GenericWellDataset(Dataset):
         constant_fields = []
         # Iterate through field types and apply appropriate transforms to stack them
         for i, order_fields in enumerate(["t0_fields", "t1_fields", "t2_fields"]):
+            if len(file[order_fields].attrs["field_names"]) == 0:
+                continue
             sub_fields = []
             for field_name in file[order_fields].attrs["field_names"]:
                 field = file[order_fields][field_name]
