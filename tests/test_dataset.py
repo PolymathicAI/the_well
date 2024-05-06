@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from the_well.benchmarking.data_utils.datasets import GenericWellDataset
+from the_well.benchmark.data.datasets import GenericWellDataset
 
 
 class TestDataset(TestCase):
