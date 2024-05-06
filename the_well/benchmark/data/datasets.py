@@ -296,6 +296,17 @@ class GenericWellDataset(Dataset):
         expand_dims = expand_dims + (1,) * tensor_order
         return np.tile(field_data, expand_dims)
 
+    def _postprocess_field_list(self, field_list, output_list, order):
+        """Postprocesses field list to apply tensor transforms"""
+        if len(field_list) > 0:
+            field_list = torch.stack(field_list, -(order + 1))
+            for tensor_transform in self.tensor_transforms:
+                field_list = tensor_transform(field_list, order=order)
+            if self.flatten_tensors:
+                field_list = field_list.flatten(-(order + 1))
+            output_list.append(field_list)
+        return output_list
+
     def _reconstruct_fields(self, file, sample_idx, time_idx, n_steps, dt):
         """Reconstruct space fields starting at index sample_idx, time_idx, with
         n_steps and dt stride. Apply transformations if provided."""
@@ -303,7 +314,8 @@ class GenericWellDataset(Dataset):
         constant_fields = []
         # Iterate through field types and apply appropriate transforms to stack them
         for i, order_fields in enumerate(["t0_fields", "t1_fields", "t2_fields"]):
-            sub_fields = []
+            variable_subfields = []
+            constant_subfields = []
             for field_name in file[order_fields].attrs["field_names"]:
                 field = file[order_fields][field_name]
                 use_dims = field.attrs["dim_varying"]
@@ -329,18 +341,18 @@ class GenericWellDataset(Dataset):
                         self._check_cache(
                             field_name, field_data
                         )  # If constant and processed, cache
-                sub_fields.append(field_data)
+                if field.attrs["time_varying"]:
+                    variable_subfields.append(field_data)
+                else:
+                    constant_subfields.append(field_data)
+
             # Stack fields such that the last i dims are the tensor dims
-            sub_fields = torch.stack(sub_fields, -(i + 1))
-            for tensor_transform in self.tensor_transforms:
-                sub_fields = tensor_transform(sub_fields, order=i)
-            # If we're flattening tensors, we can then flatten last i dims
-            if self.flatten_tensors:
-                sub_fields = sub_fields.flatten(-(i + 1))
-            if field.attrs["time_varying"]:
-                variable_fields.append(sub_fields)
-            else:
-                constant_fields.append(sub_fields)
+            variable_fields = self._postprocess_field_list(
+                variable_subfields, variable_fields, i
+            )
+            constant_fields = self._postprocess_field_list(
+                constant_subfields, constant_fields, i
+            )
 
         return tuple(
             [
