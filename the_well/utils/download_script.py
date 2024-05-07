@@ -120,7 +120,7 @@ def download_files(dataset_name=None, sample_only=False):
             print(f"Downloaded all files for {name}")
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(
         description="Download files from specified datasets."
     )
@@ -134,10 +134,13 @@ if __name__ == "__main__":
         action="store_true",
         help="Download only the sample file if specified.",
     )
+    # TODO: Add option to overwrite saving directory
 
     args = parser.parse_args()
 
     # Call download_files based on the parsed arguments
     download_files(dataset_name=args.dataset, sample_only=args.sample_only)
 
-    # ajouter option pour overwrite le saving directory
+
+if __name__ == "__main__":
+    main()
