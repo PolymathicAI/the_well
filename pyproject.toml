@@ -11,7 +11,8 @@ readme = "README.md"
 [project.optional-dependencies]
 benchmark = [
     "torch>=2.1",
-    "h5py>=3.9.0"
+    "h5py>=3.9.0",
+    "pdearena @ git+https://github.com/microsoft/pdearena"
 ]
 
 [project.scripts]
