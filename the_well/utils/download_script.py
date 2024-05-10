@@ -2,6 +2,12 @@ import os
 import json
 import argparse
 import re
+import signal
+import sys
+
+def signal_handler(sig, frame):
+    print('You pressed Ctrl+C!')
+    sys.exit(0)
 
 def download_files(json_file, dataset_name=None):
     """
@@ -27,9 +33,9 @@ def download_files(json_file, dataset_name=None):
             target_directory_base = f'../../2D/{name}/data_test/'
         elif re.search(r'the_well/3D', file_urls[0]):
             target_directory_base = f'../../3D/{name}/data_test/'
-        if not os.path.exists(target_directory_base):
-            os.makedirs(target_directory_base, exist_ok=False)
-            print('creating directory')
+        # if not os.path.exists(target_directory_base):
+        #     os.makedirs(target_directory_base, exist_ok=False)
+        #     print('creating directory') # Done by --create_dirs
         for url in file_urls:
             if 'train' in url:
                 target_directory = target_directory_base + 'train/'
@@ -48,17 +54,19 @@ def download_files(json_file, dataset_name=None):
                     print('creating directory')
             filename = os.path.basename(url)
             print(f"Downloading {filename} to {target_directory}")
-            os.system(f"curl -o {os.path.join(target_directory, filename)} {url}")
+            os.system(f"curl --retry 5  --create-dirs -o {os.path.join(target_directory, filename)} {url}")
 
 def main():
+    signal.signal(signal.SIGINT, signal_handler)
     parser = argparse.ArgumentParser(description="Download files from specified datasets based on a JSON registry.")
     parser.add_argument("--json_file", type=str, default='data_registry.json', help="Path to the JSON file with file URLs.")
     parser.add_argument("--dataset", type=str, help="Name of the dataset to download. If omitted, all datasets will be downloaded.")
     
     args = parser.parse_args()
-
+    
     # Call download_files based on the parsed arguments
     download_files(args.json_file, args.dataset)
 
 if __name__ == "__main__":
     main()
+
