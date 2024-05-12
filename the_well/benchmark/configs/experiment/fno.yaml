@@ -1,0 +1,6 @@
+# @package _global_
+defaults:
+  - /data: active_matter
+  - /model: fno
+
+name: fno
