@@ -68,3 +68,6 @@ credentials.json
 *.min.js
 *.min.css
 __pycache__
+
+# Ignore hydra generated output
+outputs/
