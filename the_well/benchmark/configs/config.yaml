@@ -1,3 +1,5 @@
 defaults:
   - experiment: ???
   - server: ???
+  - optimizer: adam
+  - trainer: defaults
