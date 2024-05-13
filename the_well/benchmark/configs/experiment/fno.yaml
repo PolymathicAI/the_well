@@ -2,5 +2,11 @@
 defaults:
   - /data: active_matter
   - /model: fno
+  - /lr_scheduler: cosine_with_warmup
+
+trainer:
+  loss_fn:
+    _target_: torch.nn.MSELoss
+    reduction: sum
 
 name: fno
