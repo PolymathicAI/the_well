@@ -4,6 +4,7 @@ import torch
 from torch.utils.data import DataLoader
 
 from ..data.datamodule import AbstractDataModule
+from ..data.utils import preprocess_batch
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -21,12 +22,12 @@ class Trainer:
         lr_scheduler: Optional[torch.optim.lr_scheduler._LRScheduler] = None,
         device=torch.device("cuda"),
     ):
-        self.model = model
+        self.device = device
+        self.model = model.to(self.device)
         self.datamodule = datamodule
         self.optimizer = optimizer
         self.lr_scheduler = lr_scheduler
         self.loss_fn = loss_fn
-        self.device = device
         self.max_epoch = epochs
         self.val_frequency = val_frequency
 
@@ -35,8 +36,9 @@ class Trainer:
         self.model.eval()
         validation_loss = 0.0
         for batch in dataloader:
-            x, y_ref = batch
-            x = x.to(self.device)
+            x, y_ref = preprocess_batch(batch)
+            for key, val in x.items():
+                x[key] = val.to(self.device)
             y_ref = y_ref.to(self.device)
             y_pred = self.model(x)
             loss = self.loss_fn(y_ref, y_pred)
@@ -49,8 +51,9 @@ class Trainer:
         self.model.train()
         epoch_loss = 0.0
         for batch in dataloader:
-            x, y_ref = batch
-            x = x.to(self.device)
+            x, y_ref = preprocess_batch(batch)
+            for key, val in x.items():
+                x[key] = val.to(self.device)
             y_ref = y_ref.to(self.device)
             y_pred = self.model(x)
             loss = self.loss_fn(y_ref, y_pred)
