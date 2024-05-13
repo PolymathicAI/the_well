@@ -1,11 +1,27 @@
 import os.path as osp
 
+
+from abc import ABC, abstractmethod
 from torch.utils.data import DataLoader
 
 from .datasets import GenericWellDataset
 
 
-class WellDataModule:
+class AbstractDataModule(ABC):
+    @abstractmethod
+    def train_dataloader(self) -> DataLoader:
+        raise NotImplementedError
+
+    @abstractmethod
+    def val_dataloader(self) -> DataLoader:
+        raise NotImplementedError
+
+    @abstractmethod
+    def test_dataloader(self) -> DataLoader:
+        raise NotImplementedError
+
+
+class WellDataModule(AbstractDataModule):
     def __init__(self, path: str, batch_size: int):
         """Data module class to yield batches of samples.
 
