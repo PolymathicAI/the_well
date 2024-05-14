@@ -200,22 +200,17 @@ class GenericWellDataset(Dataset):
                     len(size_tuples) == 1
                 ), "Multiple resolutions found in specified path"
                 # Check that the requested steps make sense
-                assert (
-                    steps - self.dt_stride * (self.n_steps_input + self.n_steps_output)
-                    > 0
-                ), "Not enough steps in file {} for {} input and {} output steps".format(
-                    file, self.n_steps_input, self.n_steps_output
+                per_simulation_samples = (
+                    steps - self.n_steps_input - self.n_steps_output
+                ) // self.dt_stride + 1
+                assert per_simulation_samples > 0, (
+                    f"Not enough steps in file {file}"
+                    f"for {self.n_steps_input} input and {self.n_steps_output} output steps"
                 )
                 self.file_steps.append(steps)
-                self.file_samples.append(samples)
+                self.file_samples.append(per_simulation_samples)
                 self.file_index_offsets.append(
-                    self.file_index_offsets[-1]
-                    + samples
-                    * (
-                        steps
-                        - self.dt_stride
-                        * (self.n_steps_input - 1 + self.n_steps_output)
-                    )
+                    self.file_index_offsets[-1] + samples * per_simulation_samples
                 )
 
                 # Check BCs
@@ -492,12 +487,12 @@ class GenericWellDataset(Dataset):
         file_idx = int(
             np.searchsorted(self.file_index_offsets, index, side="right") - 1
         )  # which file we are on
-        file_steps = self.file_steps[file_idx]
+        file_simulation_samples = self.file_samples[file_idx]
         local_idx = index - max(
             self.file_index_offsets[file_idx], 0
         )  # First offset is -1
-        sample_idx = local_idx // file_steps
-        time_idx = local_idx % file_steps
+        sample_idx = local_idx // file_simulation_samples
+        time_idx = local_idx % file_simulation_samples
 
         # open hdf5 file (and cache the open object)
         if self.files[file_idx] is None:
@@ -507,7 +502,8 @@ class GenericWellDataset(Dataset):
         if self.max_dt_stride > self.dt_stride:
             sample_steps = self.n_steps_input + self.n_steps_output
             effective_max_dt = min(
-                int((file_steps - time_idx) // sample_steps), self.max_dt_stride
+                int((file_simulation_samples - time_idx) // sample_steps),
+                self.max_dt_stride,
             )
             if effective_max_dt > self.dt:
                 dt = np.random.randint(self.dt, effective_max_dt)
