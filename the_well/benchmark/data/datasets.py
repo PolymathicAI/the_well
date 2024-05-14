@@ -2,6 +2,7 @@ import glob
 import os
 from enum import Enum
 from typing import Any, Callable, List, Optional
+from dataclasses import dataclass
 
 import h5py as h5
 import numpy as np
@@ -16,6 +17,18 @@ class BoundaryCondition(Enum):
     WALL = 0
     OPEN = 1
     PERIODIC = 2
+
+
+@dataclass
+class GenericWellMetadata:
+    """ Dataclass to store metadata for each dataset. (in construction)
+    
+    Parameters
+    ----------
+    spatial_ndims : int
+        Number of spatial dimensions of the data.
+    """
+    spatial_ndims: int
 
 
 class GenericWellDataset(Dataset):
