@@ -22,6 +22,15 @@ class TestDataset(TestCase):
         )
         self.assertTrue(len(dataset))
 
+    def test_last_time_step(self):
+        dataset = GenericWellDataset(
+            well_base_path=".", well_dataset_name="active_matter"
+        )
+        n_time_steps = dataset.file_steps[0] - 1
+        data = dataset[n_time_steps]
+        data_keys = list(data.keys())
+        self.assertIn("output_fields", data_keys)
+
     def test_transform(self):
         dataset = GenericWellDataset(
             well_base_path=".",
