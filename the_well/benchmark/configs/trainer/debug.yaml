@@ -1,0 +1,5 @@
+defaults:
+  - defaults
+
+epochs: 1
+val_frequency: 1
