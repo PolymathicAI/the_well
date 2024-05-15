@@ -2,6 +2,8 @@ import glob
 import os
 from unittest import TestCase
 
+import pytest
+
 from the_well.utils.download_script import download_files
 
 JSON_DATASET_FILES = os.path.abspath(
@@ -9,6 +11,7 @@ JSON_DATASET_FILES = os.path.abspath(
 )
 
 
+@pytest.mark.order(1)
 class TestDownload(TestCase):
     def test_active_matter(self):
         ACTIVE_MATTTER_DIR = os.path.abspath("2D/active_matter")
