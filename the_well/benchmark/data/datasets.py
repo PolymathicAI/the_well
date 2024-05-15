@@ -215,8 +215,9 @@ class GenericWellDataset(Dataset):
     def _build_metadata(self):
         """Builds multi-file indices and checks that folder contains consistent dataset"""
         self.n_files = len(self.files_paths)
-        self.file_steps = []
-        self.file_samples = []
+        self.total_file_steps = []  # Number of time steps in each simulation for each file
+        self.available_file_steps = []  # Number of actual time steps in each simulation for each file
+        self.file_samples = []  # Number of simulation per file
         self.file_index_offsets = [0]  # Used to track where each file starts
         self.field_names = []
         # Things where we just care every file has same value
@@ -227,7 +228,7 @@ class GenericWellDataset(Dataset):
         for index, file in enumerate(self.files_paths):
             with h5.File(file, "r") as _f:
                 # Run sanity checks - all files should have same ndims, size_tuple, and names
-                samples = _f.attrs["n_trajectories"]
+                samples: int = _f.attrs["n_trajectories"]
                 steps = _f["dimensions"]["time"].shape[0]
                 size_tuple = [
                     _f["dimensions"][d].shape[0]
@@ -243,17 +244,18 @@ class GenericWellDataset(Dataset):
                     len(size_tuples) == 1
                 ), "Multiple resolutions found in specified path"
                 # Check that the requested steps make sense
-                per_simulation_samples = (
-                    steps - self.n_steps_input - self.n_steps_output
-                ) // self.dt_stride + 1
-                assert per_simulation_samples > 0, (
+                per_simulation_steps = raw_steps_to_possible_sample_t0s(
+                    steps, self.n_steps_input, self.n_steps_output, self.dt_stride
+                )
+                assert per_simulation_steps > 0, (
                     f"Not enough steps in file {file}"
                     f"for {self.n_steps_input} input and {self.n_steps_output} output steps"
                 )
-                self.file_steps.append(steps)
-                self.file_samples.append(per_simulation_samples)
+                self.file_samples.append(samples)
+                self.total_file_steps.append(steps)
+                self.available_file_steps.append(per_simulation_steps)
                 self.file_index_offsets.append(
-                    self.file_index_offsets[-1] + samples * per_simulation_samples
+                    self.file_index_offsets[-1] + samples * per_simulation_steps
                 )
 
                 # Check BCs
@@ -530,7 +532,7 @@ class GenericWellDataset(Dataset):
         file_idx = int(
             np.searchsorted(self.file_index_offsets, index, side="right") - 1
         )  # which file we are on
-        file_simulation_samples = self.file_samples[file_idx]
+        file_simulation_samples = self.available_file_steps[file_idx]
         local_idx = index - max(
             self.file_index_offsets[file_idx], 0
         )  # First offset is -1
@@ -543,10 +545,11 @@ class GenericWellDataset(Dataset):
 
         # If we gave a stride range, decide the largest size we can use given the sample location
         if self.max_dt_stride > self.dt_stride:
-            sample_steps = self.n_steps_input + self.n_steps_output
-            effective_max_dt = min(
-                int((file_simulation_samples - time_idx) // sample_steps),
-                self.max_dt_stride,
+            effective_max_dt = maximum_stride_for_initial_index(
+                time_idx,
+                self.total_file_steps[file_idx],
+                self.n_steps_input,
+                self.n_steps_output,
             )
             if effective_max_dt > self.dt:
                 dt = np.random.randint(self.dt, effective_max_dt)
