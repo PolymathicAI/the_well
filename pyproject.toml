@@ -17,3 +17,6 @@ benchmark = [
 
 [project.scripts]
 the-well-download = "the_well.utils.download_script:main"
+
+[tool.isort]
+profile = "black"
