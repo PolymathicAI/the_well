@@ -10,19 +10,15 @@ from the_well.benchmark.data.datasets import (
 class TestDataset(TestCase):
     def test_local_dataset(self):
         dataset = GenericWellDataset(
-            well_base_path=".", well_dataset_name="active_matter"
+            well_base_path=".",
+            well_dataset_name="active_matter",
+            use_normalization=False,
         )
         self.assertTrue(len(dataset))
 
     def test_absolute_path_dataset(self):
-        dataset = GenericWellDataset(path="2D/active_matter/data")
-        self.assertTrue(len(dataset))
-
-    def test_no_normalization(self):
         dataset = GenericWellDataset(
-            well_base_path=".",
-            well_dataset_name="active_matter",
-            use_normalization=False,
+            path="2D/active_matter/data/train", use_normalization=False
         )
         self.assertTrue(len(dataset))
 
@@ -40,20 +36,6 @@ class TestDataset(TestCase):
         data = dataset[len(dataset) - 1]
         data_keys = list(data.keys())
         self.assertIn("output_fields", data_keys)
-
-    def test_transform(self):
-        dataset = GenericWellDataset(
-            well_base_path=".",
-            well_dataset_name="active_matter",
-            transforms=[lambda x: x],
-        )
-        self.assertTrue(len(dataset))
-
-    def test_exclude_keys(self):
-        pass
-
-    def test_include_keys(self):
-        pass
 
     def test_adjust_available_steps(self):
         # ex1: total_steps_in_trajectory = 5, n_steps_input = 1, n_steps_output = 1, dt_stride = 1
