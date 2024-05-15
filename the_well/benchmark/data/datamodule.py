@@ -34,7 +34,7 @@ class WellDataModule(AbstractDataModule):
 
         """
         train_data_path = osp.join(path, "train")
-        val_data_path = osp.join(path, "validation")
+        val_data_path = osp.join(path, "valid")
         test_data_path = osp.join(path, "test")
         self.train_dataset = GenericWellDataset(path=train_data_path)
         self.val_dataset = GenericWellDataset(path=val_data_path)
