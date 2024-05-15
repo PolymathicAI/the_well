@@ -532,12 +532,12 @@ class GenericWellDataset(Dataset):
         file_idx = int(
             np.searchsorted(self.file_index_offsets, index, side="right") - 1
         )  # which file we are on
-        file_simulation_samples = self.available_file_steps[file_idx]
+        per_simulation_steps = self.available_file_steps[file_idx]
         local_idx = index - max(
             self.file_index_offsets[file_idx], 0
         )  # First offset is -1
-        sample_idx = local_idx // file_simulation_samples
-        time_idx = local_idx % file_simulation_samples
+        sample_idx = local_idx // per_simulation_steps
+        time_idx = local_idx % per_simulation_steps
 
         # open hdf5 file (and cache the open object)
         if self.files[file_idx] is None:
