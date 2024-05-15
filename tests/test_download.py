@@ -20,7 +20,10 @@ class TestDownload(TestCase):
         self.assertTrue(os.path.isdir(ACTIVE_MATTTER_DIR))
         self.assertFalse(os.path.isdir(ACTIVE_MATTTER_DATA_DIR))
         download_files(
-            json_file=JSON_DATASET_FILES, dataset_name="active_matter", sample_only=True
+            json_file=JSON_DATASET_FILES,
+            dataset_name="active_matter",
+            output_path=".",
+            sample_only=True,
         )
         self.assertTrue(os.path.isdir(ACTIVE_MATTTER_DATA_DIR))
         hdf5_files = glob.glob(f"{ACTIVE_MATTTER_DATA_DIR}/train/*.hdf5")

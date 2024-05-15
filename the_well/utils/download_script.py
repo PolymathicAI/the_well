@@ -3,6 +3,7 @@ import json
 import os
 import signal
 import sys
+from typing import Optional
 
 
 def signal_handler(sig, frame):
@@ -10,13 +11,21 @@ def signal_handler(sig, frame):
     sys.exit(0)
 
 
-def download_files(json_file, dataset_name=None, sample_only: bool = False):
+def download_files(
+    json_file,
+    dataset_name: Optional[str] = None,
+    output_path: Optional[str] = None,
+    sample_only: bool = False,
+):
     """
     Download files listed in a JSON file for a specified dataset or all datasets.
 
     :param json_file: Path to the JSON file containing file URLs.
     :param dataset_name: Name of the dataset to download. If None, downloads all datasets.
     """
+    # Set default output path
+    if not output_path:
+        output_path = os.path.join(os.path.dirname(__file__), "../../")
     # Load the JSON file with dataset information
     with open(json_file, "r") as file:
         datasets = json.load(file)
@@ -37,11 +46,11 @@ def download_files(json_file, dataset_name=None, sample_only: bool = False):
     for name, file_urls in datasets_to_download.items():
         if "2D" in file_urls[0]:
             target_directory_base = os.path.abspath(
-                os.path.join(os.path.dirname(__file__), f"../../2D/{name}/data")
+                os.path.join(output_path, f"2D/{name}/data")
             )
         elif "3D" in file_urls[0]:
             target_directory_base = os.path.abspath(
-                os.path.join(os.path.dirname(__file__), f"../../3D/{name}/data")
+                os.path.join(output_path, f"3D/{name}/data")
             )
         else:
             raise NameError(f"Expect 2D or 3D dimension in file {file_urls[0]}")
@@ -85,11 +94,14 @@ def main():
         type=str,
         help="Name of the dataset to download. If omitted, all datasets will be downloaded.",
     )
+    parser.add_argument(
+        "--output_dir", type=str, help="Path to where to store the datasets."
+    )
 
     args = parser.parse_args()
 
     # Call download_files based on the parsed arguments
-    download_files(args.json_file, args.dataset)
+    download_files(args.json_file, args.dataset, args.output_dir)
 
 
 if __name__ == "__main__":
