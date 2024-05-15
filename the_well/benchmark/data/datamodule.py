@@ -1,6 +1,3 @@
-import os.path as osp
-
-
 from abc import ABC, abstractmethod
 from torch.utils.data import DataLoader
 
@@ -22,7 +19,7 @@ class AbstractDataModule(ABC):
 
 
 class WellDataModule(AbstractDataModule):
-    def __init__(self, path: str, batch_size: int):
+    def __init__(self, well_base_path: str, well_dataset_name: str, batch_size: int):
         """Data module class to yield batches of samples.
 
         Parameters
@@ -33,12 +30,21 @@ class WellDataModule(AbstractDataModule):
             Size of the batches yielded by the dataloaders
 
         """
-        train_data_path = osp.join(path, "train")
-        val_data_path = osp.join(path, "valid")
-        test_data_path = osp.join(path, "test")
-        self.train_dataset = GenericWellDataset(path=train_data_path)
-        self.val_dataset = GenericWellDataset(path=val_data_path)
-        self.test_dataset = GenericWellDataset(path=test_data_path)
+        self.train_dataset = GenericWellDataset(
+            well_base_path=well_base_path,
+            well_dataset_name=well_dataset_name,
+            well_split_name="train",
+        )
+        self.val_dataset = GenericWellDataset(
+            well_base_path=well_base_path,
+            well_dataset_name=well_dataset_name,
+            well_split_name="valid",
+        )
+        self.test_dataset = GenericWellDataset(
+            well_base_path=well_base_path,
+            well_dataset_name=well_dataset_name,
+            well_split_name="test",
+        )
         self.batch_size = batch_size
 
     def train_dataloader(self) -> DataLoader:
