@@ -28,7 +28,9 @@ class TestDataset(TestCase):
 
     def test_last_time_step(self):
         dataset = GenericWellDataset(
-            well_base_path=".", well_dataset_name="active_matter"
+            well_base_path=".",
+            well_dataset_name="active_matter",
+            use_normalization=False,
         )
         n_time_steps = dataset.total_file_steps[0] - 1
         data = dataset[n_time_steps]
