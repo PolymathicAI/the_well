@@ -4,6 +4,10 @@ from unittest import TestCase
 
 from the_well.utils.download_script import download_files
 
+JSON_DATASET_FILES = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "../the_well/utils/data_registry.json")
+)
+
 
 class TestDownload(TestCase):
     def test_active_matter(self):
@@ -12,7 +16,9 @@ class TestDownload(TestCase):
 
         self.assertTrue(os.path.isdir(ACTIVE_MATTTER_DIR))
         self.assertFalse(os.path.isdir(ACTIVE_MATTTER_DATA_DIR))
-        download_files(dataset_name="active_matter", sample_only=True)
+        download_files(
+            json_file=JSON_DATASET_FILES, dataset_name="active_matter", sample_only=True
+        )
         self.assertTrue(os.path.isdir(ACTIVE_MATTTER_DATA_DIR))
-        hdf5_files = glob.glob(f"{ACTIVE_MATTTER_DATA_DIR}/*.hdf5")
+        hdf5_files = glob.glob(f"{ACTIVE_MATTTER_DATA_DIR}/train/*.hdf5")
         self.assertTrue(len(hdf5_files))
