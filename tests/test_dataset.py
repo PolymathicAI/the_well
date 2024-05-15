@@ -30,8 +30,12 @@ class TestDataset(TestCase):
         dataset = GenericWellDataset(
             well_base_path=".", well_dataset_name="active_matter"
         )
-        n_time_steps = dataset.file_steps[0] - 1
+        n_time_steps = dataset.total_file_steps[0] - 1
         data = dataset[n_time_steps]
+        data_keys = list(data.keys())
+        self.assertIn("output_fields", data_keys)
+
+        data = dataset[len(dataset) - 1]
         data_keys = list(data.keys())
         self.assertIn("output_fields", data_keys)
 

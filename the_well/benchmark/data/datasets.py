@@ -21,9 +21,9 @@ def raw_steps_to_possible_sample_t0s(
       trajectory such that all samples have at least n_steps_input + n_steps_output steps with steps separated
       by dt_stride.
 
-      ex1: total_steps_in_trajectory = 5, n_steps_input = 1, n_steps_output = 1, dt_stride = 1
+    ex1: total_steps_in_trajectory = 5, n_steps_input = 1, n_steps_output = 1, dt_stride = 1
         Possible samples are: [0, 1], [1, 2], [2, 3], [3, 4]
-      ex2: total_steps_in_trajectory = 5, n_steps_input = 1, n_steps_output = 1, dt_stride = 2
+    ex2: total_steps_in_trajectory = 5, n_steps_input = 1, n_steps_output = 1, dt_stride = 2
         Possible samples are: [0, 2], [1, 3], [2, 4]
     ex3: total_steps_in_trajectory = 5, n_steps_input = 1, n_steps_output = 1, dt_stride = 3
         Possible samples are: [0, 3], [1, 4]
