@@ -1,0 +1,5 @@
+_target_: pdearena.lr_scheduler.LinearWarmupCosineAnnealingLR
+warmup_epochs: 5
+max_epochs: 30
+warmup_start_lr: 1e-8
+eta_min: 1e-8
