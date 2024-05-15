@@ -1,8 +1,10 @@
 from unittest import TestCase
 
-from the_well.benchmark.data.datasets import (GenericWellDataset,
-                                              maximum_stride_for_initial_index,
-                                              raw_steps_to_possible_sample_t0s)
+from the_well.benchmark.data.datasets import (
+    GenericWellDataset,
+    maximum_stride_for_initial_index,
+    raw_steps_to_possible_sample_t0s,
+)
 
 
 class TestDataset(TestCase):
@@ -66,7 +68,7 @@ class TestDataset(TestCase):
         # ex6: total_steps_in_trajectory = 5, n_steps_input = 2, n_steps_output = 10, dt_stride = 2
         #  No possible samples, return 0
         self.assertEqual(raw_steps_to_possible_sample_t0s(5, 2, 10, 2), 0)
-    
+
     def test_maximum_stride_for_initial_index(self):
         # ex1: time_idx=0, total_steps_in_trajectory = 5, n_steps_input = 1, n_steps_output = 1
         #   Maximum stride is 4 - [0, 4]
@@ -83,5 +85,3 @@ class TestDataset(TestCase):
         # ex5: time_idx=5, total_steps_in_trajectory = 5, n_steps_input = 2, n_steps_output = 2
         #   Maximum stride is 0
         self.assertEqual(maximum_stride_for_initial_index(5, 5, 1, 1), 0)
-
-    
