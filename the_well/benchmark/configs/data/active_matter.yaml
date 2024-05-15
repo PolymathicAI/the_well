@@ -1,0 +1,3 @@
+_target_: the_well.benchmark.data.WellDataModule
+batch_size: 32
+path: ???
