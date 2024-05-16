@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from the_well.the_well.benchmark.data.datasets import (
+from the_well.benchmark.data.datasets import (
     GenericWellDataset,
     maximum_stride_for_initial_index,
     raw_steps_to_possible_sample_t0s,
