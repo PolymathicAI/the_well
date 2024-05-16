@@ -9,7 +9,7 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 
-well_paths = {"active_matter": "2D/active_matter"}
+well_paths = {"active_matter": "datasets/active_matter"}
 
 
 def raw_steps_to_possible_sample_t0s(

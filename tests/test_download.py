@@ -14,7 +14,7 @@ JSON_DATASET_FILES = os.path.abspath(
 @pytest.mark.order(1)
 class TestDownload(TestCase):
     def test_active_matter(self):
-        ACTIVE_MATTTER_DIR = os.path.abspath("2D/active_matter")
+        ACTIVE_MATTTER_DIR = os.path.abspath("datasets/active_matter")
         ACTIVE_MATTTER_DATA_DIR = os.path.join(ACTIVE_MATTTER_DIR, "data")
 
         self.assertTrue(os.path.isdir(ACTIVE_MATTTER_DIR))
