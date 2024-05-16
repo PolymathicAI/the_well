@@ -14,12 +14,12 @@ Thumbs.db
 2D/active_matter/data_old/
 2D/active_matter/stats/
 
-2D/euler_quadrants/data/
+datasets/euler_quadrants/data/
 2D/euler_quadrants/data_processed/
 2D/euler_quadrants/output_slurm/
 2D/euler_quadrants/Transform.sh
 2D/euler_quadrants/transformation.ipynb
-2D/euler_quadrants/stats
+datasets/euler_quadrants/stats
 
 
 datasets/pattern_formation/data/
