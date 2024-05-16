@@ -22,20 +22,6 @@ assert osp.isfile(CONFIG_PATH), f"Configuration {CONFIG_PATH} is not an existing
 logger.info(f"Run training script for {CONFIG_PATH}")
 
 
-@hydra.main(version_base=None, config_path=CONFIG_DIR, config_name=CONFIG_NAME)
-def main(cfg: DictConfig):
-    logger.info(f"Configuration:\n{OmegaConf.to_yaml(cfg)}")
-
-    distributed_detected, world_size, rank, local_rank = get_distrib_config()
-    is_distributed = cfg.trainer.pop("distributed", False) and distributed_detected
-    logger.info(f"Distributed training: {is_distributed}")
-    if is_distributed:
-        dist.init_process_group(
-            backend="nccl", init_method="env://", world_size=world_size, rank=rank
-        )
-    train(cfg, world_size, rank, local_rank)
-
-
 def train(cfg: DictConfig, world_size: int = 1, rank: int = 1, local_rank: int = 1):
     is_distributed = world_size > 1
 
@@ -86,6 +72,19 @@ def train(cfg: DictConfig, world_size: int = 1, rank: int = 1, local_rank: int =
         is_distributed=is_distributed,
     )
     trainer.train()
+
+
+@hydra.main(version_base=None, config_path=CONFIG_DIR, config_name=CONFIG_NAME)
+def main(cfg: DictConfig):
+    logger.info(f"Configuration:\n{OmegaConf.to_yaml(cfg)}")
+
+    is_distributed, world_size, rank, local_rank = get_distrib_config()
+    logger.info(f"Distributed training: {is_distributed}")
+    if is_distributed:
+        dist.init_process_group(
+            backend="nccl", init_method="env://", world_size=world_size, rank=rank
+        )
+    train(cfg, world_size, rank, local_rank)
 
 
 if __name__ == "__main__":
