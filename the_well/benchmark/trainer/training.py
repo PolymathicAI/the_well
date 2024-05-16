@@ -44,6 +44,9 @@ class Trainer:
                 x[key] = val.to(self.device)
             y_ref = y_ref.to(self.device)
             y_pred = self.model(x)
+            assert (
+                y_ref.shape == y_pred.shape
+            ), f"Mismatching shapes between reference {y_ref.shape} and prediction {y_pred.shape}"
             loss = self.loss_fn(y_ref, y_pred)
             validation_loss += loss * y_ref.size(0) / len(dataloader.dataset)
         if self.is_distributed:
@@ -61,6 +64,9 @@ class Trainer:
                 x[key] = val.to(self.device)
             y_ref = y_ref.to(self.device)
             y_pred = self.model(x)
+            assert (
+                y_ref.shape == y_pred.shape
+            ), f"Mismatching shapes between reference {y_ref.shape} and prediction {y_pred.shape}"
             loss = self.loss_fn(y_ref, y_pred)
             epoch_loss += loss.item() * y_ref.size(0) / len(dataloader.dataset)
             loss.backward()
