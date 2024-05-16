@@ -45,9 +45,10 @@ class Trainer:
             y_ref = y_ref.to(self.device)
             y_pred = self.model(x)
             loss = self.loss_fn(y_ref, y_pred)
-            validation_loss += loss * y_ref.size(0) / len(dataloader.dataset)
+            validation_loss += loss.item() * y_ref.size(0) / len(dataloader.dataset)
         if self.is_distributed:
-            dist.all_reduce(validation_loss, op=dist.ReduceOp.AVG)
+            dist.all_reduce(torch.tensor([validation_loss]), op=dist.ReduceOp.AVG)
+            validation_loss = validation_loss.item()
 
         return validation_loss
 
