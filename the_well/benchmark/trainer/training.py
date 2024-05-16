@@ -1,13 +1,14 @@
-from typing import Optional, Callable
 import logging
+from typing import Callable, Optional
+
 import torch
+import torch.distributed as dist
 from torch.utils.data import DataLoader
 
 from ..data.datamodule import AbstractDataModule
 from ..data.utils import preprocess_batch
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
 
 
 class Trainer:
@@ -21,6 +22,7 @@ class Trainer:
         val_frequency: int,
         lr_scheduler: Optional[torch.optim.lr_scheduler._LRScheduler] = None,
         device=torch.device("cuda"),
+        is_distributed: bool = False,
     ):
         self.device = device
         self.model = model.to(self.device)
@@ -30,6 +32,7 @@ class Trainer:
         self.loss_fn = loss_fn
         self.max_epoch = epochs
         self.val_frequency = val_frequency
+        self.is_distributed = is_distributed
 
     @torch.no_grad()
     def validation_loop(self, dataloader: DataLoader) -> float:
@@ -42,10 +45,11 @@ class Trainer:
             y_ref = y_ref.to(self.device)
             y_pred = self.model(x)
             loss = self.loss_fn(y_ref, y_pred)
-            validation_loss += (
-                loss.item() * dataloader.batch_size / len(dataloader.dataset)
-            )
-        return loss
+            validation_loss += loss.item() * y_ref.size(0) / len(dataloader.dataset)
+        if self.is_distributed:
+            dist.all_reduce(validation_loss, op=dist.ReduceOp.AVG)
+
+        return validation_loss
 
     def train_one_epoch(self, dataloader: DataLoader) -> float:
         self.model.train()
@@ -57,7 +61,7 @@ class Trainer:
             y_ref = y_ref.to(self.device)
             y_pred = self.model(x)
             loss = self.loss_fn(y_ref, y_pred)
-            epoch_loss += loss.item() * dataloader.batch_size / len(dataloader.dataset)
+            epoch_loss += loss.item() * y_ref.size(0) / len(dataloader.dataset)
             loss.backward()
             self.optimizer.step()
             self.optimizer.zero_grad()
@@ -76,6 +80,8 @@ class Trainer:
                 logger.info(
                     f"Epoch {epoch+1}/{self.max_epoch}: validation loss {val_loss}"
                 )
+            if self.is_distributed:
+                train_dataloader.sampler.set_epoch(epoch)
             train_loss = self.train_one_epoch(train_dataloader)
             logger.info(f"Epoch {epoch+1}/{self.max_epoch}: training loss {train_loss}")
         # Run validation on last epoch if not already run
