@@ -44,8 +44,9 @@ def download_files(
 
     # Create target directories and download files
     for name, file_urls in datasets_to_download.items():
-
-        target_directory_base = os.path.abspath(os.path.join(output_path, f"datasets/{name}/data"))
+        target_directory_base = os.path.abspath(
+            os.path.join(output_path, f"datasets/{name}/data")
+        )
 
         for url in file_urls:
             if "train" in url:
