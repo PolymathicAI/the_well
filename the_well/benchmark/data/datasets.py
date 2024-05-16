@@ -64,13 +64,14 @@ class BoundaryCondition(Enum):
 
 @dataclass
 class GenericWellMetadata:
-    """ Dataclass to store metadata for each dataset. (in construction)
-    
+    """Dataclass to store metadata for each dataset. (in construction)
+
     Parameters
     ----------
     spatial_ndims : int
         Number of spatial dimensions of the data.
     """
+
     spatial_ndims: int
 
 
