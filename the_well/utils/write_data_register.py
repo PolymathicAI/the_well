@@ -45,10 +45,18 @@ def write_to_json(data, output_file):
 if __name__ == "__main__":
     # List of directories you want to index
     directories_to_index = [
-        "/mnt/home/polymathic/ceph/the_well/2D/active_matter/data",
-        "/mnt/home/polymathic/ceph/the_well/2D/euler_quadrants/data",
-        "/mnt/home/polymathic/ceph/the_well/2D/pattern_formation/data",
-        "/mnt/home/polymathic/ceph/the_well/2D/turbulent_radiative_layer/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/active_matter/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/euler_quadrants/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/pattern_formation/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/helmholtz_staircase/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/MHD/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/shear_flow/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/turbulent_radiative_layer_2D/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/turbulent_radiative_layer_3D/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/supernova_explosion_64/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/supernova_explosion_128/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/viscoelastic_instability/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/turbulence_gravity_cooling/data",
     ]
     # Generate file lists
     directory_files = generate_file_lists(directories_to_index)

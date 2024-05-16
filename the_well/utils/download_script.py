@@ -44,16 +44,9 @@ def download_files(
 
     # Create target directories and download files
     for name, file_urls in datasets_to_download.items():
-        if "2D" in file_urls[0]:
-            target_directory_base = os.path.abspath(
-                os.path.join(output_path, f"2D/{name}/data")
-            )
-        elif "3D" in file_urls[0]:
-            target_directory_base = os.path.abspath(
-                os.path.join(output_path, f"3D/{name}/data")
-            )
-        else:
-            raise NameError(f"Expect 2D or 3D dimension in file {file_urls[0]}")
+        target_directory_base = os.path.abspath(
+            os.path.join(output_path, f"datasets/{name}/data")
+        )
 
         for url in file_urls:
             if "train" in url:

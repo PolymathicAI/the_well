@@ -1,5 +1,6 @@
 import glob
 import os
+from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Callable, List, Optional
 
@@ -8,7 +9,7 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 
-well_paths = {"active_matter": "2D/active_matter"}
+well_paths = {"active_matter": "datasets/active_matter"}
 
 
 def raw_steps_to_possible_sample_t0s(
@@ -59,6 +60,19 @@ class BoundaryCondition(Enum):
     WALL = 0
     OPEN = 1
     PERIODIC = 2
+
+
+@dataclass
+class GenericWellMetadata:
+    """Dataclass to store metadata for each dataset. (in construction)
+
+    Parameters
+    ----------
+    spatial_ndims : int
+        Number of spatial dimensions of the data.
+    """
+
+    spatial_ndims: int
 
 
 class GenericWellDataset(Dataset):
