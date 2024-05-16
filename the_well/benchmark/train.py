@@ -62,10 +62,14 @@ def train(cfg: DictConfig, world_size: int = 1, rank: int = 1, local_rank: int =
         cfg.optimizer, params=model.parameters()
     )
 
-    logger.info(f"Instantiate learning rate scheduler {cfg.lr_scheduler._target_}")
-    lr_scheduler: torch.optim.lr_scheduler._LRScheduler = instantiate(
-        cfg.lr_scheduler, optimizer=optimizer
-    )
+    if hasattr(cfg, "lr_scheduler"):
+        logger.info(f"Instantiate learning rate scheduler {cfg.lr_scheduler._target_}")
+        lr_scheduler: torch.optim.lr_scheduler._LRScheduler = instantiate(
+            cfg.lr_scheduler, optimizer=optimizer
+        )
+    else:
+        logger.info("No learning rate scheduler")
+        lr_scheduler = None
 
     logger.info(f"Instantiate trainer {cfg.trainer._target_}")
     trainer: Trainer = instantiate(
