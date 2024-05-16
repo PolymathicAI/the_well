@@ -47,10 +47,15 @@ def train(cfg: DictConfig, world_size: int = 1, rank: int = 1, local_rank: int =
         n_param_conditioning=n_param,
     )
     if is_distributed:
-        model = DDP(model, device_ids=[local_rank])
         torch.cuda.set_device(local_rank)
-
-    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+        device = torch.device("cuda")
+        model = model.to(device)
+        model = DDP(model, device_ids=[local_rank])
+    else:
+        device = (
+            torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+        )
+        model = model.to(device)
 
     logger.info(f"Instantiate optimizer {cfg.optimizer._target_}")
     optimizer: torch.optim.Optimizer = instantiate(

@@ -25,7 +25,7 @@ class Trainer:
         is_distributed: bool = False,
     ):
         self.device = device
-        self.model = model.to(self.device)
+        self.model = model
         self.datamodule = datamodule
         self.optimizer = optimizer
         self.lr_scheduler = lr_scheduler
