@@ -4,6 +4,7 @@ import os.path as osp
 import hydra
 import torch
 import torch.distributed as dist
+import wandb
 from hydra.utils import instantiate
 from omegaconf import DictConfig, OmegaConf
 from torch.nn.parallel import DistributedDataParallel as DDP
@@ -87,6 +88,7 @@ def train(cfg: DictConfig, world_size: int = 1, rank: int = 1, local_rank: int =
 @hydra.main(version_base=None, config_path=CONFIG_DIR, config_name=CONFIG_NAME)
 def main(cfg: DictConfig):
     logger.info(f"Configuration:\n{OmegaConf.to_yaml(cfg)}")
+    wandb.init(project="the_well", config=OmegaConf.to_container(cfg, resolve=True))
 
     is_distributed, world_size, rank, local_rank = get_distrib_config()
     logger.info(f"Distributed training: {is_distributed}")
@@ -96,6 +98,7 @@ def main(cfg: DictConfig):
             backend="nccl", init_method="env://", world_size=world_size, rank=rank
         )
     train(cfg, world_size, rank, local_rank)
+    wandb.finish()
 
 
 if __name__ == "__main__":
