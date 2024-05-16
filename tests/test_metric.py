@@ -1,8 +1,9 @@
 from unittest import TestCase
+
 import torch
 
 from the_well.benchmark.data.datasets import GenericWellMetadata
-from the_well.benchmark.metrics.spatial import mse, nmse, rmse, nrmse
+from the_well.benchmark.metrics.spatial import mse, nmse, nrmse, rmse
 
 
 class TestSpatialMetrics(TestCase):

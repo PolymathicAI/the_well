@@ -1,8 +1,8 @@
 import glob
 import os
+from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Callable, List, Optional
-from dataclasses import dataclass
 
 import h5py as h5
 import numpy as np
