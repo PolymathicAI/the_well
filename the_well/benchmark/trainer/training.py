@@ -3,6 +3,7 @@ from typing import Callable, Optional
 
 import torch
 import torch.distributed as dist
+import wandb
 from torch.utils.data import DataLoader
 
 from ..data.datamodule import AbstractDataModule
@@ -87,13 +88,17 @@ class Trainer:
                 logger.info(
                     f"Epoch {epoch+1}/{self.max_epoch}: validation loss {val_loss}"
                 )
+                wandb.log({"valid": val_loss, "epoch": epoch})
             if self.is_distributed:
                 train_dataloader.sampler.set_epoch(epoch)
             train_loss = self.train_one_epoch(train_dataloader)
             logger.info(f"Epoch {epoch+1}/{self.max_epoch}: training loss {train_loss}")
+            wandb.log({"train": train_loss, "epoch": epoch})
         # Run validation on last epoch if not already run
         if epoch % self.val_frequency != 0:
             val_loss = self.validation_loop(val_dataloder)
             logger.info(f"Epoch {epoch+1}/{self.max_epoch}: validation loss {val_loss}")
+            wandb.log({"valid": val_loss, "epoch": epoch})
         test_loss = self.validation_loop(test_dataloader)
         logger.info(f"Test loss {test_loss}")
+        wandb.log({"test": test_loss, "epoch": epoch})
