@@ -9,31 +9,18 @@ Thumbs.db
 .idea/
 
 #Ignoring the data
-2D/active_matter/data/
-2D/active_matter/data_revised/
-2D/active_matter/data_old/
-2D/active_matter/stats/
+datasets/active_matter/data/
 
 datasets/euler_quadrants/data/
-2D/euler_quadrants/data_processed/
-2D/euler_quadrants/output_slurm/
-2D/euler_quadrants/Transform.sh
-2D/euler_quadrants/transformation.ipynb
-datasets/euler_quadrants/stats
-
 
 datasets/pattern_formation/data/
 
-2D/pattern_formation/output_slurm/
-2D/pattern_formation/data_processed/
-
-2D/turbulent_radiative_layer/data/
-2D/turbulent_radiative_layer/stats/
 
 datasets/helmholtz_staircase/data/
 datasets/viscoelastic_instability/data/
 
-2D/neutron_star_disk
+2D/neutron_star_disks/
+2D/planetswe/data/
 
 2D/rayleigh_benard/data/
 datasets/shear_flow/data/
