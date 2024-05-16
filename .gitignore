@@ -31,7 +31,7 @@ Thumbs.db
 2D/turbulent_radiative_layer/data/
 2D/turbulent_radiative_layer/stats/
 
-2D/helmholtz_staircase/data/
+datasets/helmholtz_staircase/data/
 datasets/viscoelastic_instability/data/
 
 2D/neutron_star_disk
