@@ -25,6 +25,3 @@ the-well-download = "the_well.utils.download_script:main"
 
 [tool.isort]
 profile = "black"
-
-[tool.setuptools]
-packages = ["the_well"]
