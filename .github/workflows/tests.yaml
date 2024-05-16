@@ -23,6 +23,7 @@ jobs:
             isort . --check
         - name: Run tests
           env: 
+            PYTHONPATH: ${{ github.workspace }}
             PY_COLORS: "1"
           run: |
             pytest .
