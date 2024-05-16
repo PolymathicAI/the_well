@@ -22,8 +22,7 @@ Thumbs.db
 2D/euler_quadrants/stats
 
 
-2D/pattern_formation/data/
-2D/pattern_formation/stats/
+datasets/pattern_formation/data/
 
 2D/pattern_formation/output_slurm/
 2D/pattern_formation/data_processed/
