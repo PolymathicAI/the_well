@@ -64,7 +64,9 @@ def get_distrib_config() -> Tuple[bool, int, int, int]:
         rank = int(os.environ["SLURM_PROCID"])
         local_rank = int(os.environ["SLURM_LOCALID"])
         world_size = int(os.environ["SLURM_STEP_NUM_TASKS"])
-        logger.debug(f"Slurm configuration detected, world size: {world_size}")
+        logger.debug(
+            f"Slurm configuration detected, rank {rank}({local_rank})/{world_size}"
+        )
     return is_distributed, world_size, rank, local_rank
 
 

@@ -1,8 +1,11 @@
+import logging
 from abc import ABC, abstractmethod
 
 from torch.utils.data import DataLoader, DistributedSampler
 
 from .datasets import GenericWellDataset
+
+logger = logging.getLogger(__name__)
 
 
 class AbstractDataModule(ABC):
@@ -70,6 +73,10 @@ class WellDataModule(AbstractDataModule):
                 rank=self.rank,
                 shuffle=True,
             )
+            logger.debug(
+                f"Use {sampler.__class__.__name__}"
+                f"{self.rank}/{self.world_size}) for training data"
+            )
         shuffle = sampler is None
 
         return DataLoader(
@@ -88,6 +95,10 @@ class WellDataModule(AbstractDataModule):
                 num_replicas=self.world_size,
                 rank=self.rank,
                 shuffle=False,
+            )
+            logger.debug(
+                f"Use {sampler.__class__.__name__}"
+                f"{self.rank}/{self.world_size}) for validation data"
             )
 
         return DataLoader(
