@@ -2,6 +2,9 @@
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.packages.find]
+where = ["the_well"]
+
 [project]
 name = "the_well"
 requires-python = ">=3.8"
@@ -12,7 +15,9 @@ readme = "README.md"
 benchmark = [
     "torch>=2.1",
     "h5py>=3.9.0",
-    "pdearena @ git+https://github.com/microsoft/pdearena"
+    "pdearena",
+    "hydra-core",
+    "einops"
 ]
 
 [project.scripts]
