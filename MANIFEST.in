@@ -1,0 +1,4 @@
+include README.md
+include the_well
+
+prune datasets
