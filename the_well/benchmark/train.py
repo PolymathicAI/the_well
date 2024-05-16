@@ -23,9 +23,13 @@ assert osp.isfile(CONFIG_PATH), f"Configuration {CONFIG_PATH} is not an existing
 logger.info(f"Run training script for {CONFIG_PATH}")
 
 
-def train(cfg: DictConfig, world_size: int = 1, rank: int = 1, local_rank: int = 1):
-    is_distributed = world_size > 1
-
+def train(
+    cfg: DictConfig,
+    is_distributed: bool = False,
+    world_size: int = 1,
+    rank: int = 1,
+    local_rank: int = 1,
+):
     logger.info(f"Instantiate datamodule {cfg.data._target_}")
     datamodule: WellDataModule = instantiate(cfg.data, world_size=world_size, rank=rank)
     num_fields_by_tensor_order = datamodule.train_dataset.num_fields_by_tensor_order
@@ -91,13 +95,14 @@ def main(cfg: DictConfig):
     wandb.init(project="the_well", config=OmegaConf.to_container(cfg, resolve=True))
 
     is_distributed, world_size, rank, local_rank = get_distrib_config()
+    is_distributed = is_distributed and world_size > 1
     logger.info(f"Distributed training: {is_distributed}")
     if is_distributed:
         set_master_config()
         dist.init_process_group(
             backend="nccl", init_method="env://", world_size=world_size, rank=rank
         )
-    train(cfg, world_size, rank, local_rank)
+    train(cfg, is_distributed, world_size, rank, local_rank)
     wandb.finish()
 
 
