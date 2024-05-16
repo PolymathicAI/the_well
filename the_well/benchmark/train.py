@@ -26,7 +26,7 @@ def train(cfg: DictConfig, world_size: int = 1, rank: int = 1, local_rank: int =
     is_distributed = world_size > 1
 
     logger.info(f"Instantiate datamodule {cfg.data._target_}")
-    datamodule: WellDataModule = instantiate(cfg.data, world_size, rank)
+    datamodule: WellDataModule = instantiate(cfg.data, world_size=world_size, rank=rank)
     num_fields_by_tensor_order = datamodule.train_dataset.num_fields_by_tensor_order
     n_scalar_components = num_fields_by_tensor_order[0]
     n_vector_components = num_fields_by_tensor_order[1]
@@ -49,7 +49,8 @@ def train(cfg: DictConfig, world_size: int = 1, rank: int = 1, local_rank: int =
     if is_distributed:
         model = DDP(model, device_ids=[local_rank])
         torch.cuda.set_device(local_rank)
-        device = torch.device("cuda")
+
+    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
     logger.info(f"Instantiate optimizer {cfg.optimizer._target_}")
     optimizer: torch.optim.Optimizer = instantiate(
