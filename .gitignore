@@ -32,13 +32,14 @@ Thumbs.db
 2D/turbulent_radiative_layer/stats/
 
 2D/helmholtz_staircase/data/
-2D/viscoelastic_instability/data/
+datasets/viscoelastic_instability/data/
 
 2D/neutron_star_disk
 
 2D/rayleigh_benard/data/
 2D/shear_flow/data/
-3D/supernova_explosion/data/
+3D/supernova_explosion_128/data/
+3D/supernova_explosion_64/data/
 3D/turbulence_gravity_cooling/data/
 
 3D/turbulent_radiative_layer/data/
@@ -46,7 +47,7 @@ Thumbs.db
 
 3D/rayleigh_taylor_instability/data/
 3D/convective_envelope_rsg/data/
-3D/MHD/data/
+datasets/MHD/data/
 3D/convective_envelope_rsg/sim.mp4
 testing_before_adding/
 
