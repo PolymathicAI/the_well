@@ -12,8 +12,8 @@ from the_well.benchmark.data import WellDataModule
 from the_well.benchmark.trainer import Trainer
 from the_well.benchmark.trainer.utils import get_distrib_config, set_master_config
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger("the_well")
+logger.setLevel(level=logging.DEBUG)
 
 CONFIG_DIR = osp.join(osp.dirname(__file__), "configs")
 CONFIG_NAME = "config"
