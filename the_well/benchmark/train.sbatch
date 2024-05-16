@@ -13,4 +13,6 @@ export OMP_NUM_THREADS=${SLURM_CPUS_ON_NODE}
 
 module load python cuda cudnn
 source ~/well_venv/bin/activate
-srun python train.py experiment=fno server=rusty trainer=debug
+mkdir -p /tmp/the_well/2D/
+cp -r /mnt/home/polymathic/ceph/the_well/2D/active_matter /tmp/the_well/2D/
+srun python train.py experiment=debug data.well_base_path=/tmp/the_well/2D/ server=rusty
