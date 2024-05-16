@@ -10,10 +10,10 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 
 from the_well.benchmark.data import WellDataModule
 from the_well.benchmark.trainer import Trainer
-from the_well.benchmark.trainer.utils import get_distrib_config
+from the_well.benchmark.trainer.utils import get_distrib_config, set_master_config
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 CONFIG_DIR = osp.join(osp.dirname(__file__), "configs")
 CONFIG_NAME = "config"
@@ -81,6 +81,7 @@ def main(cfg: DictConfig):
     is_distributed, world_size, rank, local_rank = get_distrib_config()
     logger.info(f"Distributed training: {is_distributed}")
     if is_distributed:
+        set_master_config()
         dist.init_process_group(
             backend="nccl", init_method="env://", world_size=world_size, rank=rank
         )
