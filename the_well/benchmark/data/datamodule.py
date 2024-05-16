@@ -74,8 +74,8 @@ class WellDataModule(AbstractDataModule):
                 shuffle=True,
             )
             logger.debug(
-                f"Use {sampler.__class__.__name__}"
-                f"{self.rank}/{self.world_size}) for training data"
+                f"Use {sampler.__class__.__name__} "
+                f"({self.rank}/{self.world_size}) for training data"
             )
         shuffle = sampler is None
 
@@ -97,8 +97,8 @@ class WellDataModule(AbstractDataModule):
                 shuffle=False,
             )
             logger.debug(
-                f"Use {sampler.__class__.__name__}"
-                f"{self.rank}/{self.world_size}) for validation data"
+                f"Use {sampler.__class__.__name__} "
+                f"({self.rank}/{self.world_size}) for validation data"
             )
 
         return DataLoader(
