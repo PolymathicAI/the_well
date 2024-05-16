@@ -18,11 +18,12 @@ jobs:
             pip install ".[benchmark]"
         - name: Run linter
           run: |
-            ruff check
+            ruff check . --fix
             ruff format --check
             isort . --check
         - name: Run tests
           env: 
+            PYTHONPATH: ${{ github.workspace }}
             PY_COLORS: "1"
           run: |
             pytest .
