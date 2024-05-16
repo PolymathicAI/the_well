@@ -69,5 +69,6 @@ credentials.json
 *.min.css
 __pycache__
 
-# Ignore hydra generated output
+# Ignore run generated output
 outputs/
+wandb/
