@@ -10,7 +10,7 @@
 
 **Code or software used to generate the data**: https://github.com/SuryanarayanaMK/Learning_closures/tree/master
 
-**Equation**: Equations (1) to (5) of the associated paper.
+**Equations**: Equations (1) to (5) of the associated paper.
 
 [ADD GIF OF THE SIMULATION]
 
@@ -18,7 +18,7 @@
 
 **Dimension of discretized data:** $81$ time-steps of $256\times256$ images with 1 channel for concentration $c$, 2 channels for velocity {$U_x$, $U_y$}, 3 channels for the orientation tensor {$D_{xx}$, $D_{xy}$, $D_{yy}$}, and 3 channels for the strain-rate tensor {$E_{xx}$, $E_{xy}$, $E_{yy}$}.
 
-**Fields available in the data:** 1 for concentration $c$, 2 for velocity {$U_x$, $U_y$}, 3 for the orientation tensor {$D_{xx}$, $D_{xy}$, $D_{yy}$}, 3 for the strain-rate tensor {$E_{xx}$, $E_{xy}$, $E_{yy}$}, and 1 for time:{$c$, $U_x$, $U_y$, $D_{xx}$, $D_{xy}$, $D_{yy}$, $E_{xx}$, $E_{xy}$, $E_{yy}$, $t$}.
+**Fields available in the data:** 1 for concentration $c$, 2 for velocity { $U_x$, $U_y$ }, 3 for the orientation tensor {$D_{xx}$, $D_{xy}$, $D_{yy}$}, 3 for the strain-rate tensor {$E_{xx}$, $E_{xy}$, $E_{yy}$}, and 1 for time:{$c$, $U_x$, $U_y$, $D_{xx}$, $D_{xy}$, $D_{yy}$, $E_{xx}$, $E_{xy}$, $E_{yy}$, $t$}.
 
 **Number of trajectories:** $5$ trajectories per parameter-set, each trajectory being generated with a different initialization of the state field {$c,D,U$}.
 
