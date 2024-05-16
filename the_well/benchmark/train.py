@@ -3,11 +3,14 @@ import os.path as osp
 
 import hydra
 import torch
+import torch.distributed as dist
 from hydra.utils import instantiate
 from omegaconf import DictConfig, OmegaConf
+from torch.nn.parallel import DistributedDataParallel as DDP
 
 from the_well.benchmark.data import WellDataModule
 from the_well.benchmark.trainer import Trainer
+from the_well.benchmark.trainer.utils import get_distrib_config
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -20,10 +23,24 @@ logger.info(f"Run training script for {CONFIG_PATH}")
 
 
 @hydra.main(version_base=None, config_path=CONFIG_DIR, config_name=CONFIG_NAME)
-def train(cfg: DictConfig):
+def main(cfg: DictConfig):
     logger.info(f"Configuration:\n{OmegaConf.to_yaml(cfg)}")
+
+    distributed_detected, world_size, rank, local_rank = get_distrib_config()
+    is_distributed = cfg.trainer.pop("distributed", False) and distributed_detected
+    logger.info(f"Distributed training: {is_distributed}")
+    if is_distributed:
+        dist.init_process_group(
+            backend="nccl", init_method="env://", world_size=world_size, rank=rank
+        )
+    train(cfg, world_size, rank, local_rank)
+
+
+def train(cfg: DictConfig, world_size: int = 1, rank: int = 1, local_rank: int = 1):
+    is_distributed = world_size > 1
+
     logger.info(f"Instantiate datamodule {cfg.data._target_}")
-    datamodule: WellDataModule = instantiate(cfg.data)
+    datamodule: WellDataModule = instantiate(cfg.data, world_size, rank)
     num_fields_by_tensor_order = datamodule.train_dataset.num_fields_by_tensor_order
     n_scalar_components = num_fields_by_tensor_order[0]
     n_vector_components = num_fields_by_tensor_order[1]
@@ -43,6 +60,10 @@ def train(cfg: DictConfig):
         n_output_vector_components=n_vector_components,
         n_param_conditioning=n_param,
     )
+    if is_distributed:
+        model = DDP(model, device_ids=[local_rank])
+        torch.cuda.set_device(local_rank)
+        device = torch.device("cuda")
 
     logger.info(f"Instantiate optimizer {cfg.optimizer._target_}")
     optimizer: torch.optim.Optimizer = instantiate(
@@ -61,9 +82,11 @@ def train(cfg: DictConfig):
         datamodule=datamodule,
         optimizer=optimizer,
         lr_scheduler=lr_scheduler,
+        device=device,
+        is_distributed=is_distributed,
     )
     trainer.train()
 
 
 if __name__ == "__main__":
-    train()
+    main()
