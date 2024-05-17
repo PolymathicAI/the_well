@@ -60,22 +60,21 @@ class FNO(ResNet):
             ]
         )
 
-    @torch.no_grad()
     def preprocess_input(
         self,
         input: Dict[str, torch.Tensor],
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    ) -> Tuple[torch.Tensor, torch.Size, torch.Tensor, torch.Tensor]:
         """Retrieve input fields, time and parameters from passed input."""
         time = input["time"].view(-1)
         param = input["parameters"]
         x = input["x"]
-        return x, time, param
+        assert x.dim() == 5
+        original_shape = x.shape
+        x = rearrange(x, "B T W H C -> B (T C) W H")
+        return x, original_shape, time, param
 
     def forward(self, input: Dict[str, torch.Tensor]) -> torch.Tensor:
-        x, time, z = self.preprocess_input(input)
-        assert x.dim() == 5
-        orig_shape = x.shape
-        x = rearrange(x, "B T W H C -> B (T C) W H")
+        x, original_shape, time, z = self.preprocess_input(input)
 
         emb = self.time_embed(fourier_embedding(time, self.in_planes))
         if z is not None:
@@ -105,4 +104,4 @@ class FNO(ResNet):
 
         if self.diffmode:
             raise NotImplementedError("diffmode")
-        return x.reshape(*orig_shape)
+        return x.reshape(*original_shape)
