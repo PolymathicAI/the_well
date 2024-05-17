@@ -28,7 +28,7 @@ jobs:
           run: |
             ruff check the_well tests
             ruff format the_well tests --check
-            isort the_well tests --check
+            isort the_well tests --check --diff --color
         - name: Run tests
           env: 
             PYTHONPATH: ${{ github.workspace }}
