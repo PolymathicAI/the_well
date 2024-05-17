@@ -4,11 +4,11 @@ import os.path as osp
 import hydra
 import torch
 import torch.distributed as dist
+import wandb
 from hydra.utils import instantiate
 from omegaconf import DictConfig, OmegaConf
 from torch.nn.parallel import DistributedDataParallel as DDP
 
-import wandb
 from the_well.benchmark.data import WellDataModule
 from the_well.benchmark.trainer import Trainer
 from the_well.benchmark.trainer.utils import get_distrib_config, set_master_config
