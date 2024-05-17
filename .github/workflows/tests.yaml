@@ -19,7 +19,7 @@ jobs:
           run: |
             git clone https://github.com/pdearena/pdearena.git
             pushd pdearena
-            pip install .
+            pip install -e .
             popd
         - name: Install the_well
           run: |
