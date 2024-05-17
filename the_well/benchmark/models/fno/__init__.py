@@ -4,9 +4,7 @@ import torch
 import torch.nn.functional as F
 from einops import rearrange
 
-from pdearena.modules.conditioned.condition_utils import fourier_embedding
-from pdearena.modules.conditioned.twod_resnet import FourierBasicBlock, ResNet
-from pdearena.utils import partialclass
+from .utils import FourierBlock, ResNet, fourier_embedding, partialclass
 
 
 class FNO(ResNet):
@@ -29,7 +27,7 @@ class FNO(ResNet):
         n_param_conditioning: int = 1,
     ):
         block = partialclass(
-            "FourierBasicBlock", FourierBasicBlock, modes1=modes1, modes2=modes2
+            "FourierBasicBlock", FourierBlock, modes1=modes1, modes2=modes2
         )
         super().__init__(
             n_input_scalar_components,
