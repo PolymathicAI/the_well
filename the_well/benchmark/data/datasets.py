@@ -1,15 +1,58 @@
 import glob
 import os
+from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Callable, List, Optional
-from dataclasses import dataclass
 
 import h5py as h5
 import numpy as np
 import torch
 from torch.utils.data import Dataset
 
-well_paths = {"active_matter": "2D/active_matter"}
+well_paths = {"active_matter": "datasets/active_matter"}
+
+
+def raw_steps_to_possible_sample_t0s(
+    total_steps_in_trajectory: int,
+    n_steps_input: int,
+    n_steps_output: int,
+    dt_stride: int,
+):
+    """Given the total number of steps in a trajectory returns the number of samples that can be taken from the
+      trajectory such that all samples have at least n_steps_input + n_steps_output steps with steps separated
+      by dt_stride.
+
+    ex1: total_steps_in_trajectory = 5, n_steps_input = 1, n_steps_output = 1, dt_stride = 1
+        Possible samples are: [0, 1], [1, 2], [2, 3], [3, 4]
+    ex2: total_steps_in_trajectory = 5, n_steps_input = 1, n_steps_output = 1, dt_stride = 2
+        Possible samples are: [0, 2], [1, 3], [2, 4]
+    ex3: total_steps_in_trajectory = 5, n_steps_input = 1, n_steps_output = 1, dt_stride = 3
+        Possible samples are: [0, 3], [1, 4]
+    ex4: total_steps_in_trajectory = 5, n_steps_input = 2, n_steps_output = 1, dt_stride = 2
+        Possible samples are: [0, 2, 4]
+
+    """
+    elapsed_steps_per_sample = 1 + dt_stride * (
+        n_steps_input + n_steps_output - 1
+    )  # Number of steps needed for sample
+    return max(0, total_steps_in_trajectory - elapsed_steps_per_sample + 1)
+
+
+def maximum_stride_for_initial_index(
+    time_idx: int,
+    total_steps_in_trajectory: int,
+    n_steps_input: int,
+    n_steps_output: int,
+):
+    """Given the total number of steps in a file and the current step returns the maximum stride
+    that can be taken from the file such that all samples have at least n_steps_input + n_steps_output steps with a stride of
+      dt_stride
+    """
+    used_steps_per_sample = n_steps_input + n_steps_output
+    return max(
+        0,
+        int((total_steps_in_trajectory - time_idx - 1) // (used_steps_per_sample - 1)),
+    )
 
 
 # Boundary condition codes
@@ -21,13 +64,14 @@ class BoundaryCondition(Enum):
 
 @dataclass
 class GenericWellMetadata:
-    """ Dataclass to store metadata for each dataset. (in construction)
-    
+    """Dataclass to store metadata for each dataset. (in construction)
+
     Parameters
     ----------
     spatial_ndims : int
         Number of spatial dimensions of the data.
     """
+
     spatial_ndims: int
 
 
@@ -185,8 +229,9 @@ class GenericWellDataset(Dataset):
     def _build_metadata(self):
         """Builds multi-file indices and checks that folder contains consistent dataset"""
         self.n_files = len(self.files_paths)
-        self.file_steps = []
-        self.file_samples = []
+        self.total_file_steps = []  # Number of time steps in each simulation for each file
+        self.available_file_steps = []  # Number of actual time steps in each simulation for each file
+        self.file_samples = []  # Number of simulation per file
         self.file_index_offsets = [0]  # Used to track where each file starts
         self.field_names = []
         # Things where we just care every file has same value
@@ -197,7 +242,7 @@ class GenericWellDataset(Dataset):
         for index, file in enumerate(self.files_paths):
             with h5.File(file, "r") as _f:
                 # Run sanity checks - all files should have same ndims, size_tuple, and names
-                samples = _f.attrs["n_trajectories"]
+                samples: int = _f.attrs["n_trajectories"]
                 steps = _f["dimensions"]["time"].shape[0]
                 size_tuple = [
                     _f["dimensions"][d].shape[0]
@@ -213,22 +258,18 @@ class GenericWellDataset(Dataset):
                     len(size_tuples) == 1
                 ), "Multiple resolutions found in specified path"
                 # Check that the requested steps make sense
-                assert (
-                    steps - self.dt_stride * (self.n_steps_input + self.n_steps_output)
-                    > 0
-                ), "Not enough steps in file {} for {} input and {} output steps".format(
-                    file, self.n_steps_input, self.n_steps_output
+                per_simulation_steps = raw_steps_to_possible_sample_t0s(
+                    steps, self.n_steps_input, self.n_steps_output, self.dt_stride
                 )
-                self.file_steps.append(steps)
+                assert per_simulation_steps > 0, (
+                    f"Not enough steps in file {file}"
+                    f"for {self.n_steps_input} input and {self.n_steps_output} output steps"
+                )
                 self.file_samples.append(samples)
+                self.total_file_steps.append(steps)
+                self.available_file_steps.append(per_simulation_steps)
                 self.file_index_offsets.append(
-                    self.file_index_offsets[-1]
-                    + samples
-                    * (
-                        steps
-                        - self.dt_stride
-                        * (self.n_steps_input - 1 + self.n_steps_output)
-                    )
+                    self.file_index_offsets[-1] + samples * per_simulation_steps
                 )
 
                 # Check BCs
@@ -505,12 +546,12 @@ class GenericWellDataset(Dataset):
         file_idx = int(
             np.searchsorted(self.file_index_offsets, index, side="right") - 1
         )  # which file we are on
-        file_steps = self.file_steps[file_idx]
+        per_simulation_steps = self.available_file_steps[file_idx]
         local_idx = index - max(
             self.file_index_offsets[file_idx], 0
         )  # First offset is -1
-        sample_idx = local_idx // file_steps
-        time_idx = local_idx % file_steps
+        sample_idx = local_idx // per_simulation_steps
+        time_idx = local_idx % per_simulation_steps
 
         # open hdf5 file (and cache the open object)
         if self.files[file_idx] is None:
@@ -518,9 +559,11 @@ class GenericWellDataset(Dataset):
 
         # If we gave a stride range, decide the largest size we can use given the sample location
         if self.max_dt_stride > self.dt_stride:
-            sample_steps = self.n_steps_input + self.n_steps_output
-            effective_max_dt = min(
-                int((file_steps - time_idx) // sample_steps), self.max_dt_stride
+            effective_max_dt = maximum_stride_for_initial_index(
+                time_idx,
+                self.total_file_steps[file_idx],
+                self.n_steps_input,
+                self.n_steps_output,
             )
             if effective_max_dt > self.dt:
                 dt = np.random.randint(self.dt, effective_max_dt)

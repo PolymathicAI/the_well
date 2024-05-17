@@ -1,4 +1,5 @@
 from unittest import TestCase
+
 import torch
 
 from the_well.benchmark.data.datasets import GenericWellMetadata
