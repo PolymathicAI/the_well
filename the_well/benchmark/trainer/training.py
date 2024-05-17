@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 class Trainer:
     def __init__(
         self,
+        experiment_name: str,
         model: torch.nn.Module,
         datamodule: AbstractDataModule,
         optimizer: torch.optim.Optimizer,
@@ -103,7 +104,7 @@ class Trainer:
                 )
                 wandb.log({"valid": val_loss, "epoch": epoch})
                 if self.best_val_loss is None or val_loss < self.best_val_loss:
-                    self.save_model(epoch, val_loss, "best.pt")
+                    self.save_model(epoch, val_loss, f"{self.experiment_name}-best.pt")
             if self.is_distributed:
                 train_dataloader.sampler.set_epoch(epoch)
             train_loss = self.train_one_epoch(train_dataloader)
@@ -117,4 +118,4 @@ class Trainer:
         test_loss = self.validation_loop(test_dataloader)
         logger.info(f"Test loss {test_loss}")
         wandb.log({"test": test_loss, "epoch": epoch})
-        self.save_model(epoch, val_loss, "last.pt")
+        self.save_model(epoch, val_loss, f"{self.experiment_name}-last.pt")
