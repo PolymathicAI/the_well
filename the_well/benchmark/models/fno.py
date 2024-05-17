@@ -3,6 +3,7 @@ from typing import Dict, Tuple
 import torch
 import torch.nn.functional as F
 from einops import rearrange
+
 from pdearena.modules.conditioned.condition_utils import fourier_embedding
 from pdearena.modules.conditioned.twod_resnet import FourierBasicBlock, ResNet
 from pdearena.utils import partialclass
