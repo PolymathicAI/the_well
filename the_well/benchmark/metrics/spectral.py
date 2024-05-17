@@ -139,7 +139,7 @@ def power_spectrum(
 
 
 @metric
-def spectral_mse(
+def binned_spectral_mse(
     x: torch.Tensor,
     y: torch.Tensor,
     meta: GenericWellMetadata,
@@ -147,7 +147,7 @@ def spectral_mse(
     fourier_input: bool = False,
 ) -> torch.Tensor:
     """
-    Spectral Mean Squared Error.
+    Binned Spectral Mean Squared Error.
     Corresponds to MSE computed after filtering over wavenumber bins in the Fourier domain.
 
     Default binning is a set of three (approximately) logspaced from 0 to pi.
