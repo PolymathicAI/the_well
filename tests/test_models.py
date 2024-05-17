@@ -23,19 +23,19 @@ class TestFNO(TestCase):
             [1, 1, 1, 1],
             n_param_conditioning=self.n_param_conditioning,
         )
-        # model = get_fno_model(conf, pde_config)
         self.assertTrue(isinstance(model, FNO))
-        x = torch.rand(8, 1, 5, 32, 32)
+        x = torch.rand(8, 1, 32, 32, 5)
         t = torch.rand(8)
         param = torch.rand(8, 3)
-        out = model(x, t, param)
+        input = {"time": t, "x": x, "parameters": param}
+        out = model(input)
         self.assertEqual(out.shape, x.shape)
 
     def test_load_conf(self):
         FNO_CONFIG_FILE = "the_well/benchmark/configs/model/fno.yaml"
         config = OmegaConf.load(FNO_CONFIG_FILE)
         model = instantiate(
-            config.model,
+            config,
             n_input_scalar_components=self.n_input_scalar,
             n_input_vector_components=self.n_input_vector,
             n_output_scalar_components=self.n_input_scalar,
@@ -43,8 +43,9 @@ class TestFNO(TestCase):
             n_param_conditioning=self.n_param_conditioning,
         )
         self.assertTrue(isinstance(model, FNO))
-        x = torch.rand(8, 1, 5, 32, 32)
+        x = torch.rand(8, 1, 32, 32, 5)
         t = torch.rand(8)
         param = torch.rand(8, 3)
-        out = model(x, t, param)
+        input = {"time": t, "x": x, "parameters": param}
+        out = model(input)
         self.assertEqual(out.shape, x.shape)
