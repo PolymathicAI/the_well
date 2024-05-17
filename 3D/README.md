@@ -1,1 +1,1 @@
-# Description of the 3D data summarizing how it's organized
+# Description of how datasets are organized
