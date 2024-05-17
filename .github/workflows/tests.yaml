@@ -15,6 +15,14 @@ jobs:
           run: |
             python -m pip install --upgrade pip
             pip install ruff isort pytest pytest-order
+        - name: Install PDEArena
+          run: |
+            git clone https://github.com/pdearena/pdearena.git
+            pushd pdearena
+            pip install -e .
+            popd
+        - name: Install the_well
+          run: |
             pip install ".[benchmark]"
         - name: Run linter
           run: |
