@@ -17,7 +17,6 @@ benchmark = [
     "h5py>=3.9.0",
     "hydra-core",
     "einops",
-    "pdearena",
 ]
 
 [project.scripts]
