@@ -26,9 +26,9 @@ jobs:
             pip install ".[benchmark]"
         - name: Run linter
           run: |
-            ruff check . --fix
-            ruff format --check
-            isort . --check
+            ruff check the_well tests
+            ruff format the_well tests --check
+            isort the_well tests --check
         - name: Run tests
           env: 
             PYTHONPATH: ${{ github.workspace }}
