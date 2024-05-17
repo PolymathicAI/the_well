@@ -2,8 +2,8 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-from the_well.benchmark.metrics.common import metric
 from the_well.benchmark.data.datasets import GenericWellMetadata
+from the_well.benchmark.metrics.common import metric
 
 
 def fftn(x: torch.Tensor, meta: GenericWellMetadata):
