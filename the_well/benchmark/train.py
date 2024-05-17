@@ -25,6 +25,7 @@ logger.info(f"Run training script for {CONFIG_PATH}")
 
 def train(
     cfg: DictConfig,
+    experiment_name: str,
     is_distributed: bool = False,
     world_size: int = 1,
     rank: int = 1,
@@ -79,6 +80,7 @@ def train(
     logger.info(f"Instantiate trainer {cfg.trainer._target_}")
     trainer: Trainer = instantiate(
         cfg.trainer,
+        experiment_name=experiment_name,
         model=model,
         datamodule=datamodule,
         optimizer=optimizer,
@@ -113,7 +115,7 @@ def main(cfg: DictConfig):
         dist.init_process_group(
             backend="nccl", init_method="env://", world_size=world_size, rank=rank
         )
-    train(cfg, is_distributed, world_size, rank, local_rank)
+    train(cfg, experiment_name, is_distributed, world_size, rank, local_rank)
     wandb.finish()
 
 
