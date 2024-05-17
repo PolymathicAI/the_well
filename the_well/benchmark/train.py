@@ -89,10 +89,21 @@ def train(
     trainer.train()
 
 
+def get_experiment_name(cfg: DictConfig) -> str:
+    model_name = cfg.model._target_.split(".")[-1]
+    return f"{cfg.name}-{model_name}-{cfg.optimizer.lr}"
+
+
 @hydra.main(version_base=None, config_path=CONFIG_DIR, config_name=CONFIG_NAME)
 def main(cfg: DictConfig):
+    experiment_name = get_experiment_name(cfg)
+    logger.info(f"Run experiment {experiment_name}")
     logger.info(f"Configuration:\n{OmegaConf.to_yaml(cfg)}")
-    wandb.init(project="the_well", config=OmegaConf.to_container(cfg, resolve=True))
+    wandb.init(
+        project="the_well",
+        config=OmegaConf.to_container(cfg, resolve=True),
+        name=experiment_name,
+    )
 
     is_distributed, world_size, rank, local_rank = get_distrib_config()
     is_distributed = is_distributed and world_size > 1
