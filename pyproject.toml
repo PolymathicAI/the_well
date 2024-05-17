@@ -17,7 +17,7 @@ benchmark = [
     "h5py>=3.9.0",
     "hydra-core",
     "einops",
-    "pdearena @ git+https://github.com/pdearena/pdearena.git",
+    "pdearena",
 ]
 
 [project.scripts]
