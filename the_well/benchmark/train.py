@@ -16,6 +16,7 @@ from the_well.benchmark.trainer.utils import get_distrib_config, set_master_conf
 logger = logging.getLogger("the_well")
 logger.setLevel(level=logging.DEBUG)
 
+# Retrieve configuration for hydra
 CONFIG_DIR = osp.join(osp.dirname(__file__), "configs")
 CONFIG_NAME = "config"
 CONFIG_PATH = osp.join(CONFIG_DIR, f"{CONFIG_NAME}.yaml")
@@ -31,6 +32,8 @@ def train(
     rank: int = 1,
     local_rank: int = 1,
 ):
+    """Instantiate the different objects required for training and run the training loop."""
+
     logger.info(f"Instantiate datamodule {cfg.data._target_}")
     datamodule: WellDataModule = instantiate(cfg.data, world_size=world_size, rank=rank)
     num_fields_by_tensor_order = datamodule.train_dataset.num_fields_by_tensor_order
@@ -101,12 +104,14 @@ def main(cfg: DictConfig):
     experiment_name = get_experiment_name(cfg)
     logger.info(f"Run experiment {experiment_name}")
     logger.info(f"Configuration:\n{OmegaConf.to_yaml(cfg)}")
+    # Initiate wandb logging
     wandb.init(
         project="the_well",
         config=OmegaConf.to_container(cfg, resolve=True),
         name=experiment_name,
     )
 
+    # Retrieve multiple processes context to setup DDP
     is_distributed, world_size, rank, local_rank = get_distrib_config()
     is_distributed = is_distributed and world_size > 1
     logger.info(f"Distributed training: {is_distributed}")
@@ -115,6 +120,7 @@ def main(cfg: DictConfig):
         dist.init_process_group(
             backend="nccl", init_method="env://", world_size=world_size, rank=rank
         )
+
     train(cfg, experiment_name, is_distributed, world_size, rank, local_rank)
     wandb.finish()
 

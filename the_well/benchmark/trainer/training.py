@@ -26,6 +26,35 @@ class Trainer:
         device=torch.device("cuda"),
         is_distributed: bool = False,
     ):
+        """
+        Class in charge of the training loop. It performs train, validation and test.
+
+        Parameters
+        ----------
+        experiment_name:
+            The name of the training experiment to be run
+        model:
+            The Pytorch model to train
+        datamodule:
+            A datamodule that provides dataloaders for each split (train, valid, and test)
+        optimizer:
+            A Pytorch optimizer to perform the backprop (e.g. Adam)
+        loss_fn:
+            A loss function that evaluates the model predictions to be used for training
+        epochs:
+            Number of epochs to train the model.
+            One epoch correspond to a full loop over the datamodule's training dataloader
+        val_frequency:
+            The frequency in terms of number of epochs to perform the validation
+        lr_scheduler:
+            A Pytorch learning rate scheduler to update the learning rate during training
+        device:
+            A Pytorch device (e.g. "cuda" or "cpu")
+        is_distributed:
+            A boolean flag to trigger DDP training
+
+        """
+        self.experiment_name = experiment_name
         self.device = device
         self.model = model
         self.datamodule = datamodule
@@ -38,6 +67,7 @@ class Trainer:
         self.best_val_loss = None
 
     def save_model(self, epoch: int, validation_loss: float, output_path: str):
+        """Save the model checkpoint."""
         torch.save(
             {
                 "epoch": epoch,
@@ -50,6 +80,7 @@ class Trainer:
 
     @torch.no_grad()
     def validation_loop(self, dataloader: DataLoader) -> float:
+        """Run validation by looping over the dataloader."""
         self.model.eval()
         validation_loss = 0.0
         for batch in dataloader:
@@ -70,6 +101,7 @@ class Trainer:
         return validation_loss
 
     def train_one_epoch(self, dataloader: DataLoader) -> float:
+        """Train the model for one epoch by looping over the dataloader."""
         self.model.train()
         epoch_loss = 0.0
         for batch in dataloader:
@@ -92,6 +124,7 @@ class Trainer:
         return epoch_loss
 
     def train(self):
+        """Run training, validation and test. The training is run for multiple epochs."""
         train_dataloader = self.datamodule.train_dataloader()
         val_dataloder = self.datamodule.val_dataloader()
         test_dataloader = self.datamodule.test_dataloader()
