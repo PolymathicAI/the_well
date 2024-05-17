@@ -1,5 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
+from typing import List
 
 from torch.utils.data import DataLoader, DistributedSampler
 
@@ -28,6 +29,11 @@ class WellDataModule(AbstractDataModule):
         well_base_path: str,
         well_dataset_name: str,
         batch_size: int,
+        include_filters: List[str] = [],
+        exclude_filters: List[str] = [],
+        n_steps_input: int = 1,
+        n_steps_output: int = 1,
+        dt_stride: int = 1,
         world_size: int = 1,
         rank: int = 1,
     ):
@@ -45,16 +51,31 @@ class WellDataModule(AbstractDataModule):
             well_base_path=well_base_path,
             well_dataset_name=well_dataset_name,
             well_split_name="train",
+            include_filters=include_filters,
+            exclude_filters=exclude_filters,
+            n_steps_input=n_steps_input,
+            n_steps_output=n_steps_output,
+            dt_stride=dt_stride,
         )
         self.val_dataset = GenericWellDataset(
             well_base_path=well_base_path,
             well_dataset_name=well_dataset_name,
             well_split_name="valid",
+            include_filters=include_filters,
+            exclude_filters=exclude_filters,
+            n_steps_input=n_steps_input,
+            n_steps_output=n_steps_output,
+            dt_stride=dt_stride,
         )
         self.test_dataset = GenericWellDataset(
             well_base_path=well_base_path,
             well_dataset_name=well_dataset_name,
             well_split_name="test",
+            include_filters=include_filters,
+            exclude_filters=exclude_filters,
+            n_steps_input=n_steps_input,
+            n_steps_output=n_steps_output,
+            dt_stride=dt_stride,
         )
         self.batch_size = batch_size
         self.world_size = world_size
