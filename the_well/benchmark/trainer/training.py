@@ -75,6 +75,7 @@ class Trainer:
             self.optimizer.zero_grad()
         if self.lr_scheduler:
             self.lr_scheduler.step()
+            wandb.log({"lr": self.lr_scheduler.get_lr()})
         return epoch_loss
 
     def train(self):
