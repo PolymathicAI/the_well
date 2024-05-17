@@ -34,6 +34,18 @@ class Trainer:
         self.max_epoch = epochs
         self.val_frequency = val_frequency
         self.is_distributed = is_distributed
+        self.best_val_loss = None
+
+    def save_model(self, epoch: int, validation_loss: float, output_path: str):
+        torch.save(
+            {
+                "epoch": epoch,
+                "model_state_dict": self.model.state_dict(),
+                "optimizer_state_dit": self.optimizer.state_dict(),
+                "validation_loss": validation_loss,
+            },
+            output_path,
+        )
 
     @torch.no_grad()
     def validation_loop(self, dataloader: DataLoader) -> float:
@@ -90,6 +102,8 @@ class Trainer:
                     f"Epoch {epoch+1}/{self.max_epoch}: validation loss {val_loss}"
                 )
                 wandb.log({"valid": val_loss, "epoch": epoch})
+                if self.best_val_loss is None or val_loss < self.best_val_loss:
+                    self.save_model(epoch, val_loss, "best.pt")
             if self.is_distributed:
                 train_dataloader.sampler.set_epoch(epoch)
             train_loss = self.train_one_epoch(train_dataloader)
@@ -103,3 +117,4 @@ class Trainer:
         test_loss = self.validation_loop(test_dataloader)
         logger.info(f"Test loss {test_loss}")
         wandb.log({"test": test_loss, "epoch": epoch})
+        self.save_model(epoch, val_loss, "last.pt")
