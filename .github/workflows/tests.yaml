@@ -19,7 +19,7 @@ jobs:
           run: |
             git clone https://github.com/pdearena/pdearena.git
             pushd pdearena
-            pip install -e .
+            pip install .
             popd
         - name: Install the_well
           run: |
@@ -34,4 +34,4 @@ jobs:
             PYTHONPATH: ${{ github.workspace }}
             PY_COLORS: "1"
           run: |
-            pytest .
+            pytest tests
