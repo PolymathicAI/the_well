@@ -3,8 +3,9 @@ from typing import Callable, Optional
 
 import torch
 import torch.distributed as dist
-import wandb
 from torch.utils.data import DataLoader
+
+import wandb
 
 from ..data.datamodule import AbstractDataModule
 from ..data.utils import preprocess_batch
