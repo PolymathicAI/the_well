@@ -68,3 +68,7 @@ credentials.json
 *.min.js
 *.min.css
 __pycache__
+
+# Ignore run generated output
+outputs/
+wandb/
