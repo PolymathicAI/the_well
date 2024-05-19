@@ -2,6 +2,9 @@
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.packages.find]
+include = ["the_well"]
+
 [project]
 name = "the_well"
 requires-python = ">=3.8"
@@ -11,7 +14,9 @@ readme = "README.md"
 [project.optional-dependencies]
 benchmark = [
     "torch>=2.1",
-    "h5py>=3.9.0"
+    "h5py>=3.9.0",
+    "hydra-core",
+    "einops",
 ]
 
 [project.scripts]
@@ -19,6 +24,3 @@ the-well-download = "the_well.utils.download_script:main"
 
 [tool.isort]
 profile = "black"
-
-[tool.setuptools]
-packages = ["the_well"]

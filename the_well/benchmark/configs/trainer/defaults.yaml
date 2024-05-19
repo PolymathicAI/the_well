@@ -1,0 +1,4 @@
+_target_: the_well.benchmark.trainer.Trainer
+epochs: 50
+val_frequency: 10
+loss_fn: ???
