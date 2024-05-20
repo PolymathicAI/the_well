@@ -10,7 +10,7 @@ def mse(
     x: torch.Tensor | np.ndarray,
     y: torch.Tensor | np.ndarray,
     meta: GenericWellMetadata,
-):
+) -> torch.Tensor:
     """
     Mean Squared Error
 
@@ -39,7 +39,7 @@ def nmse(
     meta: GenericWellMetadata,
     eps: float = 1e-7,
     norm_mode: str = "norm",
-):
+) -> torch.Tensor:
     """
     Normalized Mean Squared Error
 
@@ -76,7 +76,7 @@ def rmse(
     x: torch.Tensor | np.ndarray,
     y: torch.Tensor | np.ndarray,
     meta: GenericWellMetadata,
-):
+) -> torch.Tensor:
     """
     Root Mean Squared Error
 
@@ -104,7 +104,7 @@ def nrmse(
     meta: GenericWellMetadata,
     eps: float = 1e-7,
     norm_mode: str = "norm",
-):
+) -> torch.Tensor:
     """
     Normalized Root Mean Squared Error
 
