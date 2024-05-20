@@ -1,4 +1,4 @@
-_target_: pdearena.lr_scheduler.LinearWarmupCosineAnnealingLR
+_target_: the_well.benchmark.optim.schedulers.LinearWarmupCosineAnnealingLR
 warmup_epochs: 5
 max_epochs: 30
 warmup_start_lr: 1e-8
