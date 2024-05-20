@@ -102,6 +102,8 @@ class WellDataModule(AbstractDataModule):
 
         return DataLoader(
             self.train_dataset,
+            num_workers = 6, # parameterize this
+            pin_memory=True, 
             batch_size=self.batch_size,
             shuffle=shuffle,
             drop_last=True,

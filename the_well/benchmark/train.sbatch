@@ -11,7 +11,7 @@
 
 export OMP_NUM_THREADS=${SLURM_CPUS_ON_NODE}
 
-module load python cuda cudnn
+module load python cuda cudnn gcc
 # Activate the virtual environment with all the dependencies
 source ~/well_venv/bin/activate
 # Launch the training script

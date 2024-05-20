@@ -110,6 +110,7 @@ class Trainer:
                 x[key] = val.to(self.device)
             y_ref = y_ref.to(self.device)
             y_pred = self.model(x)
+            print('This is actually happening, right?')
             assert (
                 y_ref.shape == y_pred.shape
             ), f"Mismatching shapes between reference {y_ref.shape} and prediction {y_pred.shape}"
