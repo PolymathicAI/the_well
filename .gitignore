@@ -30,8 +30,12 @@ datasets/turbulence_gravity_cooling/data/
 
 datasets/turbulent_radiative_layer_3D/data/
 datasets/turbulent_radiative_layer_2D/data/
-
-
+datasets/acoustic_scattering_discontinuous_2d/data/
+datasets/acoustic_scattering_inclusions_2d/data/
+datasets/acoustic_scattering_maze_2d/data/
+datasets/planetswe/data/
+2D/
+3D/
 3D/rayleigh_taylor_instability/data/
 3D/convective_envelope_rsg/data/
 datasets/MHD/data/
