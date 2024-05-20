@@ -4,12 +4,13 @@ import torch
 
 from the_well.benchmark.data.datasets import GenericWellMetadata
 from the_well.benchmark.metrics.spatial import mse, nmse, nrmse, rmse
+from the_well.benchmark.metrics.spectral import binned_spectral_mse
 
 
-class TestSpatialMetrics(TestCase):
+class TestMetrics(TestCase):
     def test_distance_to_itself(self):
-        for metric in [mse, nmse, rmse, nrmse]:
+        for metric in [mse, nmse, rmse, nrmse, binned_spectral_mse]:
             x = torch.tensor([1.0, 2.0, 3.0]).unsqueeze(-1)
             meta = GenericWellMetadata(spatial_ndims=1)
             error = metric(x, x, meta)
-            self.assertAlmostEqual(error.item(), 0.0)
+            self.assertAlmostEqual(error.nansum().item(), 0.0)
