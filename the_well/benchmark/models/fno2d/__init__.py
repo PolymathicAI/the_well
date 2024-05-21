@@ -15,12 +15,13 @@ class FNO2D(nn.Module):
         n_input_vector_components: int,
         n_output_scalar_components: int,
         n_output_vector_components: int,
-        time_history: int = 1,
-        time_future: int = 1,
         modes1: int,
         modes2: int,
+        #in_channels: int,
         hidden_channels: int = 64,
         n_param_conditioning: int = 1,
+        time_history: int = 1,
+        time_future: int = 1,
 
     ):
         super(FNO2D, self).__init__()
@@ -34,12 +35,11 @@ class FNO2D(nn.Module):
         self.model = None
         self.initialized = False
 
-        self.insize = time_history * (
+        self.in_channels = time_history * (
             self.n_input_scalar_components + self.n_input_vector_components * 2
         )
-        self.outsize = time_future
-            * (self.n_output_scalar_components + self.n_output_vector_components * 2)
-        self.model = FNO2d(n_modes_height=self.modes1, n_modes_width=self.modes2, in_channels=self.insize, out_channels = self.outsize, hidden_channels=self.hidden_channels)
+        self.out_channels = time_future * (self.n_output_scalar_components + self.n_output_vector_components * 2)
+        self.model = FNO2d(n_modes_height=self.modes1, n_modes_width=self.modes2, in_channels=self.in_channels, out_channels = self.out_channels, hidden_channels=self.hidden_channels)
         
 
     def preprocess_input(
@@ -53,7 +53,7 @@ class FNO2D(nn.Module):
         assert x.dim() == 5
         original_shape = x.shape
         x = rearrange(x, "B T W H C -> B (T C) W H")
-        in_channels = x.shape[1]
+        #in_channels = x.shape[1]
         # if not self.initialized:
         #     self.model = FNO2d(n_modes_height=self.modes1, n_modes_width=self.modes2, in_channels=in_channels, out_channels = in_channels, hidden_channels=self.hidden_channels)
         #     self.initialized = True
