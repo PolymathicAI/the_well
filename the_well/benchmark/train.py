@@ -96,7 +96,7 @@ def train(
 
 def get_experiment_name(cfg: DictConfig) -> str:
     model_name = cfg.model._target_.split(".")[-1]
-    return f"{cfg.name}-{model_name}-{cfg.optimizer.lr}"
+    return f"{cfg.data.well_dataset_name}-{cfg.name}-{model_name}-{cfg.optimizer.lr}"
 
 
 @hydra.main(version_base=None, config_path=CONFIG_DIR, config_name=CONFIG_NAME)
@@ -107,6 +107,7 @@ def main(cfg: DictConfig):
     # Initiate wandb logging
     wandb.init(
         project="the_well",
+        group=f'{cfg.data.well_dataset_name}',
         config=OmegaConf.to_container(cfg, resolve=True),
         name=experiment_name,
     )

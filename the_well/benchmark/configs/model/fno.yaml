@@ -1,4 +1,4 @@
-_target_: the_well.benchmark.models.FNO
+_target_: the_well.benchmark.models.fno.FNO
 num_blocks: [1, 1, 1, 1]
 modes1: 16
 modes2: 16
