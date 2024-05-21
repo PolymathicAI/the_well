@@ -17,7 +17,6 @@ class FNO2D(nn.Module):
         n_output_vector_components: int,
         modes1: int,
         modes2: int,
-        #in_channels: int,
         hidden_channels: int = 64,
         n_param_conditioning: int = 1,
         time_history: int = 1,
@@ -36,7 +35,7 @@ class FNO2D(nn.Module):
         self.initialized = False
 
         self.in_channels = time_history * (
-            self.n_input_scalar_components + self.n_input_vector_components * 2
+            self.n_input_scalar_components + self.n_input_vector_components * 2 #should be spatial_dim here
         )
         self.out_channels = time_future * (self.n_output_scalar_components + self.n_output_vector_components * 2)
         self.model = FNO2d(n_modes_height=self.modes1, n_modes_width=self.modes2, in_channels=self.in_channels, out_channels = self.out_channels, hidden_channels=self.hidden_channels)

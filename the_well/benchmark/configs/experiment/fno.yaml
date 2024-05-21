@@ -7,6 +7,6 @@ defaults:
 trainer:
   loss_fn:
     _target_: torch.nn.MSELoss
-    reduction: sum
+    reduction: mean
 
 name: fno
