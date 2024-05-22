@@ -37,7 +37,9 @@ def train(
     logger.info(f"Instantiate datamodule {cfg.data._target_}")
     datamodule: WellDataModule = instantiate(cfg.data, world_size=world_size, rank=rank)
     num_fields_by_tensor_order = datamodule.train_dataset.num_fields_by_tensor_order
-    n_spatial_dim = datamodule.train_dataset.ndims #get the spatial dimension for the FNO
+    n_spatial_dim = (
+        datamodule.train_dataset.ndims
+    )  # get the spatial dimension for the FNO
     n_scalar_components = num_fields_by_tensor_order[0]
     n_vector_components = num_fields_by_tensor_order[1]
     n_tensor_components = num_fields_by_tensor_order[2]
@@ -109,7 +111,7 @@ def main(cfg: DictConfig):
     # Initiate wandb logging
     wandb.init(
         project="the_well",
-        group=f'{cfg.data.well_dataset_name}',
+        group=f"{cfg.data.well_dataset_name}",
         config=OmegaConf.to_container(cfg, resolve=True),
         name=experiment_name,
     )
