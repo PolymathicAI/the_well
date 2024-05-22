@@ -253,13 +253,12 @@ class ResidualBlock(nn.Module):
 #CNO NETWORK:
 class CNO(nn.Module):
     def __init__(self,  
+                in_dim,
+                out_dim,
+                n_spatial_dims,
                  in_size,                   # Input spatial size
                  N_layers,                  # Number of (D) or (U) blocks in the network
                  N_res = 1,                 # Number of (R) blocks per level (except the neck)
-                n_input_scalar_components=1,
-                n_input_vector_components=0,
-                n_output_scalar_components=1,
-                n_output_vector_components=0,
                 n_param_conditioning=0,
                  N_res_neck = 6,            # Number of (R) blocks in the neck
                  channel_multiplier = 32,   # How the number of channels evolve?
@@ -278,12 +277,10 @@ class CNO(nn.Module):
                 ):
         
         super(CNO, self).__init__()
-        in_dim = n_input_scalar_components + 2*n_input_vector_components
-        out_dim = n_output_scalar_components + 2*n_output_vector_components
 
         ###################### Define the parameters & specifications #################################################
 
-        
+        assert n_spatial_dims == 2, "Only 2D networks are supported"
         # Number od (D) & (U) Blocks
         self.N_layers = int(N_layers)
         

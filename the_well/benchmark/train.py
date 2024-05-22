@@ -37,24 +37,27 @@ def train(
     logger.info(f"Instantiate datamodule {cfg.data._target_}")
     datamodule: WellDataModule = instantiate(cfg.data, world_size=world_size, rank=rank)
     num_fields_by_tensor_order = datamodule.train_dataset.num_fields_by_tensor_order
-    n_scalar_components = num_fields_by_tensor_order[0]
-    n_vector_components = num_fields_by_tensor_order[1]
-    n_tensor_components = num_fields_by_tensor_order[2]
+    dset_metadata = datamodule.train_dataset.metadata
+    n_input_fields = dset_metadata.n_fields + dset_metadata.n_constant_fields
+    n_output_fields = dset_metadata.n_fields
+    # n_scalar_components = num_fields_by_tensor_order[0]
+    # n_vector_components = num_fields_by_tensor_order[1]
+    # n_tensor_components = num_fields_by_tensor_order[2]
     # Treat tensor components as vector
-    n_vector_components += 2 * n_tensor_components
-    n_param = datamodule.train_dataset.num_constants
+    # n_vector_components += 2 * n_tensor_components
+    # n_param = datamodule.train_dataset.num_constants
 
     logger.info(
         f"Instantiate model {cfg.model._target_}",
     )
     model: torch.nn.Module = instantiate(
         cfg.model,
-        n_input_scalar_components=n_scalar_components,
-        n_input_vector_components=n_vector_components,
-        n_output_scalar_components=n_scalar_components,
-        n_output_vector_components=n_vector_components,
-        n_param_conditioning=n_param,
+        n_spatial_dims=dset_metadata.spatial_ndims,
+        # input_resolution=dset_metadata["input_resolution"],
+        in_dim=n_input_fields,
+        out_dim=n_output_fields
     )
+
     if is_distributed:
         torch.cuda.set_device(local_rank)
         device = torch.device("cuda")

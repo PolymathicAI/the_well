@@ -1,8 +1,9 @@
 import numpy as np
+import torch.nn as nn
 import torch
 
 
-def metric(f):
+class metric(nn.Module):
     """
     Decorator for metrics that standardizes the input arguments and checks the dimensions of the input tensors.
     Parameters
@@ -18,8 +19,7 @@ def metric(f):
         **kwargs : dict
             Additional arguments for the metric.
     """
-
-    def metric_wrapper(*args, **kwargs):
+    def forward(self, *args, **kwargs):
         assert len(args) >= 3, "At least three arguments required (x, y, and meta)"
         x, y, meta = args[:3]
 
@@ -40,6 +40,7 @@ def metric(f):
             y.ndim >= spatial_ndims + 1
         ), "y must have at least spatial_ndims + 1 dimensions"
 
-        return f(x, y, meta, **kwargs)
-
-    return metric_wrapper
+        return self._inner_forward(x, y, meta, **kwargs)
+    
+    def _inner_forward(self, x, y, meta, **kwargs):
+        raise NotImplementedError

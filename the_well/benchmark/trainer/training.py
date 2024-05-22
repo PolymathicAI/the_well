@@ -1,5 +1,5 @@
 import logging
-from typing import Callable, Optional
+from typing import Callable, Optional, Any
 
 import torch
 import torch.distributed as dist
@@ -8,6 +8,7 @@ from torch.utils.data import DataLoader
 
 from ..data.datamodule import AbstractDataModule
 from ..data.utils import preprocess_batch
+from ..metrics import mse, validation_metric_suite
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +20,8 @@ class Trainer:
         model: torch.nn.Module,
         datamodule: AbstractDataModule,
         optimizer: torch.optim.Optimizer,
-        loss_fn: Callable,
+        loss_fn: Any,
+        # validation_suite: list,
         epochs: int,
         val_frequency: int,
         lr_scheduler: Optional[torch.optim.lr_scheduler._LRScheduler] = None,
@@ -60,11 +62,15 @@ class Trainer:
         self.datamodule = datamodule
         self.optimizer = optimizer
         self.lr_scheduler = lr_scheduler
-        self.loss_fn = loss_fn
+        if loss_fn == "mse":
+            self.loss_fn = mse
+        # self.loss_fn = loss_fn
+        # self.validation_suite = validation_suite
         self.max_epoch = epochs
         self.val_frequency = val_frequency
         self.is_distributed = is_distributed
         self.best_val_loss = None
+        self.dset_metadata = self.datamodule.train_dataset.metadata
 
     def save_model(self, epoch: int, validation_loss: float, output_path: str):
         """Save the model checkpoint."""
@@ -83,6 +89,11 @@ class Trainer:
         """Run validation by looping over the dataloader."""
         self.model.eval()
         validation_loss = 0.0
+        field_names = self.dset_metadata.field_names
+        dset_name = self.dset_metadata.dataset_name
+        loss_dict = {f'{dset_name}/{fname}_{f.__name__}': 0.0 for f in validation_metric_suite
+                     for fname in field_names}
+        loss_dict |= {f'{dset_name}/full_{f.__name__}': 0.0 for f in validation_metric_suite}
         for batch in dataloader:
             x, y_ref = preprocess_batch(batch)
             for key, val in x.items():
@@ -92,13 +103,22 @@ class Trainer:
             assert (
                 y_ref.shape == y_pred.shape
             ), f"Mismatching shapes between reference {y_ref.shape} and prediction {y_pred.shape}"
-            loss = self.loss_fn(y_ref, y_pred)
-            validation_loss += loss * y_ref.size(0) / len(dataloader.dataset)
+            for loss_fn in validation_metric_suite:
+                loss = loss_fn()(y_ref, y_pred, self.dset_metadata).mean(0).mean(0)
+                for i, fname in enumerate(field_names):
+                    loss_dict[f'{dset_name}/{fname}_{loss_fn.__name__}'] += loss[i] * y_ref.size(0) / len(dataloader)
+                loss_dict[f'{dset_name}/full_{loss_fn.__name__}'] += loss.mean() * y_ref.size(0) / len(dataloader)
+                # loss_dict[loss_fn.__name__] += loss.item() * y_ref.size(0) / len(dataloader)
+                # validation_loss += loss.mean() * y_ref.size(0) / len(dataloader.dataset)
+            # break
         if self.is_distributed:
-            dist.all_reduce(validation_loss, op=dist.ReduceOp.AVG)
-        validation_loss = validation_loss.item()
+            for k, v in loss_dict.items():
+                dist.all_reduce(loss_dict[k], op=dist.ReduceOp.AVG)
+        # print(loss_dict)
+        validation_loss = loss_dict[f'{dset_name}/full_rmse'].item()
+        loss_dict = {k: v.item() for k, v in loss_dict.items()}
 
-        return validation_loss
+        return validation_loss, loss_dict
 
     def train_one_epoch(self, dataloader: DataLoader) -> float:
         """Train the model for one epoch by looping over the dataloader."""
@@ -110,11 +130,10 @@ class Trainer:
                 x[key] = val.to(self.device)
             y_ref = y_ref.to(self.device)
             y_pred = self.model(x)
-            print('This is actually happening, right?')
             assert (
                 y_ref.shape == y_pred.shape
             ), f"Mismatching shapes between reference {y_ref.shape} and prediction {y_pred.shape}"
-            loss = self.loss_fn(y_ref, y_pred)
+            loss = self.loss_fn()(y_ref, y_pred, self.dset_metadata).mean()
             epoch_loss += loss.item() * y_ref.size(0) / len(dataloader.dataset)
             loss.backward()
             self.optimizer.step()
@@ -132,11 +151,12 @@ class Trainer:
 
         for epoch in range(self.max_epoch):
             if epoch % self.val_frequency == 0:
-                val_loss = self.validation_loop(val_dataloder)
+                val_loss, val_loss_dict = self.validation_loop(val_dataloder)
                 logger.info(
                     f"Epoch {epoch+1}/{self.max_epoch}: validation loss {val_loss}"
                 )
-                wandb.log({"valid": val_loss, "epoch": epoch})
+                val_loss_dict |= {"valid": val_loss, "epoch": epoch}
+                wandb.log(val_loss_dict)
                 if self.best_val_loss is None or val_loss < self.best_val_loss:
                     self.save_model(epoch, val_loss, f"{self.experiment_name}-best.pt")
             if self.is_distributed:
