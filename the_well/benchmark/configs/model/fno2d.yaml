@@ -1,6 +1,0 @@
-_target_: the_well.benchmark.models.fno2d.FNO2D
-modes1: 16
-modes2: 16
-hidden_channels: 128
-# in_channels: 5
-# out_channels: 5
