@@ -22,7 +22,8 @@ datasets/viscoelastic_instability/data/
 2D/neutron_star_disks/
 2D/planetswe/data/
 
-2D/rayleigh_benard/data/
+datasets/rayleigh_benard/data/
+
 datasets/shear_flow/data/
 datasets/supernova_explosion_128/data/
 datasets/supernova_explosion_64/data/
@@ -34,6 +35,7 @@ datasets/acoustic_scattering_discontinuous_2d/data/
 datasets/acoustic_scattering_inclusions_2d/data/
 datasets/acoustic_scattering_maze_2d/data/
 datasets/planetswe/data/
+datasets/post_neutron_star_merger/data/
 2D/
 3D/
 3D/rayleigh_taylor_instability/data/
