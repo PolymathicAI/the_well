@@ -3,10 +3,10 @@ from typing import Dict, Tuple
 import torch
 import torch.nn as nn
 from einops import rearrange
-from neuralop.models import FNO as neuralop_FNO
+from neuralop.models import TFNO as neuralop_TFNO
 
 
-class FNO(nn.Module):
+class TFNO(nn.Module):
     def __init__(
         self,
         n_spatial_dim: int,
@@ -22,7 +22,7 @@ class FNO(nn.Module):
         time_history: int = 1,
         time_future: int = 1,
     ):
-        super(FNO, self).__init__()
+        super(TFNO, self).__init__()
         self.n_input_scalar_components = n_input_scalar_components
         self.n_input_vector_components = n_input_vector_components
         self.n_output_scalar_components = n_output_scalar_components
@@ -49,7 +49,7 @@ class FNO(nn.Module):
             + (self.n_output_vector_components * self.n_spatial_dim)
         )
 
-        self.model = neuralop_FNO(
+        self.model = neuralop_TFNO(
             n_modes=self.n_modes,
             in_channels=self.in_channels,
             out_channels=self.out_channels,
