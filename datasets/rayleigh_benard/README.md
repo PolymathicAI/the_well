@@ -8,7 +8,7 @@ Rayleigh-Bénard convection involves fluid dynamics and thermodynamics, seen in 
 
 **Associated paper**: https://journals.aps.org/prresearch/abstract/10.1103/PhysRevResearch.2.023068 [SHOULD WE PUT DEDALUS PAPER?]
 
-**Domain scientist**: Keaton Burns?, MIT Applied Mathematics.
+**Domain scientist**: Rudy Morel, Flatiron Institute, USA.
 
 **Code or software used to generate the data**: https://dedalus-project.readthedocs.io/en/latest/pages/examples/ivp_2d_rayleigh_benard.html
 
@@ -45,20 +45,8 @@ $$
 $$
 
 ![Simulation GIF](gif_data/rbc2d_final.gif)
-=======
-# Name of the simulation
 
-**One line description of the data:** 
 
-**Longer description of the data:** 
-
-**Associated paper**:
-
-**Domain scientist**:
-
-**Code or software used to generate the data**:
-
-[ADD GIF OF THE SIMULATION]
 
 
 # About the data
