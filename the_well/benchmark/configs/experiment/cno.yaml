@@ -5,6 +5,8 @@ defaults:
   - /lr_scheduler: cosine_with_warmup
 
 trainer:
-  loss_fn: mse
+  loss_fn: 
+    _target_: the_well.benchmark.metrics.MSE
+
 
 name: cno

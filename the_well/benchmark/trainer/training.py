@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 
 from ..data.datamodule import AbstractDataModule
 from ..data.utils import preprocess_batch
-from ..metrics import mse, validation_metric_suite
+from ..metrics import MSE, validation_metric_suite
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ class Trainer:
         model: torch.nn.Module,
         datamodule: AbstractDataModule,
         optimizer: torch.optim.Optimizer,
-        loss_fn: Any,
+        loss_fn: Callable,
         # validation_suite: list,
         epochs: int,
         val_frequency: int,
@@ -62,10 +62,8 @@ class Trainer:
         self.datamodule = datamodule
         self.optimizer = optimizer
         self.lr_scheduler = lr_scheduler
-        if loss_fn == "mse":
-            self.loss_fn = mse
-        # self.loss_fn = loss_fn
-        # self.validation_suite = validation_suite
+        self.loss_fn = loss_fn
+        self.validation_suite = validation_metric_suite + [self.loss_fn]
         self.max_epoch = epochs
         self.val_frequency = val_frequency
         self.is_distributed = is_distributed
@@ -91,9 +89,9 @@ class Trainer:
         validation_loss = 0.0
         field_names = self.dset_metadata.field_names
         dset_name = self.dset_metadata.dataset_name
-        loss_dict = {f'{dset_name}/{fname}_{f.__name__}': 0.0 for f in validation_metric_suite
+        loss_dict = {f'{dset_name}/{fname}_{f.__class__.__name__}': 0.0 for f in self.validation_suite
                      for fname in field_names}
-        loss_dict |= {f'{dset_name}/full_{f.__name__}': 0.0 for f in validation_metric_suite}
+        loss_dict |= {f'{dset_name}/full_{f.__class__.__name__}': 0.0 for f in self.validation_suite}
         for batch in dataloader:
             x, y_ref = preprocess_batch(batch)
             for key, val in x.items():
@@ -103,19 +101,16 @@ class Trainer:
             assert (
                 y_ref.shape == y_pred.shape
             ), f"Mismatching shapes between reference {y_ref.shape} and prediction {y_pred.shape}"
-            for loss_fn in validation_metric_suite:
-                loss = loss_fn()(y_ref, y_pred, self.dset_metadata).mean(0).mean(0)
+            for loss_fn in self.validation_suite:
+                loss = loss_fn(y_ref, y_pred, self.dset_metadata).mean(0).mean(0)
                 for i, fname in enumerate(field_names):
-                    loss_dict[f'{dset_name}/{fname}_{loss_fn.__name__}'] += loss[i] * y_ref.size(0) / len(dataloader)
-                loss_dict[f'{dset_name}/full_{loss_fn.__name__}'] += loss.mean() * y_ref.size(0) / len(dataloader)
-                # loss_dict[loss_fn.__name__] += loss.item() * y_ref.size(0) / len(dataloader)
-                # validation_loss += loss.mean() * y_ref.size(0) / len(dataloader.dataset)
-            # break
+                    loss_dict[f'{dset_name}/{fname}_{loss_fn.__class__.__name__}'] += loss[i] / len(dataloader)
+                loss_dict[f'{dset_name}/full_{loss_fn.__class__.__name__}'] += loss.mean()  / len(dataloader)
+            break
         if self.is_distributed:
             for k, v in loss_dict.items():
                 dist.all_reduce(loss_dict[k], op=dist.ReduceOp.AVG)
-        # print(loss_dict)
-        validation_loss = loss_dict[f'{dset_name}/full_rmse'].item()
+        validation_loss = loss_dict[f'{dset_name}/full_{self.loss_fn.__class__.__name__}'].item()
         loss_dict = {k: v.item() for k, v in loss_dict.items()}
 
         return validation_loss, loss_dict
@@ -133,8 +128,8 @@ class Trainer:
             assert (
                 y_ref.shape == y_pred.shape
             ), f"Mismatching shapes between reference {y_ref.shape} and prediction {y_pred.shape}"
-            loss = self.loss_fn()(y_ref, y_pred, self.dset_metadata).mean()
-            epoch_loss += loss.item() * y_ref.size(0) / len(dataloader.dataset)
+            loss = self.loss_fn(y_ref, y_pred, self.dset_metadata).mean()
+            epoch_loss += loss.item() / len(dataloader)
             loss.backward()
             self.optimizer.step()
             self.optimizer.zero_grad()

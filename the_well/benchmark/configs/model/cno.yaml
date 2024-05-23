@@ -4,8 +4,3 @@ channel_multiplier: 32
 N_res: 4
 N_res_neck: 6
 in_size: 256
-activation: 'cno_lrelu'
-cutoff_den: 2.0001
-lrelu_upsampling: 2
-half_width_mult: .8
-filter_size: 6

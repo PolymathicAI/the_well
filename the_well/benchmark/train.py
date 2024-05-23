@@ -8,6 +8,7 @@ import wandb
 from hydra.utils import instantiate
 from omegaconf import DictConfig, OmegaConf
 from torch.nn.parallel import DistributedDataParallel as DDP
+from torchinfo import summary
 
 from the_well.benchmark.data import WellDataModule
 from the_well.benchmark.trainer import Trainer
@@ -57,6 +58,7 @@ def train(
         in_dim=n_input_fields,
         out_dim=n_output_fields
     )
+    summary(model, depth=5)
 
     if is_distributed:
         torch.cuda.set_device(local_rank)

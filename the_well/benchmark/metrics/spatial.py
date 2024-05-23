@@ -2,11 +2,12 @@ import numpy as np
 import torch
 
 from the_well.benchmark.data.datasets import GenericWellMetadata
-from the_well.benchmark.metrics.common import metric
+from the_well.benchmark.metrics.common import Metric
 
 
-class mse(metric):
-    def _inner_forward(self,
+class MSE(Metric):
+    @staticmethod
+    def eval(
     x: torch.Tensor | np.ndarray,
     y: torch.Tensor | np.ndarray,
     meta: GenericWellMetadata,
@@ -32,8 +33,9 @@ class mse(metric):
         return torch.mean((x - y) ** 2, dim=spatial_dims)
 
 
-class nmse(metric):
-    def _inner_forward(self,
+class NMSE(Metric):
+    @staticmethod
+    def eval(
     x: torch.Tensor | np.ndarray,
     y: torch.Tensor | np.ndarray,
     meta: GenericWellMetadata,
@@ -68,11 +70,12 @@ class nmse(metric):
             norm = torch.std(y, dim=spatial_dims) ** 2
         else:
             raise ValueError(f"Invalid norm_mode: {norm_mode}")
-        return mse()(x, y, meta) / (norm + eps)
+        return MSE.eval(x, y, meta) / (norm + eps)
 
 
-class rmse(metric):
-    def _inner_forward(self,
+class RMSE(Metric):
+    @staticmethod
+    def eval(
     x: torch.Tensor | np.ndarray,
     y: torch.Tensor | np.ndarray,
     meta: GenericWellMetadata,
@@ -94,11 +97,12 @@ class rmse(metric):
         torch.Tensor
             Root mean squared error between x and y.
         """
-        return torch.sqrt(mse()(x, y, meta))
+        return torch.sqrt(MSE.eval(x, y, meta))
 
 
-class nrmse(metric):
-    def _inner_forward(self,
+class NRMSE(Metric):
+    @staticmethod
+    def eval(
         x: torch.Tensor | np.ndarray,
         y: torch.Tensor | np.ndarray,
         meta: GenericWellMetadata,
@@ -126,4 +130,4 @@ class nrmse(metric):
         torch.Tensor
             Normalized root mean squared error between x and y.
         """
-        return torch.sqrt(nmse()(x, y, meta, eps=eps, norm_mode=norm_mode))
+        return torch.sqrt(NMSE.eval(x, y, meta, eps=eps, norm_mode=norm_mode))

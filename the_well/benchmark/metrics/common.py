@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch
 
 
-class metric(nn.Module):
+class Metric(nn.Module):
     """
     Decorator for metrics that standardizes the input arguments and checks the dimensions of the input tensors.
     Parameters
@@ -40,7 +40,8 @@ class metric(nn.Module):
             y.ndim >= spatial_ndims + 1
         ), "y must have at least spatial_ndims + 1 dimensions"
 
-        return self._inner_forward(x, y, meta, **kwargs)
+        return self.eval(x, y, meta, **kwargs)
     
-    def _inner_forward(self, x, y, meta, **kwargs):
+    @staticmethod
+    def eval(self, x, y, meta, **kwargs):
         raise NotImplementedError
