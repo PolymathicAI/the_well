@@ -12,11 +12,11 @@
 
 **Equation describing the data** $
 \begin{align}
-\frac{\partial A}{\partial t} &= \delta_A\Delta A - AB^2 + F(1-A) \nonumber \\
-\frac{\partial B}{\partial t} &= \delta_B\Delta B - AB^2 + (F+k)B \nonumber
+\frac{\partial A}{\partial t} &= \delta_A\Delta A - AB^2 + f(1-A) \nonumber \\
+\frac{\partial B}{\partial t} &= \delta_B\Delta B - AB^2 + (f+k)B \nonumber
 \end{align}
 $
-The dimensionless parameters describing the behavior are: $F$, $k$, $\frac{\delta_A}{\delta_B}$
+The dimensionless parameters describing the behavior are: $f$, $k$, $\frac{\delta_A}{\delta_B}$
 [ADD Description of variables, but should be good]
 
 [ADD GIF OF THE SIMULATION]
