@@ -16,4 +16,4 @@ module load python cuda cudnn
 source /mnt/home/rohana/python_envs/nanoGPT/bin/activate
 
 # Launch the training script
-srun python train.py experiment=fno2d server=rusty
+srun python train.py experiment=fno server=rusty
