@@ -1,7 +1,7 @@
 # @package _global_
 defaults:
   - /data: active_matter
-  - /model: fno
+  - /model: tfno
   - /lr_scheduler: cosine_with_warmup
 
 trainer:
@@ -9,4 +9,4 @@ trainer:
     _target_: torch.nn.MSELoss
     reduction: mean
 
-name: fno
+name: tfno

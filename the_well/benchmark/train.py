@@ -37,6 +37,9 @@ def train(
     logger.info(f"Instantiate datamodule {cfg.data._target_}")
     datamodule: WellDataModule = instantiate(cfg.data, world_size=world_size, rank=rank)
     num_fields_by_tensor_order = datamodule.train_dataset.num_fields_by_tensor_order
+    n_spatial_dim = (
+        datamodule.train_dataset.ndims
+    )  # get the spatial dimension for the FNO
     n_scalar_components = num_fields_by_tensor_order[0]
     n_vector_components = num_fields_by_tensor_order[1]
     n_tensor_components = num_fields_by_tensor_order[2]
@@ -49,6 +52,7 @@ def train(
     )
     model: torch.nn.Module = instantiate(
         cfg.model,
+        n_spatial_dim=n_spatial_dim,
         n_input_scalar_components=n_scalar_components,
         n_input_vector_components=n_vector_components,
         n_output_scalar_components=n_scalar_components,
@@ -96,7 +100,7 @@ def train(
 
 def get_experiment_name(cfg: DictConfig) -> str:
     model_name = cfg.model._target_.split(".")[-1]
-    return f"{cfg.name}-{model_name}-{cfg.optimizer.lr}"
+    return f"{cfg.data.well_dataset_name}-{cfg.name}-{model_name}-{cfg.optimizer.lr}"
 
 
 @hydra.main(version_base=None, config_path=CONFIG_DIR, config_name=CONFIG_NAME)
@@ -107,6 +111,7 @@ def main(cfg: DictConfig):
     # Initiate wandb logging
     wandb.init(
         project="the_well",
+        group=f"{cfg.data.well_dataset_name}",
         config=OmegaConf.to_container(cfg, resolve=True),
         name=experiment_name,
     )

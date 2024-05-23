@@ -17,7 +17,9 @@ benchmark = [
     "h5py>=3.9.0",
     "hydra-core",
     "einops",
-    "wandb"
+    "wandb",
+    "torch_harmonics",
+    "neuraloperator"
 ]
 
 [project.scripts]
