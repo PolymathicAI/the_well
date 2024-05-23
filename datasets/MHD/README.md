@@ -17,7 +17,8 @@ $\begin{align}
 \frac{\partial \mathbf{B}}{\partial t} - \nabla \times (\mathbf{v} \times \mathbf{B}) &= 0 \nonumber\\
 \end{align}
 $
-where $\rho$ is the density, $\mathbf{v}$ is the velocity, $\mathbf{B}$ is the magnetic field,$\mathnf{I}$ the identity matrix and $p$ is the gas pressure.
+where $\rho$ is the density, $\mathbf{v}$ is the velocity, $\mathbf{B}$ is the magnetic field,$\mathbf{I}$ the identity matrix and $p$ is the gas pressure.
+
 [ADD GIF OF THE SIMULATION]
 
 # About the data
