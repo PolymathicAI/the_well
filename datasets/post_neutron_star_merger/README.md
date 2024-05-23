@@ -9,7 +9,7 @@ three-dimensional general relativistic neutrino radiation
 magnetohydrodynamics. The plasma physics is treated with finite
 volumes with constrained transport for the magnetic field on a
 curvilinear grid. The system is closed by a tabulated nuclear equation
-of state assuming nuclear statistical equilibrium (NSE). THe radiation
+of state assuming nuclear statistical equilibrium (NSE). The radiation
 field is treated via Monte Carlo transport, which is a particle
 method. The particles are not included in this dataset, however their
 effects are visible as source terms on the fluid.
