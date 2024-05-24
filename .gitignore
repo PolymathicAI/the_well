@@ -45,6 +45,7 @@ testing_before_adding/
 # Ignore logs and temporary files
 *.log
 *.tmp
+*.pt
 
 # Ignore compiled binaries and libraries
 *.exe
