@@ -3,6 +3,7 @@ Mixed from:
   Takamoto et al., PDEBench
   TBD, ConvNext
 """
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
