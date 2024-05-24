@@ -24,7 +24,6 @@ class TestFNO(TestCase):
             self.n_spatial_dims,
             self.modes1,
             self.modes2,
-            n_param_conditioning=self.n_param_conditioning,
         )
         self.assertTrue(isinstance(model, FNO))
         x = torch.rand(8, 1, 32, 32, 5)
@@ -39,7 +38,7 @@ class TestFNO(TestCase):
         config = OmegaConf.load(FNO_CONFIG_FILE)
         model = instantiate(
             config,
-            n_spatial_dim=self.n_spatial_dim,
+            n_spatial_dims=self.n_spatial_dims,
             dim_in=self.dim_in,
             dim_out=self.dim_out,
         )
