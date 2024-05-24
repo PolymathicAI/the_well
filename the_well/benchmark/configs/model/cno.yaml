@@ -1,6 +1,0 @@
-_target_: the_well.benchmark.models.CNO
-N_layers: 3
-channel_multiplier: 32
-N_res: 4
-N_res_neck: 6
-in_size: 256
