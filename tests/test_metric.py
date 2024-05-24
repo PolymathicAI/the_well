@@ -24,5 +24,5 @@ class TestMetrics(TestCase):
             #    binned_spectral_mse
         ]:
             x = torch.tensor([1.0, 2.0, 3.0]).unsqueeze(-1)
-            error = metric(x, x, meta)
+            error = metric(x, x)
             self.assertAlmostEqual(error.nansum().item(), 0.0)

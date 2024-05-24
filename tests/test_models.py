@@ -26,7 +26,7 @@ class TestFNO(TestCase):
             self.modes2,
         )
         self.assertTrue(isinstance(model, FNO))
-        x = torch.rand(8, 1, 32, 32, 5)
+        x = torch.rand(8, 5, 32, 32)
         # t = torch.rand(8)
         # param = torch.rand(8, 3)
         # input = {"time": t, "x": x, "parameters": param}
@@ -43,9 +43,6 @@ class TestFNO(TestCase):
             dim_out=self.dim_out,
         )
         self.assertTrue(isinstance(model, FNO))
-        x = torch.rand(8, 1, 32, 32, 5)
-        # t = torch.rand(8)
-        # param = torch.rand(8, 3)
-        # input = {"time": t, "x": x, "parameters": param}
+        x = torch.rand(8, 5, 32, 32)
         out = model(x)
         self.assertEqual(out.shape, x.shape)
