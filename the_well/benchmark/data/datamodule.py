@@ -102,6 +102,8 @@ class WellDataModule(AbstractDataModule):
 
         return DataLoader(
             self.train_dataset,
+            num_workers=6,  # parameterize this
+            pin_memory=True,
             batch_size=self.batch_size,
             shuffle=shuffle,
             drop_last=True,
@@ -124,6 +126,8 @@ class WellDataModule(AbstractDataModule):
 
         return DataLoader(
             self.val_dataset,
+            num_workers=6,  # parameterize this
+            pin_memory=True,
             batch_size=self.batch_size,
             shuffle=False,
             drop_last=True,
@@ -131,6 +135,24 @@ class WellDataModule(AbstractDataModule):
         )
 
     def test_dataloader(self) -> DataLoader:
+        sampler = None
+        if self.is_distributed:
+            sampler = DistributedSampler(
+                self.test_dataset,
+                num_replicas=self.world_size,
+                rank=self.rank,
+                shuffle=False,
+            )
+            logger.debug(
+                f"Use {sampler.__class__.__name__} "
+                f"({self.rank}/{self.world_size}) for test data"
+            )
         return DataLoader(
-            self.test_dataset, batch_size=self.batch_size, shuffle=False, drop_last=True
+            self.test_dataset,
+            num_workers=6,  # parameterize this
+            pin_memory=True,
+            batch_size=self.batch_size,
+            shuffle=False,
+            drop_last=True,
+            sampler=sampler,
         )

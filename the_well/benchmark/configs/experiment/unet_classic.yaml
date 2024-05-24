@@ -1,7 +1,7 @@
 # @package _global_
 defaults:
-  - /data: MHD
-  - /model: fno
+  - /data: active_matter
+  - /model: unet_classic
   - /lr_scheduler: cosine_with_warmup
 
 trainer:
@@ -9,4 +9,5 @@ trainer:
     _target_: the_well.benchmark.metrics.MSE
   formatter: channels_first_default
 
-name: fno
+
+name: unet_classic

@@ -70,9 +70,19 @@ class GenericWellMetadata:
     ----------
     spatial_ndims : int
         Number of spatial dimensions of the data.
+    dataset_name : str
+        Name of the dataset. Used for logging.
+    field_names : list
+        List of field names in the dataset. Used for logging.
+
     """
 
-    spatial_ndims: int
+    n_spatial_dims: int
+    resolution: tuple[int]
+    n_fields: int
+    n_constant_fields: int
+    dataset_name: str
+    field_names: list
 
 
 class GenericWellDataset(Dataset):
@@ -221,7 +231,7 @@ class GenericWellDataset(Dataset):
         self.files_paths.sort()
         self.constant_cache = {}
         # Build multi-index
-        self._build_metadata()
+        self.metadata = self._build_metadata()
         # Override name if necessary for logging
         if name_override is not None:
             self.dataset_name = name_override
@@ -234,6 +244,7 @@ class GenericWellDataset(Dataset):
         self.file_samples = []  # Number of simulation per file
         self.file_index_offsets = [0]  # Used to track where each file starts
         self.field_names = []
+        self.constant_field_names = []
         # Things where we just care every file has same value
         size_tuples = set()
         names = set()
@@ -278,18 +289,46 @@ class GenericWellDataset(Dataset):
                 # Populate field names
                 if index == 0:
                     self.num_fields_by_tensor_order = {}
+                    self.num_constant_fields_by_tensor_order = {}
                     self.num_constants = len(_f.attrs["simulation_parameters"])
                     for field in _f["t0_fields"].attrs["field_names"]:
-                        self.field_names.append(field)
-                    self.num_fields_by_tensor_order[0] = len(
-                        _f["t0_fields"].attrs["field_names"]
-                    )
+                        if (
+                            _f["t0_fields"][field].attrs["time_varying"]
+                            and _f["t0_fields"][field].attrs["sample_varying"]
+                        ):
+                            self.field_names.append(field)
+                            self.num_fields_by_tensor_order[0] = (
+                                self.num_fields_by_tensor_order.get(0, 0) + 1
+                            )
+                        else:
+                            self.constant_field_names.append(field)
+                            self.num_constant_fields_by_tensor_order[0] = (
+                                self.num_constant_fields_by_tensor_order.get(0, 0) + 1
+                            )
+                    # self.num_fields_by_tensor_order[0] = len(
+                    #     _f["t0_fields"].attrs["field_names"]
+                    # )
                     for field in _f["t1_fields"].attrs["field_names"]:
                         for dim in _f["dimensions"].attrs["spatial_dims"]:
-                            self.field_names.append(f"{field}_{dim}")
-                    self.num_fields_by_tensor_order[1] = len(
-                        _f["t1_fields"].attrs["field_names"]
-                    )
+                            if (
+                                _f["t1_fields"][field].attrs["time_varying"]
+                                and _f["t1_fields"][field].attrs["sample_varying"]
+                            ):
+                                self.field_names.append(f"{field}_{dim}")
+                                self.num_fields_by_tensor_order[1] = (
+                                    self.num_fields_by_tensor_order.get(1, 0) + 1
+                                )
+                            else:
+                                self.constant_field_names.append(f"{field}_{dim}")
+                                self.num_constant_fields_by_tensor_order[1] = (
+                                    self.num_constant_fields_by_tensor_order.get(1, 0)
+                                    + 1
+                                )
+
+                    #         self.field_names.append(f"{field}_{dim}")
+                    # self.num_fields_by_tensor_order[1] = len(
+                    #     _f["t1_fields"].attrs["field_names"]
+                    # )
                     for field in _f["t2_fields"].attrs["field_names"]:
                         for i, dim1 in enumerate(
                             _f["dimensions"].attrs["spatial_dims"]
@@ -302,10 +341,28 @@ class GenericWellDataset(Dataset):
                                 # if _f['t2_fields'][field].attrs['symmetric']:
                                 #     if i > j:
                                 #         continue
-                                self.field_names.append(f"{field}_{dim1}{dim2}")
-                    self.num_fields_by_tensor_order[2] = len(
-                        _f["t2_fields"].attrs["field_names"]
-                    )
+                                if (
+                                    _f["t2_fields"][field].attrs["time_varying"]
+                                    and _f["t2_fields"][field].attrs["sample_varying"]
+                                ):
+                                    self.field_names.append(f"{field}_{dim1}{dim2}")
+                                    self.num_fields_by_tensor_order[2] = (
+                                        self.num_fields_by_tensor_order.get(2, 0) + 1
+                                    )
+                                else:
+                                    self.constant_field_names.append(
+                                        f"{field}_{dim1}{dim2}"
+                                    )
+                                    self.num_constant_fields_by_tensor_order[2] = (
+                                        self.num_constant_fields_by_tensor_order.get(
+                                            2, 0
+                                        )
+                                        + 1
+                                    )
+                    #             self.field_names.append(f"{field}_{dim1}{dim2}")
+                    # self.num_fields_by_tensor_order[2] = len(
+                    #     _f["t2_fields"].attrs["field_names"]
+                    # )
 
         # Just to make sure it doesn't put us in file -1
         self.file_index_offsets[0] = -1
@@ -314,13 +371,22 @@ class GenericWellDataset(Dataset):
         ]  # We open file references as they come
         # Dataset length is last number of samples
         self.len = self.file_index_offsets[-1]
-        self.ndims = list(ndims)[0]  # Number of spatial dims
+        self.n_spatial_dims = list(ndims)[0]  # Number of spatial dims
         self.size_tuple = list(size_tuples)[0]  # Size of spatial dims
         self.dataset_name = list(names)[0]  # Name of dataset
         # Total number of fields (flattening tensor-valued fields)
         self.num_total_fields = len(self.field_names)
+        self.num_total_constant_fields = len(self.constant_field_names)
         self.num_bcs = len(bcs)  # Number of boundary condition type included in data
         self.bc_types = list(bcs)  # List of boundary condition types
+        return GenericWellMetadata(
+            n_spatial_dims=self.n_spatial_dims,
+            resolution=self.size_tuple,
+            n_fields=self.num_total_fields,
+            n_constant_fields=self.num_total_constant_fields,
+            dataset_name=self.dataset_name,
+            field_names=self.field_names,
+        )
 
     def _open_file(self, file_ind: int):
         _file = h5.File(self.files_paths[file_ind], "r")
@@ -507,7 +573,7 @@ class GenericWellDataset(Dataset):
             dim_indices = {
                 dim: i for i, dim in enumerate(file["dimensions"].attrs["spatial_dims"])
             }
-            boundary_output = torch.zeros((2,) * self.ndims)
+            boundary_output = torch.zeros((2,) * self.n_spatial_dims)
             for bc_name in bcs.keys():
                 bc = bcs[bc_name]
                 bc_type = bc.attrs["bc_type"].upper()  # Enum is in upper case

@@ -19,7 +19,8 @@ benchmark = [
     "einops",
     "wandb",
     "torch_harmonics",
-    "neuraloperator"
+    "neuraloperator",
+    "timm"
 ]
 
 [project.scripts]

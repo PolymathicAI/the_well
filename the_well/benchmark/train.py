@@ -8,6 +8,7 @@ import wandb
 from hydra.utils import instantiate
 from omegaconf import DictConfig, OmegaConf
 from torch.nn.parallel import DistributedDataParallel as DDP
+from torchinfo import summary
 
 from the_well.benchmark.data import WellDataModule
 from the_well.benchmark.trainer import Trainer
@@ -36,29 +37,21 @@ def train(
 
     logger.info(f"Instantiate datamodule {cfg.data._target_}")
     datamodule: WellDataModule = instantiate(cfg.data, world_size=world_size, rank=rank)
-    num_fields_by_tensor_order = datamodule.train_dataset.num_fields_by_tensor_order
-    n_spatial_dim = (
-        datamodule.train_dataset.ndims
-    )  # get the spatial dimension for the FNO
-    n_scalar_components = num_fields_by_tensor_order[0]
-    n_vector_components = num_fields_by_tensor_order[1]
-    n_tensor_components = num_fields_by_tensor_order[2]
-    # Treat tensor components as vector
-    n_vector_components += 2 * n_tensor_components
-    n_param = datamodule.train_dataset.num_constants
+    dset_metadata = datamodule.train_dataset.metadata
+    n_input_fields = dset_metadata.n_fields + dset_metadata.n_constant_fields
+    n_output_fields = dset_metadata.n_fields
 
     logger.info(
         f"Instantiate model {cfg.model._target_}",
     )
     model: torch.nn.Module = instantiate(
         cfg.model,
-        n_spatial_dim=n_spatial_dim,
-        n_input_scalar_components=n_scalar_components,
-        n_input_vector_components=n_vector_components,
-        n_output_scalar_components=n_scalar_components,
-        n_output_vector_components=n_vector_components,
-        n_param_conditioning=n_param,
+        n_spatial_dims=dset_metadata.n_spatial_dims,
+        dim_in=n_input_fields,
+        dim_out=n_output_fields,
     )
+    summary(model, depth=5)
+
     if is_distributed:
         torch.cuda.set_device(local_rank)
         device = torch.device("cuda")
@@ -105,6 +98,12 @@ def get_experiment_name(cfg: DictConfig) -> str:
 
 @hydra.main(version_base=None, config_path=CONFIG_DIR, config_name=CONFIG_NAME)
 def main(cfg: DictConfig):
+    # Torch optimization settings
+    torch.backends.cudnn.benchmark = (
+        True  # If input size is fixed, this will usually the computation faster
+    )
+    torch.set_float32_matmul_precision("high")  # Use TF32 when supported
+    # Normal things
     experiment_name = get_experiment_name(cfg)
     logger.info(f"Run experiment {experiment_name}")
     logger.info(f"Configuration:\n{OmegaConf.to_yaml(cfg)}")

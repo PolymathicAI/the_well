@@ -1,4 +1,4 @@
-_target_: the_well.benchmark.models.tfno.TFNO
+_target_: the_well.benchmark.models.TFNO
 modes1: 16
 modes2: 16
 hidden_channels: 128
