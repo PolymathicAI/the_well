@@ -5,8 +5,8 @@ import torch
 import torch.distributed as dist
 import tqdm
 import wandb
-
 from torch.utils.data import DataLoader
+
 from ..data.data_formatter import DefaultChannelsFirstFormatter
 from ..data.datamodule import AbstractDataModule
 from ..metrics import validation_metric_suite
