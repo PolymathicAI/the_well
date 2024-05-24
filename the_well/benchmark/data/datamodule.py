@@ -102,8 +102,8 @@ class WellDataModule(AbstractDataModule):
 
         return DataLoader(
             self.train_dataset,
-            num_workers = 6, # parameterize this
-            pin_memory=True, 
+            num_workers=6,  # parameterize this
+            pin_memory=True,
             batch_size=self.batch_size,
             shuffle=shuffle,
             drop_last=True,
@@ -126,8 +126,8 @@ class WellDataModule(AbstractDataModule):
 
         return DataLoader(
             self.val_dataset,
-            num_workers = 6, # parameterize this
-            pin_memory=True, 
+            num_workers=6,  # parameterize this
+            pin_memory=True,
             batch_size=self.batch_size,
             shuffle=False,
             drop_last=True,
@@ -148,11 +148,11 @@ class WellDataModule(AbstractDataModule):
                 f"({self.rank}/{self.world_size}) for test data"
             )
         return DataLoader(
-            self.test_dataset, 
-            num_workers = 6, # parameterize this
-            pin_memory=True, 
-            batch_size=self.batch_size, 
-            shuffle=False, 
+            self.test_dataset,
+            num_workers=6,  # parameterize this
+            pin_memory=True,
+            batch_size=self.batch_size,
+            shuffle=False,
             drop_last=True,
             sampler=sampler,
         )

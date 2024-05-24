@@ -7,16 +7,26 @@ from collections import OrderedDict
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from timm.models.layers import trunc_normal_, DropPath
+from timm.models.layers import DropPath, trunc_normal_
 
 conv_modules = {1: nn.Conv1d, 2: nn.Conv2d, 3: nn.Conv3d}
-conv_transpose_modules = {1: nn.ConvTranspose1d, 2: nn.ConvTranspose2d, 3: nn.ConvTranspose3d}
+conv_transpose_modules = {
+    1: nn.ConvTranspose1d,
+    2: nn.ConvTranspose2d,
+    3: nn.ConvTranspose3d,
+}
 pool_modules = {1: nn.MaxPool1d, 2: nn.MaxPool2d, 3: nn.MaxPool3d}
 norm_modules = {1: nn.BatchNorm1d, 2: nn.BatchNorm2d, 3: nn.BatchNorm3d}
 
-class UNetClassic(nn.Module):
 
-    def __init__(self, dim_in=3, dim_out=1, n_spatial_dims=2, init_features=32):
+class UNetClassic(nn.Module):
+    def __init__(
+        self,
+        dim_in: int = 3,
+        dim_out: int = 1,
+        n_spatial_dims: int = 2,
+        init_features: int = 32,
+    ):
         super(UNetClassic, self).__init__()
         self.n_spatial_dims = n_spatial_dims
         features = init_features
@@ -88,7 +98,10 @@ class UNetClassic(nn.Module):
                             bias=False,
                         ),
                     ),
-                    (name + "norm1", norm_modules[self.n_spatial_dims](num_features=features)),
+                    (
+                        name + "norm1",
+                        norm_modules[self.n_spatial_dims](num_features=features),
+                    ),
                     (name + "tanh1", nn.Tanh()),
                     (
                         name + "conv2",
@@ -100,7 +113,10 @@ class UNetClassic(nn.Module):
                             bias=False,
                         ),
                     ),
-                    (name + "norm2", norm_modules[self.n_spatial_dims](num_features=features)),
+                    (
+                        name + "norm2",
+                        norm_modules[self.n_spatial_dims](num_features=features),
+                    ),
                     (name + "tanh2", nn.Tanh()),
                 ]
             )

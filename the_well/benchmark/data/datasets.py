@@ -74,7 +74,7 @@ class GenericWellMetadata:
         Name of the dataset. Used for logging.
     field_names : list
         List of field names in the dataset. Used for logging.
-    
+
     """
 
     n_spatial_dims: int
@@ -236,8 +236,6 @@ class GenericWellDataset(Dataset):
         if name_override is not None:
             self.dataset_name = name_override
 
-        
-
     def _build_metadata(self):
         """Builds multi-file indices and checks that folder contains consistent dataset"""
         self.n_files = len(self.files_paths)
@@ -294,25 +292,38 @@ class GenericWellDataset(Dataset):
                     self.num_constant_fields_by_tensor_order = {}
                     self.num_constants = len(_f.attrs["simulation_parameters"])
                     for field in _f["t0_fields"].attrs["field_names"]:
-                        if (_f["t0_fields"][field].attrs["time_varying"] 
-                        and _f['t0_fields'][field].attrs["sample_varying"]):
+                        if (
+                            _f["t0_fields"][field].attrs["time_varying"]
+                            and _f["t0_fields"][field].attrs["sample_varying"]
+                        ):
                             self.field_names.append(field)
-                            self.num_fields_by_tensor_order[0] = self.num_fields_by_tensor_order.get(0, 0) + 1
+                            self.num_fields_by_tensor_order[0] = (
+                                self.num_fields_by_tensor_order.get(0, 0) + 1
+                            )
                         else:
                             self.constant_field_names.append(field)
-                            self.num_constant_fields_by_tensor_order[0] = self.num_constant_fields_by_tensor_order.get(0, 0) + 1
+                            self.num_constant_fields_by_tensor_order[0] = (
+                                self.num_constant_fields_by_tensor_order.get(0, 0) + 1
+                            )
                     # self.num_fields_by_tensor_order[0] = len(
                     #     _f["t0_fields"].attrs["field_names"]
                     # )
                     for field in _f["t1_fields"].attrs["field_names"]:
                         for dim in _f["dimensions"].attrs["spatial_dims"]:
-                            if (_f["t1_fields"][field].attrs["time_varying"] 
-                            and _f['t1_fields'][field].attrs["sample_varying"]):
+                            if (
+                                _f["t1_fields"][field].attrs["time_varying"]
+                                and _f["t1_fields"][field].attrs["sample_varying"]
+                            ):
                                 self.field_names.append(f"{field}_{dim}")
-                                self.num_fields_by_tensor_order[1] = self.num_fields_by_tensor_order.get(1, 0) + 1
+                                self.num_fields_by_tensor_order[1] = (
+                                    self.num_fields_by_tensor_order.get(1, 0) + 1
+                                )
                             else:
                                 self.constant_field_names.append(f"{field}_{dim}")
-                                self.num_constant_fields_by_tensor_order[1] = self.num_constant_fields_by_tensor_order.get(1, 0) + 1
+                                self.num_constant_fields_by_tensor_order[1] = (
+                                    self.num_constant_fields_by_tensor_order.get(1, 0)
+                                    + 1
+                                )
 
                     #         self.field_names.append(f"{field}_{dim}")
                     # self.num_fields_by_tensor_order[1] = len(
@@ -330,13 +341,24 @@ class GenericWellDataset(Dataset):
                                 # if _f['t2_fields'][field].attrs['symmetric']:
                                 #     if i > j:
                                 #         continue
-                                if (_f["t2_fields"][field].attrs["time_varying"]
-                                and _f['t2_fields'][field].attrs["sample_varying"]):
+                                if (
+                                    _f["t2_fields"][field].attrs["time_varying"]
+                                    and _f["t2_fields"][field].attrs["sample_varying"]
+                                ):
                                     self.field_names.append(f"{field}_{dim1}{dim2}")
-                                    self.num_fields_by_tensor_order[2] = self.num_fields_by_tensor_order.get(2, 0) + 1
+                                    self.num_fields_by_tensor_order[2] = (
+                                        self.num_fields_by_tensor_order.get(2, 0) + 1
+                                    )
                                 else:
-                                    self.constant_field_names.append(f"{field}_{dim1}{dim2}")
-                                    self.num_constant_fields_by_tensor_order[2] = self.num_constant_fields_by_tensor_order.get(2, 0) + 1
+                                    self.constant_field_names.append(
+                                        f"{field}_{dim1}{dim2}"
+                                    )
+                                    self.num_constant_fields_by_tensor_order[2] = (
+                                        self.num_constant_fields_by_tensor_order.get(
+                                            2, 0
+                                        )
+                                        + 1
+                                    )
                     #             self.field_names.append(f"{field}_{dim1}{dim2}")
                     # self.num_fields_by_tensor_order[2] = len(
                     #     _f["t2_fields"].attrs["field_names"]
@@ -357,12 +379,14 @@ class GenericWellDataset(Dataset):
         self.num_total_constant_fields = len(self.constant_field_names)
         self.num_bcs = len(bcs)  # Number of boundary condition type included in data
         self.bc_types = list(bcs)  # List of boundary condition types
-        return GenericWellMetadata(n_spatial_dims=self.n_spatial_dims, 
-                                   resolution=self.size_tuple,
-                                   n_fields=self.num_total_fields,
-                                   n_constant_fields=self.num_total_constant_fields, 
-                                   dataset_name=self.dataset_name, 
-                                   field_names=self.field_names)
+        return GenericWellMetadata(
+            n_spatial_dims=self.n_spatial_dims,
+            resolution=self.size_tuple,
+            n_fields=self.num_total_fields,
+            n_constant_fields=self.num_total_constant_fields,
+            dataset_name=self.dataset_name,
+            field_names=self.field_names,
+        )
 
     def _open_file(self, file_ind: int):
         _file = h5.File(self.files_paths[file_ind], "r")

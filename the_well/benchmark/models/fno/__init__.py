@@ -33,7 +33,6 @@ class FNO(nn.Module):
         elif self.n_spatial_dims == 3:
             self.n_modes = (self.modes1, self.modes2, self.modes3)
 
-
         self.model = neuralop_FNO(
             n_modes=self.n_modes,
             in_channels=self.dim_in,

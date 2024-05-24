@@ -1,6 +1,6 @@
 import numpy as np
-import torch.nn as nn
 import torch
+import torch.nn as nn
 
 
 class Metric(nn.Module):
@@ -19,6 +19,7 @@ class Metric(nn.Module):
         **kwargs : dict
             Additional arguments for the metric.
     """
+
     def forward(self, *args, **kwargs):
         assert len(args) >= 3, "At least three arguments required (x, y, and meta)"
         x, y, meta = args[:3]
@@ -41,7 +42,7 @@ class Metric(nn.Module):
         ), "y must have at least n_spatial_dims + 1 dimensions"
 
         return self.eval(x, y, meta, **kwargs)
-    
+
     @staticmethod
     def eval(self, x, y, meta, **kwargs):
         raise NotImplementedError

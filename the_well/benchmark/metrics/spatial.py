@@ -8,10 +8,10 @@ from the_well.benchmark.metrics.common import Metric
 class MSE(Metric):
     @staticmethod
     def eval(
-    x: torch.Tensor | np.ndarray,
-    y: torch.Tensor | np.ndarray,
-    meta: GenericWellMetadata,
-) -> torch.Tensor:
+        x: torch.Tensor | np.ndarray,
+        y: torch.Tensor | np.ndarray,
+        meta: GenericWellMetadata,
+    ) -> torch.Tensor:
         """
         Mean Squared Error
 
@@ -36,12 +36,12 @@ class MSE(Metric):
 class NMSE(Metric):
     @staticmethod
     def eval(
-    x: torch.Tensor | np.ndarray,
-    y: torch.Tensor | np.ndarray,
-    meta: GenericWellMetadata,
-    eps: float = 1e-7,
-    norm_mode: str = "norm",
-) -> torch.Tensor:
+        x: torch.Tensor | np.ndarray,
+        y: torch.Tensor | np.ndarray,
+        meta: GenericWellMetadata,
+        eps: float = 1e-7,
+        norm_mode: str = "norm",
+    ) -> torch.Tensor:
         """
         Normalized Mean Squared Error
 
@@ -76,10 +76,10 @@ class NMSE(Metric):
 class RMSE(Metric):
     @staticmethod
     def eval(
-    x: torch.Tensor | np.ndarray,
-    y: torch.Tensor | np.ndarray,
-    meta: GenericWellMetadata,
-) -> torch.Tensor:
+        x: torch.Tensor | np.ndarray,
+        y: torch.Tensor | np.ndarray,
+        meta: GenericWellMetadata,
+    ) -> torch.Tensor:
         """
         Root Mean Squared Error
 

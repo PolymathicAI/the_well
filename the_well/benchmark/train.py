@@ -4,12 +4,12 @@ import os.path as osp
 import hydra
 import torch
 import torch.distributed as dist
-import wandb
 from hydra.utils import instantiate
 from omegaconf import DictConfig, OmegaConf
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torchinfo import summary
 
+import wandb
 from the_well.benchmark.data import WellDataModule
 from the_well.benchmark.trainer import Trainer
 from the_well.benchmark.trainer.utils import get_distrib_config, set_master_config
@@ -42,7 +42,6 @@ def train(
     n_input_fields = dset_metadata.n_fields + dset_metadata.n_constant_fields
     n_output_fields = dset_metadata.n_fields
 
-
     logger.info(
         f"Instantiate model {cfg.model._target_}",
     )
@@ -50,7 +49,7 @@ def train(
         cfg.model,
         n_spatial_dims=dset_metadata.n_spatial_dims,
         dim_in=n_input_fields,
-        dim_out=n_output_fields
+        dim_out=n_output_fields,
     )
     summary(model, depth=5)
 
@@ -101,8 +100,10 @@ def get_experiment_name(cfg: DictConfig) -> str:
 @hydra.main(version_base=None, config_path=CONFIG_DIR, config_name=CONFIG_NAME)
 def main(cfg: DictConfig):
     # Torch optimization settings
-    torch.backends.cudnn.benchmark = True # If input size is fixed, this will usually the computation faster
-    torch.set_float32_matmul_precision('high') # Use TF32 when supported
+    torch.backends.cudnn.benchmark = (
+        True  # If input size is fixed, this will usually the computation faster
+    )
+    torch.set_float32_matmul_precision("high")  # Use TF32 when supported
     # Normal things
     experiment_name = get_experiment_name(cfg)
     logger.info(f"Run experiment {experiment_name}")

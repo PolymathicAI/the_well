@@ -1,16 +1,17 @@
 import logging
-from typing import Callable, Optional, Any
+from typing import Any, Callable, Optional
 
 import torch
 import torch.distributed as dist
-import wandb
 import tqdm
 from torch.utils.data import DataLoader
 
+import wandb
+
+from ..data.data_formatter import DefaultChannelsFirstFormatter
 from ..data.datamodule import AbstractDataModule
 from ..data.utils import preprocess_batch
 from ..metrics import MSE, validation_metric_suite
-from ..data.data_formatter import DefaultChannelsFirstFormatter
 
 logger = logging.getLogger(__name__)
 
@@ -94,9 +95,15 @@ class Trainer:
         validation_loss = 0.0
         field_names = self.dset_metadata.field_names
         dset_name = self.dset_metadata.dataset_name
-        loss_dict = {f'{dset_name}/{fname}_{f.__class__.__name__}': 0.0 for f in self.validation_suite
-                     for fname in field_names}
-        loss_dict |= {f'{dset_name}/full_{f.__class__.__name__}': 0.0 for f in self.validation_suite}
+        loss_dict = {
+            f"{dset_name}/{fname}_{f.__class__.__name__}": 0.0
+            for f in self.validation_suite
+            for fname in field_names
+        }
+        loss_dict |= {
+            f"{dset_name}/full_{f.__class__.__name__}": 0.0
+            for f in self.validation_suite
+        }
         for batch in tqdm.tqdm(dataloader):
             inputs, y_ref = self.formatter.process_input(batch)
             inputs = map(lambda x: x.to(self.device), inputs)
@@ -109,13 +116,19 @@ class Trainer:
             for loss_fn in self.validation_suite:
                 loss = loss_fn(y_ref, y_pred, self.dset_metadata).mean(0).mean(0)
                 for i, fname in enumerate(field_names):
-                    loss_dict[f'{dset_name}/{fname}_{loss_fn.__class__.__name__}'] += loss[i] / len(dataloader)
-                loss_dict[f'{dset_name}/full_{loss_fn.__class__.__name__}'] += loss.mean()  / len(dataloader)
+                    loss_dict[f"{dset_name}/{fname}_{loss_fn.__class__.__name__}"] += (
+                        loss[i] / len(dataloader)
+                    )
+                loss_dict[f"{dset_name}/full_{loss_fn.__class__.__name__}"] += (
+                    loss.mean() / len(dataloader)
+                )
             # break
         if self.is_distributed:
             for k, v in loss_dict.items():
                 dist.all_reduce(loss_dict[k], op=dist.ReduceOp.AVG)
-        validation_loss = loss_dict[f'{dset_name}/full_{self.loss_fn.__class__.__name__}'].item()
+        validation_loss = loss_dict[
+            f"{dset_name}/full_{self.loss_fn.__class__.__name__}"
+        ].item()
         loss_dict = {k: v.item() for k, v in loss_dict.items()}
 
         return validation_loss, loss_dict
