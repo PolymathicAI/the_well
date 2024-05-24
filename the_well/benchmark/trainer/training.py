@@ -4,11 +4,13 @@ from typing import Callable, Optional, Any
 import torch
 import torch.distributed as dist
 import wandb
+import tqdm
 from torch.utils.data import DataLoader
 
 from ..data.datamodule import AbstractDataModule
 from ..data.utils import preprocess_batch
 from ..metrics import MSE, validation_metric_suite
+from ..data.data_formatter import DefaultChannelsFirstFormatter
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +19,7 @@ class Trainer:
     def __init__(
         self,
         experiment_name: str,
+        formatter: str,
         model: torch.nn.Module,
         datamodule: AbstractDataModule,
         optimizer: torch.optim.Optimizer,
@@ -69,6 +72,8 @@ class Trainer:
         self.is_distributed = is_distributed
         self.best_val_loss = None
         self.dset_metadata = self.datamodule.train_dataset.metadata
+        if formatter == "channels_first_default":
+            self.formatter = DefaultChannelsFirstFormatter(self.dset_metadata)
 
     def save_model(self, epoch: int, validation_loss: float, output_path: str):
         """Save the model checkpoint."""
@@ -92,12 +97,12 @@ class Trainer:
         loss_dict = {f'{dset_name}/{fname}_{f.__class__.__name__}': 0.0 for f in self.validation_suite
                      for fname in field_names}
         loss_dict |= {f'{dset_name}/full_{f.__class__.__name__}': 0.0 for f in self.validation_suite}
-        for batch in dataloader:
-            x, y_ref = preprocess_batch(batch)
-            for key, val in x.items():
-                x[key] = val.to(self.device)
+        for batch in tqdm.tqdm(dataloader):
+            inputs, y_ref = self.formatter.process_input(batch)
+            inputs = map(lambda x: x.to(self.device), inputs)
             y_ref = y_ref.to(self.device)
-            y_pred = self.model(x)
+            y_pred = self.model(*inputs)
+            y_pred = self.formatter.process_output(y_pred)
             assert (
                 y_ref.shape == y_pred.shape
             ), f"Mismatching shapes between reference {y_ref.shape} and prediction {y_pred.shape}"
@@ -106,7 +111,7 @@ class Trainer:
                 for i, fname in enumerate(field_names):
                     loss_dict[f'{dset_name}/{fname}_{loss_fn.__class__.__name__}'] += loss[i] / len(dataloader)
                 loss_dict[f'{dset_name}/full_{loss_fn.__class__.__name__}'] += loss.mean()  / len(dataloader)
-            break
+            # break
         if self.is_distributed:
             for k, v in loss_dict.items():
                 dist.all_reduce(loss_dict[k], op=dist.ReduceOp.AVG)
@@ -119,12 +124,12 @@ class Trainer:
         """Train the model for one epoch by looping over the dataloader."""
         self.model.train()
         epoch_loss = 0.0
-        for batch in dataloader:
-            x, y_ref = preprocess_batch(batch)
-            for key, val in x.items():
-                x[key] = val.to(self.device)
+        for batch in tqdm.tqdm(dataloader):
+            inputs, y_ref = self.formatter.process_input(batch)
+            inputs = map(lambda x: x.to(self.device), inputs)
             y_ref = y_ref.to(self.device)
-            y_pred = self.model(x)
+            y_pred = self.model(*inputs)
+            y_pred = self.formatter.process_output(y_pred)
             assert (
                 y_ref.shape == y_pred.shape
             ), f"Mismatching shapes between reference {y_ref.shape} and prediction {y_pred.shape}"

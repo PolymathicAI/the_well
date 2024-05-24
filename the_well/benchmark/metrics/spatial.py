@@ -29,8 +29,8 @@ class MSE(Metric):
         torch.Tensor
             Mean squared error between x and y.
         """
-        spatial_dims = tuple(range(-meta.spatial_ndims - 1, -1))
-        return torch.mean((x - y) ** 2, dim=spatial_dims)
+        n_spatial_dims = tuple(range(-meta.n_spatial_dims - 1, -1))
+        return torch.mean((x - y) ** 2, dim=n_spatial_dims)
 
 
 class NMSE(Metric):
@@ -63,11 +63,11 @@ class NMSE(Metric):
         torch.Tensor
             Normalized mean squared error between x and y.
         """
-        spatial_dims = tuple(range(-meta.spatial_ndims - 1, -1))
+        n_spatial_dims = tuple(range(-meta.n_spatial_dims - 1, -1))
         if norm_mode == "norm":
-            norm = torch.mean(y**2, dim=spatial_dims)
+            norm = torch.mean(y**2, dim=n_spatial_dims)
         elif norm_mode == "std":
-            norm = torch.std(y, dim=spatial_dims) ** 2
+            norm = torch.std(y, dim=n_spatial_dims) ** 2
         else:
             raise ValueError(f"Invalid norm_mode: {norm_mode}")
         return MSE.eval(x, y, meta) / (norm + eps)

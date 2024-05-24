@@ -32,13 +32,13 @@ class Metric(nn.Module):
         assert isinstance(y, torch.Tensor), "y must be a torch.Tensor or np.ndarray"
 
         # Check dimensions
-        spatial_ndims = meta.spatial_ndims
+        n_spatial_dims = meta.n_spatial_dims
         assert (
-            x.ndim >= spatial_ndims + 1
-        ), "x must have at least spatial_ndims + 1 dimensions"
+            x.ndim >= n_spatial_dims + 1
+        ), "x must have at least n_spatial_dims + 1 dimensions"
         assert (
-            y.ndim >= spatial_ndims + 1
-        ), "y must have at least spatial_ndims + 1 dimensions"
+            y.ndim >= n_spatial_dims + 1
+        ), "y must have at least n_spatial_dims + 1 dimensions"
 
         return self.eval(x, y, meta, **kwargs)
     

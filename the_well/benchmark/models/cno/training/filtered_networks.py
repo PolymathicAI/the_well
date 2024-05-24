@@ -389,7 +389,7 @@ class LReLu(torch.nn.Module):
         # Execute bias, filtered leaky ReLU, and clamping.
         gain = np.sqrt(2)
         slope = 0.2
-        x = filtered_lrelu.filtered_lrelu(x=x, fu=self.up_filter, fd=self.down_filter, b=self.bias.to(x.dtype),
+        x = filtered_lrelu._filtered_lrelu_ref(x=x, fu=self.up_filter, fd=self.down_filter, b=self.bias.to(x.dtype),
             up=self.up_factor, down=self.down_factor, padding=self.padding, gain=gain, slope=slope, clamp=None)
 
 

@@ -77,7 +77,7 @@ class GenericWellMetadata:
     
     """
 
-    spatial_ndims: int
+    n_spatial_dims: int
     resolution: tuple[int]
     n_fields: int
     n_constant_fields: int
@@ -349,7 +349,7 @@ class GenericWellDataset(Dataset):
         ]  # We open file references as they come
         # Dataset length is last number of samples
         self.len = self.file_index_offsets[-1]
-        self.ndims = list(ndims)[0]  # Number of spatial dims
+        self.n_spatial_dims = list(ndims)[0]  # Number of spatial dims
         self.size_tuple = list(size_tuples)[0]  # Size of spatial dims
         self.dataset_name = list(names)[0]  # Name of dataset
         # Total number of fields (flattening tensor-valued fields)
@@ -357,7 +357,7 @@ class GenericWellDataset(Dataset):
         self.num_total_constant_fields = len(self.constant_field_names)
         self.num_bcs = len(bcs)  # Number of boundary condition type included in data
         self.bc_types = list(bcs)  # List of boundary condition types
-        return GenericWellMetadata(spatial_ndims=self.ndims, 
+        return GenericWellMetadata(n_spatial_dims=self.n_spatial_dims, 
                                    resolution=self.size_tuple,
                                    n_fields=self.num_total_fields,
                                    n_constant_fields=self.num_total_constant_fields, 
@@ -549,7 +549,7 @@ class GenericWellDataset(Dataset):
             dim_indices = {
                 dim: i for i, dim in enumerate(file["dimensions"].attrs["spatial_dims"])
             }
-            boundary_output = torch.zeros((2,) * self.ndims)
+            boundary_output = torch.zeros((2,) * self.n_spatial_dims)
             for bc_name in bcs.keys():
                 bc = bcs[bc_name]
                 bc_type = bc.attrs["bc_type"].upper()  # Enum is in upper case

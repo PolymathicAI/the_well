@@ -53,10 +53,9 @@ def train(
     )
     model: torch.nn.Module = instantiate(
         cfg.model,
-        n_spatial_dims=dset_metadata.spatial_ndims,
-        # input_resolution=dset_metadata["input_resolution"],
-        in_dim=n_input_fields,
-        out_dim=n_output_fields
+        n_spatial_dims=dset_metadata.n_spatial_dims,
+        dim_in=n_input_fields,
+        dim_out=n_output_fields
     )
     summary(model, depth=5)
 
@@ -106,6 +105,10 @@ def get_experiment_name(cfg: DictConfig) -> str:
 
 @hydra.main(version_base=None, config_path=CONFIG_DIR, config_name=CONFIG_NAME)
 def main(cfg: DictConfig):
+    # Torch optimization settings
+    torch.backends.cudnn.benchmark = True # If input size is fixed, this will usually the computation faster
+    torch.set_float32_matmul_precision('high') # Use TF32 when supported
+    # Normal things
     experiment_name = get_experiment_name(cfg)
     logger.info(f"Run experiment {experiment_name}")
     logger.info(f"Configuration:\n{OmegaConf.to_yaml(cfg)}")
