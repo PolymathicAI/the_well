@@ -6,7 +6,7 @@
 
 **Associated paper**: [Numerical Simulations of Convective Three-dimensional Red Supergiant Envelopes](https://iopscience.iop.org/article/10.3847/1538-4357/ac5ab3)
 
-**Domain scientist**: Yan-Fei Jiang (CCA), Jared Goldberg (CCA), Jeff Shen (Princeton)
+**Domain scientist**: Yan-Fei Jiang (CCA), Jared Goldberg (CCA), [Jeff Shen (Princeton)](https://jshen.net)
 
 **Code or software used to generate the data**: [Athena++](https://www.athena-astro.app/)
 

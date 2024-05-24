@@ -1,3 +1,4 @@
 from .fno import FNO
-from .unet_classic.__init__ import UNetClassic
-from .unet_convnext.__init__ import UNetConvNext
+from .unet_classic import UNetClassic
+from .unet_convnext import UNetConvNext
+from .tfno import TFNO

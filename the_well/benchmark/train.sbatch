@@ -1,7 +1,6 @@
 #!/bin/bash -l
 
 #SBATCH -p gpu
-#SBATCH -N 1
 #SBATCH --ntasks-per-node=1
 #SBATCH --gpus-per-node=1
 #SBATCH --cpus-per-gpu=32
@@ -13,6 +12,8 @@ export OMP_NUM_THREADS=${SLURM_CPUS_ON_NODE}
 
 module load python cuda cudnn gcc
 # Activate the virtual environment with all the dependencies
-source ~/well_venv/bin/activate
+# source ~/well_venv/bin/activate
+source /mnt/home/rohana/python_envs/nanoGPT/bin/activate
+
 # Launch the training script
 srun python train.py experiment=fno server=rusty

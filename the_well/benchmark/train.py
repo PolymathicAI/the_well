@@ -41,12 +41,7 @@ def train(
     dset_metadata = datamodule.train_dataset.metadata
     n_input_fields = dset_metadata.n_fields + dset_metadata.n_constant_fields
     n_output_fields = dset_metadata.n_fields
-    # n_scalar_components = num_fields_by_tensor_order[0]
-    # n_vector_components = num_fields_by_tensor_order[1]
-    # n_tensor_components = num_fields_by_tensor_order[2]
-    # Treat tensor components as vector
-    # n_vector_components += 2 * n_tensor_components
-    # n_param = datamodule.train_dataset.num_constants
+
 
     logger.info(
         f"Instantiate model {cfg.model._target_}",
@@ -100,7 +95,7 @@ def train(
 
 def get_experiment_name(cfg: DictConfig) -> str:
     model_name = cfg.model._target_.split(".")[-1]
-    return f"{cfg.name}-{model_name}-{cfg.optimizer.lr}"
+    return f"{cfg.data.well_dataset_name}-{cfg.name}-{model_name}-{cfg.optimizer.lr}"
 
 
 @hydra.main(version_base=None, config_path=CONFIG_DIR, config_name=CONFIG_NAME)
@@ -115,6 +110,7 @@ def main(cfg: DictConfig):
     # Initiate wandb logging
     wandb.init(
         project="the_well",
+        group=f"{cfg.data.well_dataset_name}",
         config=OmegaConf.to_container(cfg, resolve=True),
         name=experiment_name,
     )

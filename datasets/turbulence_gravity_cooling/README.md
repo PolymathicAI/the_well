@@ -2,7 +2,7 @@
 
 **One line description of the data:**  Turbulence in interstellar medium in various evolution stages of galaxies.
 
-**Longer description of the data:**  These simulations are a turbulent fluid with gravity model interstellar medium in galaxies. These fluids make dense filaments, which will form new stars. The timescale and frequency of making new filaments are varied depending on the strength of cooling. It is parametrized by the amount of metal (metallicity), density, and temperature.
+**Longer description of the data:**  These simulations are a turbulent fluid with gravity modeling interstellar medium in galaxies. These fluids make dense filaments, which will form new stars. The timescale and frequency of making new filaments are varied depending on the strength of cooling. It is parametrized by the amount of metal (metallicity), density, and temperature.
 
 **Associated paper**: [[Hirashima et al. 2023a](https://academic.oup.com/mnras/article/526/3/4054/7316686)]
 

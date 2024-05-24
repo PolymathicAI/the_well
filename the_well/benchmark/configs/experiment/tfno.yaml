@@ -1,0 +1,12 @@
+# @package _global_
+defaults:
+  - /data: active_matter
+  - /model: tfno
+  - /lr_scheduler: cosine_with_warmup
+
+trainer:
+  loss_fn: 
+    _target_: the_well.benchmark.metrics.MSE
+  formatter: channels_first_default
+
+name: tfno

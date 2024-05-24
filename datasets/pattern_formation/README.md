@@ -2,7 +2,7 @@
 
 **One line description of the data:** Stable Turing patterns emerge from randomness, with drastic qualitative differences in pattern dynamics depending on the equation parameters.
 
-**Longer description of the data:** The Gray-Scott equations are a set of coupled reaction-diffusion equations describing two chemical species, $U$ and $V$, whose concentrations vary in space and time. The two parameters $F$ and $k$ control the “feed” and “kill” rates in the reaction. A zoo of qualitatively different static and dynamic patterns in the solutions are possible depending on these two parameters. There is a rich landscape of pattern formation hidden in these equations. 
+**Longer description of the data:** The Gray-Scott equations are a set of coupled reaction-diffusion equations describing two chemical species, $A$ and $B$, whose concentrations vary in space and time. The two parameters $f$ and $k$ control the “feed” and “kill” rates in the reaction. A zoo of qualitatively different static and dynamic patterns in the solutions are possible depending on these two parameters. There is a rich landscape of pattern formation hidden in these equations. 
 
 **Associated paper**:
 
@@ -12,11 +12,11 @@
 
 **Equation describing the data** $
 \begin{align}
-\frac{\partial u}{\partial t} &= \delta_u\Delta u - uv^2 + F(1-u) \nonumber \\
-\frac{\partial v}{\partial t} &= \delta_v\Delta v - uv^2 + (F+k)v \nonumber
+\frac{\partial A}{\partial t} &= \delta_A\Delta A - AB^2 + f(1-A) \nonumber \\
+\frac{\partial B}{\partial t} &= \delta_B\Delta B - AB^2 + (f+k)B \nonumber
 \end{align}
 $
-The dimensionless parameters describing the behavior are: $F$, $k$, $\frac{\delta_u}{\delta_v}$
+The dimensionless parameters describing the behavior are: $f$, $k$, $\frac{\delta_A}{\delta_B}$
 [ADD Description of variables, but should be good]
 
 [ADD GIF OF THE SIMULATION]
@@ -26,7 +26,7 @@ The dimensionless parameters describing the behavior are: $F$, $k$, $\frac{\delt
 Dimension of discretized data: $128\times 128$ Fourier modes with $10,000$ time-steps [MODIFY AFTER DOWNSAMPLING]
 
 Fields available in the data:
-Two chemical species $u$ and $v$.
+Two chemical species $A$ and $B$.
 
 Number of trajectories: 6 sets of parameters, 200 initial conditions per set = 1200.
 
