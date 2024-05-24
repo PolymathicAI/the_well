@@ -17,12 +17,12 @@ class TestMetrics(TestCase):
             field_names=["test"],
         )
         for metric in [
-            MSE(meta),
-            RMSE(meta),
-            NRMSE(meta),
-            NMSE(meta),
+            MSE(),
+            RMSE(),
+            NRMSE(),
+            NMSE(),
             #    binned_spectral_mse
         ]:
             x = torch.tensor([1.0, 2.0, 3.0]).unsqueeze(-1)
-            error = metric(x, x)
+            error = metric(x, x, meta)
             self.assertAlmostEqual(error.nansum().item(), 0.0)

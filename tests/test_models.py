@@ -30,7 +30,7 @@ class TestFNO(TestCase):
         # t = torch.rand(8)
         # param = torch.rand(8, 3)
         # input = {"time": t, "x": x, "parameters": param}
-        out = model(input)
+        out = model(x)
         self.assertEqual(out.shape, x.shape)
 
     def test_load_conf(self):
