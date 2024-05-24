@@ -1,7 +1,12 @@
 """
-Mixed from:
-  Takamoto et al., PDEBench
-  TBD, ConvNext
+Mixed adaptation from:
+
+    Liu et al. 2022, A ConvNet for the 2020s.
+    Source: https://github.com/facebookresearch/ConvNeXt/blob/main/models/convnext.py
+
+    Ronneberger et al., 2015. Convolutional Networks for Biomedical Image Segmentation.
+
+If you use this implementation, please cite original work above.
 """
 
 import torch

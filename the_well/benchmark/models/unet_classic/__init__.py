@@ -1,5 +1,10 @@
 """
-From Takamoto et al., PDEBench
+Adapted from:
+
+    Takamoto et al. 2022, PDEBENCH: An Extensive Benchmark for Scientific Machine Learning
+    Source: https://github.com/pdebench/PDEBench/blob/main/pdebench/models/unet/unet.py
+
+If you use this implementation, please cite original work above.
 """
 
 from collections import OrderedDict
