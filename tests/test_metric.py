@@ -4,7 +4,6 @@ import torch
 
 from the_well.benchmark.data.datasets import GenericWellMetadata
 from the_well.benchmark.metrics.spatial import MSE, NRMSE, RMSE, NMSE
-from the_well.benchmark.metrics.spectral import binned_spectral_mse
 
 
 class TestMetrics(TestCase):
@@ -21,6 +20,7 @@ class TestMetrics(TestCase):
             MSE(meta),
             RMSE(meta),
             NRMSE(meta),
+            NMSE(meta),
             #    binned_spectral_mse
         ]:
             x = torch.tensor([1.0, 2.0, 3.0]).unsqueeze(-1)
