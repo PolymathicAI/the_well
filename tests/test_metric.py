@@ -9,7 +9,7 @@ from the_well.benchmark.metrics.spatial import MSE, NMSE, NRMSE, RMSE
 class TestMetrics(TestCase):
     def test_distance_to_itself(self):
         meta = GenericWellMetadata(
-            spatial_ndims=1,
+            n_spatial_dims=1,
             resolution=(128,),
             n_fields=1,
             n_constant_fields=0,
