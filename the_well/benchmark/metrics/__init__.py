@@ -1,4 +1,4 @@
-from .spatial import *
+from .spatial import NRMSE, RMSE
 
 # from .spectral import *
 

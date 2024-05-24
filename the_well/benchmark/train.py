@@ -37,7 +37,6 @@ def train(
 
     logger.info(f"Instantiate datamodule {cfg.data._target_}")
     datamodule: WellDataModule = instantiate(cfg.data, world_size=world_size, rank=rank)
-    num_fields_by_tensor_order = datamodule.train_dataset.num_fields_by_tensor_order
     dset_metadata = datamodule.train_dataset.metadata
     n_input_fields = dset_metadata.n_fields + dset_metadata.n_constant_fields
     n_output_fields = dset_metadata.n_fields

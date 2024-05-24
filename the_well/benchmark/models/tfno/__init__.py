@@ -1,8 +1,9 @@
-from typing import Dict, Tuple
+# from typing import Dict, Tuple
 
 import torch
 import torch.nn as nn
-from einops import rearrange
+
+# from einops import rearrange
 from neuralop.models import TFNO as neuralop_TFNO
 
 

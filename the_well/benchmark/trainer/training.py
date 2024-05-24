@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Callable, Optional
+from typing import Callable, Optional
 
 import torch
 import torch.distributed as dist
@@ -10,8 +10,7 @@ import wandb
 
 from ..data.data_formatter import DefaultChannelsFirstFormatter
 from ..data.datamodule import AbstractDataModule
-from ..data.utils import preprocess_batch
-from ..metrics import MSE, validation_metric_suite
+from ..metrics import validation_metric_suite
 
 logger = logging.getLogger(__name__)
 
