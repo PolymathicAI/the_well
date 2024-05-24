@@ -3,7 +3,7 @@ from unittest import TestCase
 import torch
 
 from the_well.benchmark.data.datasets import GenericWellMetadata
-from the_well.benchmark.metrics.spatial import MSE, NRMSE, RMSE, NMSE
+from the_well.benchmark.metrics.spatial import MSE, NMSE, NRMSE, RMSE
 
 
 class TestMetrics(TestCase):
