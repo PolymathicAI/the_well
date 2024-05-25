@@ -3,7 +3,7 @@ import torch
 import torch.nn.functional as F
 
 from the_well.benchmark.data.datasets import GenericWellMetadata
-from the_well.benchmark.metrics.common import metric
+from the_well.benchmark.metrics.common import Metric
 
 
 def fftn(x: torch.Tensor, meta: GenericWellMetadata):
@@ -22,7 +22,7 @@ def fftn(x: torch.Tensor, meta: GenericWellMetadata):
     torch.Tensor
         N-dimensional FFT of x.
     """
-    spatial_dims = tuple(range(-meta.spatial_ndims - 1, -1))
+    spatial_dims = tuple(range(-meta.n_spatial_dims - 1, -1))
     return torch.fft.fftn(x, dim=spatial_dims)
 
 
@@ -42,7 +42,7 @@ def ifftn(x: torch.Tensor, meta: GenericWellMetadata):
     torch.Tensor
         N-dimensional inverse FFT of x.
     """
-    spatial_dims = tuple(range(-meta.spatial_ndims - 1, -1))
+    spatial_dims = tuple(range(-meta.n_spatial_dims - 1, -1))
     return torch.fft.ifftn(x, dim=spatial_dims)
 
 
@@ -81,7 +81,7 @@ def power_spectrum(
     counts : torch.Tensor, optional
         Counts per bin if return_counts=True.
     """
-    spatial_dims = tuple(range(-meta.spatial_ndims - 1, -1))
+    spatial_dims = tuple(range(-meta.n_spatial_dims - 1, -1))
     ndim = len(spatial_dims)
     device = x.device
 
@@ -138,53 +138,68 @@ def power_spectrum(
         return bins, ps_mean, ps_std
 
 
-@metric
-def binned_spectral_mse(
-    x: torch.Tensor,
-    y: torch.Tensor,
-    meta: GenericWellMetadata,
-    bins: torch.Tensor = None,
-    fourier_input: bool = False,
-) -> torch.Tensor:
-    """
-    Binned Spectral Mean Squared Error.
-    Corresponds to MSE computed after filtering over wavenumber bins in the Fourier domain.
+class binned_spectral_mse(Metric):
+    @staticmethod
+    def eval(
+        x: torch.Tensor,
+        y: torch.Tensor,
+        meta: GenericWellMetadata,
+        bins: torch.Tensor = None,
+        fourier_input: bool = False,
+    ) -> torch.Tensor:
+        """
+        Binned Spectral Mean Squared Error.
+        Corresponds to MSE computed after filtering over wavenumber bins in the Fourier domain.
 
-    Default binning is a set of three (approximately) logspaced from 0 to pi.
+        Default binning is a set of three (approximately) logspaced from 0 to pi.
 
-    Note that, MSE(x, y) should (approximately) match the sum over frequency bins of the spectral MSE.
+        Note that, MSE(x, y) should (approximately) match the sum over frequency bins of the spectral MSE.
 
-    Parameters
-    ----------
-    x : torch.Tensor | np.ndarray
-        Input tensor.
-    y : torch.Tensor | np.ndarray
-        Target tensor.
-    meta : GenericWellMetadata
-        Metadata for the dataset.
-    bins : torch.Tensor, optional
-        Tensor of bin edges. If None, we use a default binning that is a set of three (approximately) logspaced from 0 to pi. The default is None.
-    fourier_input : bool, optional
-        If True, x and y are assumed to be the Fourier transform of the input data. The default is False.
+        Parameters
+        ----------
+        x : torch.Tensor | np.ndarray
+            Input tensor.
+        y : torch.Tensor | np.ndarray
+            Target tensor.
+        meta : GenericWellMetadata
+            Metadata for the dataset.
+        bins : torch.Tensor, optional
+            Tensor of bin edges. If None, we use a default binning that is a set of three (approximately) logspaced from 0 to pi. The default is None.
+        fourier_input : bool, optional
+            If True, x and y are assumed to be the Fourier transform of the input data. The default is False.
 
-    Returns
-    -------
-    torch.Tensor
-        Power spectrum mean squared error between x and y.
-    """
-    N = x.shape[-2]
-    ndims = meta.spatial_ndims
+        Returns
+        -------
+        torch.Tensor
+            Power spectrum mean squared error between x and y.
+        """
+        N = x.shape[-2]
+        ndims = meta.n_spatial_dims
 
-    if bins is None:  # Default binning
-        bins = torch.logspace(np.log10(2 * np.pi / N), np.log10(np.pi), 4).to(
-            x.device
-        )  # Low, medium, and high frequency bins
-        bins[0] = 0.0  # We start from zero
-    _, ps_res_mean, _, counts = power_spectrum(
-        x - y, meta, bins=bins, fourier_input=fourier_input, return_counts=True
-    )
+        if bins is None:  # Default binning
+            bins = torch.logspace(np.log10(2 * np.pi / N), np.log10(np.pi), 4).to(
+                x.device
+            )  # Low, medium, and high frequency bins
+            bins[0] = 0.0  # We start from zero
+        _, ps_res_mean, _, counts = power_spectrum(
+            x - y, meta, bins=bins, fourier_input=fourier_input, return_counts=True
+        )
 
-    # Compute the mean squared error per bin (stems from Plancherel's formula)
-    mse_per_bin = ps_res_mean * counts[:-1].unsqueeze(-1) / (N**ndims) ** 2
+        # TODO - MAJOR DESIGN VIOLATION - BUT ITS FASTER TO IMPLEMENT THIS WAY TODAY...
+        _, ps_true_mean, _, true_counts = power_spectrum(
+            y, meta, bins=bins, fourier_input=fourier_input, return_counts=True
+        )
 
-    return mse_per_bin
+        # Compute the mean squared error per bin (stems from Plancherel's formula)
+        mse_per_bin = ps_res_mean * counts[:-1].unsqueeze(-1) / (N**ndims) ** 2
+        true_energy_per_min = ps_true_mean * true_counts[:-1].unsqueeze(-1) / (N**ndims) ** 2
+        nmse_per_bin = mse_per_bin / (true_energy_per_min + 1e-7)
+
+        mse_dict = {f"spectral_error_mse_per_bin_{i}":mse_per_bin[..., i, :] 
+                for i in range(mse_per_bin.shape[-2])}
+        nmse_dict = {f"spectral_error_nmse_per_bin_{i}":nmse_per_bin[..., i, :]
+                for i in range(nmse_per_bin.shape[-2])}
+        out_dict = mse_dict
+        out_dict |= nmse_dict
+        # TODO Figure out better way to handle multi-output losses
+        return out_dict 
