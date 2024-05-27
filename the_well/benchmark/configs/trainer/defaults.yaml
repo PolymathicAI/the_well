@@ -1,4 +1,7 @@
 _target_: the_well.benchmark.trainer.Trainer
-epochs: 500
+epochs: 50
 val_frequency: 10
+long_val_frequency: 25
+data_workers: 8
+max_rollout_length: 200
 loss_fn: ???

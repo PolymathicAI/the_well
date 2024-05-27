@@ -36,7 +36,8 @@ def train(
     """Instantiate the different objects required for training and run the training loop."""
 
     logger.info(f"Instantiate datamodule {cfg.data._target_}")
-    datamodule: WellDataModule = instantiate(cfg.data, world_size=world_size, rank=rank)
+    datamodule: WellDataModule = instantiate(cfg.data, world_size=world_size, rank=rank,
+                                             data_workers=cfg.trainer.data_workers)
     dset_metadata = datamodule.train_dataset.metadata
     n_input_fields = dset_metadata.n_fields + dset_metadata.n_constant_fields
     n_output_fields = dset_metadata.n_fields
