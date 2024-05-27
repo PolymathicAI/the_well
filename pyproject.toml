@@ -20,7 +20,9 @@ benchmark = [
     "wandb",
     "torch_harmonics",
     "neuraloperator",
-    "timm"
+    "timm",
+    "matplotlib"
+    "plotly",
 ]
 
 [project.scripts]
