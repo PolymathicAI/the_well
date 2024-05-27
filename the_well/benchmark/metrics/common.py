@@ -40,7 +40,6 @@ class Metric(nn.Module):
         assert (
             y.ndim >= n_spatial_dims + 1
         ), "y must have at least n_spatial_dims + 1 dimensions"
-
         return self.eval(x, y, meta, **kwargs)
 
     @staticmethod

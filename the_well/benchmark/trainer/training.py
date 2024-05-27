@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader
 
 from ..data.data_formatter import DefaultChannelsFirstFormatter
 from ..data.datamodule import AbstractDataModule
-from ..metrics import validation_metric_suite, validation_plots
+from ..metrics import long_time_metrics, plot_all_time_metrics, validation_metric_suite, validation_plots
 
 logger = logging.getLogger(__name__)
 
@@ -112,7 +112,7 @@ class Trainer:
         rollout_steps = min(y_ref.shape[1], self.max_rollout_steps) # Number of timesteps in target
         # Create a moving batch of one step at a time
         moving_batch = batch
-        moving_batch['output_fields'] = moving_batch['output_fields'][:, :1]
+        moving_batch['input_fields'] = moving_batch['input_fields'].to(self.device)
         y_preds = []
         for i in range(rollout_steps):
             inputs, _ = formatter.process_input(moving_batch)
@@ -123,14 +123,17 @@ class Trainer:
             if i != rollout_steps-1:
                 moving_batch['input_fields'] = torch.cat([moving_batch['input_fields'][:, 1:], y_pred], dim=1)
             y_preds.append(y_pred)
-        y_pred = torch.cat(y_preds, dim=1)
+        y_pred_out = torch.cat(y_preds, dim=1)
         y_ref = y_ref.to(self.device)
-        return y_pred, y_ref
+        return y_pred_out, y_ref
     
     def temporal_split_losses(self, loss_values, temporal_loss_intervals, loss_name, dset_name, fname="full"):
         new_losses = {}
         # Average over time interval
         new_losses[f"{dset_name}/{fname}_{loss_name}_T=all"] = loss_values.mean()
+        # Don't compute sublosses if we only have one interval
+        if len(temporal_loss_intervals) == 2:
+            return new_losses
         # Break it down by time interval
         for k in range(len(temporal_loss_intervals)-1):
             start_ind = temporal_loss_intervals[k]
@@ -142,18 +145,21 @@ class Trainer:
     
     def split_up_losses(self, loss_values, loss_name, dset_name, field_names):
         new_losses = {}
+        time_logs = {}
         time_steps = loss_values.shape[0] # we already average over batch
         num_time_intervals = min(time_steps, self.num_time_intervals)
         temporal_loss_intervals = np.linspace(0, np.log(time_steps), num_time_intervals)
         temporal_loss_intervals = [0] + [int(np.exp(x)) for x in temporal_loss_intervals]
         # Split up losses by field
         for i, fname in enumerate(field_names):
+            time_logs[f"{dset_name}/{fname}_{loss_name}_rollout"] = loss_values[:, i].cpu()
             new_losses |= self.temporal_split_losses(loss_values[:, i], temporal_loss_intervals,
                                                       loss_name, dset_name, fname)
         # Compute average over all fields
         new_losses |= self.temporal_split_losses(loss_values.mean(1), temporal_loss_intervals,
                                                     loss_name, dset_name, "full")
-        return new_losses
+        time_logs[f"{dset_name}/full_{loss_name}_rollout"] = loss_values.mean(1).cpu()
+        return new_losses, time_logs
 
 
     
@@ -167,6 +173,7 @@ class Trainer:
         field_names = self.dset_metadata.field_names
         dset_name = self.dset_metadata.dataset_name
         loss_dict = {}
+        time_logs = {}
         for batch in tqdm.tqdm(dataloader):
             # Rollout for length of target
             y_pred, y_ref = self.rollout_model(self.model, batch, self.formatter)
@@ -183,10 +190,12 @@ class Trainer:
                 # Split the losses and update the logging dictionary
                 for k, v in loss.items():
                     sub_loss = v.mean(0)
-                    new_losses = self.split_up_losses(sub_loss, 
+                    new_losses, new_time_logs = self.split_up_losses(sub_loss, 
                                                       k, 
                                                       dset_name, 
                                                       field_names)
+                    if k in long_time_metrics:
+                        time_logs |= new_time_logs
                     for loss_name, loss_value in new_losses.items():
                         loss_dict[loss_name] = loss_dict.get(loss_name, 0.0) + loss_value / len(dataloader)
 
@@ -195,9 +204,9 @@ class Trainer:
             for plot_fn in validation_plots:
                 plot_dicts |= plot_fn(y_pred, y_ref, self.dset_metadata)
             if y_ref.shape[1] > 1:
-                # Only plot if we have more than one timestep
-                # TODO add time plots
-                pass
+                # Only plot if we have more than one timestep, but then track loss over timesteps
+                plot_dicts |= plot_all_time_metrics(time_logs)
+                print(plot_dicts)
 
         if self.is_distributed:
             for k, v in loss_dict.items():
@@ -233,12 +242,14 @@ class Trainer:
             self.lr_scheduler.step()
             train_logs["lr"] = self.lr_scheduler.get_last_lr()[-1]
         return epoch_loss, train_logs
-
+    
     def train(self):
         """Run training, validation and test. The training is run for multiple epochs."""
         train_dataloader = self.datamodule.train_dataloader()
         val_dataloder = self.datamodule.val_dataloader()
+        rollout_val_dataloader = self.datamodule.rollout_val_dataloader()
         test_dataloader = self.datamodule.test_dataloader()
+        rollout_test_dataloader = self.datamodule.rollout_test_dataloader()
 
         for epoch in range(self.max_epoch):
             if epoch % self.val_frequency == 0 or True:
@@ -250,6 +261,16 @@ class Trainer:
                 wandb.log(val_loss_dict)
                 if self.best_val_loss is None or val_loss < self.best_val_loss:
                     self.save_model(epoch, val_loss, f"{self.experiment_name}-best.pt")
+            if epoch % self.rollout_val_frequency == 0 or True:
+                rollout_val_loss, rollout_val_loss_dict = self.validation_loop(
+                    rollout_val_dataloader, valid_or_test="rollout_valid"
+                )
+                logger.info(
+                    f"Epoch {epoch+1}/{self.max_epoch}: rollout validation loss {rollout_val_loss}"
+                )
+                rollout_val_loss_dict |= {"rollout_valid": rollout_val_loss, "epoch": epoch}
+                wandb.log(rollout_val_loss_dict)
+
             if self.is_distributed:
                 train_dataloader.sampler.set_epoch(epoch)
             train_loss, train_logs = self.train_one_epoch(train_dataloader)
@@ -262,10 +283,24 @@ class Trainer:
             logger.info(f"Epoch {epoch+1}/{self.max_epoch}: validation loss {val_loss}")
             val_loss_dict |= {"valid": val_loss, "epoch": epoch}
             wandb.log(val_loss_dict)
+        if epoch % self.rollout_val_frequency != 0:
+            rollout_val_loss, rollout_val_loss_dict = self.validation_loop(
+                rollout_val_dataloader, valid_or_test="rollout_valid"
+            )
+            logger.info(
+                f"Epoch {epoch+1}/{self.max_epoch}: rollout validation loss {rollout_val_loss}"
+            )
+            rollout_val_loss_dict |= {"rollout_valid": rollout_val_loss, "epoch": epoch}
+            wandb.log(rollout_val_loss_dict)
+
         test_loss, test_logs = self.validation_loop(
             test_dataloader, valid_or_test="test"
         )
+        rollout_test_loss, rollout_test_logs = self.validation_loop(
+            rollout_test_dataloader, valid_or_test="rollout_test"
+        )
+        test_logs |= rollout_test_logs
         logger.info(f"Test loss {test_loss}")
-        test_logs |= {"test": test_loss, "epoch": epoch}
+        test_logs |= {"test": test_loss, "rollout_test": rollout_test_loss, "epoch": epoch}
         wandb.log(test_logs)
         self.save_model(epoch, val_loss, f"{self.experiment_name}-last.pt")

@@ -61,7 +61,7 @@ def field_histograms(
         ax.set_ylabel("Count")
         ax.legend()
         ax.set_title(title)
-        out_dict[title] = wandb.Image(fig)
+        out_dict[f'{meta.dataset_name}_{title}'] = wandb.Image(fig)
         plt.close()
     return out_dict
 
@@ -119,6 +119,18 @@ def plot_power_spectrum_by_field(x, y, metadata):
         ax.set_ylabel("Power spectrum")
         ax.legend()
         ax.set_title(title)
-        out_dict[title] = wandb.Image(fig)
+        out_dict[f'{metadata.dataset_name}_{title}'] = wandb.Image(fig)
+        plt.close()
+    return out_dict
+
+def plot_all_time_metrics(time_logs):
+    out_dict = {}
+    for k, v in time_logs.items():
+        fig, ax = plt.subplots()
+        ax.plot(v)
+        ax.set_xlabel("Time step")
+        ax.set_ylabel("Loss")
+        ax.set_title(k)
+        out_dict[k] = wandb.Image(fig)
         plt.close()
     return out_dict
