@@ -1,7 +1,6 @@
-from .spatial import NRMSE, RMSE, MSE, NMSE, LInfinity, VMSE, VRMSE
-
+from .spatial import MSE, NMSE, NRMSE, RMSE, VMSE, VRMSE, LInfinity
 from .spectral import binned_spectral_mse
-from .wandb_plots import plot_power_spectrum_by_field, field_histograms
+from .wandb_plots import field_histograms, plot_power_spectrum_by_field
 
 # I hate that the linter is forcing an all function...
 __all__ = [
