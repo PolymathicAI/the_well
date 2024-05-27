@@ -27,6 +27,7 @@ class Trainer:
         # validation_suite: list,
         epochs: int,
         val_frequency: int,
+        rollout_val_frequency: int,
         lr_scheduler: Optional[torch.optim.lr_scheduler._LRScheduler] = None,
         device=torch.device("cuda"),
         is_distributed: bool = False,

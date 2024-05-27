@@ -19,7 +19,7 @@ class AbstractDataModule(ABC):
         raise NotImplementedError
     
     @abstractmethod
-    def longval_dataloader(self) -> DataLoader:
+    def rollout_val_dataloader(self) -> DataLoader:
         raise NotImplementedError
 
     @abstractmethod
@@ -27,7 +27,7 @@ class AbstractDataModule(ABC):
         raise NotImplementedError
     
     @abstractmethod
-    def longtest_dataloader(self) -> DataLoader:
+    def rollout_test_dataloader(self) -> DataLoader:
         raise NotImplementedError
 
 
@@ -76,7 +76,7 @@ class WellDataModule(AbstractDataModule):
             n_steps_output=n_steps_output,
             dt_stride=dt_stride,
         )
-        self.longval_dataset = GenericWellDataset(
+        self.rollout_val_dataset = GenericWellDataset(
             well_base_path=well_base_path,
             well_dataset_name=well_dataset_name,
             well_split_name="valid",
@@ -97,7 +97,7 @@ class WellDataModule(AbstractDataModule):
             n_steps_output=n_steps_output,
             dt_stride=dt_stride,
         )
-        self.longtest_dataset = GenericWellDataset(
+        self.rollout_test_dataset = GenericWellDataset(
             well_base_path=well_base_path,
             well_dataset_name=well_dataset_name,
             well_split_name="test",
@@ -166,22 +166,22 @@ class WellDataModule(AbstractDataModule):
             sampler=sampler,
         )
     
-    def longval_dataloader(self) -> DataLoader:
+    def rollout_val_dataloader(self) -> DataLoader:
         sampler = None
         if self.is_distributed:
             sampler = DistributedSampler(
-                self.longval_dataset,
+                self.rollout_val_dataset,
                 num_replicas=self.world_size,
                 rank=self.rank,
                 shuffle=False,
             )
             logger.debug(
                 f"Use {sampler.__class__.__name__} "
-                f"({self.rank}/{self.world_size}) for long validation data"
+                f"({self.rank}/{self.world_size}) for rollout validation data"
             )
 
         return DataLoader(
-            self.longval_dataset,
+            self.rollout_val_dataset,
             num_workers=self.data_workers,  
             pin_memory=True,
             batch_size=self.batch_size,
@@ -213,21 +213,21 @@ class WellDataModule(AbstractDataModule):
             sampler=sampler,
         )
     
-    def longtest_dataloader(self) -> DataLoader:
+    def rollout_test_dataloader(self) -> DataLoader:
         sampler = None
         if self.is_distributed:
             sampler = DistributedSampler(
-                self.longtest_dataset,
+                self.rollout_test_dataset,
                 num_replicas=self.world_size,
                 rank=self.rank,
                 shuffle=False,
             )
             logger.debug(
                 f"Use {sampler.__class__.__name__} "
-                f"({self.rank}/{self.world_size}) for long test data"
+                f"({self.rank}/{self.world_size}) for rollout test data"
             )
         return DataLoader(
-            self.longtest_dataset,
+            self.rollout_test_dataset,
             num_workers=self.data_workers,  
             pin_memory=True,
             batch_size=self.batch_size,
