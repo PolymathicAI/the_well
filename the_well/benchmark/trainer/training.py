@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 
 from ..data.data_formatter import DefaultChannelsFirstFormatter
 from ..data.datamodule import AbstractDataModule
-from ..metrics import validation_metric_suite
+from ..metrics import validation_metric_suite, validation_plots
 
 logger = logging.getLogger(__name__)
 
@@ -106,7 +106,7 @@ class Trainer:
             ), f"Mismatching shapes between reference {y_ref.shape} and prediction {y_pred.shape}"
             for loss_fn in self.validation_suite:
                 # Mean over batch and time per field
-                loss = loss_fn(y_ref, y_pred, self.dset_metadata)
+                loss = loss_fn(y_pred, y_ref, self.dset_metadata)
                 # Some losses return multiple values for efficiency
                 if not isinstance(loss, dict):
                     loss = {loss_fn.__class__.__name__: loss}
@@ -122,9 +122,13 @@ class Trainer:
                         loss_dict.get(f"{dset_name}/full_{k}", 0.0)
                         + sub_loss.mean() / len(dataloader)
                 )
-            else: # Last batch plots - too much work to combine from batches
-                pass
-            # break
+        else: # Last batch plots - too much work to combine from batches
+            plot_dicts = {}
+            for plot_fn in validation_plots:
+                plot_dicts |= plot_fn(y_pred, y_ref, self.dset_metadata)
+            print(y_ref.square().mean(dim=(0, 1, 2, 3)).sqrt(), y_pred.square().mean(dim=(0, 1, 2, 3)).sqrt())
+            print((y_ref - y_pred).square().mean(dim=(0, 1, 2, 3)).sqrt())
+                
         if self.is_distributed:
             for k, v in loss_dict.items():
                 dist.all_reduce(loss_dict[k], op=dist.ReduceOp.AVG)
@@ -132,7 +136,7 @@ class Trainer:
             f"{dset_name}/full_{self.loss_fn.__class__.__name__}"
         ].item()
         loss_dict = {f"{valid_or_test}_{k}": v.item() for k, v in loss_dict.items()}
-
+        loss_dict |= plot_dicts
         return validation_loss, loss_dict
 
     def train_one_epoch(self, dataloader: DataLoader) -> float:
@@ -150,7 +154,7 @@ class Trainer:
             assert (
                 y_ref.shape == y_pred.shape
             ), f"Mismatching shapes between reference {y_ref.shape} and prediction {y_pred.shape}"
-            loss = self.loss_fn(y_ref, y_pred, self.dset_metadata).mean()
+            loss = self.loss_fn(y_pred, y_ref, self.dset_metadata).mean()
             epoch_loss += loss.item() / len(dataloader)
             loss.backward()
             self.optimizer.step()
@@ -169,7 +173,7 @@ class Trainer:
         test_dataloader = self.datamodule.test_dataloader()
 
         for epoch in range(self.max_epoch):
-            if epoch % self.val_frequency == 0:
+            if epoch % self.val_frequency == 0 or True:
                 val_loss, val_loss_dict = self.validation_loop(val_dataloder)
                 logger.info(
                     f"Epoch {epoch+1}/{self.max_epoch}: validation loss {val_loss}"
