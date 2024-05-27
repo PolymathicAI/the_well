@@ -82,7 +82,7 @@ def train(
     else:
         logger.info("No learning rate scheduler")
         lr_scheduler = None
-
+    logger.info(f"Final configuration:\n{OmegaConf.to_yaml(cfg)}")
     logger.info(f"Instantiate trainer {cfg.trainer._target_}")
     trainer: Trainer = instantiate(
         cfg.trainer,
