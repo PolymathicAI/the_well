@@ -43,7 +43,7 @@ datasets/post_neutron_star_merger/data/
 datasets/MHD/data/
 3D/convective_envelope_rsg/sim.mp4
 testing_before_adding/
-
+viz/
 # Ignore logs and temporary files
 *.log
 *.tmp
