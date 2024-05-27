@@ -211,7 +211,7 @@ class Trainer:
                         sub_loss, k, dset_name, field_names
                     )
                     # TODO get better way to include spectral error.
-                    if k in long_time_metrics or 'spectral_error' in k:
+                    if k in long_time_metrics or "spectral_error" in k:
                         time_logs |= new_time_logs
                     for loss_name, loss_value in new_losses.items():
                         loss_dict[loss_name] = loss_dict.get(

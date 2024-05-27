@@ -127,10 +127,9 @@ def plot_power_spectrum_by_field(x, y, metadata):
 def plot_all_time_metrics(time_logs):
     out_dict = {}
 
-    
     for k, v in time_logs.items():
         data = [[t, loss] for t, loss in zip(range(len(v)), v)]
-        table = wandb.Table(data=data, columns = ["time_step", "loss"])
+        table = wandb.Table(data=data, columns=["time_step", "loss"])
         fig = wandb.plot.line(table, "time_step", "loss", title=k)
         out_dict[k] = fig
     return out_dict
