@@ -39,9 +39,9 @@ datasets/post_neutron_star_merger/data/
 2D/
 3D/
 3D/rayleigh_taylor_instability/data/
-3D/convective_envelope_rsg/data/
+datasets/convective_envelope_rsg/data/
 datasets/MHD/data/
-3D/convective_envelope_rsg/sim.mp4
+datasets/convective_envelope_rsg/sim.mp4
 testing_before_adding/
 viz/
 # Ignore logs and temporary files
