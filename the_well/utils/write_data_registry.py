@@ -45,18 +45,25 @@ def write_to_json(data, output_file):
 if __name__ == "__main__":
     # List of directories you want to index
     directories_to_index = [
+        "/mnt/home/polymathic/ceph/the_well/datasets/acoustic_scattering_discontinuous_2d/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/acoustic_scattering_inclusions_2d/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/acoustic_scattering_maze_2d/data",
         "/mnt/home/polymathic/ceph/the_well/datasets/active_matter/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/convective_envelope_rsg/data",
         "/mnt/home/polymathic/ceph/the_well/datasets/euler_quadrants/data",
-        "/mnt/home/polymathic/ceph/the_well/datasets/pattern_formation/data",
         "/mnt/home/polymathic/ceph/the_well/datasets/helmholtz_staircase/data",
         "/mnt/home/polymathic/ceph/the_well/datasets/MHD/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/pattern_formation/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/planetswe/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/post_neutron_star_merger/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/rayleigh_benard/data",
         "/mnt/home/polymathic/ceph/the_well/datasets/shear_flow/data",
-        "/mnt/home/polymathic/ceph/the_well/datasets/turbulent_radiative_layer_2D/data",
-        "/mnt/home/polymathic/ceph/the_well/datasets/turbulent_radiative_layer_3D/data",
         "/mnt/home/polymathic/ceph/the_well/datasets/supernova_explosion_64/data",
         "/mnt/home/polymathic/ceph/the_well/datasets/supernova_explosion_128/data",
-        "/mnt/home/polymathic/ceph/the_well/datasets/viscoelastic_instability/data",
         "/mnt/home/polymathic/ceph/the_well/datasets/turbulence_gravity_cooling/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/turbulent_radiative_layer_2D/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/turbulent_radiative_layer_3D/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/viscoelastic_instability/data",
     ]
     # Generate file lists
     directory_files = generate_file_lists(directories_to_index)
