@@ -47,8 +47,9 @@ def field_histograms(
     for i in range(x.shape[-1]):
         fig, ax = plt.subplots()
         title = f'{field_names[i]} Histogram'
-        ax.hist(x[..., i].flatten().cpu(), bins=bins, density=True, alpha=0.5, label='Predicted')
-        ax.hist(y[..., i].flatten().cpu(), bins=bins, density=True, alpha=0.5, label='Target')
+        use_bins = np.histogram_bin_edges(y[..., i].flatten().cpu(), bins=bins)
+        ax.hist(x[..., i].flatten().cpu(), bins=use_bins, density=True, alpha=0.5, label='Predicted')
+        ax.hist(y[..., i].flatten().cpu(), bins=use_bins, density=True, alpha=0.5, label='Target')
         ax.set_xlabel('Field Value')
         ax.set_ylabel('Count')
         ax.legend()
@@ -78,7 +79,7 @@ def plot_power_spectrum_by_field(x, y, metadata):
     y_fft = build_1d_power_spectrum(y, spatial_dims)
     x_fft = build_1d_power_spectrum(x, spatial_dims)
     res_fft = build_1d_power_spectrum(y - x, spatial_dims)
-    axis = torch.fft.fftfreq(x.shape[spatial_dims[0]], d=1.0)
+    axis = torch.fft.fftshift(torch.fft.fftfreq(x.shape[spatial_dims[0]], d=1.0))
 
     out_dict = {}
     for i in range(x.shape[-1]):

@@ -126,8 +126,6 @@ class Trainer:
             plot_dicts = {}
             for plot_fn in validation_plots:
                 plot_dicts |= plot_fn(y_pred, y_ref, self.dset_metadata)
-            print(y_ref.square().mean(dim=(0, 1, 2, 3)).sqrt(), y_pred.square().mean(dim=(0, 1, 2, 3)).sqrt())
-            print((y_ref - y_pred).square().mean(dim=(0, 1, 2, 3)).sqrt())
                 
         if self.is_distributed:
             for k, v in loss_dict.items():
