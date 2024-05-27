@@ -15,6 +15,12 @@ from ..metrics import validation_metric_suite, validation_plots
 
 logger = logging.getLogger(__name__)
 
+def param_norm(parameters):
+    with torch.no_grad():
+        total_norm = 0
+        for p in parameters:
+            total_norm += p.pow(2).sum().item()
+        return total_norm**.5
 
 class Trainer:
     def __init__(
@@ -201,6 +207,8 @@ class Trainer:
         ].item()
         loss_dict = {f"{valid_or_test}_{k}": v.item() for k, v in loss_dict.items()}
         loss_dict |= plot_dicts
+        # Misc metrics
+        loss_dict["param_norm"] = param_norm(self.model.parameters())
         return validation_loss, loss_dict
 
     def train_one_epoch(self, dataloader: DataLoader) -> float:
