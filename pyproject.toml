@@ -21,7 +21,7 @@ benchmark = [
     "torch_harmonics",
     "neuraloperator",
     "timm",
-    "matplotlib"
+    "matplotlib",
     "plotly",
 ]
 

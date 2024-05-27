@@ -2,10 +2,7 @@ import wandb
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-import torch.nn.functional as F
 from the_well.benchmark.data.datasets import GenericWellMetadata
-
-from .spectral import power_spectrum
 
 
 def field_histograms(
@@ -19,7 +16,7 @@ def field_histograms(
 ):
     """
     Compute histograms of the field values for tensors
-    x and y and package them as dictionary for logging. 
+    x and y and package them as dictionary for logging.
 
     Parameters
     ----------
@@ -46,22 +43,36 @@ def field_histograms(
     out_dict = {}
     for i in range(x.shape[-1]):
         fig, ax = plt.subplots()
-        title = f'{field_names[i]} Histogram'
+        title = f"{field_names[i]} Histogram"
         use_bins = np.histogram_bin_edges(y[..., i].flatten().cpu(), bins=bins)
-        ax.hist(x[..., i].flatten().cpu(), bins=use_bins, density=True, alpha=0.5, label='Predicted')
-        ax.hist(y[..., i].flatten().cpu(), bins=use_bins, density=True, alpha=0.5, label='Target')
-        ax.set_xlabel('Field Value')
-        ax.set_ylabel('Count')
+        ax.hist(
+            x[..., i].flatten().cpu(),
+            bins=use_bins,
+            density=True,
+            alpha=0.5,
+            label="Predicted",
+        )
+        ax.hist(
+            y[..., i].flatten().cpu(),
+            bins=use_bins,
+            density=True,
+            alpha=0.5,
+            label="Target",
+        )
+        ax.set_xlabel("Field Value")
+        ax.set_ylabel("Count")
         ax.legend()
         ax.set_title(title)
         out_dict[title] = wandb.Image(fig)
         plt.close()
     return out_dict
 
+
 def build_1d_power_spectrum(x, spatial_dims):
-    x_fft = torch.fft.fftn(x, dim=spatial_dims, norm='ortho').abs().square()
+    x_fft = torch.fft.fftn(x, dim=spatial_dims, norm="ortho").abs().square()
     # Return the shifted sqrt power spectrum - first average over spatial dims, then batch and time
     return torch.fft.fftshift(x_fft.mean(spatial_dims[1:]).mean(0).mean(0).sqrt())
+
 
 def plot_power_spectrum_by_field(x, y, metadata):
     """
@@ -84,16 +95,32 @@ def plot_power_spectrum_by_field(x, y, metadata):
     out_dict = {}
     for i in range(x.shape[-1]):
         fig, ax = plt.subplots()
-        title = f'{field_names[i]} First Axis Mean Power Spectrum'
-        ax.semilogy(axis, x_fft[..., i].sqrt().cpu(), label='Predicted Spectrum', alpha=.5, linestyle='--')
-        ax.semilogy(axis, y_fft[..., i].sqrt().cpu(), label='Target Spectrum', alpha=.5, linestyle='-.')
-        ax.semilogy(axis, res_fft[..., i].sqrt().cpu(), label='Residual Spectrum', alpha=.5, linestyle=':')
-        ax.set_xlabel('Wave Number')
-        ax.set_ylabel('Power spectrum')
+        title = f"{field_names[i]} First Axis Mean Power Spectrum"
+        ax.semilogy(
+            axis,
+            x_fft[..., i].sqrt().cpu(),
+            label="Predicted Spectrum",
+            alpha=0.5,
+            linestyle="--",
+        )
+        ax.semilogy(
+            axis,
+            y_fft[..., i].sqrt().cpu(),
+            label="Target Spectrum",
+            alpha=0.5,
+            linestyle="-.",
+        )
+        ax.semilogy(
+            axis,
+            res_fft[..., i].sqrt().cpu(),
+            label="Residual Spectrum",
+            alpha=0.5,
+            linestyle=":",
+        )
+        ax.set_xlabel("Wave Number")
+        ax.set_ylabel("Power spectrum")
         ax.legend()
         ax.set_title(title)
         out_dict[title] = wandb.Image(fig)
         plt.close()
     return out_dict
-
-

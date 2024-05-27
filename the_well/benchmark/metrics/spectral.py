@@ -192,14 +192,20 @@ class binned_spectral_mse(Metric):
 
         # Compute the mean squared error per bin (stems from Plancherel's formula)
         mse_per_bin = ps_res_mean * counts[:-1].unsqueeze(-1) / (N**ndims) ** 2
-        true_energy_per_min = ps_true_mean * true_counts[:-1].unsqueeze(-1) / (N**ndims) ** 2
+        true_energy_per_min = (
+            ps_true_mean * true_counts[:-1].unsqueeze(-1) / (N**ndims) ** 2
+        )
         nmse_per_bin = mse_per_bin / (true_energy_per_min + 1e-7)
 
-        mse_dict = {f"spectral_error_mse_per_bin_{i}":mse_per_bin[..., i, :] 
-                for i in range(mse_per_bin.shape[-2])}
-        nmse_dict = {f"spectral_error_nmse_per_bin_{i}":nmse_per_bin[..., i, :]
-                for i in range(nmse_per_bin.shape[-2])}
+        mse_dict = {
+            f"spectral_error_mse_per_bin_{i}": mse_per_bin[..., i, :]
+            for i in range(mse_per_bin.shape[-2])
+        }
+        nmse_dict = {
+            f"spectral_error_nmse_per_bin_{i}": nmse_per_bin[..., i, :]
+            for i in range(nmse_per_bin.shape[-2])
+        }
         out_dict = mse_dict
         out_dict |= nmse_dict
         # TODO Figure out better way to handle multi-output losses
-        return out_dict 
+        return out_dict

@@ -88,7 +88,9 @@ class Trainer:
         )
 
     @torch.no_grad()
-    def validation_loop(self, dataloader: DataLoader, valid_or_test: str="valid") -> float:
+    def validation_loop(
+        self, dataloader: DataLoader, valid_or_test: str = "valid"
+    ) -> float:
         """Run validation by looping over the dataloader."""
         self.model.eval()
         validation_loss = 0.0
@@ -113,20 +115,18 @@ class Trainer:
                 for k, v in loss.items():
                     sub_loss = v.mean(0).mean(0)
                     for i, fname in enumerate(field_names):
-                        loss_dict[f"{dset_name}/{fname}_{k}"] = (
-                            loss_dict.get(f"{dset_name}/{fname}_{k}", 0.0)
-                             + sub_loss[i] / len(dataloader)
-                        )
+                        loss_dict[f"{dset_name}/{fname}_{k}"] = loss_dict.get(
+                            f"{dset_name}/{fname}_{k}", 0.0
+                        ) + sub_loss[i] / len(dataloader)
                     # Now mean over field too
-                    loss_dict[f"{dset_name}/full_{k}"] = (
-                        loss_dict.get(f"{dset_name}/full_{k}", 0.0)
-                        + sub_loss.mean() / len(dataloader)
-                )
-        else: # Last batch plots - too much work to combine from batches
+                    loss_dict[f"{dset_name}/full_{k}"] = loss_dict.get(
+                        f"{dset_name}/full_{k}", 0.0
+                    ) + sub_loss.mean() / len(dataloader)
+        else:  # Last batch plots - too much work to combine from batches
             plot_dicts = {}
             for plot_fn in validation_plots:
                 plot_dicts |= plot_fn(y_pred, y_ref, self.dset_metadata)
-                
+
         if self.is_distributed:
             for k, v in loss_dict.items():
                 dist.all_reduce(loss_dict[k], op=dist.ReduceOp.AVG)
@@ -142,7 +142,7 @@ class Trainer:
         self.model.train()
         epoch_loss = 0.0
         train_logs = {}
-        start_time = time.time() # Don't need to sync this. 
+        start_time = time.time()  # Don't need to sync this.
         for batch in tqdm.tqdm(dataloader):
             inputs, y_ref = self.formatter.process_input(batch)
             inputs = map(lambda x: x.to(self.device), inputs)
@@ -192,7 +192,9 @@ class Trainer:
             logger.info(f"Epoch {epoch+1}/{self.max_epoch}: validation loss {val_loss}")
             val_loss_dict |= {"valid": val_loss, "epoch": epoch}
             wandb.log(val_loss_dict)
-        test_loss, test_logs = self.validation_loop(test_dataloader, valid_or_test="test")
+        test_loss, test_logs = self.validation_loop(
+            test_dataloader, valid_or_test="test"
+        )
         logger.info(f"Test loss {test_loss}")
         test_logs |= {"test": test_loss, "epoch": epoch}
         wandb.log(test_logs)

@@ -71,10 +71,9 @@ def train(
     if hasattr(cfg, "lr_scheduler"):
         # Set LR scheduler configs based on experiment settings
         cfg.lr_scheduler.max_epochs = cfg.trainer.epochs
-        cfg.lr_scheduler.warmup_epochs = int(cfg.trainer.epochs * .1)
-        cfg.lr_scheduler.warmup_start_lr = (cfg.optimizer.lr 
-            * .1)
-        cfg.lr_scheduler.eta_min = cfg.optimizer.lr * .1
+        cfg.lr_scheduler.warmup_epochs = int(cfg.trainer.epochs * 0.1)
+        cfg.lr_scheduler.warmup_start_lr = cfg.optimizer.lr * 0.1
+        cfg.lr_scheduler.eta_min = cfg.optimizer.lr * 0.1
         # Instantiate LR scheduler
         logger.info(f"Instantiate learning rate scheduler {cfg.lr_scheduler._target_}")
         lr_scheduler: torch.optim.lr_scheduler._LRScheduler = instantiate(
