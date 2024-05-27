@@ -10,9 +10,7 @@ def field_histograms(
     y: torch.Tensor | np.ndarray,
     meta: GenericWellMetadata,
     bins: int = 100,
-    log_scale: bool = False,
     title: str = None,
-    wandb_log: bool = True,
 ):
     """
     Compute histograms of the field values for tensors

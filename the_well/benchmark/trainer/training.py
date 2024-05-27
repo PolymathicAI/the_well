@@ -2,6 +2,7 @@ import logging
 import time
 from typing import Callable, Optional
 
+import numpy as np
 import torch
 import torch.distributed as dist
 import tqdm
@@ -28,6 +29,8 @@ class Trainer:
         epochs: int,
         val_frequency: int,
         rollout_val_frequency: int,
+        max_rollout_steps: int,
+        num_time_intervals: int,
         lr_scheduler: Optional[torch.optim.lr_scheduler._LRScheduler] = None,
         device=torch.device("cuda"),
         is_distributed: bool = False,
@@ -52,6 +55,12 @@ class Trainer:
             One epoch correspond to a full loop over the datamodule's training dataloader
         val_frequency:
             The frequency in terms of number of epochs to perform the validation
+        rollout_val_frequency:
+            The frequency in terms of number of epochs to perform the rollout validation
+        max_rollout_steps:
+            The maximum number of timesteps to rollout the model
+        num_time_intervals:
+            The number of time intervals to split the loss over
         lr_scheduler:
             A Pytorch learning rate scheduler to update the learning rate during training
         device:
@@ -70,6 +79,9 @@ class Trainer:
         self.validation_suite = validation_metric_suite + [self.loss_fn]
         self.max_epoch = epochs
         self.val_frequency = val_frequency
+        self.rollout_val_frequency = rollout_val_frequency
+        self.max_rollout_steps = max_rollout_steps
+        self.num_time_intervals = num_time_intervals
         self.is_distributed = is_distributed
         self.best_val_loss = None
         self.dset_metadata = self.datamodule.train_dataset.metadata
@@ -88,7 +100,58 @@ class Trainer:
             output_path,
         )
 
-    @torch.no_grad()
+    def rollout_model(self, model, batch, formatter):
+        """Rollout the model for as many steps as we have data for."""
+        inputs, y_ref = formatter.process_input(batch)
+        rollout_steps = min(y_ref.shape[1], self.max_rollout_steps) # Number of timesteps in target
+        # Create a moving batch of one step at a time
+        moving_batch = batch
+        moving_batch['output_fields'] = moving_batch['output_fields'][:, :1]
+        y_preds = []
+        for i in range(rollout_steps):
+            inputs, _ = formatter.process_input(moving_batch)
+            inputs = map(lambda x: x.to(self.device), inputs)
+            y_pred = model(*inputs)
+            y_pred = formatter.process_output(y_pred)
+            # If not last step, update moving batch for autoregressive prediction
+            if i != rollout_steps-1:
+                moving_batch['input_fields'] = torch.cat([moving_batch['input_fields'][:, 1:], y_pred], dim=1)
+            y_preds.append(y_pred)
+        y_pred = torch.cat(y_preds, dim=1)
+        y_ref = y_ref.to(self.device)
+        return y_pred, y_ref
+    
+    def temporal_split_losses(self, loss_values, temporal_loss_intervals, loss_name, dset_name, fname="full"):
+        new_losses = {}
+        # Average over time interval
+        new_losses[f"{dset_name}/{fname}_{loss_name}_T=all"] = loss_values.mean()
+        # Break it down by time interval
+        for k in range(len(temporal_loss_intervals)-1):
+            start_ind = temporal_loss_intervals[k]
+            end_ind = temporal_loss_intervals[k+1]
+            time_str = f"{start_ind}:{end_ind}"
+            loss_subset = loss_values[start_ind:end_ind].mean()
+            new_losses[f"{dset_name}/{fname}_{loss_name}_T={time_str}"] = loss_subset
+        return new_losses
+    
+    def split_up_losses(self, loss_values, loss_name, dset_name, field_names):
+        new_losses = {}
+        time_steps = loss_values.shape[0] # we already average over batch
+        num_time_intervals = min(time_steps, self.num_time_intervals)
+        temporal_loss_intervals = np.linspace(0, np.log(time_steps), num_time_intervals)
+        temporal_loss_intervals = [0] + [int(np.exp(x)) for x in temporal_loss_intervals]
+        # Split up losses by field
+        for i, fname in enumerate(field_names):
+            new_losses |= self.temporal_split_losses(loss_values[:, i], temporal_loss_intervals,
+                                                      loss_name, dset_name, fname)
+        # Compute average over all fields
+        new_losses |= self.temporal_split_losses(loss_values.mean(1), temporal_loss_intervals,
+                                                    loss_name, dset_name, "full")
+        return new_losses
+
+
+    
+    @torch.inference_mode()
     def validation_loop(
         self, dataloader: DataLoader, valid_or_test: str = "valid"
     ) -> float:
@@ -99,40 +162,42 @@ class Trainer:
         dset_name = self.dset_metadata.dataset_name
         loss_dict = {}
         for batch in tqdm.tqdm(dataloader):
-            inputs, y_ref = self.formatter.process_input(batch)
-            inputs = map(lambda x: x.to(self.device), inputs)
-            y_ref = y_ref.to(self.device)
-            y_pred = self.model(*inputs)
-            y_pred = self.formatter.process_output(y_pred)
+            # Rollout for length of target
+            y_pred, y_ref = self.rollout_model(self.model, batch, self.formatter)
             assert (
                 y_ref.shape == y_pred.shape
             ), f"Mismatching shapes between reference {y_ref.shape} and prediction {y_pred.shape}"
+            # Go through losses
             for loss_fn in self.validation_suite:
                 # Mean over batch and time per field
                 loss = loss_fn(y_pred, y_ref, self.dset_metadata)
                 # Some losses return multiple values for efficiency
                 if not isinstance(loss, dict):
                     loss = {loss_fn.__class__.__name__: loss}
+                # Split the losses and update the logging dictionary
                 for k, v in loss.items():
-                    sub_loss = v.mean(0).mean(0)
-                    for i, fname in enumerate(field_names):
-                        loss_dict[f"{dset_name}/{fname}_{k}"] = loss_dict.get(
-                            f"{dset_name}/{fname}_{k}", 0.0
-                        ) + sub_loss[i] / len(dataloader)
-                    # Now mean over field too
-                    loss_dict[f"{dset_name}/full_{k}"] = loss_dict.get(
-                        f"{dset_name}/full_{k}", 0.0
-                    ) + sub_loss.mean() / len(dataloader)
+                    sub_loss = v.mean(0)
+                    new_losses = self.split_up_losses(sub_loss, 
+                                                      k, 
+                                                      dset_name, 
+                                                      field_names)
+                    for loss_name, loss_value in new_losses.items():
+                        loss_dict[loss_name] = loss_dict.get(loss_name, 0.0) + loss_value / len(dataloader)
+
         else:  # Last batch plots - too much work to combine from batches
             plot_dicts = {}
             for plot_fn in validation_plots:
                 plot_dicts |= plot_fn(y_pred, y_ref, self.dset_metadata)
+            if y_ref.shape[1] > 1:
+                # Only plot if we have more than one timestep
+                # TODO add time plots
+                pass
 
         if self.is_distributed:
             for k, v in loss_dict.items():
                 dist.all_reduce(loss_dict[k], op=dist.ReduceOp.AVG)
         validation_loss = loss_dict[
-            f"{dset_name}/full_{self.loss_fn.__class__.__name__}"
+            f"{dset_name}/full_{self.loss_fn.__class__.__name__}_T=all"
         ].item()
         loss_dict = {f"{valid_or_test}_{k}": v.item() for k, v in loss_dict.items()}
         loss_dict |= plot_dicts
@@ -145,11 +210,7 @@ class Trainer:
         train_logs = {}
         start_time = time.time()  # Don't need to sync this.
         for batch in tqdm.tqdm(dataloader):
-            inputs, y_ref = self.formatter.process_input(batch)
-            inputs = map(lambda x: x.to(self.device), inputs)
-            y_ref = y_ref.to(self.device)
-            y_pred = self.model(*inputs)
-            y_pred = self.formatter.process_output(y_pred)
+            y_pred, y_ref = self.rollout_model(self.model, batch, self.formatter)
             assert (
                 y_ref.shape == y_pred.shape
             ), f"Mismatching shapes between reference {y_ref.shape} and prediction {y_pred.shape}"
@@ -162,7 +223,7 @@ class Trainer:
         train_logs["train_loss"] = epoch_loss
         if self.lr_scheduler:
             self.lr_scheduler.step()
-            train_logs["lr"] = self.lr_scheduler.get_lr()
+            train_logs["lr"] = self.lr_scheduler.get_last_lr()[-1]
         return epoch_loss, train_logs
 
     def train(self):
@@ -172,7 +233,7 @@ class Trainer:
         test_dataloader = self.datamodule.test_dataloader()
 
         for epoch in range(self.max_epoch):
-            if epoch % self.val_frequency:
+            if epoch % self.val_frequency == 0 or True:
                 val_loss, val_loss_dict = self.validation_loop(val_dataloder)
                 logger.info(
                     f"Epoch {epoch+1}/{self.max_epoch}: validation loss {val_loss}"
