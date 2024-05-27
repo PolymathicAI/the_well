@@ -171,7 +171,7 @@ class Trainer:
         test_dataloader = self.datamodule.test_dataloader()
 
         for epoch in range(self.max_epoch):
-            if epoch % self.val_frequency:
+            if epoch % self.val_frequency == 0:
                 val_loss, val_loss_dict = self.validation_loop(val_dataloder)
                 logger.info(
                     f"Epoch {epoch+1}/{self.max_epoch}: validation loss {val_loss}"

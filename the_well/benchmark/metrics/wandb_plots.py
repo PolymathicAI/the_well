@@ -1,7 +1,8 @@
-import wandb
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+import wandb
+
 from the_well.benchmark.data.datasets import GenericWellMetadata
 
 
