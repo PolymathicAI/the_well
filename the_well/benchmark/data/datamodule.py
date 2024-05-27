@@ -17,7 +17,7 @@ class AbstractDataModule(ABC):
     @abstractmethod
     def val_dataloader(self) -> DataLoader:
         raise NotImplementedError
-    
+
     @abstractmethod
     def rollout_val_dataloader(self) -> DataLoader:
         raise NotImplementedError
@@ -25,7 +25,7 @@ class AbstractDataModule(ABC):
     @abstractmethod
     def test_dataloader(self) -> DataLoader:
         raise NotImplementedError
-    
+
     @abstractmethod
     def rollout_test_dataloader(self) -> DataLoader:
         raise NotImplementedError
@@ -158,14 +158,14 @@ class WellDataModule(AbstractDataModule):
 
         return DataLoader(
             self.val_dataset,
-            num_workers=self.data_workers,  
+            num_workers=self.data_workers,
             pin_memory=True,
             batch_size=self.batch_size,
             shuffle=False,
             drop_last=True,
             sampler=sampler,
         )
-    
+
     def rollout_val_dataloader(self) -> DataLoader:
         sampler = None
         if self.is_distributed:
@@ -182,9 +182,9 @@ class WellDataModule(AbstractDataModule):
 
         return DataLoader(
             self.rollout_val_dataset,
-            num_workers=self.data_workers,  
+            num_workers=self.data_workers,
             pin_memory=True,
-            batch_size=1, #min(self.batch_size, len(self.rollout_val_dataset)),
+            batch_size=1,  # min(self.batch_size, len(self.rollout_val_dataset)),
             shuffle=False,
             drop_last=True,
             sampler=sampler,
@@ -205,14 +205,14 @@ class WellDataModule(AbstractDataModule):
             )
         return DataLoader(
             self.test_dataset,
-            num_workers=self.data_workers,  
+            num_workers=self.data_workers,
             pin_memory=True,
             batch_size=self.batch_size,
             shuffle=False,
             drop_last=True,
             sampler=sampler,
         )
-    
+
     def rollout_test_dataloader(self) -> DataLoader:
         sampler = None
         if self.is_distributed:
@@ -228,9 +228,9 @@ class WellDataModule(AbstractDataModule):
             )
         return DataLoader(
             self.rollout_test_dataset,
-            num_workers=self.data_workers,  
+            num_workers=self.data_workers,
             pin_memory=True,
-            batch_size=1, #min(self.batch_size, len(self.rollout_test_dataset)),
+            batch_size=1,  # min(self.batch_size, len(self.rollout_test_dataset)),
             shuffle=False,
             drop_last=True,
             sampler=sampler,

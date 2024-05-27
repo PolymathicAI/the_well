@@ -36,8 +36,9 @@ def train(
     """Instantiate the different objects required for training and run the training loop."""
 
     logger.info(f"Instantiate datamodule {cfg.data._target_}")
-    datamodule: WellDataModule = instantiate(cfg.data, world_size=world_size, rank=rank,
-                                             data_workers=cfg.data_workers)
+    datamodule: WellDataModule = instantiate(
+        cfg.data, world_size=world_size, rank=rank, data_workers=cfg.data_workers
+    )
     dset_metadata = datamodule.train_dataset.metadata
     n_input_fields = dset_metadata.n_fields + dset_metadata.n_constant_fields
     n_output_fields = dset_metadata.n_fields
@@ -73,7 +74,7 @@ def train(
         # Instantiate LR scheduler
         logger.info(f"Instantiate learning rate scheduler {cfg.lr_scheduler._target_}")
         lr_scheduler: torch.optim.lr_scheduler._LRScheduler = instantiate(
-            cfg.lr_scheduler, 
+            cfg.lr_scheduler,
             optimizer=optimizer,
             max_epochs=cfg.trainer.epochs,
             warmup_start_lr=cfg.optimizer.lr * 0.1,

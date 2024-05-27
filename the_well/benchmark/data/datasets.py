@@ -133,9 +133,9 @@ class GenericWellDataset(Dataset):
         Whether to return grid coordinates
     boundary_return_type : options=['padding', 'mask', 'exact']
         How to return boundary conditions. Currently only padding supported.
-    full_trajectory_mode : 
+    full_trajectory_mode :
         Overrides to return full trajectory starting from t0 instead of samples
-            for long run validation. 
+            for long run validation.
     name_override :
         Override name of dataset (used for more precise logging)
     transforms :
@@ -205,7 +205,7 @@ class GenericWellDataset(Dataset):
         self.include_filters = include_filters
         self.exclude_filters = exclude_filters
         self.n_steps_input = n_steps_input
-        self.n_steps_output = n_steps_output # Gets overridden by full trajectory mode
+        self.n_steps_output = n_steps_output  # Gets overridden by full trajectory mode
         self.dt_stride = dt_stride
         self.max_dt_stride = max_dt_stride
         self.flatten_tensors = flatten_tensors
