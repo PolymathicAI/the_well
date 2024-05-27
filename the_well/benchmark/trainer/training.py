@@ -210,7 +210,8 @@ class Trainer:
                     new_losses, new_time_logs = self.split_up_losses(
                         sub_loss, k, dset_name, field_names
                     )
-                    if k in long_time_metrics:
+                    # TODO get better way to include spectral error.
+                    if k in long_time_metrics or 'spectral_error' in k:
                         time_logs |= new_time_logs
                     for loss_name, loss_value in new_losses.items():
                         loss_dict[loss_name] = loss_dict.get(
@@ -224,7 +225,6 @@ class Trainer:
             if y_ref.shape[1] > 1:
                 # Only plot if we have more than one timestep, but then track loss over timesteps
                 plot_dicts |= plot_all_time_metrics(time_logs)
-                print(plot_dicts)
 
         if self.is_distributed:
             for k, v in loss_dict.items():
@@ -270,7 +270,7 @@ class Trainer:
         rollout_test_dataloader = self.datamodule.rollout_test_dataloader()
 
         for epoch in range(self.max_epoch):
-            if epoch % self.val_frequency == 0 or True:
+            if epoch % self.val_frequency == 0:
                 val_loss, val_loss_dict = self.validation_loop(val_dataloder)
                 logger.info(
                     f"Epoch {epoch+1}/{self.max_epoch}: validation loss {val_loss}"
@@ -279,7 +279,7 @@ class Trainer:
                 wandb.log(val_loss_dict)
                 if self.best_val_loss is None or val_loss < self.best_val_loss:
                     self.save_model(epoch, val_loss, f"{self.experiment_name}-best.pt")
-            if epoch % self.rollout_val_frequency == 0 or True:
+            if epoch % self.rollout_val_frequency == 0:
                 rollout_val_loss, rollout_val_loss_dict = self.validation_loop(
                     rollout_val_dataloader, valid_or_test="rollout_valid"
                 )
