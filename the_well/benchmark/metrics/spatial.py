@@ -131,3 +131,87 @@ class NRMSE(Metric):
             Normalized root mean squared error between x and y.
         """
         return torch.sqrt(NMSE.eval(x, y, meta, eps=eps, norm_mode=norm_mode))
+
+
+class VMSE(Metric):
+    @staticmethod
+    def eval(
+        x: torch.Tensor | np.ndarray,
+        y: torch.Tensor | np.ndarray,
+        meta: GenericWellMetadata,
+    ) -> torch.Tensor:
+        """
+        Variance Scaled Mean Squared Error
+
+        Parameters
+        ----------
+        x : torch.Tensor | np.ndarray
+            Input tensor.
+        y : torch.Tensor | np.ndarray
+            Target tensor.
+        meta : GenericWellMetadata
+            Metadata for the dataset.
+
+        Returns
+        -------
+        torch.Tensor
+            Variance mean squared error between x and y.
+        """
+        NMSE.eval(x, y, meta, norm_mode="std")
+
+
+class VRMSE(Metric):
+    @staticmethod
+    def eval(
+        x: torch.Tensor | np.ndarray,
+        y: torch.Tensor | np.ndarray,
+        meta: GenericWellMetadata,
+    ) -> torch.Tensor:
+        """
+        Root Variance Scaled Mean Squared Error
+
+        Parameters
+        ----------
+        x : torch.Tensor | np.ndarray
+            Input tensor.
+        y : torch.Tensor | np.ndarray
+            Target tensor.
+        meta : GenericWellMetadata
+            Metadata for the dataset.
+
+        Returns
+        -------
+        torch.Tensor
+            Root variance mean squared error between x and y.
+        """
+        return NRMSE.eval(x, y, meta, norm_mode="std")
+
+
+class LInfinity(Metric):
+    @staticmethod
+    def eval(
+        x: torch.Tensor | np.ndarray,
+        y: torch.Tensor | np.ndarray,
+        meta: GenericWellMetadata,
+    ) -> torch.Tensor:
+        """
+        L-Infinity Norm
+
+        Parameters
+        ----------
+        x : torch.Tensor | np.ndarray
+            Input tensor.
+        y : torch.Tensor | np.ndarray
+            Target tensor.
+        meta : GenericWellMetadata
+            Metadata for the dataset.
+
+        Returns
+        -------
+        torch.Tensor
+            L-Infinity norm between x and y.
+        """
+        spatial_dims = tuple(range(-meta.n_spatial_dims - 1, -1))
+        return torch.max(
+            torch.abs(x - y).flatten(start_dim=spatial_dims[0], end_dim=-2), dim=-2
+        ).values

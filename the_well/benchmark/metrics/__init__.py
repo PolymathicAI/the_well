@@ -1,5 +1,18 @@
-from .spatial import NRMSE, RMSE
+from .spatial import MSE, NMSE, NRMSE, RMSE, VMSE, VRMSE, LInfinity
+from .spectral import binned_spectral_mse
+from .wandb_plots import field_histograms, plot_power_spectrum_by_field
 
-# from .spectral import *
+# I hate that the linter is forcing an all function...
+__all__ = [
+    "NRMSE",
+    "RMSE",
+    "MSE",
+    "NMSE",
+    "LInfinity",
+    "VMSE",
+    "VRMSE",
+    "binned_spectral_mse",
+]  # I hate this
 
-validation_metric_suite = [RMSE(), NRMSE()]
+validation_metric_suite = [RMSE(), NRMSE(), LInfinity(), VRMSE(), binned_spectral_mse()]
+validation_plots = [plot_power_spectrum_by_field, field_histograms]
