@@ -10,10 +10,10 @@
 
 export OMP_NUM_THREADS=${SLURM_CPUS_ON_NODE}
 
-module load python cuda cudnn gcc
+module load python cuda cudnn gcc hdf5
 # Activate the virtual environment with all the dependencies
 # source ~/well_venv/bin/activate
 source /mnt/home/rohana/python_envs/nanoGPT/bin/activate
 
 # Launch the training script
-srun python train.py experiment=fno server=rusty
+srun python train.py experiment=fno server=rusty optimizer.lr=1e-2
