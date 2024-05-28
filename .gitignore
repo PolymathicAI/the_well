@@ -44,6 +44,7 @@ datasets/MHD/data/
 datasets/convective_envelope_rsg/sim.mp4
 testing_before_adding/
 viz/
+venv_benchmark_well/
 # Ignore logs and temporary files
 *.log
 *.tmp
