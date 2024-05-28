@@ -3,3 +3,5 @@ defaults:
   - optimizer: adam
   - experiment: ???
   - server: ???
+
+data_workers: 8

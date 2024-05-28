@@ -36,7 +36,9 @@ def train(
     """Instantiate the different objects required for training and run the training loop."""
 
     logger.info(f"Instantiate datamodule {cfg.data._target_}")
-    datamodule: WellDataModule = instantiate(cfg.data, world_size=world_size, rank=rank)
+    datamodule: WellDataModule = instantiate(
+        cfg.data, world_size=world_size, rank=rank, data_workers=cfg.data_workers
+    )
     dset_metadata = datamodule.train_dataset.metadata
     n_input_fields = dset_metadata.n_fields + dset_metadata.n_constant_fields
     n_output_fields = dset_metadata.n_fields
@@ -69,20 +71,19 @@ def train(
     )
 
     if hasattr(cfg, "lr_scheduler"):
-        # Set LR scheduler configs based on experiment settings
-        cfg.lr_scheduler.max_epochs = cfg.trainer.epochs
-        cfg.lr_scheduler.warmup_epochs = int(cfg.trainer.epochs * 0.1)
-        cfg.lr_scheduler.warmup_start_lr = cfg.optimizer.lr * 0.1
-        cfg.lr_scheduler.eta_min = cfg.optimizer.lr * 0.1
         # Instantiate LR scheduler
         logger.info(f"Instantiate learning rate scheduler {cfg.lr_scheduler._target_}")
         lr_scheduler: torch.optim.lr_scheduler._LRScheduler = instantiate(
-            cfg.lr_scheduler, optimizer=optimizer
+            cfg.lr_scheduler,
+            optimizer=optimizer,
+            max_epochs=cfg.trainer.epochs,
+            warmup_start_lr=cfg.optimizer.lr * 0.1,
+            eta_min=cfg.optimizer.lr * 0.1,
         )
     else:
         logger.info("No learning rate scheduler")
         lr_scheduler = None
-
+    logger.info(f"Final configuration:\n{OmegaConf.to_yaml(cfg)}")
     logger.info(f"Instantiate trainer {cfg.trainer._target_}")
     trainer: Trainer = instantiate(
         cfg.trainer,

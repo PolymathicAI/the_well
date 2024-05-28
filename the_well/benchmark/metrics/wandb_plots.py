@@ -11,9 +11,7 @@ def field_histograms(
     y: torch.Tensor | np.ndarray,
     meta: GenericWellMetadata,
     bins: int = 100,
-    log_scale: bool = False,
     title: str = None,
-    wandb_log: bool = True,
 ):
     """
     Compute histograms of the field values for tensors
@@ -64,7 +62,7 @@ def field_histograms(
         ax.set_ylabel("Count")
         ax.legend()
         ax.set_title(title)
-        out_dict[title] = wandb.Image(fig)
+        out_dict[f"{meta.dataset_name}/{title}"] = wandb.Image(fig)
         plt.close()
     return out_dict
 
@@ -122,6 +120,17 @@ def plot_power_spectrum_by_field(x, y, metadata):
         ax.set_ylabel("Power spectrum")
         ax.legend()
         ax.set_title(title)
-        out_dict[title] = wandb.Image(fig)
+        out_dict[f"{metadata.dataset_name}/{title}"] = wandb.Image(fig)
         plt.close()
+    return out_dict
+
+
+def plot_all_time_metrics(time_logs):
+    out_dict = {}
+
+    for k, v in time_logs.items():
+        data = [[t, loss] for t, loss in zip(range(len(v)), v)]
+        table = wandb.Table(data=data, columns=["time_step", "loss"])
+        fig = wandb.plot.line(table, "time_step", "loss", title=k)
+        out_dict[k] = fig
     return out_dict

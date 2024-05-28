@@ -1,5 +1,2 @@
 _target_: the_well.benchmark.optim.schedulers.LinearWarmupCosineAnnealingLR
-max_epochs: 50
 warmup_epochs: 5
-warmup_start_lr: 0.
-eta_min: 0.

@@ -133,6 +133,9 @@ class GenericWellDataset(Dataset):
         Whether to return grid coordinates
     boundary_return_type : options=['padding', 'mask', 'exact']
         How to return boundary conditions. Currently only padding supported.
+    full_trajectory_mode :
+        Overrides to return full trajectory starting from t0 instead of samples
+            for long run validation.
     name_override :
         Override name of dataset (used for more precise logging)
     transforms :
@@ -160,6 +163,7 @@ class GenericWellDataset(Dataset):
         max_cache_size: float = 1e9,
         return_grid: bool = True,
         boundary_return_type: str = "padding",
+        full_trajectory_mode: bool = False,
         name_override: Optional[str] = None,
         transforms: List[Callable] = [],
         tensor_transforms: List[Callable] = [],
@@ -201,12 +205,13 @@ class GenericWellDataset(Dataset):
         self.include_filters = include_filters
         self.exclude_filters = exclude_filters
         self.n_steps_input = n_steps_input
-        self.n_steps_output = n_steps_output
+        self.n_steps_output = n_steps_output  # Gets overridden by full trajectory mode
         self.dt_stride = dt_stride
         self.max_dt_stride = max_dt_stride
         self.flatten_tensors = flatten_tensors
         self.return_grid = return_grid
         self.boundary_return_type = boundary_return_type
+        self.full_trajectory_mode = full_trajectory_mode
         self.cache_constants = cache_constants
         self.max_cache_size = max_cache_size
         self.transforms = transforms
@@ -268,6 +273,9 @@ class GenericWellDataset(Dataset):
                 assert (
                     len(size_tuples) == 1
                 ), "Multiple resolutions found in specified path"
+                # TODO - this probably bugs out if steps vary between files
+                if self.full_trajectory_mode:
+                    self.n_steps_output = steps - self.n_steps_input
                 # Check that the requested steps make sense
                 per_simulation_steps = raw_steps_to_possible_sample_t0s(
                     steps, self.n_steps_input, self.n_steps_output, self.dt_stride
@@ -305,9 +313,6 @@ class GenericWellDataset(Dataset):
                             self.num_constant_fields_by_tensor_order[0] = (
                                 self.num_constant_fields_by_tensor_order.get(0, 0) + 1
                             )
-                    # self.num_fields_by_tensor_order[0] = len(
-                    #     _f["t0_fields"].attrs["field_names"]
-                    # )
                     for field in _f["t1_fields"].attrs["field_names"]:
                         for dim in _f["dimensions"].attrs["spatial_dims"]:
                             if (
@@ -324,11 +329,6 @@ class GenericWellDataset(Dataset):
                                     self.num_constant_fields_by_tensor_order.get(1, 0)
                                     + 1
                                 )
-
-                    #         self.field_names.append(f"{field}_{dim}")
-                    # self.num_fields_by_tensor_order[1] = len(
-                    #     _f["t1_fields"].attrs["field_names"]
-                    # )
                     for field in _f["t2_fields"].attrs["field_names"]:
                         for i, dim1 in enumerate(
                             _f["dimensions"].attrs["spatial_dims"]
@@ -359,10 +359,6 @@ class GenericWellDataset(Dataset):
                                         )
                                         + 1
                                     )
-                    #             self.field_names.append(f"{field}_{dim1}{dim2}")
-                    # self.num_fields_by_tensor_order[2] = len(
-                    #     _f["t2_fields"].attrs["field_names"]
-                    # )
 
         # Just to make sure it doesn't put us in file -1
         self.file_index_offsets[0] = -1

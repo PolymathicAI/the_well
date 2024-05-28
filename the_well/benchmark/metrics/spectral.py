@@ -206,6 +206,7 @@ class binned_spectral_mse(Metric):
             for i in range(nmse_per_bin.shape[-2])
         }
         out_dict = mse_dict
+        # Hacked to add this here for now - should be split with taking PS as input
         out_dict |= nmse_dict
         # TODO Figure out better way to handle multi-output losses
         return out_dict
