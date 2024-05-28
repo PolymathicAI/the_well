@@ -1,4 +1,4 @@
 _target_: the_well.benchmark.data.WellDataModule
-batch_size: 64
+batch_size: 8
 well_base_path: ???
-well_dataset_name: active_matter
+well_dataset_name: post_neutron_star_merger
