@@ -5,3 +5,4 @@ defaults:
   - server: ???
 
 data_workers: 8
+wandb_project_name: "the_well_debug"
