@@ -569,7 +569,7 @@ class GenericWellDataset(Dataset):
             dim_indices = {
                 dim: i for i, dim in enumerate(file["dimensions"].attrs["spatial_dims"])
             }
-            boundary_output = torch.zeros((2,) * self.n_spatial_dims)
+            boundary_output = torch.zeros(self.n_spatial_dims, 2)
             for bc_name in bcs.keys():
                 bc = bcs[bc_name]
                 bc_type = bc.attrs["bc_type"].upper()  # Enum is in upper case
@@ -580,6 +580,7 @@ class GenericWellDataset(Dataset):
                 dim = bc.attrs["associated_dims"][0]
                 mask = bc["mask"]
                 if mask[0]:
+                    print(boundary_output, dim, dim_indices[dim])
                     boundary_output[dim_indices[dim]][0] = BoundaryCondition[
                         bc_type
                     ].value

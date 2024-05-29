@@ -1,4 +1,5 @@
 import logging
+import os
 import time
 from typing import Callable, Optional
 
@@ -278,6 +279,7 @@ class Trainer:
                 val_loss_dict |= {"valid": val_loss, "epoch": epoch}
                 wandb.log(val_loss_dict)
                 if self.best_val_loss is None or val_loss < self.best_val_loss:
+                    os.makedirs("checkpoints", exist_ok=True) # Quick fix here - should parameterize.
                     self.save_model(epoch, val_loss, f"checkpoints/{self.experiment_name}-best.pt")
             if epoch % self.rollout_val_frequency == 0:
                 rollout_val_loss, rollout_val_loss_dict = self.validation_loop(
