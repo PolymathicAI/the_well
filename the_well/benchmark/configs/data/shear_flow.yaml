@@ -1,0 +1,4 @@
+_target_: the_well.benchmark.data.WellDataModule
+batch_size: 128
+well_base_path: ???
+well_dataset_name: shear_flow

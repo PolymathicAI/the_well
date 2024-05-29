@@ -1,0 +1,4 @@
+_target_: the_well.benchmark.data.WellDataModule
+batch_size: 96
+well_base_path: ???
+well_dataset_name: turbulent_radiative_layer_2D

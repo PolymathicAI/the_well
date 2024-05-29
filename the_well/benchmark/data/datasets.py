@@ -9,7 +9,24 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 
-well_paths = {"active_matter": "datasets/active_matter", "MHD": "datasets/MHD"}
+well_paths = well_paths = {
+    "acoustic_scattering_maze_2d": "datasets/acoustic_scattering_maze_2d",
+    "active_matter": "datasets/active_matter",
+    "convective_envelope_rsg": "datasets/convective_envelope_rsg",
+    "euler_quadrants": "datasets/euler_quadrants",
+    "helmholtz_staircase": "datasets/helmholtz_staircase",
+    "MHD": "datasets/MHD",
+    "pattern_formation": "datasets/pattern_formation",
+    "planetswe": "datasets/planetswe",
+    "post_neutron_star_merger": "datasets/post_neutron_star_merger",
+    "rayleigh_benard": "datasets/rayleigh_benard",
+    "shear_flow": "datasets/shear_flow",
+    "supernova_explosion_64": "datasets/supernova_explosion_64",
+    "turbulence_gravity_cooling": "datasets/turbulence_gravity_cooling",
+    "turbulent_radiative_layer_2D": "datasets/turbulent_radiative_layer_2D",
+    "turbulent_radiative_layer_3D": "datasets/turbulent_radiative_layer_3D",
+    "viscoelastic_instability": "datasets/viscoelastic_instability",
+}
 
 
 def raw_steps_to_possible_sample_t0s(
@@ -569,7 +586,7 @@ class GenericWellDataset(Dataset):
             dim_indices = {
                 dim: i for i, dim in enumerate(file["dimensions"].attrs["spatial_dims"])
             }
-            boundary_output = torch.zeros((2,) * self.n_spatial_dims)
+            boundary_output = torch.zeros(self.n_spatial_dims, 2)
             for bc_name in bcs.keys():
                 bc = bcs[bc_name]
                 bc_type = bc.attrs["bc_type"].upper()  # Enum is in upper case

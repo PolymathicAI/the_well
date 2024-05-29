@@ -39,11 +39,15 @@ datasets/post_neutron_star_merger/data/
 2D/
 3D/
 3D/rayleigh_taylor_instability/data/
+the_well/benchmark/scripts_to_launch/
+the_well/benchmark/write_bash_script.ipynb
+the_well/benchmark/checkpoints/
 datasets/convective_envelope_rsg/data/
 datasets/MHD/data/
 datasets/convective_envelope_rsg/sim.mp4
 testing_before_adding/
 viz/
+venv_benchmark_well/
 # Ignore logs and temporary files
 *.log
 *.tmp
