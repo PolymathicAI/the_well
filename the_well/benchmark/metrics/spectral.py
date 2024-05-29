@@ -82,28 +82,24 @@ def power_spectrum(
         Counts per bin if return_counts=True.
     """
     spatial_dims = tuple(range(-meta.n_spatial_dims - 1, -1))
+    spatial_shape = tuple(x.shape[dim] for dim in spatial_dims)
     ndim = len(spatial_dims)
     device = x.device
 
-    N = x.shape[spatial_dims[0]]
-    for dim in spatial_dims:
-        if x.shape[dim] != N:
-            raise Exception("Input data must be of shape (N, ..., N).")
-
     # Compute array of isotropic wavenumbers
-    wn = (
-        (2 * np.pi * torch.fft.fftfreq(N, d=sample_spacing))
-        .reshape((N,) + (1,) * (ndim - 1))
-        .to(device)
-    )
-    wn_iso = torch.zeros((N,) * ndim).to(device)
+    wn_iso = torch.zeros(spatial_shape).to(device)
     for i in range(ndim):
+        wn = (
+            (2 * np.pi * torch.fft.fftfreq(spatial_shape[i], d=sample_spacing))
+            .reshape((spatial_shape[i],) + (1,) * (ndim - 1))
+            .to(device)
+        )
         wn_iso += torch.moveaxis(wn, 0, i) ** 2
     wn_iso = torch.sqrt(wn_iso).flatten()
 
     if bins is None:
-        # bins = torch.sort(torch.unique(wn_iso))[0]  # Default binning
-        bins = torch.linspace(0, np.pi, int(np.sqrt(N))).to(device)  # Default binning
+        bins = torch.linspace(0, wn_iso.max().item() + 1e-6,
+                              int(np.sqrt(min(spatial_shape)))).to(device)  # Default binning
     indices = torch.bucketize(wn_iso, bins, right=True) - 1
     indices_mask = F.one_hot(indices, num_classes=len(bins))
     counts = torch.sum(indices_mask, dim=0)
@@ -118,14 +114,14 @@ def power_spectrum(
     # Compute power spectrum
     ps_mean = torch.sum(
         fx2.unsqueeze(-2) * indices_mask.unsqueeze(-1), dim=-3
-    ) / counts.unsqueeze(-1)
+    ) / (counts.unsqueeze(-1) + 1e-7)
     ps_std = torch.sqrt(
         torch.sum(
             (fx2.unsqueeze(-2) - ps_mean.unsqueeze(-3)) ** 2
             * indices_mask.unsqueeze(-1),
             dim=-3,
         )
-        / counts.unsqueeze(-1)
+        / (counts.unsqueeze(-1) + 1e-7)
     )
 
     # Discard the last bin (which has no upper limit)
@@ -153,7 +149,7 @@ class binned_spectral_mse(Metric):
 
         Default binning is a set of three (approximately) logspaced from 0 to pi.
 
-        Note that, MSE(x, y) should (approximately) match the sum over frequency bins of the spectral MSE.
+        Note that, MSE(x, y) should match the sum over frequency bins of the spectral MSE.
 
         Parameters
         ----------
@@ -173,11 +169,13 @@ class binned_spectral_mse(Metric):
         torch.Tensor
             Power spectrum mean squared error between x and y.
         """
-        N = x.shape[-2]
+        spatial_dims = tuple(range(-meta.n_spatial_dims - 1, -1))
+        spatial_shape = tuple(x.shape[dim] for dim in spatial_dims)
+        prod_spatial_shape = np.prod(np.array(spatial_shape))
         ndims = meta.n_spatial_dims
 
         if bins is None:  # Default binning
-            bins = torch.logspace(np.log10(2 * np.pi / N), np.log10(np.pi), 4).to(
+            bins = torch.logspace(np.log10(2 * np.pi / max(spatial_shape)), np.log10(np.pi*np.sqrt(ndims) + 1e-6), 4).to(
                 x.device
             )  # Low, medium, and high frequency bins
             bins[0] = 0.0  # We start from zero
@@ -191,9 +189,9 @@ class binned_spectral_mse(Metric):
         )
 
         # Compute the mean squared error per bin (stems from Plancherel's formula)
-        mse_per_bin = ps_res_mean * counts[:-1].unsqueeze(-1) / (N**ndims) ** 2
+        mse_per_bin = ps_res_mean * counts[:-1].unsqueeze(-1) / prod_spatial_shape ** 2
         true_energy_per_min = (
-            ps_true_mean * true_counts[:-1].unsqueeze(-1) / (N**ndims) ** 2
+            ps_true_mean * true_counts[:-1].unsqueeze(-1) / prod_spatial_shape ** 2
         )
         nmse_per_bin = mse_per_bin / (true_energy_per_min + 1e-7)
 
