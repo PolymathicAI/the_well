@@ -11,119 +11,134 @@ import torch.nn as nn
 import torch.nn.functional as F
 from einops import rearrange
 
+from the_well.benchmark.data.datasets import GenericWellMetadata
+
+def filter_reconstruction(x, mag_bias, phase_bias):
+    mag, phase = x.abs(), x.angle()
+    return torch.polar(torch.sigmoid(mag + mag_bias), phase + phase_bias)
+
+def get_token_mask_from_resolution_rectangle(resolution, filter_ratio=1.):
+    max_res = int(max(resolution)/2 * filter_ratio)
+    fft_freqs = []
+    for i, res in enumerate(resolution):
+        if i == 0:
+            fft_freqs.append(res*torch.fft.rfftfreq(res))
+        else:
+            fft_freqs.append(res*torch.fft.fftfreq(res))
+    fft_freqs = torch.stack(torch.meshgrid(*fft_freqs), 0)
+    fft_freqs = torch.sum(fft_freqs**2, 0)
+    mask =  fft_freqs <= max_res**2
+    
+    return mask
+    
+            
 
 class ComplexLN(nn.Module):
-    def __init__(self, tokens, channels, eps=1e-12):
+    def __init__(self, channels, eps=1e-8):
         super().__init__()
         self.eps = eps
-        self.weights = nn.Parameter(torch.view_as_real(torch.ones(1, tokens, channels, dtype=torch.cfloat)))
-        self.bias = nn.Parameter(torch.view_as_real(torch.zeros(1, tokens, channels, dtype=torch.cfloat)))
+        self.weights = nn.Parameter(torch.ones(channels))
+        self.bias = nn.Parameter(torch.view_as_real(torch.zeros(channels, dtype=torch.cfloat)))
 
     def forward(self, x):
-        if self.training:
-            mean, std = x.mean((0, 1), keepdims=True), x.std((0, 1), keepdims=True)
-            with torch.no_grad():
-                self.mean.copy_((1 - self.momentum) * self.mean + self.momentum * torch.view_as_real(mean))
-                self.std.copy_((1 - self.momentum) * self.std + self.momentum * std)
-        else:
-            mean, std = torch.view_as_complex(self.mean), self.std
         std, mean = torch.std_mean(x, dim=-1, keepdim=True)
         x = (x - mean) / (self.eps + std)
-        x = x * torch.view_as_complex(self.mags) + torch.view_as_complex(self.bias)
+        x = x * self.weights + torch.view_as_complex(self.bias)
         return x
     
 class ComplexLinearDDP(nn.Module):
     def __init__(self, in_features, out_features, bias=True, device=None, dtype=None):
         super().__init__()
-        temp = nn.Linear(in_features, out_features, bias=bias, dtype=torch.complex)
+        temp = nn.Linear(in_features, out_features, bias=bias, dtype=torch.cfloat)
         self.weights = nn.Parameter(torch.view_as_real(temp.weight))
         self.bias = nn.Parameter(torch.view_as_real(temp.bias))
 
     def forward(self, input):
         return F.linear(input, torch.view_as_complex(self.weights), torch.view_as_complex(self.bias))
     
-class ModGELU(torch.nn.Module):
+class ModReLU(torch.nn.Module):
     def __init__(self, channels):
         super().__init__()
         self.b = nn.Parameter(.02 * torch.randn(channels))
 
     def forward(self, x):
-        return torch.polar(F.gelu(torch.abs(x) + self.b), x.angle())
+        return torch.polar(F.relu(torch.abs(x) + self.b), x.angle())
     
 class DSConvSpectralNd(nn.Module):
     def __init__(self, hidden_dim, resolution, ratio=1.):
         super(DSConvSpectralNd, self).__init__()
+        self.resolution = resolution 
+        self.register_buffer("token_mask", get_token_mask_from_resolution_rectangle(resolution, ratio))
+        self.n_tokens = self.token_mask.sum()
+        self.hidden_dim = hidden_dim
 
         self.filter_generator = nn.Sequential(
-                                ComplexLN(hidden_dim, tokens),
+                                ComplexLN(hidden_dim, self.n_tokens),
                                 ComplexLinearDDP(hidden_dim, hidden_dim),
-                                 ModGELU(hidden_dim),
+                                 ModReLU(hidden_dim),
                                  ComplexLinearDDP(hidden_dim, hidden_dim)
                                  )
-        self.channel_mix = SigmaNormLinear(hidden_dim, hidden_dim)
-        self.resolution = resolution 
+        
+        temp_conv = torch.randn(1, self.n_tokens, hidden_dim, dtype=torch.cfloat)
+        self.filter_mag_bias = nn.Parameter(torch.abs(temp_conv))
+        self.filter_phase_bias = nn.Parameter(temp_conv.angle())
+        # Output mixing
+        self.output_mixer = SigmaNormLinear(hidden_dim, hidden_dim)
 
-        delta = 1 / (n + 1) / 2
-        k = torch.fft.rfftfreq(m) * m
-        rel_circ = torch.fft.fftfreq(n) * n
-        waves = (k[None, :] ** 2 + rel_circ[:, None] ** 2) ** .5
-
-        # inds = torch.searchsorted(k, waves.flatten()).reshape(n, m//2+1)
-        useable_inds = waves <= ((m // 2) * ratio)
-        used_inds = torch.masked_select(waves, useable_inds)  # This is a dummy - just using size
-        self.register_buffer('useable_inds', useable_inds)
-        conv = torch.view_as_real(torch.randn(1, in_channels, used_inds.shape[0], dtype=torch.cfloat))
-        self.mags = nn.Parameter(conv[..., 0])
-        self.phases = nn.Parameter(conv[..., 1])
-        self.spectral_rescale = SpectralRescale(used_inds.shape[0], in_channels)
 
     def forward(self, x: torch.Tensor):
+        # Get shape and tpye info
+        spatial_dims = tuple(range(1, len(x.shape)-1))[::-1] # Assuming B ... C
         dtype = x.dtype
         x = x.float()
-        # Compute Fourier coeffcients up to factor of e^(- something constant)
-        x_ft = torch.fft.rfft2(x, norm='ortho')
-        x_masked = torch.masked_select(x_ft, self.useable_inds[None, None, :, :]).reshape(batchsize, x.shape[1], -1)
-        x_linear = self.mlp(self.spectral_rescale(x_masked))
-        conv = complex_glu(x_linear, self.mags, self.phases)
+        # Convert to frequency and mask
+        x_ft = torch.fft.rfftn(x, dim=spatial_dims, norm='ortho')
+        broadcastable_mask = self.token_mask.unsqueeze(0).unsqueeze(-1)
+        x_masked = torch.masked_select(x_ft, broadcastable_mask).reshape(-1, self.n_tokens, self.hidden_dim)
+        # Generate and apply data-dependent filter
+        x_linear = self.filter_generator(x_masked)
+        conv = filter_reconstruction(x_linear, self.filter_mag_bias, self.filter_phase_bias)
         x_masked = x_masked * conv
-
+        # Reconstruct original input
         x_ft = torch.zeros_like(x_ft)
-        x_ft[:, :, self.useable_inds] = x_masked
-        x = torch.fft.irfft2(x_ft, norm='ortho')
-        return self.channel_mix(x)
+        x_ft[:, self.token_mask, :] = x_masked
+        x = torch.fft.irfftn(x_ft, dim=spatial_dims, norm='ortho')
+        return self.output_mixer(x)
 
 class ReFNOBlock(nn.Module):
-    def __init__(self, dim, grid_size, ratio=1.):
+    def __init__(self, dim, resolution, ratio=1.):
         super(ReFNOBlock, self).__init__()
-        self.mlp = SN_MLP(dim)
-        self.spectral_conv = DSConvSpectralND(dim, dim, grid_size, 1, 1, ratio=ratio)
+        self.mlp = SN_MLP(dim, exp_factor=1)
+        self.spectral_conv = DSConvSpectralNd(dim, resolution, ratio)
 
     def forward(self, x):
         return self.spectral_conv(self.mlp(x))
 
-class ReFNN2d(nn.Module):
+class ReFNO(nn.Module):
     def __init__(self, 
                  dim_in: int,
                  dim_out: int,
-                 hidden_dim:int =128,
+                 dset_metadata: GenericWellMetadata,
+                 hidden_dim: int=64,
                  blocks: int=4,
-                 resolution: tuple=(64, 64),
                  ratio: float=1.):
-        super(ReFNN2d, self).__init__()
+        super(ReFNO, self).__init__()
         """
 
         """
+        self.resolution = tuple(dset_metadata.resolution)
         self.encoder = SigmaNormLinear(dim_in, hidden_dim) 
-        self.pos_embedding = nn.Parameter(torch.randn((1, hidden_dim)+resolution) * .02)
-        self.processor_blocks = nn.ModuleList([ReFNOBlock(hidden_dim, resolution, ratio) for _ in range(blocks)])
+        self.pos_embedding = nn.Parameter(torch.randn(self.resolution + (hidden_dim,)) * .02)
+        self.processor_blocks = nn.ModuleList([ReFNOBlock(hidden_dim, self.resolution, ratio) for _ in range(blocks)])
         self.decoder = SigmaNormLinear(hidden_dim, dim_out)
+        
 
 
     def forward(self, x, *args, **kwargs):
         '''
         (b,c,h,w) -> (b,1,h,w)
         '''
-        x = self.encoder(x) * self.embed_ratio ** .5  # project
+        x = self.encoder(x) # project
         x = x + self.pos_embedding
         for process in self.processor_blocks:
             x = x + process(x)

@@ -10,7 +10,7 @@ import tqdm
 import wandb
 from torch.utils.data import DataLoader
 
-from ..data.data_formatter import DefaultChannelsFirstFormatter
+from ..data.data_formatter import DefaultChannelsFirstFormatter, DefaultChannelsLastFormatter
 from ..data.datamodule import AbstractDataModule
 from ..metrics import (
     long_time_metrics,
@@ -101,6 +101,8 @@ class Trainer:
         self.dset_metadata = self.datamodule.train_dataset.metadata
         if formatter == "channels_first_default":
             self.formatter = DefaultChannelsFirstFormatter(self.dset_metadata)
+        elif formatter == "channels_last_default":
+            self.formatter = DefaultChannelsLastFormatter(self.dset_metadata)
 
     def save_model(self, epoch: int, validation_loss: float, output_path: str):
         """Save the model checkpoint."""

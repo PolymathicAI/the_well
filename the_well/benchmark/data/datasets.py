@@ -393,9 +393,9 @@ class GenericWellDataset(Dataset):
         self.num_bcs = len(bcs)  # Number of boundary condition type included in data
         self.bc_types = list(bcs)  # List of boundary condition types
         return GenericWellMetadata(
-            n_spatial_dims=self.n_spatial_dims,
-            resolution=self.size_tuple,
-            n_fields=self.num_total_fields,
+            n_spatial_dims=int(self.n_spatial_dims),
+            resolution=tuple([int(k) for k in self.size_tuple]),
+            n_fields=int(self.num_total_fields),
             n_constant_fields=self.num_total_constant_fields,
             dataset_name=self.dataset_name,
             field_names=self.field_names,
