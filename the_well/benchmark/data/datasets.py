@@ -580,7 +580,6 @@ class GenericWellDataset(Dataset):
                 dim = bc.attrs["associated_dims"][0]
                 mask = bc["mask"]
                 if mask[0]:
-                    print(boundary_output, dim, dim_indices[dim])
                     boundary_output[dim_indices[dim]][0] = BoundaryCondition[
                         bc_type
                     ].value
