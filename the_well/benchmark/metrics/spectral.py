@@ -98,8 +98,9 @@ def power_spectrum(
     wn_iso = torch.sqrt(wn_iso).flatten()
 
     if bins is None:
-        bins = torch.linspace(0, wn_iso.max().item() + 1e-6,
-                              int(np.sqrt(min(spatial_shape)))).to(device)  # Default binning
+        bins = torch.linspace(
+            0, wn_iso.max().item() + 1e-6, int(np.sqrt(min(spatial_shape)))
+        ).to(device)  # Default binning
     indices = torch.bucketize(wn_iso, bins, right=True) - 1
     indices_mask = F.one_hot(indices, num_classes=len(bins))
     counts = torch.sum(indices_mask, dim=0)
@@ -112,9 +113,9 @@ def power_spectrum(
     )  # Flatten spatial dimensions
 
     # Compute power spectrum
-    ps_mean = torch.sum(
-        fx2.unsqueeze(-2) * indices_mask.unsqueeze(-1), dim=-3
-    ) / (counts.unsqueeze(-1) + 1e-7)
+    ps_mean = torch.sum(fx2.unsqueeze(-2) * indices_mask.unsqueeze(-1), dim=-3) / (
+        counts.unsqueeze(-1) + 1e-7
+    )
     ps_std = torch.sqrt(
         torch.sum(
             (fx2.unsqueeze(-2) - ps_mean.unsqueeze(-3)) ** 2
@@ -175,9 +176,11 @@ class binned_spectral_mse(Metric):
         ndims = meta.n_spatial_dims
 
         if bins is None:  # Default binning
-            bins = torch.logspace(np.log10(2 * np.pi / max(spatial_shape)), np.log10(np.pi*np.sqrt(ndims) + 1e-6), 4).to(
-                x.device
-            )  # Low, medium, and high frequency bins
+            bins = torch.logspace(
+                np.log10(2 * np.pi / max(spatial_shape)),
+                np.log10(np.pi * np.sqrt(ndims) + 1e-6),
+                4,
+            ).to(x.device)  # Low, medium, and high frequency bins
             bins[0] = 0.0  # We start from zero
         _, ps_res_mean, _, counts = power_spectrum(
             x - y, meta, bins=bins, fourier_input=fourier_input, return_counts=True
@@ -189,9 +192,9 @@ class binned_spectral_mse(Metric):
         )
 
         # Compute the mean squared error per bin (stems from Plancherel's formula)
-        mse_per_bin = ps_res_mean * counts[:-1].unsqueeze(-1) / prod_spatial_shape ** 2
+        mse_per_bin = ps_res_mean * counts[:-1].unsqueeze(-1) / prod_spatial_shape**2
         true_energy_per_min = (
-            ps_true_mean * true_counts[:-1].unsqueeze(-1) / prod_spatial_shape ** 2
+            ps_true_mean * true_counts[:-1].unsqueeze(-1) / prod_spatial_shape**2
         )
         nmse_per_bin = mse_per_bin / (true_energy_per_min + 1e-7)
 
