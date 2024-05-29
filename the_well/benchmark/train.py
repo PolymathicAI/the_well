@@ -116,7 +116,7 @@ def main(cfg: DictConfig):
     logger.info(f"Configuration:\n{OmegaConf.to_yaml(cfg)}")
     # Initiate wandb logging
     wandb.init(
-        project="the_well",
+        project=cfg.wandb_project_name,
         group=f"{cfg.data.well_dataset_name}",
         config=OmegaConf.to_container(cfg, resolve=True),
         name=experiment_name,
