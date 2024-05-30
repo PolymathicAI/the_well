@@ -1,0 +1,3 @@
+_target_: the_well.benchmark.models.AFNO
+hidden_dim: 384
+n_blocks: 14
