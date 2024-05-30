@@ -4,7 +4,7 @@ import torch
 from hydra.utils import instantiate
 from omegaconf import OmegaConf
 
-from the_well.benchmark.data import GenericWellMetaData
+from the_well.benchmark.data.datasets import GenericWellMetadata
 from the_well.benchmark.models import FNO
 
 
@@ -17,7 +17,7 @@ class TestFNO(TestCase):
         self.n_param_conditioning = 3
         self.modes1 = 16
         self.modes2 = 16
-        self.metadata = GenericWellMetaData(
+        self.metadata = GenericWellMetadata(
             n_spatial_dims=2,
             resolution=(32, 32),
             n_fields=5,
