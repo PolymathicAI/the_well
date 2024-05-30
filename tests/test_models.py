@@ -22,6 +22,7 @@ class TestFNO(TestCase):
             resolution=(32, 32),
             n_fields=5,
             n_constant_fields=0,
+            dataset_name="fake_name",
             field_names=["field1", "field2", "field3", "field4", "field5"],
         )
 
