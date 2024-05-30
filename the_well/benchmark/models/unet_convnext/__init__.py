@@ -13,12 +13,26 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from timm.models.layers import DropPath
+from einops import rearrange
+
+from the_well.benchmark.data.datasets import GenericWellMetadata
 
 conv_modules = {1: nn.Conv1d, 2: nn.Conv2d, 3: nn.Conv3d}
 conv_transpose_modules = {
     1: nn.ConvTranspose1d,
     2: nn.ConvTranspose2d,
     3: nn.ConvTranspose3d,
+}
+
+permute_channel_strings = {
+    2: [
+        "N C H W -> N H W C",
+        "N H W C -> N C H W",
+    ],
+    3: [
+        "N C D H W -> N D H W C",
+        "N D H W C -> N C D H W",
+    ]
 }
 
 
@@ -93,6 +107,7 @@ class Block(nn.Module):
 
     def __init__(self, dim, n_spatial_dims, drop_path=0.0, layer_scale_init_value=1e-6):
         super().__init__()
+        self.n_spatial_dims = n_spatial_dims
         self.dwconv = conv_modules[n_spatial_dims](
             dim, dim, kernel_size=7, padding=3, groups=dim
         )  # depthwise conv
@@ -112,15 +127,16 @@ class Block(nn.Module):
     def forward(self, x):
         input = x
         x = self.dwconv(x)
-        x = x.permute(0, 2, 3, 1)  # (N, C, H, W) -> (N, H, W, C)
+        # (N, C, H, W) -> (N, H, W, C)
+        x = rearrange(x, permute_channel_strings[self.n_spatial_dims][0])
         x = self.norm(x)
         x = self.pwconv1(x)
         x = self.act(x)
         x = self.pwconv2(x)
         if self.gamma is not None:
             x = self.gamma * x
-        x = x.permute(0, 3, 1, 2)  # (N, H, W, C) -> (N, C, H, W)
-
+        # (N, H, W, C) -> (N, C, H, W)
+        x = rearrange(x, permute_channel_strings[self.n_spatial_dims][1])
         x = input + self.drop_path(x)
         return x
 
@@ -178,15 +194,18 @@ class Stage(nn.Module):
 class UNetConvNext(nn.Module):
     def __init__(
         self,
-        dim_in=3,
-        dim_out=1,
-        stages=4,
-        blocks_per_stage=1,
-        blocks_at_neck=1,
-        n_spatial_dims=2,
-        init_features=32,
+        dim_in: int,
+        dim_out: int,
+        dset_metadata: GenericWellMetadata,
+        stages: int=4,
+        blocks_per_stage: int=1,
+        blocks_at_neck: int=1,
+        n_spatial_dims: int=2,
+        init_features: int=32,
     ):
         super(UNetConvNext, self).__init__()
+        self.dset_metadata = dset_metadata
+        n_spatial_dims = dset_metadata.n_spatial_dims
         self.n_spatial_dims = n_spatial_dims
         features = init_features
         encoder_dims = [features * 2**i for i in range(stages + 1)]

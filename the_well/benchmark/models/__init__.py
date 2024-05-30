@@ -5,5 +5,7 @@ from .unet_convnext import UNetConvNext
 from .dilated_resnet import DilatedResNet
 from .refno import ReFNO
 from .avit import AViT
+from .afno import AFNO
 
-__all__ = ["FNO", "TFNO", "UNetClassic", "UNetConvNext", "DilatedResNet", "ReFNO", "AViT"]
+__all__ = ["FNO", "TFNO", "UNetClassic", "UNetConvNext",
+            "DilatedResNet", "ReFNO", "AViT", "AFNO"]

@@ -44,7 +44,7 @@ class DilatedBlock(nn.Module):
 class DilatedResNet(nn.Module):
     def __init__(self, dim_in: int,
                   dim_out: int,
-                    ds_metadata: GenericWellMetadata,
+                    dset_metadata: GenericWellMetadata,
                       kernel_size: int=3,
                  blocks: int=4, 
                  levels_per_block: int=4,
@@ -53,8 +53,8 @@ class DilatedResNet(nn.Module):
         super(DilatedResNet, self).__init__()
         self.dim_in = dim_in
         self.dim_out = dim_out
-        self.ds_metadata = ds_metadata  
-        self.n_spatial_dims = ds_metadata.n_spatial_dims
+        self.dset_metadata = dset_metadata  
+        self.n_spatial_dims = dset_metadata.n_spatial_dims
         self.kernel_size = kernel_size
         self.blocks = blocks
         self.levels_per_block = levels_per_block
