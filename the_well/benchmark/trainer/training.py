@@ -47,6 +47,7 @@ class Trainer:
         val_frequency: int,
         rollout_val_frequency: int,
         max_rollout_steps: int,
+        short_validation_length: int,
         num_time_intervals: int,
         lr_scheduler: Optional[torch.optim.lr_scheduler._LRScheduler] = None,
         device=torch.device("cuda"),
@@ -98,6 +99,7 @@ class Trainer:
         self.val_frequency = val_frequency
         self.rollout_val_frequency = rollout_val_frequency
         self.max_rollout_steps = max_rollout_steps
+        self.short_validation_length = short_validation_length
         self.num_time_intervals = num_time_intervals
         self.is_distributed = is_distributed
         self.best_val_loss = None
@@ -188,7 +190,7 @@ class Trainer:
 
     @torch.inference_mode()
     def validation_loop(
-        self, dataloader: DataLoader, valid_or_test: str = "valid"
+        self, dataloader: DataLoader, valid_or_test: str = "valid", full=False
     ) -> float:
         """Run validation by looping over the dataloader."""
         self.model.eval()
@@ -197,6 +199,7 @@ class Trainer:
         dset_name = self.dset_metadata.dataset_name
         loss_dict = {}
         time_logs = {}
+        count = 0
         for batch in tqdm.tqdm(dataloader):
             # Rollout for length of target
             y_pred, y_ref = self.rollout_model(self.model, batch, self.formatter)
@@ -223,6 +226,9 @@ class Trainer:
                         loss_dict[loss_name] = loss_dict.get(
                             loss_name, 0.0
                         ) + loss_value / len(dataloader)
+            count += 1
+            if not full and count > self.short_validation_length:
+                break
 
         else:  # Last batch plots - too much work to combine from batches
             plot_dicts = {}
@@ -277,7 +283,7 @@ class Trainer:
 
         for epoch in range(self.max_epoch):
             if epoch % self.val_frequency == 0:
-                val_loss, val_loss_dict = self.validation_loop(val_dataloder)
+                val_loss, val_loss_dict = self.validation_loop(val_dataloder, full=epoch == self.max_epoch - 1)
                 logger.info(
                     f"Epoch {epoch+1}/{self.max_epoch}: validation loss {val_loss}"
                 )
@@ -292,7 +298,8 @@ class Trainer:
                     )
             if epoch % self.rollout_val_frequency == 0:
                 rollout_val_loss, rollout_val_loss_dict = self.validation_loop(
-                    rollout_val_dataloader, valid_or_test="rollout_valid"
+                    rollout_val_dataloader, valid_or_test="rollout_valid",
+                    full=epoch == self.max_epoch - 1
                 )
                 logger.info(
                     f"Epoch {epoch+1}/{self.max_epoch}: rollout validation loss {rollout_val_loss}"
