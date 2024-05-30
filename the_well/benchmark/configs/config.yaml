@@ -7,4 +7,4 @@ data:
   n_steps_input: 1
   n_steps_output: 1
 data_workers: 8
-wandb_project_name: "the_well_debug"
+wandb_project_name: "the_well"
