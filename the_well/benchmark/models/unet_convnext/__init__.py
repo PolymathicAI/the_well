@@ -43,10 +43,15 @@ class LayerNorm(nn.Module):
     with shape (batch_size, channels, height, width).
     """
 
-    def __init__(self, normalized_shape, eps=1e-6, data_format="channels_last"):
+    def __init__(self, normalized_shape, n_spatial_dims, eps=1e-6, data_format="channels_last"):
         super().__init__()
-        self.weight = nn.Parameter(torch.ones(normalized_shape))
-        self.bias = nn.Parameter(torch.zeros(normalized_shape))
+        if data_format == "channels_last":
+            padded_shape = (normalized_shape,)
+        else:
+            padded_shape = (normalized_shape,) + (1,) * n_spatial_dims
+        self.weight = nn.Parameter(torch.ones(padded_shape))
+        self.bias = nn.Parameter(torch.zeros(padded_shape))
+        self.n_spatial_dims = n_spatial_dims
         self.eps = eps
         self.data_format = data_format
         if self.data_format not in ["channels_last", "channels_first"]:
@@ -59,7 +64,7 @@ class LayerNorm(nn.Module):
                 x, self.normalized_shape, self.weight, self.bias, self.eps
             )
         elif self.data_format == "channels_first":
-            x = F.normalize(x, p=2, dim=1, eps=self.eps) * self.weight[:, None, None]
+            x = F.normalize(x, p=2, dim=1, eps=self.eps) * self.weight
             return x
 
 
@@ -69,7 +74,7 @@ class Upsample(nn.Module):
     def __init__(self, dim_in, dim_out, n_spatial_dims=2):
         super().__init__()
         self.block = nn.Sequential(
-            LayerNorm(dim_in, eps=1e-6, data_format="channels_first"),
+            LayerNorm(dim_in, n_spatial_dims, eps=1e-6, data_format="channels_first"),
             conv_transpose_modules[n_spatial_dims](
                 dim_in, dim_out, kernel_size=2, stride=2
             ),
@@ -85,7 +90,7 @@ class Downsample(nn.Module):
     def __init__(self, dim_in, dim_out, n_spatial_dims=2):
         super().__init__()
         self.block = nn.Sequential(
-            LayerNorm(dim_in, eps=1e-6, data_format="channels_first"),
+            LayerNorm(dim_in, n_spatial_dims, eps=1e-6, data_format="channels_first"),
             conv_modules[n_spatial_dims](dim_in, dim_out, kernel_size=2, stride=2),
         )
 
@@ -111,7 +116,7 @@ class Block(nn.Module):
         self.dwconv = conv_modules[n_spatial_dims](
             dim, dim, kernel_size=7, padding=3, groups=dim
         )  # depthwise conv
-        self.norm = nn.LayerNorm(dim, eps=1e-6, bias=False)
+        self.norm = LayerNorm(dim, n_spatial_dims, eps=1e-6)
         self.pwconv1 = nn.Linear(
             dim, 4 * dim
         )  # pointwise/1x1 convs, implemented with linear layers
@@ -165,6 +170,7 @@ class Stage(nn.Module):
         skip_project=False,
     ):
         super().__init__()
+        
         if skip_project:
             self.skip_proj = conv_modules[n_spatial_dims](2 * dim_in, dim_in, 1)
         else:

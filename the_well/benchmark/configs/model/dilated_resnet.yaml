@@ -1,1 +1,3 @@
 _target_: the_well.benchmark.models.DilatedResNet
+hidden_dim: 192
+blocks: 8
