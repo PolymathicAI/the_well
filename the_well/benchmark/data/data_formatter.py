@@ -54,7 +54,8 @@ class DefaultChannelsFirstFormatter(AbstractDataFormatter):
 
     def process_output(self, output):
         return rearrange(output, self.rearrange_out)
-    
+
+
 class DefaultChannelsLastFormatter(AbstractDataFormatter):
     """
     Default preprocessor for data in channels last format.

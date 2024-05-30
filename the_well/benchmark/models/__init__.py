@@ -7,5 +7,13 @@ from .refno import ReFNO
 from .avit import AViT
 from .afno import AFNO
 
-__all__ = ["FNO", "TFNO", "UNetClassic", "UNetConvNext",
-            "DilatedResNet", "ReFNO", "AViT", "AFNO"]
+__all__ = [
+    "FNO",
+    "TFNO",
+    "UNetClassic",
+    "UNetConvNext",
+    "DilatedResNet",
+    "ReFNO",
+    "AViT",
+    "AFNO",
+]

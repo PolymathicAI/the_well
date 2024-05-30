@@ -10,7 +10,10 @@ import tqdm
 import wandb
 from torch.utils.data import DataLoader
 
-from ..data.data_formatter import DefaultChannelsFirstFormatter, DefaultChannelsLastFormatter
+from ..data.data_formatter import (
+    DefaultChannelsFirstFormatter,
+    DefaultChannelsLastFormatter,
+)
 from ..data.datamodule import AbstractDataModule
 from ..metrics import (
     long_time_metrics,

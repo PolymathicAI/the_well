@@ -42,7 +42,10 @@ def train(
     dset_metadata = datamodule.train_dataset.metadata
     # TODO - currently just doing channel/time stacking for uniformity, but should
     # give the option of not stacking
-    n_input_fields = cfg.data.n_steps_input*dset_metadata.n_fields + dset_metadata.n_constant_fields
+    n_input_fields = (
+        cfg.data.n_steps_input * dset_metadata.n_fields
+        + dset_metadata.n_constant_fields
+    )
     n_output_fields = dset_metadata.n_fields
 
     logger.info(

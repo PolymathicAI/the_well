@@ -32,7 +32,7 @@ permute_channel_strings = {
     3: [
         "N C D H W -> N D H W C",
         "N D H W C -> N C D H W",
-    ]
+    ],
 }
 
 
@@ -43,7 +43,9 @@ class LayerNorm(nn.Module):
     with shape (batch_size, channels, height, width).
     """
 
-    def __init__(self, normalized_shape, n_spatial_dims, eps=1e-6, data_format="channels_last"):
+    def __init__(
+        self, normalized_shape, n_spatial_dims, eps=1e-6, data_format="channels_last"
+    ):
         super().__init__()
         if data_format == "channels_last":
             padded_shape = (normalized_shape,)
@@ -170,7 +172,7 @@ class Stage(nn.Module):
         skip_project=False,
     ):
         super().__init__()
-        
+
         if skip_project:
             self.skip_proj = conv_modules[n_spatial_dims](2 * dim_in, dim_in, 1)
         else:
@@ -203,11 +205,11 @@ class UNetConvNext(nn.Module):
         dim_in: int,
         dim_out: int,
         dset_metadata: GenericWellMetadata,
-        stages: int=4,
-        blocks_per_stage: int=1,
-        blocks_at_neck: int=1,
-        n_spatial_dims: int=2,
-        init_features: int=32,
+        stages: int = 4,
+        blocks_per_stage: int = 1,
+        blocks_at_neck: int = 1,
+        n_spatial_dims: int = 2,
+        init_features: int = 32,
     ):
         super(UNetConvNext, self).__init__()
         self.dset_metadata = dset_metadata
