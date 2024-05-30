@@ -41,16 +41,18 @@ class DefaultChannelsFirstFormatter(AbstractDataFormatter):
     def process_input(self, data: Dict):
         # print(list(data.keys()))
         x = data["input_fields"]
+        x = rearrange(x, self.rearrange_in)
         if "constant_fields" in data:
+            flat_constants = rearrange(data["constant_fields"], self.rearrange_in)
             x = torch.cat(
                 [
                     x,
-                    repeat(data["constant_fields"], self.repeat_constant, t=x.shape[1]),
+                    flat_constants,
                 ],
-                dim=-1,
+                dim=1,
             )
         y = data["output_fields"]
-        return (rearrange(x, self.rearrange_in),), y
+        return (x,), y
 
     def process_output(self, output):
         return rearrange(output, self.rearrange_out)
@@ -77,16 +79,18 @@ class DefaultChannelsLastFormatter(AbstractDataFormatter):
     def process_input(self, data: Dict):
         # print(list(data.keys()))
         x = data["input_fields"]
+        x = rearrange(x, self.rearrange_in)
         if "constant_fields" in data:
+            flat_constants = rearrange(data["constant_fields"], self.rearrange_in)
             x = torch.cat(
                 [
                     x,
-                    repeat(data["constant_fields"], self.repeat_constant, t=x.shape[1]),
+                    flat_constants,
                 ],
                 dim=-1,
             )
         y = data["output_fields"]
-        return (rearrange(x, self.rearrange_in),), y
+        return (x,), y
 
     def process_output(self, output):
         return rearrange(output, self.rearrange_out)

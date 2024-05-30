@@ -39,7 +39,7 @@ class WellDataModule(AbstractDataModule):
         batch_size: int,
         include_filters: List[str] = [],
         exclude_filters: List[str] = [],
-        max_rollout_length: int = 200,
+        max_rollout_steps: int = 100,
         n_steps_input: int = 1,
         n_steps_output: int = 1,
         dt_stride: int = 1,
@@ -83,7 +83,7 @@ class WellDataModule(AbstractDataModule):
             well_split_name="valid",
             include_filters=include_filters,
             exclude_filters=exclude_filters,
-            max_rollout_length=max_rollout_length,
+            max_rollout_steps=max_rollout_steps,
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
             full_trajectory_mode=True,
@@ -105,7 +105,7 @@ class WellDataModule(AbstractDataModule):
             well_split_name="test",
             include_filters=include_filters,
             exclude_filters=exclude_filters,
-            max_rollout_length=max_rollout_length,
+            max_rollout_steps=max_rollout_steps,
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
             full_trajectory_mode=True,
@@ -176,7 +176,7 @@ class WellDataModule(AbstractDataModule):
                 self.rollout_val_dataset,
                 num_replicas=self.world_size,
                 rank=self.rank,
-                shuffle=False,
+                shuffle=True, # Since we're subsampling, don't want continuous
             )
             logger.debug(
                 f"Use {sampler.__class__.__name__} "

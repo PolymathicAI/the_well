@@ -3,6 +3,6 @@ epochs: 50
 val_frequency: 10
 rollout_val_frequency: 25
 short_validation_length: 20
-max_rollout_steps: 200
+max_rollout_steps: 100
 num_time_intervals: 5
 loss_fn: ???

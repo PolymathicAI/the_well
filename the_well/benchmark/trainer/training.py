@@ -130,6 +130,7 @@ class Trainer:
         # Create a moving batch of one step at a time
         moving_batch = batch
         moving_batch["input_fields"] = moving_batch["input_fields"].to(self.device)
+        moving_batch["constant_fields"] = moving_batch["constant_fields"].to(self.device)
         y_preds = []
         for i in range(rollout_steps):
             inputs, _ = formatter.process_input(moving_batch)
@@ -200,6 +201,7 @@ class Trainer:
         loss_dict = {}
         time_logs = {}
         count = 0
+        denom = len(dataloader) if full else self.short_validation_length
         for batch in tqdm.tqdm(dataloader):
             # Rollout for length of target
             y_pred, y_ref = self.rollout_model(self.model, batch, self.formatter)
@@ -225,18 +227,18 @@ class Trainer:
                     for loss_name, loss_value in new_losses.items():
                         loss_dict[loss_name] = loss_dict.get(
                             loss_name, 0.0
-                        ) + loss_value / len(dataloader)
+                        ) + loss_value / denom
             count += 1
             if not full and count > self.short_validation_length:
                 break
 
-        else:  # Last batch plots - too much work to combine from batches
-            plot_dicts = {}
-            for plot_fn in validation_plots:
-                plot_dicts |= plot_fn(y_pred, y_ref, self.dset_metadata)
-            if y_ref.shape[1] > 1:
-                # Only plot if we have more than one timestep, but then track loss over timesteps
-                plot_dicts |= plot_all_time_metrics(time_logs)
+        # Last batch plots - too much work to combine from batches
+        plot_dicts = {}
+        for plot_fn in validation_plots:
+            plot_dicts |= plot_fn(y_pred, y_ref, self.dset_metadata)
+        if y_ref.shape[1] > 1:
+            # Only plot if we have more than one timestep, but then track loss over timesteps
+            plot_dicts |= plot_all_time_metrics(time_logs)
 
         if self.is_distributed:
             for k, v in loss_dict.items():

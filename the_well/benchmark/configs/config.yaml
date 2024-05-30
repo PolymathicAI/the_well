@@ -7,5 +7,4 @@ data:
   n_steps_input: 4
   n_steps_output: 1
 data_workers: 8
-short_validation_length: 20
 wandb_project_name: "the_well"
