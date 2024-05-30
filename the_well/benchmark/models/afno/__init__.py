@@ -6,11 +6,12 @@ not used in original code.
 """
 
 from functools import partial
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from timm.models.layers import DropPath, trunc_normal_
 from einops import rearrange
+from timm.models.layers import DropPath, trunc_normal_
 
 
 class RealImagGELU(nn.Module):

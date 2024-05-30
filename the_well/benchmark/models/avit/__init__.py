@@ -1,11 +1,10 @@
 """
 Simplified from MPP Code base for fixed history training.
 """
-
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
 from einops import rearrange
 from timm.layers import DropPath
 

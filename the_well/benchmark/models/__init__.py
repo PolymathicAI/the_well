@@ -1,11 +1,12 @@
+from .afno import AFNO
+from .avit import AViT
 from .fno import FNO
+from .dilated_resnet import DilatedResNet
+from .refno import ReFNO
 from .tfno import TFNO
 from .unet_classic import UNetClassic
 from .unet_convnext import UNetConvNext
-from .dilated_resnet import DilatedResNet
-from .refno import ReFNO
-from .avit import AViT
-from .afno import AFNO
+
 
 __all__ = [
     "FNO",
