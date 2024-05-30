@@ -6,13 +6,15 @@ import torch.nn as nn
 # from einops import rearrange
 from neuralop.models import TFNO as neuralop_TFNO
 
+from the_well.benchmark.data.datasets import GenericWellMetadata
+
 
 class TFNO(nn.Module):
     def __init__(
         self,
         dim_in: int,
         dim_out: int,
-        n_spatial_dims: int,
+        dset_metadata: GenericWellMetadata,
         modes1: int,
         modes2: int,
         modes3: int = 16,
@@ -27,7 +29,8 @@ class TFNO(nn.Module):
         self.hidden_channels = hidden_channels
         self.model = None
         self.initialized = False
-        self.n_spatial_dims = n_spatial_dims
+        self.dset_metadata = dset_metadata
+        self.n_spatial_dims = dset_metadata.n_spatial_dims
 
         if self.n_spatial_dims == 2:
             self.n_modes = (self.modes1, self.modes2)
