@@ -130,7 +130,8 @@ class Trainer:
         # Create a moving batch of one step at a time
         moving_batch = batch
         moving_batch["input_fields"] = moving_batch["input_fields"].to(self.device)
-        moving_batch["constant_fields"] = moving_batch["constant_fields"].to(self.device)
+        if "constant_fields" in moving_batch:
+            moving_batch["constant_fields"] = moving_batch["constant_fields"].to(self.device)
         y_preds = []
         for i in range(rollout_steps):
             inputs, _ = formatter.process_input(moving_batch)
@@ -202,7 +203,11 @@ class Trainer:
         time_logs = {}
         count = 0
         denom = len(dataloader) if full else self.short_validation_length
-        for batch in tqdm.tqdm(dataloader):
+        gen = np.random.default_rng(seed=11233) # Want random order, but same samples
+        used_batches = gen.choice(len(dataloader), self.short_validation_length, replace=False)
+        for i, batch in enumerate(tqdm.tqdm(dataloader)):
+            if not full and i not in used_batches:
+                continue
             # Rollout for length of target
             y_pred, y_ref = self.rollout_model(self.model, batch, self.formatter)
             assert (
@@ -229,8 +234,6 @@ class Trainer:
                             loss_name, 0.0
                         ) + loss_value / denom
             count += 1
-            if not full and count > self.short_validation_length:
-                break
 
         # Last batch plots - too much work to combine from batches
         plot_dicts = {}
@@ -320,13 +323,14 @@ class Trainer:
             wandb.log(train_logs)
         # Run validation on last epoch if not already run
         if epoch % self.val_frequency != 0:
-            val_loss, val_loss_dict = self.validation_loop(val_dataloder)
+            val_loss, val_loss_dict = self.validation_loop(val_dataloder, full=True)
             logger.info(f"Epoch {epoch+1}/{self.max_epoch}: validation loss {val_loss}")
             val_loss_dict |= {"valid": val_loss, "epoch": epoch}
             wandb.log(val_loss_dict)
         if epoch % self.rollout_val_frequency != 0:
             rollout_val_loss, rollout_val_loss_dict = self.validation_loop(
-                rollout_val_dataloader, valid_or_test="rollout_valid"
+                rollout_val_dataloader, valid_or_test="rollout_valid",
+                full=True
             )
             logger.info(
                 f"Epoch {epoch+1}/{self.max_epoch}: rollout validation loss {rollout_val_loss}"
@@ -335,10 +339,12 @@ class Trainer:
             wandb.log(rollout_val_loss_dict)
 
         test_loss, test_logs = self.validation_loop(
-            test_dataloader, valid_or_test="test"
+            test_dataloader, valid_or_test="test",
+            full=True
         )
         rollout_test_loss, rollout_test_logs = self.validation_loop(
-            rollout_test_dataloader, valid_or_test="rollout_test"
+            rollout_test_dataloader, valid_or_test="rollout_test",
+            full=True
         )
         test_logs |= rollout_test_logs
         logger.info(f"Test loss {test_loss}")
