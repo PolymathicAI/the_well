@@ -1,6 +1,7 @@
 """
 Simplified from MPP Code base for fixed history training.
 """
+
 import numpy as np
 import torch
 import torch.nn as nn
