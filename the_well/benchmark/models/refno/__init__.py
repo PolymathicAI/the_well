@@ -1,12 +1,10 @@
 import torch
 import torch.nn as nn
-
-
-from ..common import SN_MLP, SigmaNormLinear
-
 import torch.nn.functional as F
 
 from the_well.benchmark.data.datasets import GenericWellMetadata
+
+from ..common import SN_MLP, SigmaNormLinear
 
 
 def filter_reconstruction(x, mag_bias, phase_bias):
