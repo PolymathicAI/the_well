@@ -171,6 +171,7 @@ class GenericWellDataset(Dataset):
         include_filters: List[str] = [],
         exclude_filters: List[str] = [],
         use_normalization: bool = True,
+        max_rollout_length=100,
         n_steps_input: int = 1,
         n_steps_output: int = 1,
         dt_stride: int = 1,
@@ -221,6 +222,7 @@ class GenericWellDataset(Dataset):
         self.use_normalization = use_normalization
         self.include_filters = include_filters
         self.exclude_filters = exclude_filters
+        self.max_rollout_length = max_rollout_length
         self.n_steps_input = n_steps_input
         self.n_steps_output = n_steps_output  # Gets overridden by full trajectory mode
         self.dt_stride = dt_stride
@@ -649,18 +651,19 @@ class GenericWellDataset(Dataset):
         else:
             dt = self.dt_stride
         # Now build the data
+        output_steps = min(self.n_steps_output, self.max_rollout_length)
         trajectory, constant_fields = self._reconstruct_fields(
             self.files[file_idx],
             sample_idx,
             time_idx,
-            self.n_steps_input + self.n_steps_output,
+            self.n_steps_input + output_steps,
             dt,
         )
         time_varying_scalars, constant_scalars = self._reconstruct_scalars(
             self.files[file_idx],
             sample_idx,
             time_idx,
-            self.n_steps_input + self.n_steps_output,
+            self.n_steps_input + output_steps,
             dt,
         )
 
@@ -691,7 +694,7 @@ class GenericWellDataset(Dataset):
             self.files[file_idx],
             sample_idx,
             time_idx,
-            self.n_steps_input + self.n_steps_output,
+            self.n_steps_input + output_steps,
             dt,
         )
         sample["boundary_conditions"] = bcs  # Currently only mask is an option
@@ -700,7 +703,7 @@ class GenericWellDataset(Dataset):
                 self.files[file_idx],
                 sample_idx,
                 time_idx,
-                self.n_steps_input + self.n_steps_output,
+                self.n_steps_input + output_steps,
                 dt,
             )
             sample["space_grid"] = (
