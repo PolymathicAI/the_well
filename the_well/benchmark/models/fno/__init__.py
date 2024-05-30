@@ -4,13 +4,15 @@ import torch
 import torch.nn as nn
 from neuralop.models import FNO as neuralop_FNO
 
+from the_well.benchmark.data.datasets import GenericWellMetadata
+
 
 class FNO(nn.Module):
     def __init__(
         self,
         dim_in: int,
         dim_out: int,
-        n_spatial_dims: int,
+        dset_metadata: GenericWellMetadata,
         modes1: int,
         modes2: int,
         modes3: int = 16,
@@ -25,7 +27,7 @@ class FNO(nn.Module):
         self.hidden_channels = hidden_channels
         self.model = None
         self.initialized = False
-        self.n_spatial_dims = n_spatial_dims
+        self.n_spatial_dims = dset_metadata.n_spatial_dims
 
         if self.n_spatial_dims == 2:
             self.n_modes = (self.modes1, self.modes2)
@@ -39,20 +41,5 @@ class FNO(nn.Module):
             hidden_channels=self.hidden_channels,
         )
 
-    # def preprocess_input(
-    #     self,
-    #     input: Dict[str, torch.Tensor],
-    # ) -> Tuple[torch.Tensor, torch.Size, torch.Tensor, torch.Tensor]:
-    #     """Retrieve input fields, time and parameters from passed input."""
-    #     time = input["time"].view(-1)
-    #     param = input["parameters"]
-    #     x = input["x"]
-    #     assert x.dim() == 5
-    #     original_shape = x.shape
-    #     x = rearrange(x, "B T W H C -> B (T C) W H")
-    #     return x, original_shape, time, param
-
     def forward(self, input) -> torch.Tensor:
-        # x, original_shape, time, z = self.preprocess_input(input)
         return self.model(input)
-        # return x #x.reshape(*original_shape)

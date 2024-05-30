@@ -12,6 +12,8 @@ from collections import OrderedDict
 import torch
 import torch.nn as nn
 
+from the_well.benchmark.data.datasets import GenericWellMetadata
+
 conv_modules = {1: nn.Conv1d, 2: nn.Conv2d, 3: nn.Conv3d}
 conv_transpose_modules = {
     1: nn.ConvTranspose1d,
@@ -25,12 +27,14 @@ norm_modules = {1: nn.BatchNorm1d, 2: nn.BatchNorm2d, 3: nn.BatchNorm3d}
 class UNetClassic(nn.Module):
     def __init__(
         self,
-        dim_in: int = 3,
-        dim_out: int = 1,
-        n_spatial_dims: int = 2,
+        dim_in: int,
+        dim_out: int,
+        dset_metadata: GenericWellMetadata,
         init_features: int = 32,
     ):
         super(UNetClassic, self).__init__()
+        self.dset_metadata = dset_metadata
+        n_spatial_dims = dset_metadata.n_spatial_dims
         self.n_spatial_dims = n_spatial_dims
         features = init_features
         self.encoder1 = self._block(dim_in, features, name="enc1")

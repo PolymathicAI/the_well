@@ -54,3 +54,39 @@ class DefaultChannelsFirstFormatter(AbstractDataFormatter):
 
     def process_output(self, output):
         return rearrange(output, self.rearrange_out)
+
+
+class DefaultChannelsLastFormatter(AbstractDataFormatter):
+    """
+    Default preprocessor for data in channels last format.
+
+    Stacks time as individual channel.
+    """
+
+    def __init__(self, metadata: GenericWellMetadata):
+        super().__init__(metadata)
+        if metadata.n_spatial_dims == 2:
+            self.rearrange_in = "b t h w c -> b h w (t c)"
+            self.repeat_constant = "b h w c -> b t h w c"
+            self.rearrange_out = "b h w c -> b 1 h w c"
+        elif metadata.n_spatial_dims == 3:
+            self.rearrange_in = "b t h w d c -> b h w d (t c)"
+            self.repeat_constant = "b h w d c -> b t h w d c"
+            self.rearrange_out = "b h w d c -> b 1 h w d c"
+
+    def process_input(self, data: Dict):
+        # print(list(data.keys()))
+        x = data["input_fields"]
+        if "constant_fields" in data:
+            x = torch.cat(
+                [
+                    x,
+                    repeat(data["constant_fields"], self.repeat_constant, t=x.shape[1]),
+                ],
+                dim=-1,
+            )
+        y = data["output_fields"]
+        return (rearrange(x, self.rearrange_in),), y
+
+    def process_output(self, output):
+        return rearrange(output, self.rearrange_out)

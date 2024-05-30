@@ -12,13 +12,27 @@ If you use this implementation, please cite original work above.
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from einops import rearrange
 from timm.models.layers import DropPath
+
+from the_well.benchmark.data.datasets import GenericWellMetadata
 
 conv_modules = {1: nn.Conv1d, 2: nn.Conv2d, 3: nn.Conv3d}
 conv_transpose_modules = {
     1: nn.ConvTranspose1d,
     2: nn.ConvTranspose2d,
     3: nn.ConvTranspose3d,
+}
+
+permute_channel_strings = {
+    2: [
+        "N C H W -> N H W C",
+        "N H W C -> N C H W",
+    ],
+    3: [
+        "N C D H W -> N D H W C",
+        "N D H W C -> N C D H W",
+    ],
 }
 
 
@@ -29,10 +43,17 @@ class LayerNorm(nn.Module):
     with shape (batch_size, channels, height, width).
     """
 
-    def __init__(self, normalized_shape, eps=1e-6, data_format="channels_last"):
+    def __init__(
+        self, normalized_shape, n_spatial_dims, eps=1e-6, data_format="channels_last"
+    ):
         super().__init__()
-        self.weight = nn.Parameter(torch.ones(normalized_shape))
-        self.bias = nn.Parameter(torch.zeros(normalized_shape))
+        if data_format == "channels_last":
+            padded_shape = (normalized_shape,)
+        else:
+            padded_shape = (normalized_shape,) + (1,) * n_spatial_dims
+        self.weight = nn.Parameter(torch.ones(padded_shape))
+        self.bias = nn.Parameter(torch.zeros(padded_shape))
+        self.n_spatial_dims = n_spatial_dims
         self.eps = eps
         self.data_format = data_format
         if self.data_format not in ["channels_last", "channels_first"]:
@@ -45,7 +66,7 @@ class LayerNorm(nn.Module):
                 x, self.normalized_shape, self.weight, self.bias, self.eps
             )
         elif self.data_format == "channels_first":
-            x = F.normalize(x, p=2, dim=1, eps=self.eps) * self.weight[:, None, None]
+            x = F.normalize(x, p=2, dim=1, eps=self.eps) * self.weight
             return x
 
 
@@ -55,7 +76,7 @@ class Upsample(nn.Module):
     def __init__(self, dim_in, dim_out, n_spatial_dims=2):
         super().__init__()
         self.block = nn.Sequential(
-            LayerNorm(dim_in, eps=1e-6, data_format="channels_first"),
+            LayerNorm(dim_in, n_spatial_dims, eps=1e-6, data_format="channels_first"),
             conv_transpose_modules[n_spatial_dims](
                 dim_in, dim_out, kernel_size=2, stride=2
             ),
@@ -71,7 +92,7 @@ class Downsample(nn.Module):
     def __init__(self, dim_in, dim_out, n_spatial_dims=2):
         super().__init__()
         self.block = nn.Sequential(
-            LayerNorm(dim_in, eps=1e-6, data_format="channels_first"),
+            LayerNorm(dim_in, n_spatial_dims, eps=1e-6, data_format="channels_first"),
             conv_modules[n_spatial_dims](dim_in, dim_out, kernel_size=2, stride=2),
         )
 
@@ -93,10 +114,11 @@ class Block(nn.Module):
 
     def __init__(self, dim, n_spatial_dims, drop_path=0.0, layer_scale_init_value=1e-6):
         super().__init__()
+        self.n_spatial_dims = n_spatial_dims
         self.dwconv = conv_modules[n_spatial_dims](
             dim, dim, kernel_size=7, padding=3, groups=dim
         )  # depthwise conv
-        self.norm = nn.LayerNorm(dim, eps=1e-6, bias=False)
+        self.norm = LayerNorm(dim, n_spatial_dims, eps=1e-6)
         self.pwconv1 = nn.Linear(
             dim, 4 * dim
         )  # pointwise/1x1 convs, implemented with linear layers
@@ -112,15 +134,16 @@ class Block(nn.Module):
     def forward(self, x):
         input = x
         x = self.dwconv(x)
-        x = x.permute(0, 2, 3, 1)  # (N, C, H, W) -> (N, H, W, C)
+        # (N, C, H, W) -> (N, H, W, C)
+        x = rearrange(x, permute_channel_strings[self.n_spatial_dims][0])
         x = self.norm(x)
         x = self.pwconv1(x)
         x = self.act(x)
         x = self.pwconv2(x)
         if self.gamma is not None:
             x = self.gamma * x
-        x = x.permute(0, 3, 1, 2)  # (N, H, W, C) -> (N, C, H, W)
-
+        # (N, H, W, C) -> (N, C, H, W)
+        x = rearrange(x, permute_channel_strings[self.n_spatial_dims][1])
         x = input + self.drop_path(x)
         return x
 
@@ -149,6 +172,7 @@ class Stage(nn.Module):
         skip_project=False,
     ):
         super().__init__()
+
         if skip_project:
             self.skip_proj = conv_modules[n_spatial_dims](2 * dim_in, dim_in, 1)
         else:
@@ -178,15 +202,18 @@ class Stage(nn.Module):
 class UNetConvNext(nn.Module):
     def __init__(
         self,
-        dim_in=3,
-        dim_out=1,
-        stages=4,
-        blocks_per_stage=1,
-        blocks_at_neck=1,
-        n_spatial_dims=2,
-        init_features=32,
+        dim_in: int,
+        dim_out: int,
+        dset_metadata: GenericWellMetadata,
+        stages: int = 4,
+        blocks_per_stage: int = 1,
+        blocks_at_neck: int = 1,
+        n_spatial_dims: int = 2,
+        init_features: int = 32,
     ):
         super(UNetConvNext, self).__init__()
+        self.dset_metadata = dset_metadata
+        n_spatial_dims = dset_metadata.n_spatial_dims
         self.n_spatial_dims = n_spatial_dims
         features = init_features
         encoder_dims = [features * 2**i for i in range(stages + 1)]
