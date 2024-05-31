@@ -546,9 +546,11 @@ class GenericWellDataset(Dataset):
         if "time_grid" in self.constant_cache:
             time_grid = self.constant_cache["time_grid"]
         elif file["dimensions"]["time"].attrs["sample_varying"]:
-            time_grid = torch.tensor(file["dimensions"]["time"][
-                sample_idx, time_idx : time_idx + n_steps * dt : dt
-            ])
+            time_grid = torch.tensor(
+                file["dimensions"]["time"][
+                    sample_idx, time_idx : time_idx + n_steps * dt : dt
+                ]
+            )
         else:
             time_grid = torch.tensor(file["dimensions"]["time"][:])
             self._check_cache("time_grid", time_grid)
