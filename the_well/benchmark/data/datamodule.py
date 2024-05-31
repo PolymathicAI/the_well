@@ -158,7 +158,7 @@ class WellDataModule(AbstractDataModule):
                 f"Use {sampler.__class__.__name__} "
                 f"({self.rank}/{self.world_size}) for validation data"
             )
-        shuffle = sampler is None # Most valid epochs are short
+        shuffle = sampler is None  # Most valid epochs are short
         return DataLoader(
             self.val_dataset,
             num_workers=self.data_workers,
@@ -176,19 +176,19 @@ class WellDataModule(AbstractDataModule):
                 self.rollout_val_dataset,
                 num_replicas=self.world_size,
                 rank=self.rank,
-                shuffle=True, # Since we're subsampling, don't want continuous
+                shuffle=True,  # Since we're subsampling, don't want continuous
             )
             logger.debug(
                 f"Use {sampler.__class__.__name__} "
                 f"({self.rank}/{self.world_size}) for rollout validation data"
             )
-        shuffle = sampler is None # Most valid epochs are short
+        shuffle = sampler is None  # Most valid epochs are short
         return DataLoader(
             self.rollout_val_dataset,
             num_workers=self.data_workers,
             pin_memory=True,
-            batch_size=1,  
-            shuffle=shuffle, # Shuffling because most batches we take a small subsample
+            batch_size=1,
+            shuffle=shuffle,  # Shuffling because most batches we take a small subsample
             drop_last=True,
             sampler=sampler,
         )
