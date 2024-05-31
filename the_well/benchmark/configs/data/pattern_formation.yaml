@@ -1,4 +1,4 @@
 _target_: the_well.benchmark.data.WellDataModule
-batch_size: 128
-well_base_path: ???
+batch_size: 256
+well_base_path: /mnt/gpuxl/polymathic/the_well/datasets/
 well_dataset_name: pattern_formation
