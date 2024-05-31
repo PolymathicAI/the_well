@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, Tuple
 
 import torch
-from einops import rearrange, repeat
+from einops import rearrange
 
 from .datasets import GenericWellMetadata
 
