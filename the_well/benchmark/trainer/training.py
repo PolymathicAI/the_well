@@ -203,11 +203,7 @@ class Trainer:
         time_logs = {}
         count = 0
         denom = len(dataloader) if full else self.short_validation_length
-        gen = np.random.default_rng(seed=11233) # Want random order, but same samples
-        used_batches = gen.choice(len(dataloader), self.short_validation_length, replace=False)
         for i, batch in enumerate(tqdm.tqdm(dataloader)):
-            if not full and i not in used_batches:
-                continue
             # Rollout for length of target
             y_pred, y_ref = self.rollout_model(self.model, batch, self.formatter)
             assert (
@@ -234,6 +230,9 @@ class Trainer:
                             loss_name, 0.0
                         ) + loss_value / denom
             count += 1
+            if not full and count >= self.short_validation_length:
+                break
+
 
         # Last batch plots - too much work to combine from batches
         plot_dicts = {}
