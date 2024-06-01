@@ -20,6 +20,7 @@ well_paths = well_paths = {
     "planetswe": "datasets/planetswe",
     "post_neutron_star_merger": "datasets/post_neutron_star_merger",
     "rayleigh_benard": "datasets/rayleigh_benard",
+    "rayleigh_taylor_instability": "datasets/rayleigh_taylor_instability",
     "shear_flow": "datasets/shear_flow",
     "supernova_explosion_64": "datasets/supernova_explosion_64",
     "turbulence_gravity_cooling": "datasets/turbulence_gravity_cooling",

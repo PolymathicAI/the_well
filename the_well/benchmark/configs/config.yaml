@@ -6,5 +6,5 @@ defaults:
 data:
   n_steps_input: 4
   n_steps_output: 1
-data_workers: 8
+data_workers: 14
 wandb_project_name: "the_well"

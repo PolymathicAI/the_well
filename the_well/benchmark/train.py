@@ -128,8 +128,9 @@ def main(cfg: DictConfig):
     )
 
     # Retrieve multiple processes context to setup DDP
-    is_distributed, world_size, rank, local_rank = get_distrib_config()
-    is_distributed = is_distributed and world_size > 1
+    is_distributed, world_size, rank, local_rank = False, 1, 0, 0 #get_distrib_config()
+    #is_distributed = is_distributed and world_size > 1
+
     logger.info(f"Distributed training: {is_distributed}")
     if is_distributed:
         set_master_config()
