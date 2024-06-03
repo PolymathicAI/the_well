@@ -29,7 +29,7 @@ datasets/shear_flow/data/
 datasets/supernova_explosion_128/data/
 datasets/supernova_explosion_64/data/
 datasets/turbulence_gravity_cooling/data/
-
+datasets/rayleigh_taylor_instability/data/
 datasets/turbulent_radiative_layer_3D/data/
 datasets/turbulent_radiative_layer_2D/data/
 datasets/acoustic_scattering_discontinuous_2d/data/

@@ -1,4 +1,4 @@
 _target_: the_well.benchmark.data.WellDataModule
-batch_size: 64
-well_base_path: /mnt/gpuxl/polymathic/the_well/datasets/
+batch_size: 32
+well_base_path: the_well/benchmark/configs/data/pattern_formation.yaml
 well_dataset_name: planetswe
