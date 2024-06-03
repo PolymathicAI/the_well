@@ -12,6 +12,7 @@ If you use this implementation, please cite original work above.
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.utils.checkpoint import checkpoint
 from einops import rearrange
 from timm.models.layers import DropPath
 
@@ -210,12 +211,14 @@ class UNetConvNext(nn.Module):
         blocks_at_neck: int = 1,
         n_spatial_dims: int = 2,
         init_features: int = 32,
+        gradient_checkpointing: bool = False,
     ):
         super(UNetConvNext, self).__init__()
         self.dset_metadata = dset_metadata
         n_spatial_dims = dset_metadata.n_spatial_dims
         self.n_spatial_dims = n_spatial_dims
         features = init_features
+        self.gradient_checkpointing = gradient_checkpointing
         encoder_dims = [features * 2**i for i in range(stages + 1)]
         decoder_dims = [features * 2**i for i in range(stages, -1, -1)]
         encoder = []
@@ -255,13 +258,19 @@ class UNetConvNext(nn.Module):
             mode="neck",
         )
         self.decoder = nn.ModuleList(decoder)
+    
+    def optional_checkpointing(self, layer, *inputs, **kwargs):
+        if self.gradient_checkpointing:
+            return checkpoint(layer, *inputs, use_reentrant=False, **kwargs)
+        else:
+            return layer(*inputs, **kwargs)
 
     def forward(self, x):
         x = self.in_proj(x)
         skips = []
         for i, enc in enumerate(self.encoder):
             skips.append(x)
-            x = enc(x)
+            x = self.optional_checkpointing(enc, x)
         x = self.neck(x)
         for j, dec in enumerate(self.decoder):
             if j > 0:

@@ -53,6 +53,7 @@ class Trainer:
         device=torch.device("cuda"),
         is_distributed: bool = False,
         enable_amp: bool = False,
+        amp_type: str = "float16", # bfloat not supported in FFT
     ):
         """
         Class in charge of the training loop. It performs train, validation and test.
@@ -103,7 +104,8 @@ class Trainer:
         self.short_validation_length = short_validation_length
         self.num_time_intervals = num_time_intervals
         self.enable_amp = enable_amp
-        self.grad_scaler = torch.cuda.amp.GradScaler(enabled=enable_amp)
+        self.amp_type = torch.bfloat16 if amp_type == "bfloat16" else torch.float16
+        self.grad_scaler = torch.cuda.amp.GradScaler(enabled=enable_amp and amp_type != "bfloat16")
         self.is_distributed = is_distributed
         self.best_val_loss = None
         self.dset_metadata = self.datamodule.train_dataset.metadata
@@ -208,7 +210,7 @@ class Trainer:
         time_logs = {}
         count = 0
         denom = len(dataloader) if full else self.short_validation_length
-        with torch.amp.autocast(enabled=self.enable_amp):
+        with torch.cuda.amp.autocast(enabled=self.enable_amp, dtype=self.amp_type):
             for i, batch in enumerate(tqdm.tqdm(dataloader)):
                 # Rollout for length of target
                 y_pred, y_ref = self.rollout_model(self.model, batch, self.formatter)
@@ -267,7 +269,7 @@ class Trainer:
         start_time = time.time()  # Don't need to sync this.
         batch_start = time.time()
         for i, batch in enumerate(dataloader):
-            with torch.cuda.amp.autocast(enabled=self.enable_amp):
+            with torch.cuda.amp.autocast(enabled=self.enable_amp, dtype=self.amp_type):
                 batch_time = time.time() - batch_start
                 y_pred, y_ref = self.rollout_model(self.model, batch, self.formatter)
                 forward_time = time.time() - batch_start - batch_time
@@ -278,9 +280,6 @@ class Trainer:
             self.grad_scaler.scale(loss).backward()
             self.grad_scaler.step(self.optimizer)
             self.grad_scaler.update()
-            # loss.backward()
-            # self.optimizer.step()
-            # self.optimizer.zero_grad()
             # Syncing for all reduce anyway so may as well compute synchornous metrics
             epoch_loss += loss.item() / len(dataloader)
             backward_time = time.time() - batch_start - forward_time - batch_time
@@ -307,37 +306,37 @@ class Trainer:
             "checkpoints", exist_ok=True
         )  # Quick fix here - should parameterize.
         for epoch in range(self.max_epoch):
-            if epoch % self.val_frequency == 0:
-                logger.info(f"Epoch {epoch+1}/{self.max_epoch}: starting validation")
-                val_loss, val_loss_dict = self.validation_loop(
-                    val_dataloder, full=epoch == self.max_epoch - 1
-                )
-                logger.info(
-                    f"Epoch {epoch+1}/{self.max_epoch}: validation loss {val_loss}"
-                )
-                val_loss_dict |= {"valid": val_loss, "epoch": epoch}
-                wandb.log(val_loss_dict)
-                if self.best_val_loss is None or val_loss < self.best_val_loss:
-                    self.save_model(
-                        epoch, val_loss, f"checkpoints/{self.experiment_name}-best.pt"
-                    )
-            if epoch % self.rollout_val_frequency == 0:
-                logger.info(
-                    f"Epoch {epoch+1}/{self.max_epoch}: starting rollout validation"
-                )
-                rollout_val_loss, rollout_val_loss_dict = self.validation_loop(
-                    rollout_val_dataloader,
-                    valid_or_test="rollout_valid",
-                    full=epoch == self.max_epoch - 1,
-                )
-                logger.info(
-                    f"Epoch {epoch+1}/{self.max_epoch}: rollout validation loss {rollout_val_loss}"
-                )
-                rollout_val_loss_dict |= {
-                    "rollout_valid": rollout_val_loss,
-                    "epoch": epoch,
-                }
-                wandb.log(rollout_val_loss_dict)
+            # if epoch % self.val_frequency == 0:
+            #     logger.info(f"Epoch {epoch+1}/{self.max_epoch}: starting validation")
+            #     val_loss, val_loss_dict = self.validation_loop(
+            #         val_dataloder, full=epoch == self.max_epoch - 1
+            #     )
+            #     logger.info(
+            #         f"Epoch {epoch+1}/{self.max_epoch}: validation loss {val_loss}"
+            #     )
+            #     val_loss_dict |= {"valid": val_loss, "epoch": epoch}
+            #     wandb.log(val_loss_dict)
+            #     if self.best_val_loss is None or val_loss < self.best_val_loss:
+            #         self.save_model(
+            #             epoch, val_loss, f"checkpoints/{self.experiment_name}-best.pt"
+            #         )
+            # if epoch % self.rollout_val_frequency == 0:
+            #     logger.info(
+            #         f"Epoch {epoch+1}/{self.max_epoch}: starting rollout validation"
+            #     )
+            #     rollout_val_loss, rollout_val_loss_dict = self.validation_loop(
+            #         rollout_val_dataloader,
+            #         valid_or_test="rollout_valid",
+            #         full=epoch == self.max_epoch - 1,
+            #     )
+            #     logger.info(
+            #         f"Epoch {epoch+1}/{self.max_epoch}: rollout validation loss {rollout_val_loss}"
+            #     )
+            #     rollout_val_loss_dict |= {
+            #         "rollout_valid": rollout_val_loss,
+            #         "epoch": epoch,
+            #     }
+            #     wandb.log(rollout_val_loss_dict)
 
             if self.is_distributed:
                 train_dataloader.sampler.set_epoch(epoch)
