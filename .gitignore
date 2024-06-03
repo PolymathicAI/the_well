@@ -44,7 +44,8 @@ the_well/benchmark/scripts_to_launch/
 the_well/benchmark/write_bash_script.ipynb
 the_well/benchmark/checkpoints/
 datasets/convective_envelope_rsg/data/
-datasets/MHD/data/
+datasets/MHD_64/data/
+datasets/MHD_256/data/
 datasets/convective_envelope_rsg/sim.mp4
 testing_before_adding/
 viz/

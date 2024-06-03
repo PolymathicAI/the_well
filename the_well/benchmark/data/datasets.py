@@ -15,7 +15,7 @@ well_paths = well_paths = {
     "convective_envelope_rsg": "datasets/convective_envelope_rsg",
     "euler_quadrants": "datasets/euler_quadrants",
     "helmholtz_staircase": "datasets/helmholtz_staircase",
-    "MHD": "datasets/MHD",
+    "MHD_256": "datasets/MHD_256",
     "MHD_64": "datasets/MHD_64",
     "pattern_formation": "datasets/pattern_formation",
     "planetswe": "datasets/planetswe",
