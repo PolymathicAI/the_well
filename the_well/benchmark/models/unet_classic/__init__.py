@@ -32,7 +32,7 @@ class UNetClassic(nn.Module):
         dim_out: int,
         dset_metadata: GenericWellMetadata,
         init_features: int = 32,
-        gradient_checkpointing: bool = False
+        gradient_checkpointing: bool = False,
     ):
         super(UNetClassic, self).__init__()
         self.dset_metadata = dset_metadata
@@ -77,7 +77,7 @@ class UNetClassic(nn.Module):
             return checkpoint(layer, *inputs, use_reentrant=False, **kwargs)
         else:
             return layer(*inputs, **kwargs)
-        
+
     def forward(self, x):
         enc1 = self.optional_checkpointing(self.encoder1, x)
         enc2 = self.optional_checkpointing(self.encoder2, self.pool1(enc1))

@@ -258,7 +258,7 @@ class UNetConvNext(nn.Module):
             mode="neck",
         )
         self.decoder = nn.ModuleList(decoder)
-    
+
     def optional_checkpointing(self, layer, *inputs, **kwargs):
         if self.gradient_checkpointing:
             return checkpoint(layer, *inputs, use_reentrant=False, **kwargs)

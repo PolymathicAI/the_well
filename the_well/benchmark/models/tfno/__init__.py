@@ -5,11 +5,13 @@ from neuralop.models import TFNO as neuralop_TFNO
 
 from the_well.benchmark.data.datasets import GenericWellMetadata
 
+
 class NeuralOpsCheckpointWrapper(neuralop_TFNO):
     """
-    Quick wrapper around neural operator's model to apply checkpointing 
-    for really big inputs. 
+    Quick wrapper around neural operator's model to apply checkpointing
+    for really big inputs.
     """
+
     def __init__(self, *args, **kwargs):
         super(NeuralOpsCheckpointWrapper, self).__init__(*args, **kwargs)
         if "gradient_checkpointing" in kwargs:
@@ -36,9 +38,9 @@ class NeuralOpsCheckpointWrapper(neuralop_TFNO):
         """
 
         if output_shape is None:
-            output_shape = [None]*self.n_layers
+            output_shape = [None] * self.n_layers
         elif isinstance(output_shape, tuple):
-            output_shape = [None]*(self.n_layers - 1) + [output_shape]
+            output_shape = [None] * (self.n_layers - 1) + [output_shape]
 
         x = self.optional_checkpointing(self.lifting, x)
 
@@ -46,13 +48,16 @@ class NeuralOpsCheckpointWrapper(neuralop_TFNO):
             x = self.domain_padding.pad(x)
 
         for layer_idx in range(self.n_layers):
-            self.optional_checkpointing(self.fno_blocks, x, layer_idx, output_shape=output_shape[layer_idx])
+            self.optional_checkpointing(
+                self.fno_blocks, x, layer_idx, output_shape=output_shape[layer_idx]
+            )
 
         if self.domain_padding is not None:
             x = self.domain_padding.unpad(x)
 
         x = self.optional_checkpointing(self.projection, x)
         return x
+
 
 class TFNO(nn.Module):
     def __init__(
@@ -91,7 +96,6 @@ class TFNO(nn.Module):
             hidden_channels=self.hidden_channels,
             gradient_checkpointing=gradient_checkpointing,
         )
-
 
     def forward(self, input) -> torch.Tensor:
         return self.model(input)
