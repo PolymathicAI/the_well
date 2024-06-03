@@ -12,7 +12,7 @@ from torchinfo import summary
 
 from the_well.benchmark.data import WellDataModule
 from the_well.benchmark.trainer import Trainer
-from the_well.benchmark.trainer.utils import get_distrib_config, set_master_config
+from the_well.benchmark.trainer.utils import set_master_config
 
 logger = logging.getLogger("the_well")
 logger.setLevel(level=logging.DEBUG)
@@ -128,8 +128,13 @@ def main(cfg: DictConfig):
     )
 
     # Retrieve multiple processes context to setup DDP
-    is_distributed, world_size, rank, local_rank = False, 1, 0, 0 #get_distrib_config()
-    #is_distributed = is_distributed and world_size > 1
+    is_distributed, world_size, rank, local_rank = (
+        False,
+        1,
+        0,
+        0,
+    )  # get_distrib_config()
+    # is_distributed = is_distributed and world_size > 1
 
     logger.info(f"Distributed training: {is_distributed}")
     if is_distributed:
