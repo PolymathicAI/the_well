@@ -94,7 +94,6 @@ def train(
         cfg.trainer,
         experiment_name=experiment_name,
         model=model,
-        logger=logger,
         datamodule=datamodule,
         optimizer=optimizer,
         lr_scheduler=lr_scheduler,

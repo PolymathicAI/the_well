@@ -39,7 +39,6 @@ class Trainer:
         experiment_name: str,
         formatter: str,
         model: torch.nn.Module,
-        logger: logging.Logger,
         datamodule: AbstractDataModule,
         optimizer: torch.optim.Optimizer,
         loss_fn: Callable,
