@@ -52,6 +52,7 @@ class Trainer:
         lr_scheduler: Optional[torch.optim.lr_scheduler._LRScheduler] = None,
         device=torch.device("cuda"),
         is_distributed: bool = False,
+        enable_amp: bool = False,
     ):
         """
         Class in charge of the training loop. It performs train, validation and test.
@@ -101,6 +102,8 @@ class Trainer:
         self.max_rollout_steps = max_rollout_steps
         self.short_validation_length = short_validation_length
         self.num_time_intervals = num_time_intervals
+        self.enable_amp = enable_amp
+        self.grad_scaler = torch.cuda.amp.GradScaler(enabled=enable_amp)
         self.is_distributed = is_distributed
         self.best_val_loss = None
         self.dset_metadata = self.datamodule.train_dataset.metadata
