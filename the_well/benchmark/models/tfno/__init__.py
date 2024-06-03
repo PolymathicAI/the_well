@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
-from torch.utils.checkpoint import checkpoint
 from neuralop.models import TFNO as neuralop_TFNO
+from torch.utils.checkpoint import checkpoint
 
 from the_well.benchmark.data.datasets import GenericWellMetadata
 

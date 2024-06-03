@@ -12,9 +12,9 @@ If you use this implementation, please cite original work above.
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.utils.checkpoint import checkpoint
 from einops import rearrange
 from timm.models.layers import DropPath
+from torch.utils.checkpoint import checkpoint
 
 from the_well.benchmark.data.datasets import GenericWellMetadata
 
