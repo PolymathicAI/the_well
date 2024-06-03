@@ -16,6 +16,7 @@ well_paths = well_paths = {
     "euler_quadrants": "datasets/euler_quadrants",
     "helmholtz_staircase": "datasets/helmholtz_staircase",
     "MHD": "datasets/MHD",
+    "MHD_64": "datasets/MHD_64",
     "pattern_formation": "datasets/pattern_formation",
     "planetswe": "datasets/planetswe",
     "post_neutron_star_merger": "datasets/post_neutron_star_merger",
@@ -693,14 +694,15 @@ class GenericWellDataset(Dataset):
                     sample[k] = (sample[k] - self.means[k]) / (self.stds[k] + 1e-4)
 
         # For complex BCs, might need to do this pre_normalization
-        bcs = self._reconstruct_bcs(
-            self.files[file_idx],
-            sample_idx,
-            time_idx,
-            self.n_steps_input + output_steps,
-            dt,
-        )
-        sample["boundary_conditions"] = bcs  # Currently only mask is an option
+        # TODO Re-enable this when we fix BCs.
+        # bcs = self._reconstruct_bcs(
+        #     self.files[file_idx],
+        #     sample_idx,
+        #     time_idx,
+        #     self.n_steps_input + output_steps,
+        #     dt,
+        # )
+        # sample["boundary_conditions"] = bcs  # Currently only mask is an option
         if self.return_grid:
             space_grid, time_grid = self._reconstruct_grids(
                 self.files[file_idx],

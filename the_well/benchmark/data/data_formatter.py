@@ -39,7 +39,6 @@ class DefaultChannelsFirstFormatter(AbstractDataFormatter):
             self.rearrange_out = "b c h w d -> b 1 h w d c"
 
     def process_input(self, data: Dict):
-        # print(list(data.keys()))
         x = data["input_fields"]
         x = rearrange(x, self.rearrange_in)
         if "constant_fields" in data:
@@ -52,7 +51,9 @@ class DefaultChannelsFirstFormatter(AbstractDataFormatter):
                 dim=1,
             )
         y = data["output_fields"]
-        return (x,), y
+        # TODO - Add warning to output if nan has to be replaced
+        # in some cases (staircase), its ok. In others, it's not.
+        return (torch.nan_to_num(x),), torch.nan_to_num(y)
 
     def process_output(self, output):
         return rearrange(output, self.rearrange_out)
@@ -77,7 +78,6 @@ class DefaultChannelsLastFormatter(AbstractDataFormatter):
             self.rearrange_out = "b h w d c -> b 1 h w d c"
 
     def process_input(self, data: Dict):
-        # print(list(data.keys()))
         x = data["input_fields"]
         x = rearrange(x, self.rearrange_in)
         if "constant_fields" in data:
@@ -90,7 +90,9 @@ class DefaultChannelsLastFormatter(AbstractDataFormatter):
                 dim=-1,
             )
         y = data["output_fields"]
-        return (x,), y
+        # TODO - Add warning to output if nan has to be replaced
+        # in some cases (staircase), its ok. In others, it's not.
+        return (torch.nan_to_num(x),), torch.nan_to_num(y)
 
     def process_output(self, output):
         return rearrange(output, self.rearrange_out)

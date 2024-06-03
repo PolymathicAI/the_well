@@ -255,22 +255,32 @@ class Trainer:
         loss_dict["param_norm"] = param_norm(self.model.parameters())
         return validation_loss, loss_dict
 
-    def train_one_epoch(self, dataloader: DataLoader) -> float:
+    def train_one_epoch(self, epoch: int, dataloader: DataLoader) -> float:
         """Train the model for one epoch by looping over the dataloader."""
         self.model.train()
         epoch_loss = 0.0
         train_logs = {}
         start_time = time.time()  # Don't need to sync this.
-        for batch in tqdm.tqdm(dataloader):
+        batch_start = time.time()
+        for i, batch in enumerate(dataloader):
+            batch_time = time.time() - batch_start
             y_pred, y_ref = self.rollout_model(self.model, batch, self.formatter)
+            forward_time = time.time() - batch_start - batch_time
             assert (
                 y_ref.shape == y_pred.shape
             ), f"Mismatching shapes between reference {y_ref.shape} and prediction {y_pred.shape}"
             loss = self.loss_fn(y_pred, y_ref, self.dset_metadata).mean()
-            epoch_loss += loss.item() / len(dataloader)
             loss.backward()
             self.optimizer.step()
             self.optimizer.zero_grad()
+            # Syncing for all reduce anyway so may as well compute synchornous metrics
+            epoch_loss += loss.item() / len(dataloader)
+            backward_time = time.time() - batch_start - forward_time - batch_time
+            total_time = time.time() - batch_start
+            logger.info(
+                f"Epoch {epoch}, Batch {i+1}/{len(dataloader)}: loss {loss.item()}, total_time {total_time}, batch time {batch_time}, forward time {forward_time}, backward time {backward_time}"
+            )
+            batch_start = time.time()
         train_logs["time_per_train_iter"] = (time.time() - start_time) / len(dataloader)
         train_logs["train_loss"] = epoch_loss
         if self.lr_scheduler:
@@ -285,9 +295,12 @@ class Trainer:
         rollout_val_dataloader = self.datamodule.rollout_val_dataloader()
         test_dataloader = self.datamodule.test_dataloader()
         rollout_test_dataloader = self.datamodule.rollout_test_dataloader()
-
+        os.makedirs(
+            "checkpoints", exist_ok=True
+        )  # Quick fix here - should parameterize.
         for epoch in range(self.max_epoch):
             if epoch % self.val_frequency == 0:
+                logger.info(f"Epoch {epoch+1}/{self.max_epoch}: starting validation")
                 val_loss, val_loss_dict = self.validation_loop(
                     val_dataloder, full=epoch == self.max_epoch - 1
                 )
@@ -297,13 +310,13 @@ class Trainer:
                 val_loss_dict |= {"valid": val_loss, "epoch": epoch}
                 wandb.log(val_loss_dict)
                 if self.best_val_loss is None or val_loss < self.best_val_loss:
-                    os.makedirs(
-                        "checkpoints", exist_ok=True
-                    )  # Quick fix here - should parameterize.
                     self.save_model(
                         epoch, val_loss, f"checkpoints/{self.experiment_name}-best.pt"
                     )
             if epoch % self.rollout_val_frequency == 0:
+                logger.info(
+                    f"Epoch {epoch+1}/{self.max_epoch}: starting rollout validation"
+                )
                 rollout_val_loss, rollout_val_loss_dict = self.validation_loop(
                     rollout_val_dataloader,
                     valid_or_test="rollout_valid",
@@ -320,10 +333,14 @@ class Trainer:
 
             if self.is_distributed:
                 train_dataloader.sampler.set_epoch(epoch)
-            train_loss, train_logs = self.train_one_epoch(train_dataloader)
+            logger.info(f"Epoch {epoch+1}/{self.max_epoch}: starting training")
+            train_loss, train_logs = self.train_one_epoch(epoch, train_dataloader)
             logger.info(f"Epoch {epoch+1}/{self.max_epoch}: training loss {train_loss}")
             train_logs |= {"train": train_loss, "epoch": epoch}
             wandb.log(train_logs)
+            self.save_model(
+                epoch, val_loss, f"checkpoints/{self.experiment_name}-recent.pt"
+            )
         # Run validation on last epoch if not already run
         if epoch % self.val_frequency != 0:
             val_loss, val_loss_dict = self.validation_loop(val_dataloder, full=True)
