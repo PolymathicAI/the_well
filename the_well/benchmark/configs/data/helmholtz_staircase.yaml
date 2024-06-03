@@ -1,4 +1,4 @@
 _target_: the_well.benchmark.data.WellDataModule
-batch_size: 16
-well_base_path: ???
+batch_size: 24
+well_base_path: /mnt/gpuxl/polymathic/the_well/datasets/
 well_dataset_name: helmholtz_staircase

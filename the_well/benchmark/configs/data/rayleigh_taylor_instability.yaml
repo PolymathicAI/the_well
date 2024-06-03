@@ -1,0 +1,4 @@
+_target_: the_well.benchmark.data.WellDataModule
+batch_size: 4
+well_base_path: /mnt/gpuxl/polymathic/the_well/datasets/
+well_dataset_name: rayleigh_taylor_instability

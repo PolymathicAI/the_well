@@ -5,4 +5,5 @@ rollout_val_frequency: 5
 short_validation_length: 20
 max_rollout_steps: 100
 num_time_intervals: 5
+enable_amp: False
 loss_fn: ???

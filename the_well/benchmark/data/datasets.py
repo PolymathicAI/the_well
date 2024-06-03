@@ -16,10 +16,12 @@ well_paths = well_paths = {
     "euler_quadrants": "datasets/euler_quadrants",
     "helmholtz_staircase": "datasets/helmholtz_staircase",
     "MHD": "datasets/MHD",
+    "MHD_64": "datasets/MHD_64",
     "pattern_formation": "datasets/pattern_formation",
     "planetswe": "datasets/planetswe",
     "post_neutron_star_merger": "datasets/post_neutron_star_merger",
     "rayleigh_benard": "datasets/rayleigh_benard",
+    "rayleigh_taylor_instability": "datasets/rayleigh_taylor_instability",
     "shear_flow": "datasets/shear_flow",
     "supernova_explosion_64": "datasets/supernova_explosion_64",
     "turbulence_gravity_cooling": "datasets/turbulence_gravity_cooling",
@@ -546,11 +548,9 @@ class GenericWellDataset(Dataset):
         if "time_grid" in self.constant_cache:
             time_grid = self.constant_cache["time_grid"]
         elif file["dimensions"]["time"].attrs["sample_varying"]:
-            time_grid = torch.tensor(
-                file["dimensions"]["time"][
-                    sample_idx, time_idx : time_idx + n_steps * dt : dt
-                ]
-            )
+            time_grid = torch.tensor(file["dimensions"]["time"][
+                sample_idx, time_idx : time_idx + n_steps * dt : dt
+            ])
         else:
             time_grid = torch.tensor(file["dimensions"]["time"][:])
             self._check_cache("time_grid", time_grid)
