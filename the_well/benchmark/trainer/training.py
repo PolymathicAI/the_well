@@ -94,7 +94,6 @@ class Trainer:
         self.optimizer = optimizer
         self.lr_scheduler = lr_scheduler
         self.loss_fn = loss_fn
-        self.logger = logger
         self.validation_suite = validation_metric_suite + [self.loss_fn]
         self.max_epoch = epochs
         self.val_frequency = val_frequency
