@@ -255,7 +255,7 @@ class Trainer:
         loss_dict["param_norm"] = param_norm(self.model.parameters())
         return validation_loss, loss_dict
 
-    def train_one_epoch(self, epoch:int, dataloader: DataLoader) -> float:
+    def train_one_epoch(self, epoch: int, dataloader: DataLoader) -> float:
         """Train the model for one epoch by looping over the dataloader."""
         self.model.train()
         epoch_loss = 0.0
@@ -263,7 +263,7 @@ class Trainer:
         start_time = time.time()  # Don't need to sync this.
         batch_start = time.time()
         for i, batch in enumerate(dataloader):
-            batch_time = time.time() - batch_start 
+            batch_time = time.time() - batch_start
             y_pred, y_ref = self.rollout_model(self.model, batch, self.formatter)
             forward_time = time.time() - batch_start - batch_time
             assert (
@@ -314,7 +314,9 @@ class Trainer:
                         epoch, val_loss, f"checkpoints/{self.experiment_name}-best.pt"
                     )
             if epoch % self.rollout_val_frequency == 0:
-                logger.info(f"Epoch {epoch+1}/{self.max_epoch}: starting rollout validation")
+                logger.info(
+                    f"Epoch {epoch+1}/{self.max_epoch}: starting rollout validation"
+                )
                 rollout_val_loss, rollout_val_loss_dict = self.validation_loop(
                     rollout_val_dataloader,
                     valid_or_test="rollout_valid",
@@ -337,8 +339,8 @@ class Trainer:
             train_logs |= {"train": train_loss, "epoch": epoch}
             wandb.log(train_logs)
             self.save_model(
-                        epoch, val_loss, f"checkpoints/{self.experiment_name}-recent.pt"
-                    )
+                epoch, val_loss, f"checkpoints/{self.experiment_name}-recent.pt"
+            )
         # Run validation on last epoch if not already run
         if epoch % self.val_frequency != 0:
             val_loss, val_loss_dict = self.validation_loop(val_dataloder, full=True)
