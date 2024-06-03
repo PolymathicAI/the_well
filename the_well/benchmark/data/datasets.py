@@ -692,14 +692,15 @@ class GenericWellDataset(Dataset):
                     sample[k] = (sample[k] - self.means[k]) / (self.stds[k] + 1e-4)
 
         # For complex BCs, might need to do this pre_normalization
-        bcs = self._reconstruct_bcs(
-            self.files[file_idx],
-            sample_idx,
-            time_idx,
-            self.n_steps_input + output_steps,
-            dt,
-        )
-        sample["boundary_conditions"] = bcs  # Currently only mask is an option
+        # TODO Re-enable this when we fix BCs.
+        # bcs = self._reconstruct_bcs(
+        #     self.files[file_idx],
+        #     sample_idx,
+        #     time_idx,
+        #     self.n_steps_input + output_steps,
+        #     dt,
+        # )
+        # sample["boundary_conditions"] = bcs  # Currently only mask is an option
         if self.return_grid:
             space_grid, time_grid = self._reconstruct_grids(
                 self.files[file_idx],
