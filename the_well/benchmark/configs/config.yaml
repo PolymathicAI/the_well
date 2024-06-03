@@ -7,6 +7,6 @@ data:
   n_steps_input: 4
   n_steps_output: 1
 model:
-  gradient_checkpointing: True
+  gradient_checkpointing: False
 data_workers: 14
 wandb_project_name: "the_well"
