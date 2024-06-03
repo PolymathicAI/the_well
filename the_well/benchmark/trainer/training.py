@@ -255,7 +255,7 @@ class Trainer:
         loss_dict["param_norm"] = param_norm(self.model.parameters())
         return validation_loss, loss_dict
 
-    def train_one_epoch(self, dataloader: DataLoader) -> float:
+    def train_one_epoch(self, epoch:int, dataloader: DataLoader) -> float:
         """Train the model for one epoch by looping over the dataloader."""
         self.model.train()
         epoch_loss = 0.0
@@ -278,7 +278,7 @@ class Trainer:
             backward_time = time.time() - batch_start - forward_time - batch_time
             total_time = time.time() - batch_start
             logger.info(
-                f"Batch {i+1}/{len(dataloader)}: loss {loss.item()}, total_time {total_time}, batch time {batch_time}, forward time {forward_time}, backward time {backward_time}"
+                f"Epoch {epoch}, Batch {i+1}/{len(dataloader)}: loss {loss.item()}, total_time {total_time}, batch time {batch_time}, forward time {forward_time}, backward time {backward_time}"
             )
             batch_start = time.time()
         train_logs["time_per_train_iter"] = (time.time() - start_time) / len(dataloader)
@@ -332,7 +332,7 @@ class Trainer:
             if self.is_distributed:
                 train_dataloader.sampler.set_epoch(epoch)
             logger.info(f"Epoch {epoch+1}/{self.max_epoch}: starting training")
-            train_loss, train_logs = self.train_one_epoch(train_dataloader)
+            train_loss, train_logs = self.train_one_epoch(epoch, train_dataloader)
             logger.info(f"Epoch {epoch+1}/{self.max_epoch}: training loss {train_loss}")
             train_logs |= {"train": train_loss, "epoch": epoch}
             wandb.log(train_logs)
