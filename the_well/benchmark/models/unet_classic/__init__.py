@@ -11,6 +11,7 @@ from collections import OrderedDict
 
 import torch
 import torch.nn as nn
+from torch.utils.checkpoint import checkpoint
 
 from the_well.benchmark.data.datasets import GenericWellMetadata
 
@@ -31,11 +32,13 @@ class UNetClassic(nn.Module):
         dim_out: int,
         dset_metadata: GenericWellMetadata,
         init_features: int = 32,
+        gradient_checkpointing: bool = False,
     ):
         super(UNetClassic, self).__init__()
         self.dset_metadata = dset_metadata
         n_spatial_dims = dset_metadata.n_spatial_dims
         self.n_spatial_dims = n_spatial_dims
+        self.gradient_checkpointing = gradient_checkpointing
         features = init_features
         self.encoder1 = self._block(dim_in, features, name="enc1")
         self.pool1 = pool_modules[n_spatial_dims](kernel_size=2, stride=2)
@@ -69,26 +72,32 @@ class UNetClassic(nn.Module):
             in_channels=features, out_channels=dim_out, kernel_size=1
         )
 
+    def optional_checkpointing(self, layer, *inputs, **kwargs):
+        if self.gradient_checkpointing:
+            return checkpoint(layer, *inputs, use_reentrant=False, **kwargs)
+        else:
+            return layer(*inputs, **kwargs)
+
     def forward(self, x):
-        enc1 = self.encoder1(x)
-        enc2 = self.encoder2(self.pool1(enc1))
-        enc3 = self.encoder3(self.pool2(enc2))
-        enc4 = self.encoder4(self.pool3(enc3))
+        enc1 = self.optional_checkpointing(self.encoder1, x)
+        enc2 = self.optional_checkpointing(self.encoder2, self.pool1(enc1))
+        enc3 = self.optional_checkpointing(self.encoder3, self.pool2(enc2))
+        enc4 = self.optional_checkpointing(self.encoder4, self.pool3(enc3))
 
-        bottleneck = self.bottleneck(self.pool4(enc4))
+        bottleneck = self.optional_checkpointing(self.bottleneck, self.pool4(enc4))
 
-        dec4 = self.upconv4(bottleneck)
+        dec4 = self.optional_checkpointing(self.upconv4, bottleneck)
         dec4 = torch.cat((dec4, enc4), dim=1)
-        dec4 = self.decoder4(dec4)
-        dec3 = self.upconv3(dec4)
+        dec4 = self.optional_checkpointing(self.decoder4, dec4)
+        dec3 = self.optional_checkpointing(self.upconv3, dec4)
         dec3 = torch.cat((dec3, enc3), dim=1)
-        dec3 = self.decoder3(dec3)
-        dec2 = self.upconv2(dec3)
+        dec3 = self.optional_checkpointing(self.decoder3, dec3)
+        dec2 = self.optional_checkpointing(self.upconv2, dec3)
         dec2 = torch.cat((dec2, enc2), dim=1)
-        dec2 = self.decoder2(dec2)
-        dec1 = self.upconv1(dec2)
+        dec2 = self.optional_checkpointing(self.decoder2, dec2)
+        dec1 = self.optional_checkpointing(self.upconv1, dec2)
         dec1 = torch.cat((dec1, enc1), dim=1)
-        dec1 = self.decoder1(dec1)
+        dec1 = self.optional_checkpointing(self.decoder1, dec1)
         return self.conv(dec1)
 
     def _block(self, in_channels, features, name):

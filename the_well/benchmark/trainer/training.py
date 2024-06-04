@@ -52,6 +52,8 @@ class Trainer:
         lr_scheduler: Optional[torch.optim.lr_scheduler._LRScheduler] = None,
         device=torch.device("cuda"),
         is_distributed: bool = False,
+        enable_amp: bool = False,
+        amp_type: str = "float16",  # bfloat not supported in FFT
     ):
         """
         Class in charge of the training loop. It performs train, validation and test.
@@ -101,6 +103,11 @@ class Trainer:
         self.max_rollout_steps = max_rollout_steps
         self.short_validation_length = short_validation_length
         self.num_time_intervals = num_time_intervals
+        self.enable_amp = enable_amp
+        self.amp_type = torch.bfloat16 if amp_type == "bfloat16" else torch.float16
+        self.grad_scaler = torch.cuda.amp.GradScaler(
+            enabled=enable_amp and amp_type != "bfloat16"
+        )
         self.is_distributed = is_distributed
         self.best_val_loss = None
         self.dset_metadata = self.datamodule.train_dataset.metadata
@@ -205,35 +212,36 @@ class Trainer:
         time_logs = {}
         count = 0
         denom = len(dataloader) if full else self.short_validation_length
-        for i, batch in enumerate(tqdm.tqdm(dataloader)):
-            # Rollout for length of target
-            y_pred, y_ref = self.rollout_model(self.model, batch, self.formatter)
-            assert (
-                y_ref.shape == y_pred.shape
-            ), f"Mismatching shapes between reference {y_ref.shape} and prediction {y_pred.shape}"
-            # Go through losses
-            for loss_fn in self.validation_suite:
-                # Mean over batch and time per field
-                loss = loss_fn(y_pred, y_ref, self.dset_metadata)
-                # Some losses return multiple values for efficiency
-                if not isinstance(loss, dict):
-                    loss = {loss_fn.__class__.__name__: loss}
-                # Split the losses and update the logging dictionary
-                for k, v in loss.items():
-                    sub_loss = v.mean(0)
-                    new_losses, new_time_logs = self.split_up_losses(
-                        sub_loss, k, dset_name, field_names
-                    )
-                    # TODO get better way to include spectral error.
-                    if k in long_time_metrics or "spectral_error" in k:
-                        time_logs |= new_time_logs
-                    for loss_name, loss_value in new_losses.items():
-                        loss_dict[loss_name] = (
-                            loss_dict.get(loss_name, 0.0) + loss_value / denom
+        with torch.cuda.amp.autocast(enabled=self.enable_amp, dtype=self.amp_type):
+            for i, batch in enumerate(tqdm.tqdm(dataloader)):
+                # Rollout for length of target
+                y_pred, y_ref = self.rollout_model(self.model, batch, self.formatter)
+                assert (
+                    y_ref.shape == y_pred.shape
+                ), f"Mismatching shapes between reference {y_ref.shape} and prediction {y_pred.shape}"
+                # Go through losses
+                for loss_fn in self.validation_suite:
+                    # Mean over batch and time per field
+                    loss = loss_fn(y_pred, y_ref, self.dset_metadata)
+                    # Some losses return multiple values for efficiency
+                    if not isinstance(loss, dict):
+                        loss = {loss_fn.__class__.__name__: loss}
+                    # Split the losses and update the logging dictionary
+                    for k, v in loss.items():
+                        sub_loss = v.mean(0)
+                        new_losses, new_time_logs = self.split_up_losses(
+                            sub_loss, k, dset_name, field_names
                         )
-            count += 1
-            if not full and count >= self.short_validation_length:
-                break
+                        # TODO get better way to include spectral error.
+                        if k in long_time_metrics or "spectral_error" in k:
+                            time_logs |= new_time_logs
+                        for loss_name, loss_value in new_losses.items():
+                            loss_dict[loss_name] = (
+                                loss_dict.get(loss_name, 0.0) + loss_value / denom
+                            )
+                count += 1
+                if not full and count >= self.short_validation_length:
+                    break
 
         # Last batch plots - too much work to combine from batches
         plot_dicts = {}
@@ -263,16 +271,17 @@ class Trainer:
         start_time = time.time()  # Don't need to sync this.
         batch_start = time.time()
         for i, batch in enumerate(dataloader):
-            batch_time = time.time() - batch_start
-            y_pred, y_ref = self.rollout_model(self.model, batch, self.formatter)
-            forward_time = time.time() - batch_start - batch_time
-            assert (
-                y_ref.shape == y_pred.shape
-            ), f"Mismatching shapes between reference {y_ref.shape} and prediction {y_pred.shape}"
-            loss = self.loss_fn(y_pred, y_ref, self.dset_metadata).mean()
-            loss.backward()
-            self.optimizer.step()
-            self.optimizer.zero_grad()
+            with torch.cuda.amp.autocast(enabled=self.enable_amp, dtype=self.amp_type):
+                batch_time = time.time() - batch_start
+                y_pred, y_ref = self.rollout_model(self.model, batch, self.formatter)
+                forward_time = time.time() - batch_start - batch_time
+                assert (
+                    y_ref.shape == y_pred.shape
+                ), f"Mismatching shapes between reference {y_ref.shape} and prediction {y_pred.shape}"
+                loss = self.loss_fn(y_pred, y_ref, self.dset_metadata).mean()
+            self.grad_scaler.scale(loss).backward()
+            self.grad_scaler.step(self.optimizer)
+            self.grad_scaler.update()
             # Syncing for all reduce anyway so may as well compute synchornous metrics
             epoch_loss += loss.item() / len(dataloader)
             backward_time = time.time() - batch_start - forward_time - batch_time
