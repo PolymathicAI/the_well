@@ -280,7 +280,7 @@ class GenericWellDataset(Dataset):
             with h5.File(file, "r") as _f:
                 # Run sanity checks - all files should have same ndims, size_tuple, and names
                 samples: int = _f.attrs["n_trajectories"]
-                steps = _f["dimensions"]["time"].shape[0]
+                steps = _f["dimensions"]["time"].shape[-1]
                 size_tuple = [
                     _f["dimensions"][d].shape[0]
                     for d in _f["dimensions"].attrs["spatial_dims"]
@@ -550,14 +550,15 @@ class GenericWellDataset(Dataset):
         elif file["dimensions"]["time"].attrs["sample_varying"]:
             time_grid = torch.tensor(
                 file["dimensions"]["time"][
-                    sample_idx, time_idx : time_idx + n_steps * dt : dt
+                    sample_idx, :
                 ]
             )
+            
         else:
             time_grid = torch.tensor(file["dimensions"]["time"][:])
             self._check_cache("time_grid", time_grid)
         # Use actual timesteps in case we eventually decide to support non-uniform in time
-        time_grid = time_grid[time_idx : time_idx + n_steps * dt : dt]
+        time_grid = time_grid[..., time_idx : time_idx + n_steps * dt : dt]
         # Nothing should depend on absolute time - might change if we add weather
         time_grid = time_grid - time_grid.min()
 
