@@ -32,7 +32,7 @@ where $P$, $\rho$, and $u$ are the pressure. $r$ is the position, $a_{\rm visc}$
 
 - Fields available in the data: ['pressure', 'Vx', 'Vy', 'Vz', 'density', 'temperature']
 
-- Number of trajectories: 900 (9 parameters sets $\times$ 100 runs).
+- Number of trajectories: 2700 (27 parameters sets $\times$ 100 runs).
 
 - Estimated size of the ensemble of all simulations: $792$ GB
 
