@@ -38,51 +38,39 @@ def season_day_forcing(phi, theta, t, h_f0):
     return forcing
 ```
 
-![Gif](gif/density_normalized.gif)
-
-| Dataset    | FNO | TFNO  | Unet | CNextU-net
-|:-:|:-:|:-:|:-:|:-:|
-| turbulent_radiative_layer_2D  | 0.967| 1.01 |0.576| 0.575|
-
-Preliminary benchmarking, in VRMSE.
+![Gif](gif/planetswe.gif)
 
 
 # About the data
 
-**Dimension of discretized data:** 101 timesteps of 384x128 images.
+**Dimension of discretized data:** 3024 timesteps of 256x512 images with "day" defined as 24 steps and "year" defined as 1008 in model time. 
 
-**Fields available in the data:** Density (scalar field), pressure (scalar field), velocity (vector field).
+**Fields available in the data:** height (scalar field), velocity (vector field).
 
-**Number of trajectories:** 90 (10 different seeds for each of the 9 $t_{cool}$ values).
+**Number of trajectories:** 40 trajectories of 3 model years.
 
-**Estimated size of the ensemble of all simulations:** 14GB
+**Estimated size of the ensemble of all simulations:** 178 GB
 
-**Grid type:** uniform, cartesian coordinates.
+**Grid type:** Equiangular grid, polar coordinates.
 
-**Initial conditions:** Analytic, described in the [paper](https://ui.adsabs.harvard.edu/abs/2020ApJ...894L..24F/abstract).
+**Initial conditions:** Sampled from hPa 500 level of [ERA5](https://rmets.onlinelibrary.wiley.com/doi/10.1002/qj.3803), filtered for stable initialization and burned-in for half a simulation year. 
 
-**Boundary conditions:** Periodic in the x-direction, zero-gradient for the y-direction.
+**Boundary conditions:** Spherical
 
-**Simulation time-step ($\Delta t$):** varies with $t_{cool}$. Smallest $t_{cool}$ has $\Delta t = 1.36\times10^{-2}$ and largest $t_{cool}$ has $\Delta t = 1.74\times10^{-2}$. Not that this is not in seconds. This is in dimensionless simulation time.
+**Simulation time-step ($\Delta t$):** CFL-based step size with safety factor of .4. 
 
-**Data are stored separated by ($\delta t$):** 1.597033 in simulation time.
+**Data are stored separated by ($\delta t$):** 1 hour in simulation time units
 
-**Total time range ($t_{min}$ to $t_{max}$):** $t_{min} = 0$, $t_{max} = 159.7033$.
+**Total time range ($t_{min}$ to $t_{max}$):** $t_{min} = 0$, $t_{max} = 3024$.
 
-**Spatial domain size ($L_x$, $L_y$, $L_z$):** $x \in [-0.5, 0.5]$, $y \in [-1, 2]$ giving $L_x = 1$ and $L_y = 3$.
+**Spatial domain size ($L_x$, $L_y$, $L_z$):** $\phi \in [0, 2 \pi]$, $\theta \in [0, \pi]$ 
 
-**Set of coefficients or non-dimensional parameters evaluated:** $t_{cool} = \{0.03, 0.06, 0.1, 0.18, 0.32, 0.56, 1.00, 1.78, 3.16\}$. 
+**Set of coefficients or non-dimensional parameters evaluated:** $\nu$ normalized to mode 224. 
 
-**Approximate time to generate the data:** 84 seconds using 48 cores for one simulation. 100 CPU hours for everything.
+**Approximate time to generate the data:** 45 minutes using 64 icelake cores for one simulation. 
 
-**Hardware used to generate the data:** 48 CPU cores.
+**Hardware used to generate the data:** 64 Icelake CPU cores.
 
 # What is interesting and challenging about the data:
 
-**What phenomena of physical interest are catpured in the data:**
--	The mass flux from hot to cold phase.
--	The turbulent velocities.
--	Amount of mass per temperature bin (T = press/dens).
-
-
-**How to evaluate a new simulator operating in this space:** See whether it captures the right mass flux, the right turbulent velocities, and the right amount of mass per temperature bin.
+Spherical geometry and planet-like topography and forcing make for a proxy for real-world atmospheric dynamics where true dynamics are known. The dataset has annual and daily periodicity forcing models to either process a sufficient context length to learn these patterns or to be explicitly time aware. Furthermore, the system becomes stable making this a good system for exploring long run stability of models.
