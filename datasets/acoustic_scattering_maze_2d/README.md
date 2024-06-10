@@ -10,12 +10,14 @@
 
 **Equation**:
 
-$$\begin{align}
-\frac{ \partial p}{\partial t} + \Kappa(x, y) \left( \frac{\partial u}{\partial x} + \frac{\partial v}{\partial y} \right) &= 0 \\
+```math
+\begin{align}
+\frac{ \partial p}{\partial t} + K(x, y) \left( \frac{\partial u}{\partial x} + \frac{\partial v}{\partial y} \right) &= 0 \\
 \frac{ \partial u  }{\partial t} + \frac{1}{\rho(x, y)} \frac{\partial p}{\partial x} &= 0 \\
 \frac{ \partial v  }{\partial t} + \frac{1}{\rho(x, y)} \frac{\partial p}{\partial v} &= 0 
-\end{align}$$
-with $\rho$ the material density, $u, v$ the velocity in the $x, y$ directions respectively, $p$ the pressure, and $\Kappa$ the bulk modulus. 
+\end{align}
+```
+with $\rho$ the material density, $u, v$ the velocity in the $x, y$ directions respectively, $p$ the pressure, and $K$ the bulk modulus. 
 
 Example material densities can be seen below:
 
@@ -51,7 +53,7 @@ Traversal can be seen:
 
 **Set of coefficients or non-dimensional parameters evaluated: **
 
-$\Kappa$ is fixed at 4.0. 
+$K$ is fixed at 4.0. 
 
 $\rho$ is the primary coefficient here. We generated a maze with initial width between 6 and 16 pixels and upsample it via nearest neighbor resampling to create a 256 x 256 maze. The walls are set to $\rho=10^6$ while paths are set to  $\rho=3$.  
 

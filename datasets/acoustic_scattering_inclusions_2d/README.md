@@ -10,12 +10,14 @@
 
 **Equation**:
 
-$$\begin{align}
-\frac{ \partial p}{\partial t} + \Kappa(x, y) \left( \frac{\partial u}{\partial x} + \frac{\partial v}{\partial y} \right) &= 0 \\
+```math
+\begin{align}
+\frac{ \partial p}{\partial t} + K(x, y) \left( \frac{\partial u}{\partial x} + \frac{\partial v}{\partial y} \right) &= 0 \\
 \frac{ \partial u  }{\partial t} + \frac{1}{\rho(x, y)} \frac{\partial p}{\partial x} &= 0 \\
 \frac{ \partial v  }{\partial t} + \frac{1}{\rho(x, y)} \frac{\partial p}{\partial v} &= 0 
-\end{align}$$
-with $\rho$ the material density, $u, v$ the velocity in the $x, y$ directions respectively, $p$ the pressure, and $\Kappa$ the bulk modulus. 
+\end{align}
+```
+with $\rho$ the material density, $u, v$ the velocity in the $x, y$ directions respectively, $p$ the pressure, and $K$ the bulk modulus. 
 
 Example material densities can be seen below:
 
@@ -47,7 +49,7 @@ Example material densities can be seen below:
 
 **Set of coefficients or non-dimensional parameters evaluated:**
 
-$\Kappa$ is fixed at 4.0. 
+$K$ is fixed at 4.0. 
 
 $\rho$ is the primary coefficient here. This is a superset of the single discontinuity example so the background is first generated two splits with one of the following distributions:
 - Gaussian Bump - Peak density samples from $\sim\mathcal U(1, 7.)$ and $\sigma \sim\mathcal U(.1, 5)$ with the center of the bump uniformly sampled from the extent of the subdomain.
