@@ -22,7 +22,7 @@ Re(\partial_t \bold{u^*} + (\bold{u^*}\dot\nabla)\bold{u^*} ) + \nabla p^* &= \b
 where $\bold{u^*} = (u^*,v^*)$ is the streamwise and wall-normal velocity components, $p^*$ is the pressure, $\bold{C^*}$ is the positive definite conformation tensor which represents the ensemble average of the produce of the end-to-end vector of the polymer molecules. In 2D, 4 components of the tensor are solved: $c^*_{xx}, c^*_{yy}, c^*_{zz}, c^*_{xy}$. $\bold{T}(\bold{C^*})$ is the polymer stress tensor given by the FENE-P model.
 
 
-![Gif](gif/pressure_normalized.gif)
+![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability/gif/pressure_normalized.gif)
 
 # About the data
 

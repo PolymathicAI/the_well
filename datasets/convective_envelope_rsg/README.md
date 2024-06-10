@@ -28,7 +28,7 @@ where
 - $I$ = frequency integrated intensity, which is a function of time, spatial coordinate, and photon propagation direction $\bm{n}$
 - $\bm{n}$ = photon propagation direction
 
-![Gif](gif/density_unnormalized.gif)
+![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/convective_envelope_rsg/gif/density_unnormalized.gif)
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|

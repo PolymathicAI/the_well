@@ -19,7 +19,7 @@ $\begin{align}
 $
 where $\rho$ is the density, $\mathbf{v}$ is the velocity, $\mathbf{B}$ is the magnetic field,$\mathbf{I}$ the identity matrix and $p$ is the gas pressure.
 
-![Gif](gif/density_normalized.gif)
+![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/MHD_64/gif/density_unnormalized.gif)
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|

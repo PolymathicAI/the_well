@@ -12,7 +12,8 @@
 
 **Equations**: Equations (1) to (5) of the associated paper.
 
-![Gif](gif/concentration_notnormalized.gif)
+
+![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/active_matter/gif/concentration_notnormalized.gif)
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|

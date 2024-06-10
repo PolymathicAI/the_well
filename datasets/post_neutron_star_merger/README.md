@@ -26,6 +26,7 @@ effects are visible as source terms on the fluid.
 The fluid sector consists of the following system of equations.
 
 \begin{widetext}
+$
 \begin{eqnarray}
   \label{eq:particle:cons}
   \partial_t \paren{\detg\rho_0 u^t} + \partial_i\paren{\detg\rho_0u^i}
@@ -39,16 +40,19 @@ The fluid sector consists of the following system of equations.
   \label{eq:lepton:cons}
   \partial_t\paren{\detg\rho_0 Y_e u^t} + \partial_i\paren{\detg\rho_0Y_eu^i}
   &=& \detg G_{\text{ye}}
-\end{eqnarray}
+\end{eqnarray}$
 \end{widetext}
 
 The the standard radiative transfer equation is
+$
 \begin{equation}
-  \label{eq:radiative:transfer}
-  \frac{D}{d\lambda}\paren{\frac{h^3\Inuf}{\eepsilon^3}} = \paren{\frac{h^2\etanuf}{\eepsilon^2}} - \paren{\frac{\eepsilon \chinuf}{h}} \paren{\frac{h^3\Inuf}{\eepsilon^3}},
-\end{equation}
+  \frac{D}{d\lambda}(\frac{h^3\Inuf}{\eepsilon^3}) = (\frac{h^2\etanuf}{\eepsilon^2}) - (\frac{\eepsilon \chinuf}{h}) (\frac{h^3\Inuf}{\eepsilon^3}),
+\end{equation}$
 
-![Gif](gif/Ye_normalized.gif)
+<div style="transform: rotate(90deg);">
+  <img src="https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/post_neutron_star_merger/gif/Ye_normalized.gif" alt="Rotated GIF">
+</div>
+
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|

@@ -44,8 +44,9 @@ $$
 $$
 
 <div style="transform: rotate(90deg);">
-  <img src="gif/buoyancy_normalized.gif" alt="Rotated GIF">
+  <img src="https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard/gif/buoyancy_normalized.gif" alt="Rotated GIF">
 </div>
+
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|

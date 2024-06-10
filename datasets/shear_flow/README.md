@@ -36,7 +36,7 @@ $$
 $$
 The tracer is passive and here for visualization purposes only.
 
-![Gif](gif/tracer_normalized.gif)
+![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/shear_flow/gif/tracer_normalized.gif)
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|

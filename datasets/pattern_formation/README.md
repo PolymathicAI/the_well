@@ -19,7 +19,7 @@ $
 The dimensionless parameters describing the behavior are: $f$, $k$, $\frac{\delta_A}{\delta_B}$
 
 
-![Gif](gif/concentration_A_normalized.gif)
+![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/pattern_formation/gif/concentration_A_normalized.gif)
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|

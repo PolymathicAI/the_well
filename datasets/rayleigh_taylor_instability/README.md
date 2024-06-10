@@ -26,7 +26,7 @@ $
 where $\nu$ is the kinematic viscosity and $\vec{I}$ is the identity matrix. 
 
 <div style="transform: rotate(270deg);">
-  <img src="gif/density_normalized.gif" alt="Rotated GIF">
+  <img src="https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_taylor_instability/gif/density_normalized.gif" alt="Rotated GIF">
 </div>
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net

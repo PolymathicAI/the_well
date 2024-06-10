@@ -55,6 +55,7 @@ venv_benchmark_well/
 *.log
 *.tmp
 *.pt
+*.gif
 
 # Ignore compiled binaries and libraries
 *.exe

@@ -26,7 +26,7 @@ u_n &= 0 \quad \text{on } \partial \Omega,
 with outwards radiation conditions as described in [1]. The region $\Omega$ lies above a corrugated boundary $\partial \Omega$, extending with spatial period $d$ in the $x_1$ direction, and is unbounded in the positive $x_2$ direction. The current example is a right-angled staircase whose unit cell consists of two equal-length line segments at $\pi/2$ angle to each other.
 
 <div style="transform: rotate(90deg);">
-  <img src="gif/pressure_re_normalized.gif" alt="Rotated GIF">
+  <img src="https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/helmholtz_staircase/gif/pressure_re_normalized.gif" alt="Rotated GIF">
 </div>
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
