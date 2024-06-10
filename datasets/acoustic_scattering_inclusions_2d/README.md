@@ -33,7 +33,7 @@ Example material densities can be seen below:
 
 **Estimated size of the ensemble of all simulations:** 271 GB
 
-**Grid type:** Cartesian, unfirom
+**Grid type:** Cartesian, uniform
 
 **Initial conditions:** Flat pressure static field with 1-4 high pressure rings randomly placed in domain. The rings are defined with variable intensity $\sim \mathcal U(.5, 2)$ and radius $\sim \mathcal U(.06, .15)$. 
 
