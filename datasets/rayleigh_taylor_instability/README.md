@@ -11,18 +11,20 @@
 **Code or software used to generate the data**: [TurMix3D](https://theses.hal.science/tel-00669707/document)
 
 **Equation**:The flow is governed by equations for continuity, momentum and incompressibility in the case of miscible fluids with common molecular diffusivity:
-$
+```math
 \begin{align}
     \partial_t\rho + \nabla\cdot(\rho \vec{u}) = 0,\\
     \partial_t(\rho \vec{u})+\nabla\cdot(\rho \vec{u} \vec{u}) = -\nabla p + \nabla\cdot\vec{\tau}+\rho \vec{g},\\
      \nabla\cdot\vec{u} = -\kappa\nabla\cdot\left(\frac{\nabla\rho}{\rho}\right). 
-\end{align}$
+\end{align}
+```
 
 Here, $\rho$ is density, $\vec{u}$ is velocity, $p$ is pressure, $\vec{g}$ is gravity, $\kappa$ is the coefficient of molecular diffusivity and $\vec{\tau}$ is the deviatoric stress tensor 
-$
+```math
 \begin{equation}
     \vec{\tau}= \rho\nu\left(\nabla\vec{u}+\left(\nabla\vec{u}\right)^T-\frac{2}{3}\left(\nabla\cdot\vec{u} \right)\vec{I}\right), 
-\end{equation}$
+\end{equation}
+```
 where $\nu$ is the kinematic viscosity and $\vec{I}$ is the identity matrix. 
 
 <div style="transform: rotate(270deg);">
