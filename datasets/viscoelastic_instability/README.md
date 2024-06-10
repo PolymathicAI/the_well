@@ -11,15 +11,18 @@
 **Code or software used to generate the data**: Dedalus v2.
 
 **Equation**:
-$\begin{align}
-Re(\partial_t \bold{u^*} + (\bold{u^*}\dot\nabla)\bold{u^*} ) + \nabla p^* &= \beta \Delta \bold{u^*} + (1-\beta)\nabla\cdot \bold{T}(\bold{C^*}),\\
-\partial_t \bold{C^*} + (\bold{u^*}\cdot\nabla)\bold{C^*} +\bold{T}(\bold{C^*}) &= \bold{C^*}\cdot\nabla \bold{u^*} + (\nabla \bold{u^*})^T \cdot \bold{C^*} + \epsilon \Delta \bold{C^*}, \\
-\nabla \bold{u^*} &= 0,\\
-\textrm{with} \quad \bold{T}(\bold{C^*}) &= \frac{1}{\text{Wi}}(f(\textrm{tr}(\bold{C^*}))\bold{C^*} - \bold{I}),\\
-\textrm{and} \quad f(s) &:= \left(1- \frac{s-3}{L^2_{max}}\right)^{-1}. 
-\end{align}$
 
-where $\bold{u^*} = (u^*,v^*)$ is the streamwise and wall-normal velocity components, $p^*$ is the pressure, $\bold{C^*}$ is the positive definite conformation tensor which represents the ensemble average of the produce of the end-to-end vector of the polymer molecules. In 2D, 4 components of the tensor are solved: $c^*_{xx}, c^*_{yy}, c^*_{zz}, c^*_{xy}$. $\bold{T}(\bold{C^*})$ is the polymer stress tensor given by the FENE-P model.
+```math
+\begin{align}
+Re(\partial_t \mathbf{u^*} + (\mathbf{u^*}\dot\nabla)\mathbf{u^*} ) + \nabla p^* &= \beta \Delta \mathbf{u^*} + (1-\beta)\nabla\cdot \mathbf{T}(\mathbf{C^*}),\\
+\partial_t \mathbf{C^*} + (\mathbf{u^*}\cdot\nabla)\mathbf{C^*} +\mathbf{T}(\mathbf{C^*}) &= \mathbf{C^*}\cdot\nabla \mathbf{u^*} + (\nabla \mathbf{u^*})^T \cdot \mathbf{C^*} + \epsilon \Delta \mathbf{C^*}, \\
+\nabla \mathbf{u^*} &= 0,\\
+\textrm{with} \quad \mathbf{T}(\mathbf{C^*}) &= \frac{1}{\text{Wi}}(f(\textrm{tr}(\mathbf{C^*}))\mathbf{C^*} - \mathbf{I}),\\
+\textrm{and} \quad f(s) &:= \left(1- \frac{s-3}{L^2_{max}}\right)^{-1}. 
+\end{align}
+```
+
+where $\mathbf{u^\*} = (u^\*,v^\*)$ is the streamwise and wall-normal velocity components, $p^\*$ is the pressure, $\mathbf{C^\*}$ is the positive definite conformation tensor which represents the ensemble average of the produce of the end-to-end vector of the polymer molecules. In 2D, 4 components of the tensor are solved: $c\_{xx}^{\*}, c^{\*}\_{yy}, c^{\*}\_{zz}, c^{\*}\_{xy}$. $\mathbf{T}(\mathbf{C^{\*}})$ is the polymer stress tensor given by the FENE-P model.
 
 
 ![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability/gif/pressure_normalized.gif)
@@ -48,7 +51,7 @@ where $\bold{u^*} = (u^*,v^*)$ is the streamwise and wall-normal velocity compon
 - EIT: laminar state + blowing and suction at the walls. 
 - CAR: SAR + blowing and suction at the walls.
 
-**Boundary conditions:** no slip conditions for the velocity ($(u^*,v^*)=(0,0)$) at the wall and $\epsilon=0$ at the wall for the equation for $\bold{C^*}$.
+**Boundary conditions:** no slip conditions for the velocity ($(u^*,v^*)=(0,0)$) at the wall and $\epsilon=0$ at the wall for the equation for $\mathbf{C^*}$.
 
 **Simulation time-step:** various in the different states, but typically $\sim 10^{-4}$.
 
