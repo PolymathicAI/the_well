@@ -25,23 +25,18 @@ effects are visible as source terms on the fluid.
 
 The fluid sector consists of the following system of equations.
 
-\begin{widetext}
-$
+```math
 \begin{eqnarray}
-  \label{eq:particle:cons}
-  \partial_t \paren{\detg\rho_0 u^t} + \partial_i\paren{\detg\rho_0u^i}
+  \partial_t \left(\sqrt{g}\rho_0 u^t\right) + \partial_i\left(\sqrt{g}\rho_0u^i\right)
   &=& 0\\
-  \label{eq:energy:cons}
-  \partial_t\sqrbrace{\detg \paren{T^t_{\ \nu} + \rho_0u^t \delta^t_\nu}}
-  + \partial_i\sqrbrace{\detg\paren{T^i_{\ \nu} + \rho_0 u^i \delta^t_\nu}}
-  &=& \detg \paren{T^\kappa_{\ \lambda} \Gamma^\lambda_{\nu\kappa} + G_\nu}\ \forall \nu = 0,1,\ldots,4\\
-  \label{eq:mhd:cons}
-  \partial_t \paren{\detg B^i} - \partial_j \sqrbrace{\detg\paren{b^ju^i - b^i u^j}} &=& 0\\
-  \label{eq:lepton:cons}
-  \partial_t\paren{\detg\rho_0 Y_e u^t} + \partial_i\paren{\detg\rho_0Y_eu^i}
-  &=& \detg G_{\text{ye}}
-\end{eqnarray}$
-\end{widetext}
+  \partial_t\left[\sqrt{g} \left(T^t_{\ \nu} + \rho_0u^t \delta^t_\nu\right)\right]
+  + \partial_i\left[\sqrt{g}\left(T^i_{\ \nu} + \rho_0 u^i \delta^t_\nu\right)\right]
+  &=& \sqrt{g} \left(T^\kappa_{\ \lambda} \Gamma^\lambda_{\nu\kappa} + G_\nu\right)\ \forall \nu = 0,1,\ldots,4\\
+  \partial_t \left(\sqrt{g} B^i\right) + \partial_j \left[\sqrt{g}\left(b^ju^i - b^i u^j\right)\right] &=& 0\\
+  \partial_t\left(\sqrt{g}\rho_0 Y_e u^t\right) + \partial_i\left(\sqrt{g}\rho_0Y_eu^i\right)
+  &=& \sqrt{g} G_{\text{ye}}\\
+\end{eqnarray}
+```
 
 The the standard radiative transfer equation is
 $
