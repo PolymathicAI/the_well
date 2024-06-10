@@ -38,11 +38,12 @@ The fluid sector consists of the following system of equations.
 \end{eqnarray}
 ```
 
-The the standard radiative transfer equation is
-$
+The standard radiative transfer equation is
+```math
 \begin{equation}
-  \frac{D}{d\lambda}(\frac{h^3\Inuf}{\eepsilon^3}) = (\frac{h^2\etanuf}{\eepsilon^2}) - (\frac{\eepsilon \chinuf}{h}) (\frac{h^3\Inuf}{\eepsilon^3}),
-\end{equation}$
+    \frac{D}{d\lambda}\left(\frac{h^3\mathcal{I}_{\nu,f}}{\varepsilon^3}\right) = \left(\frac{h^2\eta_{\nu,f}}{\varepsilon^2}\right) - \left(\frac{\varepsilon \chi_{\nu,f}}{h}\right) \left(\frac{h^3\mathcal{I}_{\nu,f}}{\varepsilon^3}\right),
+\end{equation}
+```
 
 <div style="transform: rotate(90deg);">
   <img src="https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/post_neutron_star_merger/gif/Ye_normalized.gif" alt="Rotated GIF">
