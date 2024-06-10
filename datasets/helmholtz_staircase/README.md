@@ -14,15 +14,21 @@ periodic, such as plane waves, but not for nonperiodic sources, e.g. a point sou
 
 **Equations**:
 
-While we solve equations in the frequency domain, the original time-domain problem is $$ \frac{\partial^2 U(t, \mathbf{x})}{\partial t^2} - \Delta U(t, \mathbf{x}) = \delta(t)\delta(\mathbf{x} - \mathbf{x}_0), $$
+While we solve equations in the frequency domain, the original time-domain problem is:
+
+$$\frac{\partial^2 U(t, \mathbf{x})}{\partial t^2} - \Delta U(t, \mathbf{x}) = \delta(t)\delta(\mathbf{x} - \mathbf{x}_0), $$
 where $\Delta = \nabla \cdot \nabla$ is the spatial Laplacian. [ADD what is U]
 The sound-hard boundary $\partial \Omega$ imposes Neumann boundary conditions,
+
 $$ U_n(t, \mathbf{x}) = \mathbf{n} \cdot \nabla U = 0, \quad t \in \mathbb{R}, \quad \mathbf{x} \in \partial \Omega. $$
+
 Upon taking the temporal Fourier transform, we get the inhomogeneous Helmholtz Neumann boundary value problem
-$\begin{align}
+```math
+\begin{align}
 -(\Delta + \omega^2)u &= \delta_{\mathbf{x}_0}, \quad \text{in } \Omega,\\
 u_n &= 0 \quad \text{on } \partial \Omega,
-\end{align}$
+\end{align}
+```
 with outwards radiation conditions as described in [1]. The region $\Omega$ lies above a corrugated boundary $\partial \Omega$, extending with spatial period $d$ in the $x_1$ direction, and is unbounded in the positive $x_2$ direction. The current example is a right-angled staircase whose unit cell consists of two equal-length line segments at $\pi/2$ angle to each other.
 
 <div style="transform: rotate(90deg);">
