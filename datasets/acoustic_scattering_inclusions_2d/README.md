@@ -4,8 +4,6 @@
 
 **Longer description of the data:** These variable-coefficient acoustic equations describe the propogation of an acoustic pressure wave through domains consisting of multiple materials with different scattering properties. This problem emerges in source optimization and it's inverse - that of identifying the material properties from the scattering of the wave - is a vital problem in geology and radar design. This is the simplest of three scenarios. In this case, we have a variable number of initial point sources and a domain with random inclusions. These types of problems are of particular interest in geology where the inverse scattering is used to identify mineral deposits. 
 
-**Associated paper**: 
-
 **Domain scientist**: Michael McCabe, Marsha Berger
 
 **Code or software used to generate the data**: Clawpack
@@ -29,7 +27,7 @@ with $\rho$ the material density, $u, v$ the velocity in the $x, y$ directions r
 
 **Number of trajectories:** 4000
 
-**Estimated size of the ensemble of all simulations:**
+**Estimated size of the ensemble of all simulations:** 271 GB
 
 **Grid type:** Cartesian, unfirom
 
@@ -45,19 +43,22 @@ with $\rho$ the material density, $u, v$ the velocity in the $x, y$ directions r
 
 **Spatial domain size ($L_x$, $L_y$, $L_z$):** [-1, 1] x [-1, 1]
 
-**Set of coefficients or non-dimensional parameters evaluated: **
+**Set of coefficients or non-dimensional parameters evaluated:**
 
 $\Kappa$ is fixed at 4.0. 
 
-$\rho$ is the primary coefficient here. Each side is generated with one of the following distributions:
+$\rho$ is the primary coefficient here. This is a superset of the single discontinuity example so the background is first generated two splits with one of the following distributions:
 - Gaussian Bump - Peak density samples from $\sim\mathcal U(1, 7.)$ and $\sigma \sim\mathcal U(.1, 5)$ with the center of the bump uniformly sampled from the extent of the subdomain.
 - Linear gradient - Four corners sampled with $\rho \sim \mathcal U(1, 7.)$. Inner density is bilinearly interpolated.
 - Constant - Constant $\rho \sim\mathcal U(1, 7.)$
-- Smoothed Gaussian Noise - Constant background sampled $\rho \sim\mathcal U(1, 7.)$ with IID standard normal noise applied. This is then smoothed by a Gaussian filter of varying sigma $\sigma \sim\mathcal U(5, 10)$
+- Smoothed Gaussian Noise - Constant background sampled $\rho \sim\mathcal U(1, 7.)$ with IID standard normal noise applied. This is then smoothed by a Gaussian filter of varying sigma $\sigma \sim\mathcal U(5, 10)$. 
 
-Approximate time to generate the data: ~15 minutes per simulation 
+Inclusions are then added as 1-15 random ellipsoids with center uniformly sampled from the domain and height/width sampled uniformly from [.05, .6]. The ellipsoid is then rotated randomly with angle sampled [-45, 45]. For the inclusions, $Ln(\rho)\sim \mathcal U(-1, 10)$ 
 
-Hardware used to generate the data and precision used for generating the data: 64 Intel Icelake cores per simulation. Generated in double precision.
+
+**Approximate time to generate the data:** ~15 minutes per simulation 
+
+**Hardware used to generate the data and precision used for generating the data:** 64 Intel Icelake cores per simulation. Generated in double precision.
 
 # What is interesting and challenging about the data:
 
