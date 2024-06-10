@@ -10,12 +10,13 @@
 
 **Code or software used to generate the data**: MATLAB R2023a, using the stiff PDE integrator implemented in Chebfun. The Fourier spectral method is used in space (with nonlinear terms evaluated pseudospectrally), and the exponential time-differencing fourth-order Runge-Kutta scheme (ETDRK4) is used in time.
 
-**Equation describing the data** $
+**Equation describing the data** 
+```math
 \begin{align}
 \frac{\partial A}{\partial t} &= \delta_A\Delta A - AB^2 + f(1-A) \nonumber \\
 \frac{\partial B}{\partial t} &= \delta_B\Delta B - AB^2 + (f+k)B \nonumber
 \end{align}
-$
+```
 The dimensionless parameters describing the behavior are: $f$, $k$, $\frac{\delta_A}{\delta_B}$
 
 
@@ -23,7 +24,7 @@ The dimensionless parameters describing the behavior are: $f$, $k$, $\frac{\delt
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| pattern_formation | 0.178  | 0.177 | 0.322|\$mathbf{0.0512}$|
+| pattern_formation | 0.178  | 0.177 | 0.322|$\mathbf{0.0512}$|
 
 Preliminary benchmarking, in VRMSE.
 
