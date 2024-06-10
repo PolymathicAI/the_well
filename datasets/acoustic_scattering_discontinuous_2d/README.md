@@ -48,7 +48,7 @@ Example material densities can be seen below:
 
 **Spatial domain size ($L_x$, $L_y$, $L_z$):** [-1, 1] x [-1, 1]
 
-**Set of coefficients or non-dimensional parameters evaluated: **
+**Set of coefficients or non-dimensional parameters evaluated:**
 
 $K$ is fixed at 4.0. 
 
