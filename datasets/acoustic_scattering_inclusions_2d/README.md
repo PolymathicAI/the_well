@@ -6,7 +6,7 @@
 
 **Domain scientist**: Michael McCabe, Marsha Berger
 
-**Code or software used to generate the data**: Clawpack
+**Code or software used to generate the data**: Clawpack, adapted from: http://www.clawpack.org/gallery/pyclaw/gallery/acoustics_2d_interface.html
 
 **Equation**:
 
