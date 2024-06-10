@@ -10,12 +10,16 @@
 
 **Code or software used to generate the data**: Athena++
 
-**Equation**: $\begin{align}
+**Equation**: 
+
+```math
+\begin{align}
 \frac{ \partial \rho}{\partial t} + \nabla \cdot \left( \rho \vec{v} \right) &= 0 \\
 \frac{ \partial \rho \vec{v} }{\partial t} + \nabla \cdot \left( \rho \vec{v}\vec{v} + P \right) &= 0 \\
 \frac{ \partial E }{\partial t} + \nabla \cdot \left( (E + P) \vec{v} \right) &= - \frac{E}{t_{\rm cool}} \\
 E = P / (\gamma -1) \, \, \gamma &= 5/3
-\end{align}$
+\end{align}
+```
 with $\rho$ the density, $\vec{v}$ the 3D velocity, $P$ the pressure, $E$ the total energy, and $t_{\rm cool}$ the cooling time.
 
 ![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/turbulent_radiative_layer_3D/gif/density_normalized.gif)
