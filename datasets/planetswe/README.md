@@ -1,21 +1,23 @@
 # PlanetSWE
 
-**One line description of the data:** Forced hyperviscous rotating shallow water on a sphere with earth-like topography and weekly/annual periodic forcings. 
+**One line description of the data:** Forced hyperviscous rotating shallow water on a sphere with earth-like topography and daily/annual periodic forcings. 
 
-**Longer description of the data:** In this simulation, there is cold, dense gas on the bottom and hot dilute gas on the top. They are moving relative to each other at highly subsonic velocities. This set up is unstable to the Kelvin Helmholtz instability, which is seeded with small scale noise that is varied between the simulations. The hot gas and cold gas are both in thermal equilibrium in the sense that the heating and cooling are exactly balanced. However, once mixing occurs as a result of the turbulence induced by the Kelvin Helmholtz instability the intermediate temperatures become populated. This intermediate temperature gas is not in thermal equilibrium and cooling beats heating. This leads to a net mass flux from the hot phase to the cold phase. This process occurs in the interstellar medium, and in the Circum-Galactic medium when cold clouds move through the ambient, hot medium. By understanding how the total cooling and mass transfer scale with the cooling rate we are able to constrain how this process controls the overall phase structure, energetics and dynamics of the gas in and around galaxies.
+**Longer description of the data:** The shallow water equations are fundamentally a 2D approximation of a 3D flow in the case where horizontal length scales are significantly longer than vertical length scales. They are derived from depth-integrating the incompressible Navier-Stokes equations. The integrated dimension then only remains in the equation as a variable describing the height of the pressure surface above the flow. These equations have long been used as a simpler approximation of the primitive equations in atmospheric modeling of a single pressure level, most famously in the Williamson test problems. This scenario can be seen as similar to Williamson Problem 7 as we derive initial conditions from the hPa 500 pressure level in ERA5. These are then simulated with realistic topography and two levels of periodicity. 
 
-**Associated paper**: [Paper](https://iopscience.iop.org/article/10.3847/2041-8213/ab8d2c/pdf)
+**Associated paper**: [Paper](https://openreview.net/forum?id=RFfUUtKYOG)
 
-**Domain scientist**: [Drummond Fielding](https://dfielding14.github.io/), CCA, Flatiron Institute & Cornell University.
+**Domain scientist**: [Michael McCabe](https://mikemccabe210.github.io/), Polymathic AI.
 
-**Code or software used to generate the data**: Athena++
+**Code or software used to generate the data**: Dedalus
 
-**Equation**: $\begin{align}
-\frac{ \partial \rho}{\partial t} + \nabla \cdot \left( \rho \vec{v} \right) &= 0 \\
-\frac{ \partial \rho \vec{v} }{\partial t} + \nabla \cdot \left( \rho \vec{v}\vec{v} + P \right) &= 0 \\
-\frac{ \partial E }{\partial t} + \nabla \cdot \left( (E + P) \vec{v} \right) &= - \frac{E}{t_{\rm cool}} \\
-E = P / (\gamma -1) \, \, \gamma &= 5/3
-\end{align}$
+**Equation**: 
+
+```math
+\begin{align}
+\frac{ \partial \vec{u}}{\partial t} &= - \vec{u} \cdot \nabla u - g \nabla h - \nu \nabla^4 - 2\Omega \times \vec{u} \\
+\frac{ \partial h }{\partial t} = -H \nabla \cdot \vec{u} - \nabla \cdot (h\vec{u}) - \nu \nabla^4h + F  
+\end{align}
+```
 with $\rho$ the density, $\vec{v}$ the 2D velocity, $P$ the pressure, $E$ the total energy, and $t_{\rm cool}$ the cooling time.
 
 ![Gif](gif/density_normalized.gif)
