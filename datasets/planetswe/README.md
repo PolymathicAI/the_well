@@ -40,7 +40,7 @@ def season_day_forcing(phi, theta, t, h_f0):
 
 Visualization: 
 
-![Gif](gif/planetswe.gif)
+![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/planetswe/gif/planetswe.gif)
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
