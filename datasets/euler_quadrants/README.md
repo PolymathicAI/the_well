@@ -6,7 +6,7 @@
 
 **Associated paper**: [Paper](https://epubs.siam.org/doi/pdf/10.1137/S1064827595291819?casa_token=vkASCwD4WngAAAAA:N0jy0Z6tshitF10_YRTlZzU-P7mAiPFr3v58sw7pmRsZOarAi824-b1CWhOQts1rvaG3YpJisw)
 
-**Domain scientist**: [Marsha Berger](https://cs.nyu.edu/~berger/), Flatiron Institute & NYU.
+**Domain scientist**: [Marsha Berger](https://cs.nyu.edu/~berger/)(Flatiron Institute & NYU), [Ruben Ohana](https://rubenohana.github.io/) (CCM, Flatiron Institute & Polymathic AI), [Michael McCabe](https://mikemccabe210.github.io/) (Polymathic AI).
 
 **Code or software used to generate the data**: [Clawpack (AMRClaw)](http://www.clawpack.org/)
 
@@ -17,41 +17,44 @@ U_t + F(U)_x + G(U)_y &= 0 \nonumber\\
 \end{align}$
 with $\rho$ the density, $u$ and $v$ the $x$ and $y$ velocity components, $e$ the energy, $p$ the pressure, $\gamma$ the gas constant, and $A>0$ is a function of entropy.
 
+![Gif](gif/density_normalized.gif)
 
-[ADD GIF OF THE SIMULATION]
+| Dataset    | FNO | TFNO  | Unet | CNextU-net
+|:-:|:-:|:-:|:-:|:-:|
+| euler_multi-quadrants (periodic b.c. only)  | 2.22  | 2.19 |$\mathbf{1.98}$ |2.26|
 
 # About the data
 
-Dimension of discretized data: 100 timesteps of 512x512 images.
+**Dimension of discretized data:** 100 timesteps of 512x512 images.
 
-Fields available in the data: ['density', 'momentum_x', 'momentum_y', 'energy', 'pressure']
+**Fields available in the data:** density $\rho$ (scalar field), energy $E$ (scalar field), pressure $P$ (scalar field), momentum $m$ (vector field).
 
-Number of trajectories: 500 per set of parameters, 10,000 in total.
+**Number of trajectories:** 500 per set of parameters, 10 000 in total.
 
-Estimated size of the ensemble of all simulations: 4.9TB.
+**Estimated size of the ensemble of all simulations:** 4.9TB.
 
-Grid type: uniform grid.
+**Grid type:** uniform grid.
 
-Initial conditions: Randomly generated initial quadrants.
+**Initial conditions:** Randomly generated initial quadrants.
 
-Boundary conditions: ['extrap', 'periodic']
+**Boundary conditions:** Periodic or open.
 
-Simulation time-step: variable.
+**Simulation time-step:** variable.
 
-Data are stored separated by ($\Delta t$): 0.015s (1.5s for 100 timesteps).
+**Data are stored separated by ($\Delta t$):** 0.015s (1.5s for 100 timesteps).
 
-Total time range ($t_{min}$ to $t_{max}$): $t_{min} = 0$, $t_{max}=1.5s$
+**Total time range ($t_{min}$ to $t_{max}$):** $t_{min} = 0$, $t_{max}=1.5s$.
 
-Spatial domain size ($L_x$, $L_y$, $L_z$): $L_x = 1$, $L_y = 1$ [TO BE CONFIRMED]
+**Spatial domain size ($L_x$, $L_y$, $L_z$):** $L_x = 1$ and  $L_y = 1$.
 
-Set of coefficients or non-dimensional parameters evaluated: all combinations of $\gamma$ constant of the gas: $\gamma=\{1.3,1.4,1.13,1.22,1.33,1.76, 1.365,1.404,1.453,1.597\}$ and boundary conditions: {extrap, periodic}.
+S**et of coefficients or non-dimensional parameters evaluated:** all combinations of $\gamma$ constant of the gas: $\gamma=\{1.3,1.4,1.13,1.22,1.33,1.76, 1.365,1.404,1.453,1.597\}$ and boundary conditions: {extrap, periodic}.
 
-Approximate time to generate the data: 80 hours on 160 CPU cores for all data
+**Approximate time to generate the data:** 80 hours on 160 CPU cores for all data.
 
-Hardware used to generate the data and precision used for generating the data: Icelake nodes, double precision.
+**Hardware used to generate the data and precision used for generating the data:** Icelake nodes, double precision.
 
 # What is interesting and challenging about the data:
 
-What phenomena of physical interest are catpured in the data: capture the shock formations and interactions. Multiscale shocks.
+**What phenomena of physical interest are catpured in the data:** capture the shock formations and interactions. Multiscale shocks.
 
-How to evaluate a new simulator operating in this space: the new simulator should predict the shock at the right location and time, and the right shock strength, as compared to a ‘pressure’ gauge monitoring the ‘exact’ solution.
+**How to evaluate a new simulator operating in this space:** the new simulator should predict the shock at the right location and time, and the right shock strength, as compared to a ‘pressure’ gauge monitoring the ‘exact’ solution.

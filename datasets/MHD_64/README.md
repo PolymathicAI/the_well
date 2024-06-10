@@ -1,8 +1,8 @@
 # Magnetohydrodynamics (MHD) compressible turbulence
 
-**One line description of the data:** This is an MHD fluid flows in the compressible limit (subsonic, supersonic, sub-Alfvenic, super-Alfvenic).
+**One line description of the data:** This is an MHD fluid flows in the compressible limit (subsonic, supersonic, sub-Alfvenic, super-Alfvenic). 
 
-**Longer description of the data:** An essential component of the solar wind, galaxy formation, and of interstellar medium (ISM) dynamics is magnetohydrodynamic (MHD) turbulence. This dataset consists of isothermal MHD simulations without self-gravity (such as found in the diffuse ISM) initially generated with resolution $256^3$ and then downsampled to $64^3$ after anti-aliasing with an ideal low-pass filter.
+**Longer description of the data:** An essential component of the solar wind, galaxy formation, and of interstellar medium (ISM) dynamics is magnetohydrodynamic (MHD) turbulence. This dataset consists of isothermal MHD simulations without self-gravity (such as found in the diffuse ISM) initially generated with resolution $256^3$ and then downsampled to $64^3$ after anti-aliasing with an ideal low-pass filter. This dataset is the downsampled version.
 
 **Associated paper**: https://iopscience.iop.org/article/10.3847/1538-4357/abc484/pdf
 
@@ -21,10 +21,15 @@ where $\rho$ is the density, $\mathbf{v}$ is the velocity, $\mathbf{B}$ is the m
 
 ![Gif](gif/density_normalized.gif)
 
+| Dataset    | FNO | TFNO  | Unet | CNextU-net
+|:-:|:-:|:-:|:-:|:-:|
+| MHD_64  | 0.351 | 0.314 |0.270|$\mathbf{0.211}$|
+
+Preliminary benchmarking, in VRMSE.
 
 # About the data
 
-**Dimension of discretized data:** 100 timesteps of $256\times 256\times256$ cubes.
+**Dimension of discretized data:** 100 timesteps of $64\times 64\times 64$ cubes.
 
 **Fields available in the data:** Density $\rho$ (scalar field), velocity (vector field), magnetic field (vector field).
 
@@ -42,13 +47,13 @@ where $\rho$ is the density, $\mathbf{v}$ is the velocity, $\mathbf{B}$ is the m
 
 **Total time range ($t_{min}$ to $t_{max}$):** $t_min = 0$, $t_max = 1$.
 
-**Spatial domain size ($L_x$, $L_y$, $L_z$):** dimensionless so 256 pixels.
+**Spatial domain size ($L_x$, $L_y$, $L_z$):** dimensionless so 64 pixels.
 
 **Set of coefficients or non-dimensional parameters evaluated:** all combinations of $\mathcal{M}_s={0.5, 0.7, 1.5, 2.0 7.0}$ and $\mathcal{M}_A ={0.7, 2.0}$.
 
-**Approximate time to generate the data:** 48 hours per simulation.
+**Approximate time to generate the data:** Downsampled from MHD_256.
 
-**Hardware used to generate the data**: 64 cores.
+**Hardware used to generate the data**: Downsampled from MHD_256.
 
 # What is interesting and challenging about the data:
 

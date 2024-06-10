@@ -4,9 +4,9 @@
 
 **Longer description of the data:** In this simulation, there is cold, dense gas on the bottom and hot dilute gas on the top. They are moving relative to each other at highly subsonic velocities. This set up is unstable to the Kelvin Helmholtz instability, which is seeded with small scale noise that is varied between the simulations. The hot gas and cold gas are both in thermal equilibrium in the sense that the heating and cooling are exactly balanced. However, once mixing occurs as a result of the turbulence induced by the Kelvin Helmholtz instability, the intermediate temperatures become populated. This intermediate temperature gas is not in thermal equilibrium, and cooling beats heating. This leads to a net mass flux from the hot phase to the cold phase. This process occurs in the interstellar medium, and in the Circum-Galactic medium when cold clouds move through the ambient, hot medium. By understanding how the total cooling and mass transfer scale with the cooling rate, we are able to constrain how this process controls the overall phase structure, energetics and dynamics of the gas in and around galaxies.
 
-**Associated paper**: https://iopscience.iop.org/article/10.3847/2041-8213/ab8d2c/pdf
+**Associated paper**: [Paper](https://iopscience.iop.org/article/10.3847/2041-8213/ab8d2c/pdf)
 
-**Domain scientist**: Drummond Fielding, Flatiron  Institute.
+**Domain scientist**: [Drummond Fielding](https://dfielding14.github.io/), CCA, Flatiron Institute & Cornell University.
 
 **Code or software used to generate the data**: Athena++
 
@@ -18,40 +18,46 @@ E = P / (\gamma -1) \, \, \gamma &= 5/3
 \end{align}$
 with $\rho$ the density, $\vec{v}$ the 3D velocity, $P$ the pressure, $E$ the total energy, and $t_{\rm cool}$ the cooling time.
 
-[ADD GIF OF THE SIMULATION]
+![Gif](gif/density_normalized.gif)
+
+| Dataset    | FNO | TFNO  | Unet | CNextU-net
+|:-:|:-:|:-:|:-:|:-:|
+| turbulent_radiative_layer_2D  | 103 |98.0| 61.5 |73.0|
+
+Preliminary benchmarking, in VRMSE.
 
 # About the data
 
-Dimension of discretized data: 101 timesteps of 256x128x128 cubes.
+**Dimension of discretized data:** 101 timesteps of 256x128x128 arrays.
 
-Fields available in the data: density $\rho$, pressure $P$, velocity fields $V_x$, $V_y$, $V_z$.
+**Fields available in the data:** Density (scalar field), pressure (scalar field), velocity (vector field).
 
-Number of trajectories: 90 trajectories (10 different seeds for each of the 9 $t_{cool}$ variations).
+**Number of trajectories:** 90 trajectories (10 different seeds for each of the 9 $t_{cool}$ variations).
 
-Estimated size of the ensemble of all simulations: 1.5TB
+**Estimated size of the ensemble of all simulations:** 1.5TB
 
-Grid type: uniform grid.
+**Grid type: uniform, cartesian coordinates.
 
-Initial conditions: analytic, described in the paper.
+**Initial conditions:** Analytic, described in the [paper](https://ui.adsabs.harvard.edu/abs/2020ApJ...894L..24F/abstract).
 
-Boundary conditions: periodic for the 128x128 directions ($x,y$), and zero-gradient for the 256 direction ($z$).
+**Boundary conditions:** periodic for the 128x128 directions ($x,y$), and zero-gradient for the 256 direction ($z$).
 
-Simulation time-step: varies with $t_{cool}$. Smallest $t_{cool}$ is $1.32.10^{-2}, largest $t_{cool}$ is $1.74.10^{-2}$. This is not in seconds, as this is a dimensionless simulation time. To convert, the code time is $L_{box}/cs_{hot}$, where $L_{box}$= 1 parsec and cs_{hot}=100km/s. [DO CONVERSION?]
+**Simulation time-step:** varies with $t_{cool}$. Smallest $t_{cool}$ is $1.32.10^{-2}, largest $t_{cool}$ is $1.74.10^{-2}$. This is not in seconds, as this is a dimensionless simulation time. To convert, the code time is $L_{box}/cs_{hot}$, where $L_{box}$= 1 parsec and cs_{hot}=100km/s. [DO CONVERSION?]
 
-Data are stored separated by ($\Delta t$): data is separated by intervals of simulation time of 2.661722.
+**Data are stored separated by ($\Delta t$):** data is separated by intervals of simulation time of 2.661722.
 
-Total time range ($t_{min}$ to $t_{max}$): $t_{min} = 0$, $t_{max} = 266.172178$.
+**Total time range ($t_{min}$ to $t_{max}$):** $t_{min} = 0$, $t_{max} = 266.172178$.
 
-Spatial domain size ($L_x$, $L_y$, $L_z$): $x,y\in\[-0.5,0.5\]$, $z\in\[-1,1\]$.
+**Spatial domain size ($L_x$, $L_y$, $L_z$):** $x,y\in\[-0.5,0.5\]$, $z\in\[-1,1\]$.
 
-Set of coefficients or non-dimensional parameters evaluated: $t_{cool} = \{0.03, 0.06, 0.1, 0.18, 0.32, 0.56, 1.00, 1.78, 3.16\}$.
+**Set of coefficients or non-dimensional parameters evaluated:** $t_{cool} = \{0.03, 0.06, 0.1, 0.18, 0.32, 0.56, 1.00, 1.78, 3.16\}$.
 
-Approximate time to generate the data: $34,560$ CPU hours for all simulations.
+**Approximate time to generate the data:** $34,560$ CPU hours for all simulations.
 
-Hardware used to generate the data and precision used for generating the data: each simulation was generated on a 128 core "Rome" node.
+**Hardware used to generate the data:** each simulation was generated on a 128 core "Rome" node.
 
 # What is interesting and challenging about the data:
 
-What phenomena of physical interest are catpured in the data: Capte the mass flux from hot to cold phase. Capture turbulent velocities. Capture the amount of mass per temperature bin ($T = \frac{P}{\rho}$).
+**What phenomena of physical interest are catpured in the data:** Capte the mass flux from hot to cold phase. Capture turbulent velocities. Capture the amount of mass per temperature bin ($T = \frac{P}{\rho}$).
 
-How to evaluate a new simulator operating in this space: Check whether the above physical phenomena are captured by the algorithm.
+**How to evaluate a new simulator operating in this space:** Check whether the above physical phenomena are captured by the algorithm.

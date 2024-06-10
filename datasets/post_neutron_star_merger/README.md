@@ -1,4 +1,4 @@
-# Post neutron star merger disks
+# Post neutron star merger
 
 **One line description of the data:** Simulations of the aftermath of a neutron star merger.
 
@@ -14,31 +14,9 @@ field is treated via Monte Carlo transport, which is a particle
 method. The particles are not included in this dataset, however their
 effects are visible as source terms on the fluid.
 
-**Associated paper**: The simulations included here are from a series of papers, listed below:
+**Associated paper**: The simulations included here are from a series of papers: [Paper 1](https://iopscience.iop.org/article/10.3847/1538-4365/ab09fc/pdf), [Paper 2](https://link.aps.org/accepted/10.1103/PhysRevD.100.023008), [Paper 3](https://arxiv.org/abs/1912.03378), [Paper 4](https://arxiv.org/abs/2212.10691), [Paper 5](https://arxiv.org/abs/2311.05796).
 
-Miller, J. M., Ryan, B. R., & Dolence, J. C. (2019). νbhlight:
-radiation GRMHD for neutrino-driven accretion flows. The Astrophysical
-Journal Supplement Series, 241(2), 30.
-
-Miller, J. M., Ryan, B. R., Dolence, J. C., Burrows, A., Fontes,
-C. J., Fryer, C. L., ... & Wollaeger, R. T. (2019). Full transport
-model of GW170817-like disk produces a blue kilonova. Physical Review
-D, 100(2), 023008.
-
-Miller, J. M., Sprouse, T. M., Fryer, C. L., Ryan, B. R., Dolence,
-J. C., Mumpower, M. R., & Surman, R. (2020). Full transport general
-relativistic radiation magnetohydrodynamics for nucleosynthesis in
-collapsars. The Astrophysical Journal, 902(1), 66.
-
-Curtis, Sanjana, et al. "Nucleosynthesis in Outflows from Black
-Hole–Neutron Star Merger Disks with Full GR (ν) RMHD." The
-Astrophysical Journal Letters 945.1 (2023): L13.
-
-Lund, K. A., McLaughlin, G. C., Miller, J. M., & Mumpower,
-M. R. (2024). Magnetic Field Strength Effects on Nucleosynthesis from
-Neutron Star Merger Outflows. The Astrophysical Journal, 964(2), 111.
-
-**Domain scientist**: Jonah Miller
+**Domain scientist**: [Jonah Miller](https://www.thephysicsmill.com/), Los Alamos National Laboratory.
 
 **Code or software used to generate the data**: nubhlight. Open source
   software available at https://github.com/lanl/nubhlight
@@ -70,27 +48,46 @@ The the standard radiative transfer equation is
   \frac{D}{d\lambda}\paren{\frac{h^3\Inuf}{\eepsilon^3}} = \paren{\frac{h^2\etanuf}{\eepsilon^2}} - \paren{\frac{\eepsilon \chinuf}{h}} \paren{\frac{h^3\Inuf}{\eepsilon^3}},
 \end{equation}
 
-![electron fraction as a function of time](anim_Ye_cart_close.gif)
+![Gif](gif/Ye_normalized.gif)
 
-# About the data Dimension of discretized data:
+| Dataset    | FNO | TFNO  | Unet | CNextU-net
+|:-:|:-:|:-:|:-:|:-:|
+| post_neutron_star_merger  | 1380 | 337 | - |-|
+
+Preliminary benchmarking, in VRMSE.
+
+
+# About the data 
+
+**Dimension of discretized data:** 181 time-steps of $192 \times 128 \times 66$.
+
+**Fields available in the data:** fluid density $\rho$ (scalar field), fluid internal energy (scalar field), electron fraction (scalar field), temperate (scalar field),entropy (scalar field), artificial atmosphere mass fraction (scalar field) [TO CHECK], velocity (vector field), magnetic field (vector field), contravariant tensor metric of space-time (tensor field, no time-dependency).
 
 A description of fields available in an output file can be found here:
 https://github.com/lanl/nubhlight/wiki
 
-- Fields available in the data:
-  - Geometric quantities required for curvilinear coordinates in general realtivity, the most important of which is the 4x4 matrix at each point, the metric, which is stored in `metadata/geometry/gcon`.
-  - A wide variety fo fluid quantities, including fluid rest density `RHO`, fluid internal energy `UU`, fluid velocity (in code coordinates) `U1`, `U2`, `U3`, magnetic field components (in code coordinates) `B1`, `B2`, `B3`, electron fraction Ye, artificial atmosphere mass fraction `ATM`, pressure `PRESS`, temperature `TEMP`, entropy `ENT`. Temperature is output in MeV. Entropy in kb/baryon. All other quantities are in code units.
-- Number of trajectories: Currently eight full simulations. Each simulation contains roughly 200 snapshots, separated by delta t = 50 in code units. More simulations may be added later.
-- Estimated size of the ensemble of all simulations: 1600 snapshots.
-- Grid type Initial conditions: Constant entropy torus in hydrostatic equilibrium orbiting a black hole. Black hole mass and spin, as well as torus mass, spin, electron fraction, and entropy vary.
-- Boundary conditions: Outflow
-- Simulation time-step: approximately 0.01 in code units. Physical time varies; roughly 147 nanoseconds for fiducial model
-- Data are stored separated by ($\Delta t$): 50 in code units. Physical time varies; roughly 0.6 milliseconds for fiducial model
-- Total time range ($t_{min}$ to $t_{max}$): 10000 in code units. Physical time varies; roughly 127 milliseocnds for fudicial model
-- Spatial domain size ($L_x$, $L_y$, $L_z$): Spherical coordinates. Radius roughly 2 to 1000 in code units. Physical values vary. Outer boundary is at roughly 4000 for fiducial model. Polar angle 0 to pi. Azimuthal angle 0 to 2*pi. Note that the coordinates are curvilinear. In Cartesian space, spacing is logarithmic in radius and there is a focusing of grid lines near the equator.
-- Set of coefficients or non-dimensional parameters evaluated: Black hole spin parameter a, ranges 0 to 1. Initial mass and angular momentum of torus. In dimensionless units, evaluated as inner radius Rin and radius of maximum pressure Rmax. Torus initial electron fraction Ye and entropy kb. Black hole mass in solar masses.
-- Approximate time to generate the data: Roughly 3 weeks per simulation on 300 cores.
-- Hardware used to generate the data and precision used for generating the data: Data generated at double precision on several different supercomputers. All calculations were CPU calculations parallelized with a hybrid MPI + OpenMP strategy. 1 MPI rank per socket. Oldest calculations performed on the Los Alamos Badger cluster, now decommissioned. Intel Xeon E5-2695v5 2.1 GHz. 12 cores per socket, 24 core cores per node. Simulations run on 33 nodes. Some newer simulations run on Los Alamos Capulin cluster, now decomissioned. ARM ThunderX2 nodes. 56 cores per node. Simulation run on 33 nodes.
+**Number of trajectories:** Currently eight full simulations. 
+
+**Size of the ensemble of all simulations:** [TO ADD IN GB].
+
+**Grid type**: Uniform grid, log-spherical coordinates.
+
+**Initial conditions:** Constant entropy torus in hydrostatic equilibrium orbiting a black hole. Black hole mass and spin, as well as torus mass, spin, electron fraction, and entropy vary.
+
+**Boundary conditions:** open.
+
+**Simulation time-step:** approximately 0.01 in code units. Physical time varies; roughly 147 nanoseconds for fiducial model.
+**Data are stored separated by ($\Delta t$):** 50 in code units. Physical time varies; roughly 0.6 milliseconds for fiducial model.
+
+**Total time range ($t_{min}$ to $t_{max}$):** 10000 in code units. Physical time varies; roughly 127 milliseocnds for fudicial model
+
+**Spatial domain size ($L_x$, $L_y$, $L_z$):** Spherical coordinates. Radius roughly 2 to 1000 in code units. Physical values vary. Outer boundary is at roughly 4000 for fiducial model. Polar angle 0 to pi. Azimuthal angle 0 to 2*pi. Note that the coordinates are curvilinear. In Cartesian space, spacing is logarithmic in radius and there is a focusing of grid lines near the equator.
+
+**Set of coefficients or non-dimensional parameters evaluated:** Black hole spin parameter a, ranges 0 to 1. Initial mass and angular momentum of torus. In dimensionless units, evaluated as inner radius Rin and radius of maximum pressure Rmax. Torus initial electron fraction Ye and entropy kb. Black hole mass in solar masses.
+
+**Approximate time to generate the data:** Roughly 3 weeks per simulation on 300 cores.
+
+**Hardware used to generate the data and precision used for generating the data:** Data generated at double precision on several different supercomputers. All calculations were CPU calculations parallelized with a hybrid MPI + OpenMP strategy. 1 MPI rank per socket. Oldest calculations performed on the Los Alamos Badger cluster, now decommissioned. Intel Xeon E5-2695v5 2.1 GHz. 12 cores per socket, 24 core cores per node. Simulations run on 33 nodes. Some newer simulations run on Los Alamos Capulin cluster, now decomissioned. ARM ThunderX2 nodes. 56 cores per node. Simulation run on 33 nodes.
 
 ## Simulation Index
 
@@ -107,13 +104,13 @@ Scenario | Shorthand name | Description
 8        | torus_MBH_6    | Disk from black hole-neutron star merger. 6 solar mass black hole
 
 ## General relativistic quantities
-
+[TO WORK ON THAT]
 The core quantity that describes the curvature of spacetime and its
 impact on a simulation is `metadata/geometry/gcon`. From this other
 quantities can be computed.
 
 ## To reproduce
-
+[TO WORK ON THAT]
 The values in `metadata/settings` are sufficient to reproduce a
 simulation using [nubhlight](https://github.com/lanl/nubhlight) using
 the `torus_cbc` problem generator, with one exception. You must
@@ -125,6 +122,7 @@ code and are not public. However adequate open source substitutes may
 be generated by the [nulib](http://www.nulib.org/) library.
 
 ## Explanation of simulation parameters
+[TO WORK ON THAT]
 
 Here we include, for completeness, a description of the values in
 `metadata/settings` which cover the simulation parameters chosen.
@@ -164,8 +162,8 @@ Here we include, for completeness, a description of the values in
 - `variables` list of names of primitive state vector.
 
 # What is interesting and challenging about the data:
-
-The 2017 detection of the in-spiral and merger of two neutron stars
+[TO CHECK]
+**What phenomena of physical interest are catpured in the data:** The 2017 detection of the in-spiral and merger of two neutron stars
 was a landmark discovery in astrophysics. Through a wealth of
 multi-messenger data, we now know that the merger of these
 ultracompact stellar remnants is a central engine of short gamma ray
@@ -186,7 +184,7 @@ dramatic systems rely on much the same physics and modeling as
 post-merger disks, and can also be a key driver of r-processes
 nucleosynthesis.
 
-The electron fraction of material blown off from the disk is the core
+**How to evaluate a new simulator operating in this space:** The electron fraction of material blown off from the disk is the core
 "delivarable." It determines how heavy elements are synthesized, which
 in turn determines the electromagnetic counterpart as observed on
 Earth. This is the most important piece to get right from an emulator.

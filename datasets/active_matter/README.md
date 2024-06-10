@@ -12,19 +12,31 @@
 
 **Equations**: Equations (1) to (5) of the associated paper.
 
-[ADD GIF OF THE SIMULATION]
+![Gif](gif/concentration_notnormalized.gif)
+
+| Dataset    | FNO | TFNO  | Unet | CNextU-net
+|:-:|:-:|:-:|:-:|:-:|
+| active_matter  | $\mathbf{0.982}$  | 143 |2.77|1.09|
+
+Preliminary benchmarking, in VRMSE.
+
+
+
+
 
 # About the data
 
-**Dimension of discretized data:** $81$ time-steps of $256\times256$ images with 1 channel for concentration $c$, 2 channels for velocity {$U_x$, $U_y$}, 3 channels for the orientation tensor {$D_{xx}$, $D_{xy}$, $D_{yy}$}, and 3 channels for the strain-rate tensor {$E_{xx}$, $E_{xy}$, $E_{yy}$}.
+**Dimension of discretized data:** $81$ time-steps of $256\times256$ images per trajectory.
 
-**Fields available in the data:** 1 for concentration $c$, 2 for velocity { $U_x$, $U_y$ }, 3 for the orientation tensor {$D_{xx}$, $D_{xy}$, $D_{yy}$}, 3 for the strain-rate tensor {$E_{xx}$, $E_{xy}$, $E_{yy}$}, and 1 for time:{$c$, $U_x$, $U_y$, $D_{xx}$, $D_{xy}$, $D_{yy}$, $E_{xx}$, $E_{xy}$, $E_{yy}$, $t$}.
+**Fields available in the data:** concentration $c$ (scalar field),
+velocty $U$ (vector field), orientation tensor $D$ (tensor field), strain-rate tensor $E$ (tensor field).
+
 
 **Number of trajectories:** $5$ trajectories per parameter-set, each trajectory being generated with a different initialization of the state field {$c,D,U$}.
 
 **Size of the ensemble of all simulations:** 36GB.
 
-**Grid type:** Uniform grid.
+**Grid type:** Uniform grid, cartesian coordinates.
 
 **Initial conditions:** The concentration is set to constant value $c(x,t)=1$ and the orientation tensor is initialized as plane-wave perturbation about the isotropic state.
 
@@ -36,10 +48,10 @@
 
 **Total time range ($t_{min}$ to $t_{max}$):** $0$ to $20$ seconds.
 
-**Spatial domain size ($L_x$, $L_y$, $L_z$):** $L\times L$ (2D spatial grid) with $L =10$. [ASK UNIT]
+**Spatial domain size ($L_x$, $L_y$, $L_z$):** $L_x=10$ and $L_y=10$
 
 **Set of coefficients or non-dimensional parameters evaluated:** $\alpha = \{-1,-2,-3,-4,-5\}$; $\beta  = \{0.8\}$; 
-$\zeta = \{1,3,5,7,9,11,13,15,17\}$; 
+$\zeta = \{1,3,5,7,9,11,13,15,17\}$.
 
 **Approximate time and hardware to generate the data:** 20 minutes per simulation on an A100 GPU in `fp64` precision. There is a total of 225 simulations, which is approximately 75 hours.
 
@@ -48,4 +60,4 @@ $\zeta = \{1,3,5,7,9,11,13,15,17\}$;
 **What phenomena of physical interest are catpured in the data:** How is energy being transferred between scales? How is vorticity coupled to the orientation field? Where does the transition from isotropic state to nematic state occur with the change in alignment ($\zeta$) or dipole strength ($\alpha$)? 
 
 
-**How to evaluate a new simulator operating in this space:** Reproducing some summary statistics like power spectra and average scalar order parameters. Additionally, being able to accurately capture the phase transition from isotropic to nematic state. [ASK FOR THESE METRICS]
+**How to evaluate a new simulator operating in this space:** Reproducing some summary statistics like power spectra and average scalar order parameters. Additionally, being able to accurately capture the phase transition from isotropic to nematic state. 
