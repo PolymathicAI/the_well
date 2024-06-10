@@ -11,22 +11,25 @@
 **Code or software used to generate the data**: [Athena++](https://www.athena-astro.app/)
 
 **Equations**
-$$
-\frac{\partial\rho}{\partial t}+\bm{\nabla}\cdot(\rho\bm{v})=0\\
-\frac{\partial(\rho\bm{v})}{\partial t}+\bm{\nabla}\cdot({\rho\bm{v}\bm{v}+{{\sf P_{\rm gas}}}}) =-\mathbf{G}_r-\rho\bm{\nabla}\Phi \\
-\frac{\partial{E}}{\partial t}+\bm{\nabla}\cdot\left[(E+ P_{\rm gas})\bm{v}\right] = -c G^0_r -\rho\bm{v}\cdot\bm{\nabla}\Phi\\
-\frac{\partial I}{\partial t}+c\bm{n}\cdot\bm{\nabla} I = S(I,\bm{n})
-$$
+```math
+$\begin{align*}
+\frac{\partial\rho}{\partial t}+\mathbf{\nabla}\cdot(\rho\mathbf{v})&=0\\
+\frac{\partial(\rho\mathbf{v})}{\partial t}+\mathbf{\nabla}\cdot({\rho\mathbf{v}\mathbf{v}+{{\sf P_{\rm gas}}}}) &=-\mathbf{G}_r-\rho\mathbf{\nabla}\Phi \\
+\frac{\partial{E}}{\partial t}+\mathbf{\nabla}\cdot\left[(E+ P_{\rm gas})\mathbf{v}\right] &= -c G^0_r -\rho\mathbf{v}\cdot\mathbf{\nabla}\Phi\\
+\frac{\partial I}{\partial t}+c\mathbf{n}\cdot\mathbf{\nabla} I &= S(I,\mathbf{n})
+\end{align*}
+$
+```
 where 
 - $\rho$ = gas density
-- $\bm{v}$ = flow velocity
+- $\mathbf{v}$ = flow velocity
 - ${\sf P_{\rm gas}}$ = gas pressure tensor
 - $P_{\rm gas}$ = gas pressure scalar
 - $E$ = total gas energy density
     - $E = E_g + \rho v^2 / 2$, where $E_g = 3 P_{\rm gas} / 2$ = gas internal energy density
 - $G^0_r$ and $\mathbf{G}_r$ = time-like and space-like components of the radiation four-force
-- $I$ = frequency integrated intensity, which is a function of time, spatial coordinate, and photon propagation direction $\bm{n}$
-- $\bm{n}$ = photon propagation direction
+- $I$ = frequency integrated intensity, which is a function of time, spatial coordinate, and photon propagation direction $\mathbf{n}$
+- $\mathbf{n}$ = photon propagation direction
 
 ![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/convective_envelope_rsg/gif/density_unnormalized.gif)
 
