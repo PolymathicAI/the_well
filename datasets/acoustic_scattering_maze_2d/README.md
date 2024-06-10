@@ -27,6 +27,10 @@ Traversal can be seen:
 
 ![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_maze_2d/gif/pressure_normalized.gif)
 
+| Dataset    | FNO | TFNO  | Unet | CNextU-net
+|:-:|:-:|:-:|:-:|:-:|
+| acoustic_scattering_maze  | 1.00 | 1.00| 1.00| $\mathbf{0.173}$|
+
 # About the data
 
 **Dimension of discretized data:** $201$ steps of $256^2$ images
