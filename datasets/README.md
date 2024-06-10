@@ -19,3 +19,4 @@ The `stats/means.pkl` and `stats/stds.pkl` files contain the means and standard 
 
 The `visualization_dataset_name.ipynb` is a notebook used to visualize the dataset using the custom Dataloader.
 
+The `README.md` file contains a detail description of the dataset and the simulations it contains.
