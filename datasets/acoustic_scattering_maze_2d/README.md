@@ -17,7 +17,13 @@ $$\begin{align}
 \end{align}$$
 with $\rho$ the material density, $u, v$ the velocity in the $x, y$ directions respectively, $p$ the pressure, and $\Kappa$ the bulk modulus. 
 
-[ADD GIF OF THE SIMULATION]
+Example material densities can be seen below:
+
+![image](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_maze_2d/gif/mazes_density.png)
+
+Traversal can be seen:
+
+![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_maze_2d/gif/pressure_normalized.gif)
 
 # About the data
 
@@ -55,4 +61,4 @@ Hardware used to generate the data and precision used for generating the data: 6
 
 # What is interesting and challenging about the data:
 
-Wave propogation through discontinuous media. Most existing machine learning datasets for computational physics are highly smooth and the acoustic challenges presented here offer challenging discontinuous scenarios that approximate complicated geometry through the variable density. 
+This is an example of simple dynamics in complicated geometry. The sharp discontinuities can be a significant problem for machine learning models, yet they are a common feature in many real-world physics. While visually the walls appear to stop the signal, it is actually simply the case that the speed of sound is much much lower inside the walls leading to partial reflection/absorbtion at the interfaces. 

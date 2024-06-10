@@ -17,7 +17,9 @@ $$\begin{align}
 \end{align}$$
 with $\rho$ the material density, $u, v$ the velocity in the $x, y$ directions respectively, $p$ the pressure, and $\Kappa$ the bulk modulus. 
 
-[ADD GIF OF THE SIMULATION]
+Example material densities can be seen below:
+
+![image](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_discontinuous_2d/gif/discontinuous_density.png)
 
 # About the data
 

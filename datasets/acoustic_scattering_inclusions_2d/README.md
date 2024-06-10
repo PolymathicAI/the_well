@@ -2,7 +2,7 @@
 
 **One line description of the data:** Simple acoustic wave propogation over a domain split into two continuously varying sub-domains with a single discountinuous interface. With additive randomly generating inclusions (materials of significantly different density). 
 
-**Longer description of the data:** These variable-coefficient acoustic equations describe the propogation of an acoustic pressure wave through domains consisting of multiple materials with different scattering properties. This problem emerges in source optimization and it's inverse - that of identifying the material properties from the scattering of the wave - is a vital problem in geology and radar design. This is the simplest of three scenarios. In this case, we have a variable number of initial point sources and a domain with random inclusions. These types of problems are of particular interest in geology where the inverse scattering is used to identify mineral deposits. 
+**Longer description of the data:** These variable-coefficient acoustic equations describe the propogation of an acoustic pressure wave through domains consisting of multiple materials with different scattering properties. This problem emerges in source optimization and it's inverse - that of identifying the material properties from the scattering of the wave - is a vital problem in geology and radar design. In this case, we have a variable number of initial point sources and a domain with random inclusions. These types of problems are of particular interest in geology where the inverse scattering is used to identify mineral deposits. 
 
 **Domain scientist**: Michael McCabe, Marsha Berger
 
@@ -17,7 +17,9 @@ $$\begin{align}
 \end{align}$$
 with $\rho$ the material density, $u, v$ the velocity in the $x, y$ directions respectively, $p$ the pressure, and $\Kappa$ the bulk modulus. 
 
-[ADD GIF OF THE SIMULATION]
+Example material densities can be seen below:
+
+![image](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_inclusions_2d/gif/inclusions_density.png)
 
 # About the data
 
@@ -62,4 +64,4 @@ Inclusions are then added as 1-15 random ellipsoids with center uniformly sample
 
 # What is interesting and challenging about the data:
 
-Wave propogation through discontinuous media. Most existing machine learning datasets for computational physics are highly smooth and the acoustic challenges presented here offer challenging discontinuous scenarios that approximate complicated geometry through the variable density. 
+Wave propogation through discontinuous media. Most existing machine learning datasets for computational physics are highly smooth and the acoustic challenges presented here offer challenging discontinuous scenarios that approximate complicated geometry through the variable density. The inclusions change wave propogation speed but only in small, irregular areas. 
