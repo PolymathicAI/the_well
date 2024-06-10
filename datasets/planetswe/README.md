@@ -38,6 +38,8 @@ def season_day_forcing(phi, theta, t, h_f0):
     return forcing
 ```
 
+Visualization: 
+
 ![Gif](gif/planetswe.gif)
 
 
