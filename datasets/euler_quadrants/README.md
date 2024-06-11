@@ -1,4 +1,4 @@
-# Euler equations - Riemann problems (compressible, inviscid fluid)
+# Euler Multi-quadrants - Riemann problems (compressible, inviscid fluid)
 
 **One line description of the data:**  Evolution of different gases starting with piecewise constant initial data in quadrants.
 
