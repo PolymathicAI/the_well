@@ -39,18 +39,9 @@ Preliminary benchmarking, in VRMSE.
 **Fields available in the data:**
 Pressure (scalar field), density (scalar field), temperature(scalar field), velocity (tensor field).
 
-Number of trajectories:
+**Number of trajectories:** 740.
 
-|           | 1M $_\odot$ | 0.1 M $\odot$ |
-|----------|:----------:|:----------:|
-| **$64^3$** | 500 | 240 |
-
-
-
-Estimated size of the ensemble of all simulations:
-|           | 1M $_\odot$ | 0.1 M $\odot$ |
-|----------|:----------:|:----------:|
-| **$64^3$** | $173$ GB | $83$ GB |
+**Estimated size of the ensemble of all simulations:** 268.2 GB.
 
 **Grid type:** uniform, cartesian coordinates.
 
@@ -58,7 +49,7 @@ Estimated size of the ensemble of all simulations:
 
 **Boundary conditions:** open.
 
-**Data are stored separated by ($\Delta t$):** $100$~$10,000$ years (variable timesteps). [CHECK]
+**Data are stored separated by ($\Delta t$):** $100$ ~ $10,000$ years (variable timesteps). [CHECK]
 
 **Total time range ($t_{min}$ to $t_{max}$):** $0$ yr to $0.2$ Myr.
 
