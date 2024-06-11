@@ -52,9 +52,9 @@ Preliminary benchmarking, in VRMSE.
 
 **Set of coefficients or non-dimensional parameters evaluated:** all combinations of $\mathcal{M}_s=${0.5, 0.7, 1.5, 2.0 7.0} and $\mathcal{M}_A =${0.7, 2.0}.
 
-**Approximate time to generate the data:** Downsampled from MHD_256.
+**Approximate time to generate the data:** Downsampled from MHD_256 after applying ideal low-pass filter.
 
-**Hardware used to generate the data**: Downsampled from MHD_256.
+**Hardware used to generate the data**: Downsampled from MHD_256 after applying ideal low-pass filter.
 
 # What is interesting and challenging about the data:
 
