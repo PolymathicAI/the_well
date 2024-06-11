@@ -36,7 +36,7 @@ Preliminary benchmarking, in VRMSE.
 
 **Number of trajectories:** 6 sets of parameters, 200 initial conditions per set = 1200.
 
-**Estimated size of the ensemble of all simulations:** 150GB [CHECK ]
+**Estimated size of the ensemble of all simulations:** 153.8 GB.
 
 **Grid type:** uniform, cartesian coordinates.
 
@@ -46,9 +46,9 @@ Preliminary benchmarking, in VRMSE.
 
 **Simulation time-step:** 1 second.
 
-**Data are stored separated by ($\Delta t$):** 10 seconds [CHANGE to 100?]
+**Data are stored separated by ($\Delta t$):** 10 seconds.
 
-**Total time range ($t_{min}$ to $t_{max}$):** $t_{min} =0$, $t_{max} = 10,000$. [CHANGE ?]
+**Total time range ($t_{min}$ to $t_{max}$):** $t_{min} =0$, $t_{max} = 10,000$.
 
 **Spatial domain size ($L_x$, $L_y$, $L_z$):** $x,y\in[-1,1]$.
 
