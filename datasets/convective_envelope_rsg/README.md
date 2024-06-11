@@ -46,7 +46,7 @@ Preliminary benchmarking, in VRMSE.
 
 **Number of trajectories:** 29 (they are cuts of one long trajectory, long trajectory available on demand).
 
-**Estimated size of the ensemble of all simulations:** 854 GB.
+**Estimated size of the ensemble of all simulations:** 570 GB.
 
 **Grid type:** spherical coordinates, uniform in $(\log r, \theta,\phi)$.  Simulations are done for a portion of a sphere (not the whole sphere), so the simulation volume is like a spherical cake slice.
 
