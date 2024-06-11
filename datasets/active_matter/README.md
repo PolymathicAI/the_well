@@ -52,7 +52,7 @@ velocty (vector field), orientation tensor (tensor field), strain-rate tensor (t
 **Spatial domain size ($L_x$, $L_y$, $L_z$):** $L_x=10$ and $L_y=10$
 
 **Set of coefficients or non-dimensional parameters evaluated:** $\alpha =$ {-1,-2,-3,-4,-5}; $\beta  =$ {0.8}; 
-$\zeta = \{1,3,5,7,9,11,13,15,17\}$.
+$\zeta =$ {1,3,5,7,9,11,13,15,17}.
 
 **Approximate time and hardware to generate the data:** 20 minutes per simulation on an A100 GPU in double precision. There is a total of 225 simulations, which is approximately 75 hours.
 
