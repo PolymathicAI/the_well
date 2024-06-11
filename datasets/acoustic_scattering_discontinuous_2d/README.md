@@ -32,7 +32,7 @@ Example material densities can be seen below:
 
 **Number of trajectories:** 2000.
 
-**Estimated size of the ensemble of all simulations:** 151 GB.
+**Estimated size of the ensemble of all simulations:** 157.7 GB.
 
 **Grid type:** uniform, cartesian coordinates.
 
