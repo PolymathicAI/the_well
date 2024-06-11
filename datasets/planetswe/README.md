@@ -8,7 +8,7 @@
 
 **Domain scientist**: [Michael McCabe](https://mikemccabe210.github.io/), Polymathic AI.
 
-**Code or software used to generate the data**: Dedalus
+**Code or software used to generate the data**: Dedalus.
 
 **Equation**: 
 
@@ -44,7 +44,7 @@ Visualization:
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| planetswe  | 0.0800| 0.0768 |0.930| \mathbf{0.0624}|
+| planetswe  | 0.0800| 0.0768 |0.930| $\mathbf{0.0624}$|
 
 
 # About the data
@@ -55,21 +55,21 @@ Visualization:
 
 **Number of trajectories:** 40 trajectories of 3 model years.
 
-**Estimated size of the ensemble of all simulations:** 178 GB
+**Estimated size of the ensemble of all simulations:** 185.8 GB.
 
 **Grid type:** Equiangular grid, polar coordinates.
 
 **Initial conditions:** Sampled from hPa 500 level of [ERA5](https://rmets.onlinelibrary.wiley.com/doi/10.1002/qj.3803), filtered for stable initialization and burned-in for half a simulation year. 
 
-**Boundary conditions:** Spherical
+**Boundary conditions:** Spherical.
 
 **Simulation time-step ($\Delta t$):** CFL-based step size with safety factor of .4. 
 
-**Data are stored separated by ($\delta t$):** 1 hour in simulation time units
+**Data are stored separated by ($\delta t$):** 1 hour in simulation time units.
 
 **Total time range ($t_{min}$ to $t_{max}$):** $t_{min} = 0$, $t_{max} = 3024$.
 
-**Spatial domain size ($L_x$, $L_y$, $L_z$):** $\phi \in [0, 2 \pi]$, $\theta \in [0, \pi]$ 
+**Spatial domain size ($L_x$, $L_y$, $L_z$):** $\phi \in [0, 2 \pi]$, $\theta \in [0, \pi]$. 
 
 **Set of coefficients or non-dimensional parameters evaluated:** $\nu$ normalized to mode 224. 
 
