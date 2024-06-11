@@ -26,19 +26,19 @@ Example material densities can be seen below:
 
 # About the data
 
-**Dimension of discretized data:** $101$ steps of $256^2$ images
+**Dimension of discretized data:** $101$ steps of $256\times 256$ images
 
-**Fields available in the data:** p, u, v, $\rho$, $K$
+**Fields available in the data:** pressure (scalar field), density (scalar field), bulk modulus (scalar field), velocity field (vector field). 
 
-**Number of trajectories:** 2000
+**Number of trajectories:** 2000.
 
-**Estimated size of the ensemble of all simulations:** 151 GB
+**Estimated size of the ensemble of all simulations:** 151 GB.
 
-**Grid type:** Cartesian, uniform
+**Grid type:** uniform, cartesian coordinates.
 
 **Initial conditions:** Flat pressure static field with 1-4 high pressure rings randomly placed in domain. The rings are defined with variable intensity $\sim \mathcal U(.5, 2)$ and radius $\sim \mathcal U(.06, .15)$. 
 
-**Boundary conditions:** Open domain in $y$, reflective walls in $x$
+**Boundary conditions:** Open domain in $y$, reflective walls in $x$.
 
 **Simulation time-step:** Variable based on CFL with safety factor .25. 
 
@@ -53,15 +53,14 @@ Example material densities can be seen below:
 $K$ is fixed at 4.0. 
 
 $\rho$ is the primary coefficient here. Each side is generated with one of the following distributions:
-- Gaussian Bump - Peak density samples from $\sim\mathcal U(1, 7.)$ and $\sigma \sim\mathcal U(.1, 5)$ with the center of the bump uniformly sampled from the extent of the subdomain.
-- Linear gradient - Four corners sampled with $\rho \sim \mathcal U(1, 7.)$. Inner density is bilinearly interpolated.
-- Constant - Constant $\rho \sim\mathcal U(1, 7.)$
-- Smoothed Gaussian Noise - Constant background sampled $\rho \sim\mathcal U(1, 7.)$ with IID standard normal noise applied. This is then smoothed by a Gaussian filter of varying sigma $\sigma \sim\mathcal U(5, 10)$
+- Gaussian Bump - Peak density samples from $\sim\mathcal U(1, 7)$ and $\sigma \sim\mathcal U(.1, 5)$ with the center of the bump uniformly sampled from the extent of the subdomain.
+- Linear gradient - Four corners sampled with $\rho \sim \mathcal U(1, 7)$. Inner density is bilinearly interpolated.
+- Constant - Constant $\rho \sim\mathcal U(1, 7)$
+- Smoothed Gaussian Noise - Constant background sampled $\rho \sim\mathcal U(1, 7)$ with IID standard normal noise applied. This is then smoothed by a Gaussian filter of varying sigma $\sigma \sim\mathcal U(5, 10)$
 
-Approximate time to generate the data: ~15 minutes per simulation 
+**Approximate time to generate the data:** ~15 minutes per simulation. 
 
-Hardware used to generate the data and precision used for generating the data: 64 Intel Icelake cores per simulation. Generated in double precision.
+**Hardware used to generate the data and precision used for generating the data:** 64 Intel Icelake cores per simulation. Generated in double precision.
 
 # What is interesting and challenging about the data:
-
 Wave propogation through discontinuous media. Most existing machine learning datasets for computational physics are highly smooth and the acoustic challenges presented here offer challenging discontinuous scenarios that approximate complicated geometry through the variable density. 
