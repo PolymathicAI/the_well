@@ -39,7 +39,7 @@ Traversal can be seen:
 
 **Number of trajectories:** 2000.
 
-**Estimated size of the ensemble of all simulations:** 297 GB.
+**Estimated size of the ensemble of all simulations:** 311.3 GB.
 
 **Grid type:** uniform, cartesian coordinates.
 
