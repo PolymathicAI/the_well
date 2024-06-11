@@ -2,7 +2,7 @@
 
 **One line description of the data:** Simulations of the aftermath of a neutron star merger.
 
-**Longer description of the data:**The simulations presented here are axisymmetrized snapshots of full three-dimensional general relativistic neutrino radiation magnetohydrodynamics. The plasma physics is treated with finite volumes with constrained transport for the magnetic field on a curvilinear grid. The system is closed by a tabulated nuclear equation of state assuming nuclear statistical equilibrium (NSE). The radiation field is treated via Monte Carlo transport, which is a particle method. The particles are not included in this dataset, however their effects are visible as source terms on the fluid.
+**Longer description of the data:** The simulations presented here are axisymmetrized snapshots of full three-dimensional general relativistic neutrino radiation magnetohydrodynamics. The plasma physics is treated with finite volumes with constrained transport for the magnetic field on a curvilinear grid. The system is closed by a tabulated nuclear equation of state assuming nuclear statistical equilibrium (NSE). The radiation field is treated via Monte Carlo transport, which is a particle method. The particles are not included in this dataset, however their effects are visible as source terms on the fluid.
 
 **Associated paper**: The simulations included here are from a series of papers: [Paper 1](https://iopscience.iop.org/article/10.3847/1538-4365/ab09fc/pdf), [Paper 2](https://link.aps.org/accepted/10.1103/PhysRevD.100.023008), [Paper 3](https://arxiv.org/abs/1912.03378), [Paper 4](https://arxiv.org/abs/2212.10691), [Paper 5](https://arxiv.org/abs/2311.05796).
 
