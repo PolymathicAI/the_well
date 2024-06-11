@@ -54,11 +54,11 @@ where $P$, $\rho$, and $u$ are the pressure. $r$ is the position, $a_{\rm visc}$
 
 **Spatial domain size ($L_x$, $L_y$, $L_z$):**
 
-|           || Domain Length ($L$) | Free Fall Time | Snapshot ($\delta t$) |
-|----------|-|:----------:|:----------:|:----------:|
-| **Dense (44.5 cm $^{-3}$)** || 60 pc | 6.93 Myr | 0.14 Myr |
-| **Moderate (4.45 cm $^{-3}$)** || 129 pc | 21.9 Myr |0.44 Myr |
-| **Sparse (0.445 cm $^{-3}$)** || 278 pc | 69.3 Myr | 1.4 Myr |
+|           | Domain Length ($L$) | Free Fall Time | Snapshot ($\delta t$) |
+|----------|:----------:|:----------:|:----------:|
+| **Dense (44.5 cm $^{-3}$)** | 60 pc | 6.93 Myr | 0.14 Myr |
+| **Moderate (4.45 cm $^{-3}$)** | 129 pc | 21.9 Myr |0.44 Myr |
+| **Sparse (0.445 cm $^{-3}$)** | 278 pc | 69.3 Myr | 1.4 Myr |
 
 **Set of coefficients or non-dimensional parameters evaluated:** Initial temperature $T_0$=\{10K, 100K, 1000K\}, Initial number density of hydrogen $\rho_0=$\{44.5/cc, 4.45/cc, 0.445/cc\}, metallicity (effectively strength of cooling) $Z=\{Z_0, 0.1Z_0, 0\}$.
 
@@ -66,25 +66,25 @@ where $P$, $\rho$, and $u$ are the pressure. $r$ is the position, $a_{\rm visc}$
 **Approximate time to generate the data:** $600,000$ node hours for all simulations.
 
 #### For dense dataset (CPU hours)
-|           || Strong (1Z $_\odot$) | Weak (0.1 Z $_\odot$) | Adiabatic (0 Z $_\odot$) |
-|----------:|-|----------:|----------:|----------:|
-| **$10$ K** || $240$  | $167$ | $77$ |
-| **$100$ K** || $453$ | $204$  | $84$ |
-| **$1000$ K** || $933$ | $186$  | $46$ |
+|           | Strong (1Z $_\odot$) | Weak (0.1 Z $_\odot$) | Adiabatic (0 Z $_\odot$) |
+|----------:|----------:|----------:|----------:|
+| **$10$ K** | $240$  | $167$ | $77$ |
+| **$100$ K** | $453$ | $204$  | $84$ |
+| **$1000$ K** | $933$ | $186$  | $46$ |
 
 #### For moderate dataset (CPU hours)
-|           || Strong (1Z $_\odot$) | Weak (0.1 Z $_\odot$) | Adiabatic (0 Z $_\odot$) |
-|----------:|-|----------:|----------:|----------:|
-| **$10$ K** || $214$  | $75$ | $62$ |
-| **$100$ K** || $556$ | $138$  | $116$ |
-| **$1000$ K** || $442$ | $208$  | $82$ |
+|           | Strong (1Z $_\odot$) | Weak (0.1 Z $_\odot$) | Adiabatic (0 Z $_\odot$) |
+|----------:|----------:|----------:|----------:|
+| **$10$ K** | $214$  | $75$ | $62$ |
+| **$100$ K** | $556$ | $138$  | $116$ |
+| **$1000$ K** | $442$ | $208$  | $82$ |
 
 #### For sparse dataset (CPU hours)
-|           || Strong (1Z $_\odot$) | Weak (0.1 Z $_\odot$) | Adiabatic (0 Z $_\odot$) |
-|----------:|-|----------:|----------:|----------:|
-| **$10$ K** || $187$  | $102$ | $110$ |
-| **$100$ K** || $620$ | $101$  | $92$ |
-| **$1000$ K** || $286$ | $129$  | $93$ |
+|           | Strong (1Z $_\odot$) | Weak (0.1 Z $_\odot$) | Adiabatic (0 Z $_\odot$) |
+|----------:|----------:|----------:|----------:|
+| **$10$ K** | $187$  | $102$ | $110$ |
+| **$100$ K** | $620$ | $101$  | $92$ |
+| **$1000$ K** | $286$ | $129$  | $93$ |
 
 
 

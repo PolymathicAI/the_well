@@ -4,6 +4,12 @@
 Blastwave in dense cool gas cloud.
 
 **Longer description of the data:** 
+The simulations solve an explosion inside a compression of a monatomic ideal gas, which follows the equation of state with the specific heat ratio $\gamma=5/3$.
+The gas in these simulations mocks interstellar medium in the Milky Way Galaxy.
+At the beginning of the simulations, the thermal energy of a supernova is dumped at the center of the simulation box.
+The hot ($\sim 10^7$ K) gas is immediately accelerated and makes the blastwave.
+Because velocities of the hot gas become supersonic, much fine resolution and small timestep are required to resolve the dynamics.
+The physical quantities are also distributed in seven orders of magnitude, which requires a large number of simulation steps.
 
 **Associated paper**: [Paper 1](https://academic.oup.com/mnras/article/526/3/4054/7316686), [Paper 2](https://arxiv.org/abs/2311.08460).
 
@@ -54,9 +60,9 @@ Pressure (scalar field), density (scalar field), temperature(scalar field), velo
 **Set of coefficients or non-dimensional parameters evaluated:** Initial temperature $T_0$=\{100K\}, Initial number density of hydrogen $\rho_0=$\{44.5/cc\}, metallicity (effectively strength of cooling) $Z=\{Z_0\}$.
 
 **Approximate time to generate the data (CPU hours):**
-| 1M $_\odot$ | 0.1 M $\odot$ |
-|:----------:|:----------:|
-| $300$ | $3500$ |
+|  0.1 M $\odot$ |
+|:----------:|
+|  $3500$ |
 
 **Hardware used to generate the data and precision used for generating the data:** up to 1040 CPU cores per run. 
 
