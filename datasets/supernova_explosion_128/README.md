@@ -34,27 +34,18 @@ where $P$, $\rho$, and $u$ are the pressure. $r$ is the position, $a_{\rm visc}$
 **Fields available in the data:**
 Pressure (scalar field), density (scalar field), temperature(scalar field), velocity (tensor field).
 
-Number of trajectories:
+**Number of trajectories:** 260.
 
-|           | 1M $_\odot$ | 0.1 M $\odot$ |
-|----------|:----------:|:----------:|
-| **$128^3$** | - | 60 |
+**Estimated size of the ensemble of all simulations:** 754 GB
 
-
-Estimated size of the ensemble of all simulations:
-|           | 1M $_\odot$ | 0.1 M $\odot$ |
-|----------|:----------:|:----------:|
-| **$128^3$** | - | $168$ GB |
-
-Grid type: Uniform grid
 
 **Grid type:** uniform, cartesian coordinates.
 
-**Initial conditions:** $820$ random seeds generated using https://github.com/amusecode/amuse/blob/main/src/amuse/ext/molecular_cloud.py (Virialized isothermal gas sphere with turbulence following the velocity spectrum $E(k) \propto k^{-2}$, which is Burgers turbulence ([Burgers 1948](https://www.sciencedirect.com/science/article/abs/pii/S0065215608701005) and [Kupilas+2021](https://doi.org/10.1093/mnras/staa3889) for reference [ADD IT KEIYA]))
+**Initial conditions:** $820$ random seeds generated using https://github.com/amusecode/amuse/blob/main/src/amuse/ext/molecular_cloud.py (Virialized isothermal gas sphere with turbulence following the velocity spectrum $E(k) \propto k^{-2}$, which is Burgers turbulence ([Burgers 1948](https://www.sciencedirect.com/science/article/abs/pii/S0065215608701005) and [Kupilas+2021](https://doi.org/10.1093/mnras/staa3889) for reference ))
 
 **Boundary conditions:** open.
 
-**Data are stored separated by ($\Delta t$):** $100$~$10,000$ years (variable timesteps).
+**Data are stored separated by ($\Delta t$):** $100$ ~ $10 000$ years (variable timesteps).
 
 **Total time range ($t_{min}$ to $t_{max}$):** $0$ yr to $0.2$ Myr.
 
@@ -66,10 +57,8 @@ Grid type: Uniform grid
 | 1M $_\odot$ | 0.1 M $\odot$ |
 |:----------:|:----------:|
 | $300$ | $3500$ |
-[TO CHECK]
 
-**Hardware used to generate the data and precision used for generating the data:** up to 1040 CPU cores per run. [TO CHECK]
-
+**Hardware used to generate the data and precision used for generating the data:** up to 1040 CPU cores per run. 
 
 
 
