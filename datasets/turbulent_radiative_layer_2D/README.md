@@ -39,7 +39,7 @@ Preliminary benchmarking, in VRMSE.
 
 **Number of trajectories:** 90 (10 different seeds for each of the 9 $t_{cool}$ values).
 
-**Estimated size of the ensemble of all simulations:** 14GB
+**Estimated size of the ensemble of all simulations:** 6.9 GB.
 
 **Grid type:** uniform, cartesian coordinates.
 
