@@ -8,7 +8,7 @@
 
 **Domain scientists**: [Miguel Beneitez](https://beneitez.github.io/) and [Richard Kerswell](https://www.damtp.cam.ac.uk/user/rrk26/), DAMTP, University of Cambridge, UK.
 
-**Code or software used to generate the data**: Dedalus v2.
+**Code or software used to generate the data**: [Dedalus](https://dedalus-project.readthedocs.io/en/latest/index.html) v2.
 
 **Equation**:
 
