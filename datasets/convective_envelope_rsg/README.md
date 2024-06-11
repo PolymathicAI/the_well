@@ -1,4 +1,4 @@
-# Name of the simulation
+# Red Supergiant Convective Envelope
 
 **One line description of the data:** 3D radiation hydrodynamic simulations of convective envelopes of red supergiant stars.
 
