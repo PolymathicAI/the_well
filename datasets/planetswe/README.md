@@ -8,7 +8,7 @@
 
 **Domain scientist**: [Michael McCabe](https://mikemccabe210.github.io/), Polymathic AI.
 
-**Code or software used to generate the data**: Dedalus.
+**Code or software used to generate the data**: [Dedalus](https://dedalus-project.readthedocs.io/en/latest/), adapted from [example](https://dedalus-project.readthedocs.io/en/latest/pages/examples/ivp_sphere_shallow_water.html)
 
 **Equation**: 
 
