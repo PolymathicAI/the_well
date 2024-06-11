@@ -1,0 +1,3 @@
+# @package _global_
+data:
+  well_base_path: "../../datasets/"
