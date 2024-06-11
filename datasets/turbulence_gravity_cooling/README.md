@@ -37,17 +37,17 @@ where $P$, $\rho$, and $u$ are the pressure. $r$ is the position, $a_{\rm visc}$
 
 **Number of trajectories:** 2700 (27 parameters sets $\times$ 100 runs).
 
-**Estimated size of the ensemble of all simulations:** $792$ GB.
+**Estimated size of the ensemble of all simulations:** 829.4 GB.
 
-**Grid type: uniform, cartesian coordinates.
+**Grid type:** uniform, cartesian coordinates.
 
-**Initial conditions:** $2700$ random seeds generated using https://github.com/amusecode/amuse/blob/main/src/amuse/ext/molecular_cloud.py (Virialized isothermal gas sphere with turbulence following the velocity spectrum $E(k) \propto k^{-2}$, which is Burgers turbulence (Burgers 1948 and Kupilas+2021 for reference [ADD IT KEIYA])).
+**Initial conditions:** $2700$ random seeds generated using https://github.com/amusecode/amuse/blob/main/src/amuse/ext/molecular_cloud.py (Virialized isothermal gas sphere with turbulence following the velocity spectrum $E(k) \propto k^{-2}$, which is Burgers turbulence (Burgers 1948 and Kupilas+2021 for reference )).
 
 **Boundary conditions:** open.
 
-**Simulation time-step:**$2,000$~$10,000$ years (variable timesteps).
+**Simulation time-step:** $2,000$ ~ $10,000$ years (variable timesteps).
 
-**Data are stored separated by ($\Delta t$):** 0.02 free fall time [KEIYA ADD MEANING]
+**Data are stored separated by ($\Delta t$):** 0.02 free fall time.
 
 **Total time range ($t_{min}$ to $t_{max}$):** 1 Free Fall time (= $L^3/GM$ ); $L=(\rho / \rho_0)^{1/3} \times 60$ pc, $\rho_0=44.5/\rm{cc}$, $M=1,000,000$ M $_\odot$.
 
