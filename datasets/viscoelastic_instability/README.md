@@ -31,27 +31,28 @@ where $\mathbf{u^\*} = (u^\*,v^\*)$ is the streamwise and wall-normal velocity c
 
 **Dimension of discretized data:** 
 - EIT: 34 trajectories with 60 timesteps, 512x512 images (chaotic solution). 
-- CAR: 39 trajectories with 60 timesteps, 512x512 images (chaotic solution). - SAR: 20 trajectories with 20 timesteps, 512x512 images (simple periodic solutions). 
+- CAR: 39 trajectories with 60 timesteps, 512x512 images (chaotic solution).
+- SAR: 20 trajectories with 20 timesteps, 512x512 images (simple periodic solutions). 
 - Transition to chaos between EIT and SAR: 36 snapshots with 20 timesteps of 512x512 images. 
 - Transition to non-chaotic state between EIT and SAR: 38 snapshots with 20 timesteps of 512x512 images. 
 - Transition to chaos between EIT and Laminar: 43 snapshots with 20 timesteps of 512x512 images. 
 - Transition to non-chaotic state between EIT and Laminar: 49 snapshots with 20 timesteps of 512x512 images.
 
-**Fields available in the data:** pressure (scalar field), velocity (vector field), positive conformation tensor ($c^*_{xx}, c^*_{yy},c^*_{xy}$ are in tensor fields, c^*_{zz} in scalar fields).
+**Fields available in the data:** pressure (scalar field), velocity (vector field), positive conformation tensor ( $c\_{xx}^{\*}, c^{\*}\_{yy},, c^{\*}\_{xy}$ are in tensor fields, $c^{\*}\_{zz}$ in scalar fields).
 
 **Number of trajectories:** 260 trajectories.
 
-**Estimated size of the ensemble of all simulations:** 56 GB.
+**Estimated size of the ensemble of all simulations:** 66 GB.
 
 **Grid type:** uniform cartesian coordinates.
 
-**Initial conditions: **
+**Initial conditions:**
 - Edge trajectory: linear interpolation between a chaotic and a non-chaotic state. 
 - SAR: continuation of the solution obtained through a linear instability at a different parameter set using time-stepping. 
 - EIT: laminar state + blowing and suction at the walls. 
 - CAR: SAR + blowing and suction at the walls.
 
-**Boundary conditions:** no slip conditions for the velocity ($(u^*,v^*)=(0,0)$) at the wall and $\epsilon=0$ at the wall for the equation for $\mathbf{C^*}$.
+**Boundary conditions:** no slip conditions for the velocity ( $(u^\*,v^\*)=(0,0)$ ) at the wall and $\epsilon=0$ at the wall for the equation for $\mathbf{C^*}$.
 
 **Simulation time-step:** various in the different states, but typically $\sim 10^{-4}$.
 
