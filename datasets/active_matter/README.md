@@ -35,7 +35,7 @@ velocty (vector field), orientation tensor (tensor field), strain-rate tensor (t
 
 **Number of trajectories:** $5$ trajectories per parameter-set, each trajectory being generated with a different initialization of the state field {$c,D,U$}.
 
-**Size of the ensemble of all simulations:** 36 GB.
+**Size of the ensemble of all simulations:** 51.3 GB.
 
 **Grid type:** Uniform grid, cartesian coordinates.
 
