@@ -33,27 +33,27 @@ Traversal can be seen:
 
 # About the data
 
-**Dimension of discretized data:** $201$ steps of $256^2$ images
+**Dimension of discretized data:** $201$ steps of $256\times256$ images.
 
-**Fields available in the data:** p, u, v, $\rho$, $K$
+**Fields available in the data:** pressure (scalar field), density (scalar field), bulk modulus (scalar field), velocity field (vector field).
 
-**Number of trajectories:** 2000
+**Number of trajectories:** 2000.
 
-**Estimated size of the ensemble of all simulations:** 297 GB
+**Estimated size of the ensemble of all simulations:** 297 GB.
 
-**Grid type:** Cartesian, uniform
+**Grid type:** uniform, cartesian coordinates.
 
 **Initial conditions:** Flat pressure static field with 1-6 high pressure rings randomly placed along paths of maze. The rings are defined with variable intensity $\sim \mathcal U(3., 5.)$ and radius $\sim \mathcal U(.01, .04)$. Any overlap with walls is removed. 
 
-**Boundary conditions:** Open domain in $y$, reflective walls in $x$
+**Boundary conditions:** Open domain in $y$, reflective walls in $x$.
 
 **Simulation time-step:** Variable based on CFL with safety factor .25. 
 
 **Data are stored separated by ($\Delta t$):** 2/201. 
 
-**Total time range ($t_{min}$ to $t_{max}$):** [0,4.]
+**Total time range ($t_{min}$ to $t_{max}$):** [0,4.].
 
-**Spatial domain size ($L_x$, $L_y$, $L_z$):** [-1, 1] x [-1, 1]
+**Spatial domain size ($L_x$, $L_y$, $L_z$):** [-1, 1] x [-1, 1].
 
 **Set of coefficients or non-dimensional parameters evaluated:**
 
@@ -61,9 +61,9 @@ $K$ is fixed at 4.0.
 
 $\rho$ is the primary coefficient here. We generated a maze with initial width between 6 and 16 pixels and upsample it via nearest neighbor resampling to create a 256 x 256 maze. The walls are set to $\rho=10^6$ while paths are set to  $\rho=3$.  
 
-Approximate time to generate the data: ~20 minutes per simulation. 
+**Approximate time to generate the data:** ~20 minutes per simulation. 
 
-Hardware used to generate the data and precision used for generating the data: 64 Intel Icelake cores per simulation. Generated in double precision.
+**Hardware used to generate the data and precision used for generating the data:** 64 Intel Icelake cores per simulation. Generated in double precision.
 
 # What is interesting and challenging about the data:
 
