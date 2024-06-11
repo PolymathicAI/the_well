@@ -26,7 +26,7 @@ Example material densities can be seen below:
 
 # About the data
 
-**Dimension of discretized data:** $101$ steps of $256\times 256$ images
+**Dimension of discretized data:** $101$ steps of $256\times 256$ images.
 
 **Fields available in the data:** pressure (scalar field), density (scalar field), bulk modulus (scalar field), velocity field (vector field). 
 
