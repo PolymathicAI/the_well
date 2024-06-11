@@ -37,7 +37,7 @@ with outwards radiation conditions as described in [1]. The region $\Omega$ lies
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| helmholt_staircase  |0.00555 |$\mathbf{0.00205}$ | 0.0825 | 0.00520|
+| helmholtz_staircase  |0.00555 |$\mathbf{0.00205}$ | 0.0825 | 0.00520|
 
 Preliminary benchmarking, in VRMSE.
 
@@ -51,7 +51,7 @@ real and imaginary part of accoustic pressure (scalar field), the staircase mask
 
 **Number of trajectories:** $512$ (combinations of $16$ input parameter $\omega$ and $32$ source positions $\mathbf{x}_0$).
 
-**Size of the ensemble of all simulations:** 51GB.
+**Size of the ensemble of all simulations:** 52.4 GB.
 
 **Grid type:** uniform.
 
@@ -68,11 +68,11 @@ analytic).
 **Data are stored separated by ($\Delta t$):** $\Delta t =\frac{2\pi}{\omega N}$, with $N = 50$.
 
 **Total time range ($t_{min}$ to $t_{max}$):** $t_{\mathrm{min}} = 0$, $t_{\mathrm{max}} =
-\frac{2\pi}{\omega}$
+\frac{2\pi}{\omega}$.
 
-**Spatial domain size ($L_x$, $L_y$, $L_z$):** $ -8.0 \leq x_1 \leq 8.0$ horizontally, and $-0.5 \geq x_2 \geq 3.5$ vertically.
+**Spatial domain size ($L_x$, $L_y$, $L_z$):** $-8.0 \leq x_1 \leq 8.0$ horizontally, and $-0.5 \geq x_2 \geq 3.5$ vertically.
 
-**Set of coefficients or non-dimensional parameters evaluated:** [ADD OMEGA VALUES]
+**Set of coefficients or non-dimensional parameters evaluated:** $\omega$={0.06283032, 0.25123038, 0.43929689, 0.62675846, 0.81330465, 0.99856671, 1.18207893, 1.36324313, 1.5412579, 1.71501267, 1.88295798, 2.04282969, 2.19133479, 2.32367294, 2.4331094,  2.5110908}, with the sources coordinates being all combinations of $x$={-0.4, -0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4} and $y$={-0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4}.
 
 **Approximate time to generate the data:** per input parameter: $\sim 400s$, total: $\sim 50$ hours.
 
