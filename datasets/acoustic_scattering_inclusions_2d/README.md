@@ -25,13 +25,13 @@ Example material densities can be seen below:
 
 # About the data
 
-**Dimension of discretized data:** $101$ steps of $256\times256$ images
+**Dimension of discretized data:** $101$ steps of $256\times256$ images.
 
 **Fields available in the data:** pressure (scalar field), density (scalar field), bulk modulus (scalar field), velocity field (vector field).
 
 **Number of trajectories:** 4000.
 
-**Estimated size of the ensemble of all simulations:** 271 GB.
+**Estimated size of the ensemble of all simulations:** 283.8 GB.
 
 **Grid type:** uniform, cartesian coordinates.
 
