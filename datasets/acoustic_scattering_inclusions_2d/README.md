@@ -25,42 +25,42 @@ Example material densities can be seen below:
 
 # About the data
 
-**Dimension of discretized data:** $101$ steps of $256^2$ images
+**Dimension of discretized data:** $101$ steps of $256\times256$ images
 
-**Fields available in the data:** p, u, v, $\rho$, $K$
+**Fields available in the data:** pressure (scalar field), density (scalar field), bulk modulus (scalar field), velocity field (vector field).
 
-**Number of trajectories:** 4000
+**Number of trajectories:** 4000.
 
-**Estimated size of the ensemble of all simulations:** 271 GB
+**Estimated size of the ensemble of all simulations:** 271 GB.
 
-**Grid type:** Cartesian, uniform
+**Grid type:** uniform, cartesian coordinates.
 
 **Initial conditions:** Flat pressure static field with 1-4 high pressure rings randomly placed in domain. The rings are defined with variable intensity $\sim \mathcal U(.5, 2)$ and radius $\sim \mathcal U(.06, .15)$. 
 
-**Boundary conditions:** Open domain in $y$, reflective walls in $x$
+**Boundary conditions:** Open domain in $y$, reflective walls in $x$.
 
 **Simulation time-step:** Variable based on CFL with safety factor .25. 
 
 **Data are stored separated by ($\Delta t$):** 2/101. 
 
-**Total time range ($t_{min}$ to $t_{max}$):** [0, 2.]
+**Total time range ($t_{min}$ to $t_{max}$):** [0, 2.].
 
-**Spatial domain size ($L_x$, $L_y$, $L_z$):** [-1, 1] x [-1, 1]
+**Spatial domain size ($L_x$, $L_y$, $L_z$):** [-1, 1] x [-1, 1].
 
 **Set of coefficients or non-dimensional parameters evaluated:**
 
 $K$ is fixed at 4.0. 
 
 $\rho$ is the primary coefficient here. This is a superset of the single discontinuity example so the background is first generated two splits with one of the following distributions:
-- Gaussian Bump - Peak density samples from $\sim\mathcal U(1, 7.)$ and $\sigma \sim\mathcal U(.1, 5)$ with the center of the bump uniformly sampled from the extent of the subdomain.
-- Linear gradient - Four corners sampled with $\rho \sim \mathcal U(1, 7.)$. Inner density is bilinearly interpolated.
-- Constant - Constant $\rho \sim\mathcal U(1, 7.)$
-- Smoothed Gaussian Noise - Constant background sampled $\rho \sim\mathcal U(1, 7.)$ with IID standard normal noise applied. This is then smoothed by a Gaussian filter of varying sigma $\sigma \sim\mathcal U(5, 10)$. 
+- Gaussian Bump - Peak density samples from $\sim\mathcal U(1, 7)$ and $\sigma \sim\mathcal U(.1, 5)$ with the center of the bump uniformly sampled from the extent of the subdomain.
+- Linear gradient - Four corners sampled with $\rho \sim \mathcal U(1, 7)$. Inner density is bilinearly interpolated.
+- Constant - Constant $\rho \sim\mathcal U(1, 7)$
+- Smoothed Gaussian Noise - Constant background sampled $\rho \sim\mathcal U(1, 7)$ with IID standard normal noise applied. This is then smoothed by a Gaussian filter of varying sigma $\sigma \sim\mathcal U(5, 10)$. 
 
 Inclusions are then added as 1-15 random ellipsoids with center uniformly sampled from the domain and height/width sampled uniformly from [.05, .6]. The ellipsoid is then rotated randomly with angle sampled [-45, 45]. For the inclusions, $Ln(\rho)\sim \mathcal U(-1, 10)$ 
 
 
-**Approximate time to generate the data:** ~15 minutes per simulation 
+**Approximate time to generate the data:** ~15 minutes per simulation. 
 
 **Hardware used to generate the data and precision used for generating the data:** 64 Intel Icelake cores per simulation. Generated in double precision.
 
