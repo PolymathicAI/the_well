@@ -12,7 +12,8 @@
 
 **Equations**: Equations (1) to (5) of the associated paper.
 
-![Gif](gif/concentration_notnormalized.gif)
+
+![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/active_matter/gif/concentration_notnormalized.gif)
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
@@ -28,13 +29,13 @@ Preliminary benchmarking, in VRMSE.
 
 **Dimension of discretized data:** $81$ time-steps of $256\times256$ images per trajectory.
 
-**Fields available in the data:** concentration $c$ (scalar field),
-velocty $U$ (vector field), orientation tensor $D$ (tensor field), strain-rate tensor $E$ (tensor field).
+**Fields available in the data:** concentration (scalar field),
+velocty (vector field), orientation tensor (tensor field), strain-rate tensor (tensor field).
 
 
 **Number of trajectories:** $5$ trajectories per parameter-set, each trajectory being generated with a different initialization of the state field {$c,D,U$}.
 
-**Size of the ensemble of all simulations:** 36GB.
+**Size of the ensemble of all simulations:** 51.3 GB.
 
 **Grid type:** Uniform grid, cartesian coordinates.
 
@@ -50,10 +51,10 @@ velocty $U$ (vector field), orientation tensor $D$ (tensor field), strain-rate t
 
 **Spatial domain size ($L_x$, $L_y$, $L_z$):** $L_x=10$ and $L_y=10$
 
-**Set of coefficients or non-dimensional parameters evaluated:** $\alpha = \{-1,-2,-3,-4,-5\}$; $\beta  = \{0.8\}$; 
-$\zeta = \{1,3,5,7,9,11,13,15,17\}$.
+**Set of coefficients or non-dimensional parameters evaluated:** $\alpha =$ {-1,-2,-3,-4,-5}; $\beta  =$ {0.8}; 
+$\zeta =$ {1,3,5,7,9,11,13,15,17}.
 
-**Approximate time and hardware to generate the data:** 20 minutes per simulation on an A100 GPU in `fp64` precision. There is a total of 225 simulations, which is approximately 75 hours.
+**Approximate time and hardware to generate the data:** 20 minutes per simulation on an A100 GPU in double precision. There is a total of 225 simulations, which is approximately 75 hours.
 
 # What is interesting and challenging about the data:
 

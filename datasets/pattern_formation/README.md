@@ -10,20 +10,21 @@
 
 **Code or software used to generate the data**: MATLAB R2023a, using the stiff PDE integrator implemented in Chebfun. The Fourier spectral method is used in space (with nonlinear terms evaluated pseudospectrally), and the exponential time-differencing fourth-order Runge-Kutta scheme (ETDRK4) is used in time.
 
-**Equation describing the data** $
+**Equation describing the data** 
+```math
 \begin{align}
 \frac{\partial A}{\partial t} &= \delta_A\Delta A - AB^2 + f(1-A) \nonumber \\
 \frac{\partial B}{\partial t} &= \delta_B\Delta B - AB^2 + (f+k)B \nonumber
 \end{align}
-$
+```
 The dimensionless parameters describing the behavior are: $f$, $k$, $\frac{\delta_A}{\delta_B}$
 
 
-![Gif](gif/concentration_A_normalized.gif)
+![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/pattern_formation/gif/concentration_A_normalized.gif)
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| pattern_formation | 0.178  | 0.177 | 0.322|\$mathbf{0.0512}$|
+| pattern_formation | 0.178  | 0.177 | 0.322|$\mathbf{0.0512}$|
 
 Preliminary benchmarking, in VRMSE.
 
@@ -35,7 +36,7 @@ Preliminary benchmarking, in VRMSE.
 
 **Number of trajectories:** 6 sets of parameters, 200 initial conditions per set = 1200.
 
-**Estimated size of the ensemble of all simulations:** 150GB [CHECK ]
+**Estimated size of the ensemble of all simulations:** 153.8 GB.
 
 **Grid type:** uniform, cartesian coordinates.
 
@@ -45,9 +46,9 @@ Preliminary benchmarking, in VRMSE.
 
 **Simulation time-step:** 1 second.
 
-**Data are stored separated by ($\Delta t$):** 10 seconds [CHANGE to 100?]
+**Data are stored separated by ($\Delta t$):** 10 seconds.
 
-**Total time range ($t_{min}$ to $t_{max}$):** $t_{min} =0$, $t_{max} = 10,000$. [CHANGE ?]
+**Total time range ($t_{min}$ to $t_{max}$):** $t_{min} =0$, $t_{max} = 10,000$.
 
 **Spatial domain size ($L_x$, $L_y$, $L_z$):** $x,y\in[-1,1]$.
 

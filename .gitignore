@@ -38,6 +38,9 @@ datasets/acoustic_scattering_inclusions_2d/data/
 datasets/acoustic_scattering_maze_2d/data/
 datasets/planetswe/data/
 datasets/post_neutron_star_merger/data/
+datasets/acoustic_scattering_discontinuous_2d/gif/
+datasets/acoustic_scattering_inclusions_2d/gif/
+datasets/acoustic_scattering_maze_2d/gif/
 2D/
 3D/
 3D/rayleigh_taylor_instability/data/
@@ -55,6 +58,7 @@ venv_benchmark_well/
 *.log
 *.tmp
 *.pt
+*.gif
 
 # Ignore compiled binaries and libraries
 *.exe

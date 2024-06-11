@@ -11,44 +11,48 @@
 **Code or software used to generate the data**: Dedalus v2.
 
 **Equation**:
-$\begin{align}
-Re(\partial_t \bold{u^*} + (\bold{u^*}\dot\nabla)\bold{u^*} ) + \nabla p^* &= \beta \Delta \bold{u^*} + (1-\beta)\nabla\cdot \bold{T}(\bold{C^*}),\\
-\partial_t \bold{C^*} + (\bold{u^*}\cdot\nabla)\bold{C^*} +\bold{T}(\bold{C^*}) &= \bold{C^*}\cdot\nabla \bold{u^*} + (\nabla \bold{u^*})^T \cdot \bold{C^*} + \epsilon \Delta \bold{C^*}, \\
-\nabla \bold{u^*} &= 0,\\
-\textrm{with} \quad \bold{T}(\bold{C^*}) &= \frac{1}{\text{Wi}}(f(\textrm{tr}(\bold{C^*}))\bold{C^*} - \bold{I}),\\
+
+```math
+\begin{align}
+Re(\partial_t \mathbf{u^*} + (\mathbf{u^*}\cdot\nabla)\mathbf{u^*} ) + \nabla p^* &= \beta \Delta \mathbf{u^*} + (1-\beta)\nabla\cdot \mathbf{T}(\mathbf{C^*}),\\
+\partial_t \mathbf{C^*} + (\mathbf{u^*}\cdot\nabla)\mathbf{C^*} +\mathbf{T}(\mathbf{C^*}) &= \mathbf{C^*}\cdot\nabla \mathbf{u^*} + (\nabla \mathbf{u^*})^T \cdot \mathbf{C^*} + \epsilon \Delta \mathbf{C^*}, \\
+\nabla \mathbf{u^*} &= 0,\\
+\textrm{with} \quad \mathbf{T}(\mathbf{C^*}) &= \frac{1}{\text{Wi}}(f(\textrm{tr}(\mathbf{C^*}))\mathbf{C^*} - \mathbf{I}),\\
 \textrm{and} \quad f(s) &:= \left(1- \frac{s-3}{L^2_{max}}\right)^{-1}. 
-\end{align}$
+\end{align}
+```
 
-where $\bold{u^*} = (u^*,v^*)$ is the streamwise and wall-normal velocity components, $p^*$ is the pressure, $\bold{C^*}$ is the positive definite conformation tensor which represents the ensemble average of the produce of the end-to-end vector of the polymer molecules. In 2D, 4 components of the tensor are solved: $c^*_{xx}, c^*_{yy}, c^*_{zz}, c^*_{xy}$. $\bold{T}(\bold{C^*})$ is the polymer stress tensor given by the FENE-P model.
+where $\mathbf{u^\*} = (u^\*,v^\*)$ is the streamwise and wall-normal velocity components, $p^\*$ is the pressure, $\mathbf{C^\*}$ is the positive definite conformation tensor which represents the ensemble average of the produce of the end-to-end vector of the polymer molecules. In 2D, 4 components of the tensor are solved: $c\_{xx}^{\*}, c^{\*}\_{yy}, c^{\*}\_{zz}, c^{\*}\_{xy}$. $\mathbf{T}(\mathbf{C^{\*}})$ is the polymer stress tensor given by the FENE-P model.
 
 
-![Gif](gif/pressure_normalized.gif)
+![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability/gif/pressure_normalized.gif)
 
 # About the data
 
 **Dimension of discretized data:** 
 - EIT: 34 trajectories with 60 timesteps, 512x512 images (chaotic solution). 
-- CAR: 39 trajectories with 60 timesteps, 512x512 images (chaotic solution). - SAR: 20 trajectories with 20 timesteps, 512x512 images (simple periodic solutions). 
+- CAR: 39 trajectories with 60 timesteps, 512x512 images (chaotic solution).
+- SAR: 20 trajectories with 20 timesteps, 512x512 images (simple periodic solutions). 
 - Transition to chaos between EIT and SAR: 36 snapshots with 20 timesteps of 512x512 images. 
 - Transition to non-chaotic state between EIT and SAR: 38 snapshots with 20 timesteps of 512x512 images. 
 - Transition to chaos between EIT and Laminar: 43 snapshots with 20 timesteps of 512x512 images. 
 - Transition to non-chaotic state between EIT and Laminar: 49 snapshots with 20 timesteps of 512x512 images.
 
-**Fields available in the data:** pressure (scalar field), velocity (vector field), positive conformation tensor ($c^*_{xx}, c^*_{yy},c^*_{xy}$ are in tensor fields, c^*_{zz} in scalar fields).
+**Fields available in the data:** pressure (scalar field), velocity (vector field), positive conformation tensor ( $c\_{xx}^{\*}, c^{\*}\_{yy},, c^{\*}\_{xy}$ are in tensor fields, $c^{\*}\_{zz}$ in scalar fields).
 
 **Number of trajectories:** 260 trajectories.
 
-**Estimated size of the ensemble of all simulations:** 56 GB.
+**Estimated size of the ensemble of all simulations:** 66 GB.
 
 **Grid type:** uniform cartesian coordinates.
 
-**Initial conditions: **
+**Initial conditions:**
 - Edge trajectory: linear interpolation between a chaotic and a non-chaotic state. 
 - SAR: continuation of the solution obtained through a linear instability at a different parameter set using time-stepping. 
 - EIT: laminar state + blowing and suction at the walls. 
 - CAR: SAR + blowing and suction at the walls.
 
-**Boundary conditions:** no slip conditions for the velocity ($(u^*,v^*)=(0,0)$) at the wall and $\epsilon=0$ at the wall for the equation for $\bold{C^*}$.
+**Boundary conditions:** no slip conditions for the velocity ( $(u^\*,v^\*)=(0,0)$ ) at the wall and $\epsilon=0$ at the wall for the equation for $\mathbf{C^*}$.
 
 **Simulation time-step:** various in the different states, but typically $\sim 10^{-4}$.
 

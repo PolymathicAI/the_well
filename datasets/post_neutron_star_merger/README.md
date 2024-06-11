@@ -2,17 +2,7 @@
 
 **One line description of the data:** Simulations of the aftermath of a neutron star merger.
 
-**Longer description of the data:**
-
-The simulations presented here are axisymmetrized snapshots of full
-three-dimensional general relativistic neutrino radiation
-magnetohydrodynamics. The plasma physics is treated with finite
-volumes with constrained transport for the magnetic field on a
-curvilinear grid. The system is closed by a tabulated nuclear equation
-of state assuming nuclear statistical equilibrium (NSE). The radiation
-field is treated via Monte Carlo transport, which is a particle
-method. The particles are not included in this dataset, however their
-effects are visible as source terms on the fluid.
+**Longer description of the data:**The simulations presented here are axisymmetrized snapshots of full three-dimensional general relativistic neutrino radiation magnetohydrodynamics. The plasma physics is treated with finite volumes with constrained transport for the magnetic field on a curvilinear grid. The system is closed by a tabulated nuclear equation of state assuming nuclear statistical equilibrium (NSE). The radiation field is treated via Monte Carlo transport, which is a particle method. The particles are not included in this dataset, however their effects are visible as source terms on the fluid.
 
 **Associated paper**: The simulations included here are from a series of papers: [Paper 1](https://iopscience.iop.org/article/10.3847/1538-4365/ab09fc/pdf), [Paper 2](https://link.aps.org/accepted/10.1103/PhysRevD.100.023008), [Paper 3](https://arxiv.org/abs/1912.03378), [Paper 4](https://arxiv.org/abs/2212.10691), [Paper 5](https://arxiv.org/abs/2311.05796).
 
@@ -25,30 +15,30 @@ effects are visible as source terms on the fluid.
 
 The fluid sector consists of the following system of equations.
 
-\begin{widetext}
+```math
 \begin{eqnarray}
-  \label{eq:particle:cons}
-  \partial_t \paren{\detg\rho_0 u^t} + \partial_i\paren{\detg\rho_0u^i}
+  \partial_t \left(\sqrt{g}\rho_0 u^t\right) + \partial_i\left(\sqrt{g}\rho_0u^i\right)
   &=& 0\\
-  \label{eq:energy:cons}
-  \partial_t\sqrbrace{\detg \paren{T^t_{\ \nu} + \rho_0u^t \delta^t_\nu}}
-  + \partial_i\sqrbrace{\detg\paren{T^i_{\ \nu} + \rho_0 u^i \delta^t_\nu}}
-  &=& \detg \paren{T^\kappa_{\ \lambda} \Gamma^\lambda_{\nu\kappa} + G_\nu}\ \forall \nu = 0,1,\ldots,4\\
-  \label{eq:mhd:cons}
-  \partial_t \paren{\detg B^i} - \partial_j \sqrbrace{\detg\paren{b^ju^i - b^i u^j}} &=& 0\\
-  \label{eq:lepton:cons}
-  \partial_t\paren{\detg\rho_0 Y_e u^t} + \partial_i\paren{\detg\rho_0Y_eu^i}
-  &=& \detg G_{\text{ye}}
+  \partial_t\left[\sqrt{g} \left(T^t_{\ \nu} + \rho_0u^t \delta^t_\nu\right)\right]
+  + \partial_i\left[\sqrt{g}\left(T^i_{\ \nu} + \rho_0 u^i \delta^t_\nu\right)\right]
+  &=& \sqrt{g} \left(T^\kappa_{\ \lambda} \Gamma^\lambda_{\nu\kappa} + G_\nu\right)\ \forall \nu = 0,1,\ldots,4\\
+  \partial_t \left(\sqrt{g} B^i\right) + \partial_j \left[\sqrt{g}\left(b^ju^i - b^i u^j\right)\right] &=& 0\\
+  \partial_t\left(\sqrt{g}\rho_0 Y_e u^t\right) + \partial_i\left(\sqrt{g}\rho_0Y_eu^i\right)
+  &=& \sqrt{g} G_{\text{ye}}\\
 \end{eqnarray}
-\end{widetext}
+```
 
-The the standard radiative transfer equation is
+The standard radiative transfer equation is
+```math
 \begin{equation}
-  \label{eq:radiative:transfer}
-  \frac{D}{d\lambda}\paren{\frac{h^3\Inuf}{\eepsilon^3}} = \paren{\frac{h^2\etanuf}{\eepsilon^2}} - \paren{\frac{\eepsilon \chinuf}{h}} \paren{\frac{h^3\Inuf}{\eepsilon^3}},
+    \frac{D}{d\lambda}\left(\frac{h^3\mathcal{I}_{\nu,f}}{\varepsilon^3}\right) = \left(\frac{h^2\eta_{\nu,f}}{\varepsilon^2}\right) - \left(\frac{\varepsilon \chi_{\nu,f}}{h}\right) \left(\frac{h^3\mathcal{I}_{\nu,f}}{\varepsilon^3}\right),
 \end{equation}
+```
 
-![Gif](gif/Ye_normalized.gif)
+<div style="transform: rotate(90deg);">
+  <img src="https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/post_neutron_star_merger/gif/Ye_normalized.gif" alt="Rotated GIF">
+</div>
+
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
@@ -59,16 +49,16 @@ Preliminary benchmarking, in VRMSE.
 
 # About the data 
 
-**Dimension of discretized data:** 181 time-steps of $192 \times 128 \times 66$.
+**Dimension of discretized data:** 181 time-steps of $192 \times 128 \times 66$ snapshots.
 
-**Fields available in the data:** fluid density $\rho$ (scalar field), fluid internal energy (scalar field), electron fraction (scalar field), temperate (scalar field),entropy (scalar field), artificial atmosphere mass fraction (scalar field) [TO CHECK], velocity (vector field), magnetic field (vector field), contravariant tensor metric of space-time (tensor field, no time-dependency).
+**Fields available in the data:** fluid density (scalar field), fluid internal energy (scalar field), electron fraction (scalar field), temperate (scalar field), entropy (scalar field), velocity (vector field), magnetic field (vector field), contravariant tensor metric of space-time (tensor field, no time-dependency).
 
 A description of fields available in an output file can be found here:
 https://github.com/lanl/nubhlight/wiki
 
 **Number of trajectories:** Currently eight full simulations. 
 
-**Size of the ensemble of all simulations:** [TO ADD IN GB].
+**Size of the ensemble of all simulations:** 110.1 GB.
 
 **Grid type**: Uniform grid, log-spherical coordinates.
 
@@ -91,27 +81,26 @@ https://github.com/lanl/nubhlight/wiki
 
 ## Simulation Index
 
-Scenario | Shorthand name | Description
----------+----------------+-------------
-0        | collapsar_hi   | Disk resulting from collapse of massive rapidly rotating star
-1        | torus_b10      | Disk inspired by 2017 observation of a neutron star merger. Highest magnetic field strength
-2        | torus_b30      | Disk inspired by 2017 observation of a neutron star merger. Intermediate magnetic field strength
-3        | torus_gw170817 | Disk inspired by 2017 observation of a neutron star merger. Weakest magnetic field strength
-4        | torus_MBH_10   | Disk from black hole-neutron star merger. 10 solar mass black hole
-5        | torus_MBH_2p31 | Disk from black hole-neutron star merger. 2.31 solar mass black hole
-6        | torus_MBH_2p67 | Disk from black hole-neutron star merger. 2.76 solar mass black hole
-7        | torus_MBH_2p69 | Disk from black hole-neutron star merger. 2.79 solar mass black hole
-8        | torus_MBH_6    | Disk from black hole-neutron star merger. 6 solar mass black hole
+| Scenario | Shorthand name | Description                                                         |
+|----------|----------------|---------------------------------------------------------------------|
+| 0        | collapsar_hi   | Disk resulting from collapse of massive rapidly rotating star.       |
+| 1        | torus_b10      | Disk inspired by 2017 observation of a neutron star merger. Highest magnetic field strength. |
+| 2        | torus_b30      | Disk inspired by 2017 observation of a neutron star merger. Intermediate magnetic field strength. |
+| 3        | torus_gw170817 | Disk inspired by 2017 observation of a neutron star merger. Weakest magnetic field strength. |
+| 4        | torus_MBH_10   | Disk from black hole-neutron star merger. 10 solar mass black hole.  |
+| 5        | torus_MBH_2p31 | Disk from black hole-neutron star merger. 2.31 solar mass black hole.|
+| 6        | torus_MBH_2p67 | Disk from black hole-neutron star merger. 2.76 solar mass black hole.|
+| 7        | torus_MBH_2p69 | Disk from black hole-neutron star merger. 2.79 solar mass black hole.|
+| 8        | torus_MBH_6    | Disk from black hole-neutron star merger. 6 solar mass black hole.   |
+
 
 ## General relativistic quantities
-[TO WORK ON THAT]
 The core quantity that describes the curvature of spacetime and its
-impact on a simulation is `metadata/geometry/gcon`. From this other
+impact on a simulation is `['t0_fields']['gcon']` of the HDF5 file. From this other
 quantities can be computed.
 
 ## To reproduce
-[TO WORK ON THAT]
-The values in `metadata/settings` are sufficient to reproduce a
+The values in `simulation_parameters.json` are sufficient to reproduce a
 simulation using [nubhlight](https://github.com/lanl/nubhlight) using
 the `torus_cbc` problem generator, with one exception. You must
 provide tabulated equation of state and opacity data. We use the SFHo
@@ -122,10 +111,8 @@ code and are not public. However adequate open source substitutes may
 be generated by the [nulib](http://www.nulib.org/) library.
 
 ## Explanation of simulation parameters
-[TO WORK ON THAT]
 
-Here we include, for completeness, a description of the values in
-`metadata/settings` which cover the simulation parameters chosen.
+Here we include, for completeness, a description of the different simulation parameters. which cover the simulation parameters chosen. Their value is stored in `simulation_parameters.json`.
 
 - `B_unit`, the unit of magnetic field strength. Multiplying code quantity by `B_unit` converts the quantity to units of Gauss.
 - `DTd`, dump time cadence.
@@ -162,7 +149,6 @@ Here we include, for completeness, a description of the values in
 - `variables` list of names of primitive state vector.
 
 # What is interesting and challenging about the data:
-[TO CHECK]
 **What phenomena of physical interest are catpured in the data:** The 2017 detection of the in-spiral and merger of two neutron stars
 was a landmark discovery in astrophysics. Through a wealth of
 multi-messenger data, we now know that the merger of these

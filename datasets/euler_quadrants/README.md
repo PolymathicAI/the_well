@@ -10,14 +10,16 @@
 
 **Code or software used to generate the data**: [Clawpack (AMRClaw)](http://www.clawpack.org/)
 
-**Equation**:Euler equations for a compressible gas:
-$\begin{align}
+**Equation**: Euler equations for a compressible gas:
+```math
+\begin{align}
 U_t + F(U)_x + G(U)_y &= 0 \nonumber\\
 \textrm{where} \quad U = \begin{bmatrix} \rho \nonumber\\ \rho u \\ \rho v \\ e \end{bmatrix}, \quad F(U) = \begin{bmatrix} \rho u \\ \rho u^2 + p \\ \rho u v \\ u(e + p) \end{bmatrix},& \quad G(U) = \begin{bmatrix} \rho v \\ \rho u v \\ \rho v^2 + p \\ v(e + p) \end{bmatrix}, \quad \\ e = \frac{p}{(\gamma - 1)} + \frac{\rho (u^2 + v^2)}{2}&, \quad p = A\rho^{\gamma}. \nonumber
-\end{align}$
+\end{align}
+```
 with $\rho$ the density, $u$ and $v$ the $x$ and $y$ velocity components, $e$ the energy, $p$ the pressure, $\gamma$ the gas constant, and $A>0$ is a function of entropy.
 
-![Gif](gif/density_normalized.gif)
+![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/euler_quadrants/gif/density_normalized.gif)
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
@@ -27,13 +29,13 @@ with $\rho$ the density, $u$ and $v$ the $x$ and $y$ velocity components, $e$ th
 
 **Dimension of discretized data:** 100 timesteps of 512x512 images.
 
-**Fields available in the data:** density $\rho$ (scalar field), energy $E$ (scalar field), pressure $P$ (scalar field), momentum $m$ (vector field).
+**Fields available in the data:** density (scalar field), energy (scalar field), pressure (scalar field), momentum (vector field).
 
 **Number of trajectories:** 500 per set of parameters, 10 000 in total.
 
-**Estimated size of the ensemble of all simulations:** 4.9TB.
+**Estimated size of the ensemble of all simulations:** 5.17 TB.
 
-**Grid type:** uniform grid.
+**Grid type:** uniform, cartesian coordinates.
 
 **Initial conditions:** Randomly generated initial quadrants.
 
@@ -47,7 +49,7 @@ with $\rho$ the density, $u$ and $v$ the $x$ and $y$ velocity components, $e$ th
 
 **Spatial domain size ($L_x$, $L_y$, $L_z$):** $L_x = 1$ and  $L_y = 1$.
 
-S**et of coefficients or non-dimensional parameters evaluated:** all combinations of $\gamma$ constant of the gas: $\gamma=\{1.3,1.4,1.13,1.22,1.33,1.76, 1.365,1.404,1.453,1.597\}$ and boundary conditions: {extrap, periodic}.
+S**et of coefficients or non-dimensional parameters evaluated:** all combinations of $\gamma$ constant of the gas: $\gamma=${1.3,1.4,1.13,1.22,1.33,1.76, 1.365,1.404,1.453,1.597} and boundary conditions: {extrap, periodic}.
 
 **Approximate time to generate the data:** 80 hours on 160 CPU cores for all data.
 

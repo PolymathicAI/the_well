@@ -10,15 +10,19 @@
 
 **Code or software used to generate the data**: Athena++
 
-**Equation**: $\begin{align}
+**Equation**: 
+
+```math
+\begin{align}
 \frac{ \partial \rho}{\partial t} + \nabla \cdot \left( \rho \vec{v} \right) &= 0 \\
 \frac{ \partial \rho \vec{v} }{\partial t} + \nabla \cdot \left( \rho \vec{v}\vec{v} + P \right) &= 0 \\
 \frac{ \partial E }{\partial t} + \nabla \cdot \left( (E + P) \vec{v} \right) &= - \frac{E}{t_{\rm cool}} \\
 E = P / (\gamma -1) \, \, \gamma &= 5/3
-\end{align}$
+\end{align}
+```
 with $\rho$ the density, $\vec{v}$ the 3D velocity, $P$ the pressure, $E$ the total energy, and $t_{\rm cool}$ the cooling time.
 
-![Gif](gif/density_normalized.gif)
+![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/turbulent_radiative_layer_3D/gif/density_normalized.gif)
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
@@ -34,15 +38,15 @@ Preliminary benchmarking, in VRMSE.
 
 **Number of trajectories:** 90 trajectories (10 different seeds for each of the 9 $t_{cool}$ variations).
 
-**Estimated size of the ensemble of all simulations:** 1.5TB
+**Estimated size of the ensemble of all simulations:** 744.6 GB.
 
-**Grid type: uniform, cartesian coordinates.
+**Grid type:** uniform, cartesian coordinates.
 
 **Initial conditions:** Analytic, described in the [paper](https://ui.adsabs.harvard.edu/abs/2020ApJ...894L..24F/abstract).
 
 **Boundary conditions:** periodic for the 128x128 directions ($x,y$), and zero-gradient for the 256 direction ($z$).
 
-**Simulation time-step:** varies with $t_{cool}$. Smallest $t_{cool}$ is $1.32.10^{-2}, largest $t_{cool}$ is $1.74.10^{-2}$. This is not in seconds, as this is a dimensionless simulation time. To convert, the code time is $L_{box}/cs_{hot}$, where $L_{box}$= 1 parsec and cs_{hot}=100km/s. [DO CONVERSION?]
+**Simulation time-step:** varies with $t_{cool}$. Smallest $t_{cool}$ is $1.32.10^{-2}$, largest $t_{cool}$ is $1.74.10^{-2}$. This is not in seconds, as this is a dimensionless simulation time. To convert, the code time is $L_{box}/cs_{hot}$, where $L_{box}$= 1 parsec and cs_{hot}=100km/s.
 
 **Data are stored separated by ($\Delta t$):** data is separated by intervals of simulation time of 2.661722.
 

@@ -16,36 +16,37 @@ Rayleigh-Bénard convection involves fluid dynamics and thermodynamics, seen in 
 **Equation**:
 
 While we solve equations in the frequency domain, the original time-domain problem is 
-$$ 
+```math
 \begin{align*}
 \frac{\partial b}{\partial t} - \kappa\,\Delta b & = -u\nabla b\,,
 \\
 \frac{\partial u}{\partial t} - \nu\,\Delta u + \nabla p - b \vec{e}_z & = -u \nabla u\,, 
 \end{align*}
-$$
+```
 where $\Delta = \nabla \cdot \nabla$ is the spatial Laplacian, $b$ is the buoyancy, $u = (u_x,u_y)$ the (horizontal and vertical) velocity, and $p$ is the pressure, $\vec{e}_z$ is the unit vector in the vertical direction, with the additional constraints $\int p = 0$ (pressure gauge).
 
 The boundary conditions vertically are as follows:
-$$
+```math
 \begin{align*}
 b(z=0) = Lz ~~~,~~~ b(z=Lz) = 0
 \\
 u(z=0) = u(z=Lz) = 0
 \end{align*}
-$$
+```
 
 These PDE are parameterized by the Rayleigh and Prandtl numbers through $\kappa$ and $\nu$.
-$$
+```math
 \begin{align*}
 \text{(thermal diffusivity)} ~~~~~~~ \kappa & = \big(\text{Rayleigh} * \text{Prandtl}\big)^{-\frac12}
 \\
 \text{(viscosity)} ~~~~~~~ \nu & = \bigg(\frac{\text{Rayleigh}}{\text{Prandtl}}\bigg)^{-\frac12}.
 \end{align*}
-$$
+```
 
 <div style="transform: rotate(90deg);">
-  <img src="gif/buoyancy_normalized.gif" alt="Rotated GIF">
+  <img src="https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard/gif/buoyancy_normalized.gif" alt="Rotated GIF">
 </div>
+
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
@@ -62,9 +63,9 @@ $512\times128$ images.
 
 **Number of simulations:** $1750$ ($35$ PDE parameters $\times$ $50$ initial conditions).
 
-**Size of the ensemble of all simulations:** 859GB
+**Size of the ensemble of all simulations:** 358.4 GB.
 
-**Grid type:** uniform, cartesian coordinates. [CHECK ] real Fourier (horizontal), Chebyshev (vertical)
+**Grid type:** uniform, cartesian coordinates.
 
 **Initial conditions:** the buoyancy is composed of a dumped noise added to a linear background  $b(t=0) = (Lz-z)\times\delta b_0 + z(Lz-z) \times\epsilon$ where $\epsilon$ is a Gaussian white noise of scale $10^{-3}$.
 The other fields $u$ and $p$ are initialized to $0$.
@@ -73,9 +74,9 @@ The other fields $u$ and $p$ are initialized to $0$.
 
 **Simulation time-step:** 0.25.
 
-**Total time range ($t_{min}$ to $t_{max}$):** $t_{\mathrm{min}} = 0$, $t_{\mathrm{max}} = 50$.
+**Total time range ($t_{min}$ to $t_{max}$):** $t_{min} = 0$, $t_{max} = 50$.
 
-**Spatial domain size:** $ 0 \leq x \leq 4$ horizontally, and $0 \leq z \leq 1$ vertically.
+**Spatial domain size:** $0 \leq x \leq 4$ horizontally, and $0 \leq z \leq 1$ vertically.
 
 **Set of coefficients or non-dimensional parameters evaluated:** $\text{Rayleigh}\in[1e6,1e7,1e8,1e9,1e10], \text{Prandtl}\in[0.1,0.2,0.5,1.0,2.0,5.0,10.0]$. For initial conditions $\delta b_0\in[0.2,0.4,0.6,0.8,1.0]$, the seed used to generate the initial Gaussian white noise are $40,\ldots,49$.
 
