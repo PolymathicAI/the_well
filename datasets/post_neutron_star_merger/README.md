@@ -43,7 +43,7 @@ The standard radiative transfer equation is
 |:-:|:-:|:-:|:-:|:-:|
 | post_neutron_star_merger  | 1380 | 337 | - |-|
 
-Preliminary benchmarking, in VRMSE.
+Preliminary benchmarking, in VRMSE. Unet and CNextU-net results are not available as these architectures needs all dimensions of the data to be multiples of 2.
 
 
 # About the data 
