@@ -6,7 +6,7 @@
 
 **Associated paper**: None.
 
-**Domain scientist**: [Daniel Fortunato](https://danfortunato.com/), CCM and CCB, Flatiron Institute.
+**Domain expert**: [Daniel Fortunato](https://danfortunato.com/), CCM and CCB, Flatiron Institute.
 
 **Code or software used to generate the data**: [Github repository](https://github.com/danfortunato/spectral-gray-scott) (MATLAB R2023a, using the stiff PDE integrator implemented in Chebfun. The Fourier spectral method is used in space (with nonlinear terms evaluated pseudospectrally), and the exponential time-differencing fourth-order Runge-Kutta scheme (ETDRK4) is used in time.)
 

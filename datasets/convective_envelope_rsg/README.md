@@ -6,7 +6,7 @@
 
 **Associated paper**: [Paper](https://iopscience.iop.org/article/10.3847/1538-4357/ac5ab3)
 
-**Domain scientist**: [Yan-Fei Jiang](https://jiangyanfei1986.wixsite.com/yanfei-homepage) (CCA, Flatiron Institute), [Jared Goldberg](https://jaredagoldberg.wordpress.com/) (CCA, Flatiron Institute), [Jeff Shen](https://jshen.net) (Princeton University).
+**Domain experts**: [Yan-Fei Jiang](https://jiangyanfei1986.wixsite.com/yanfei-homepage) (CCA, Flatiron Institute), [Jared Goldberg](https://jaredagoldberg.wordpress.com/) (CCA, Flatiron Institute), [Jeff Shen](https://jshen.net) (Princeton University).
 
 **Code or software used to generate the data**: [Athena++](https://www.athena-astro.app/)
 

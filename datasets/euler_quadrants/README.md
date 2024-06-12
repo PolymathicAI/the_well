@@ -6,7 +6,7 @@
 
 **Associated paper**: [Paper](https://epubs.siam.org/doi/pdf/10.1137/S1064827595291819?casa_token=vkASCwD4WngAAAAA:N0jy0Z6tshitF10_YRTlZzU-P7mAiPFr3v58sw7pmRsZOarAi824-b1CWhOQts1rvaG3YpJisw)
 
-**Domain scientist**: [Marsha Berger](https://cs.nyu.edu/~berger/)(Flatiron Institute & NYU), [Ruben Ohana](https://rubenohana.github.io/) (CCM, Flatiron Institute & Polymathic AI), [Michael McCabe](https://mikemccabe210.github.io/) (Polymathic AI).
+**Domain experts**: [Marsha Berger](https://cs.nyu.edu/~berger/)(Flatiron Institute & NYU), [Ruben Ohana](https://rubenohana.github.io/) (CCM, Flatiron Institute & Polymathic AI), [Michael McCabe](https://mikemccabe210.github.io/) (Polymathic AI).
 
 **Code or software used to generate the data**: [Clawpack (AMRClaw)](http://www.clawpack.org/)
 

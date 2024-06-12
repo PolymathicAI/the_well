@@ -6,7 +6,7 @@
 
 **Associated paper**: [Paper](https://iopscience.iop.org/article/10.3847/2041-8213/ab8d2c/pdf)
 
-**Domain scientist**: [Drummond Fielding](https://dfielding14.github.io/), CCA, Flatiron Institute & Cornell University.
+**Domain expert**: [Drummond Fielding](https://dfielding14.github.io/), CCA, Flatiron Institute & Cornell University.
 
 **Code or software used to generate the data**: [Athena++](https://www.athena-astro.app/)
 

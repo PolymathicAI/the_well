@@ -6,7 +6,7 @@
 
 **Associated paper**: [Paper](https://academic.oup.com/mnras/article/526/3/4054/7316686).
 
-**Domain scientist**: [Keiya Hirashima](https://kyafuk.github.io/utokyo-hirashima/index.html), University of Tokyo & CCA, Flatiron Institute.
+**Domain expert**: [Keiya Hirashima](https://kyafuk.github.io/utokyo-hirashima/index.html), University of Tokyo & CCA, Flatiron Institute.
 
 **Code or software used to generate the data**: ASURA-FDPS (Smoothed Particle Hydrodynamics), [Github repository](https://github.com/FDPS/FDPS)
 

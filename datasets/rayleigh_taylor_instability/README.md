@@ -6,7 +6,7 @@
 
 **Associated paper**: [Paper](https://www.researchgate.net/publication/243660629_Reynolds_number_effects_on_Rayleigh-Taylor_instability_with_possible_implications_for_type_Ia_supernovae).
 
-**Domain scientist**: [Stefan Nixon](https://www.maths.cam.ac.uk/person/ssn34), University of Cambridge, [Romain Watteaux](https://www.linkedin.com/in/romain-watteaux-978b08162/?locale=en_US), CEA DAM, [Suart B. Dalziel](https://scholar.google.com/citations?user=OJcK5CAAAAAJ&hl=en), University of Cambridge.
+**Domain experts**: [Stefan Nixon](https://www.maths.cam.ac.uk/person/ssn34), University of Cambridge, [Romain Watteaux](https://www.linkedin.com/in/romain-watteaux-978b08162/?locale=en_US), CEA DAM, [Suart B. Dalziel](https://scholar.google.com/citations?user=OJcK5CAAAAAJ&hl=en), University of Cambridge.
 
 **Code or software used to generate the data**: [TurMix3D](https://theses.hal.science/tel-00669707/document)
 

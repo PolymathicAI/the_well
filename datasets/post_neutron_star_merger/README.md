@@ -6,7 +6,7 @@
 
 **Associated paper**: The simulations included here are from a series of papers: [Paper 1](https://iopscience.iop.org/article/10.3847/1538-4365/ab09fc/pdf), [Paper 2](https://link.aps.org/accepted/10.1103/PhysRevD.100.023008), [Paper 3](https://arxiv.org/abs/1912.03378), [Paper 4](https://arxiv.org/abs/2212.10691), [Paper 5](https://arxiv.org/abs/2311.05796).
 
-**Domain scientist**: [Jonah Miller](https://www.thephysicsmill.com/), Los Alamos National Laboratory.
+**Domain expert**: [Jonah Miller](https://www.thephysicsmill.com/), Los Alamos National Laboratory.
 
 **Code or software used to generate the data**: Open source software [nublight](https://github.com/lanl/nubhlight)
 

@@ -4,7 +4,7 @@
 
 **Longer description of the data:** These variable-coefficient acoustic equations describe the propogation of an acoustic pressure wave through maze-like domains. Pressure waves emerge from point sources and propogate through domains consisting of low density maze paths and orders of magnitude higher density maze walls. This is built primarily as a challenge for machine learning methods, though has similar properties to optimal placement problems like WiFi in a building. 
 
-**Domain scientist**: [Michael McCabe](https://mikemccabe210.github.io/), Polymathic AI.
+**Domain expert**: [Michael McCabe](https://mikemccabe210.github.io/), Polymathic AI.
 
 **Code or software used to generate the data**: Clawpack, adapted from: http://www.clawpack.org/gallery/pyclaw/gallery/acoustics_2d_interface.html
 

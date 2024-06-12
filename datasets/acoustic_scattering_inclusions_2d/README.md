@@ -4,7 +4,7 @@
 
 **Longer description of the data:** These variable-coefficient acoustic equations describe the propogation of an acoustic pressure wave through domains consisting of multiple materials with different scattering properties. This problem emerges in source optimization and it's inverse - that of identifying the material properties from the scattering of the wave - is a vital problem in geology and radar design. In this case, we have a variable number of initial point sources and a domain with random inclusions. These types of problems are of particular interest in geology where the inverse scattering is used to identify mineral deposits. 
 
-**Domain scientist**: [Michael McCabe](https://mikemccabe210.github.io/), Polymathic AI.
+**Domain expert**: [Michael McCabe](https://mikemccabe210.github.io/), Polymathic AI.
 
 **Code or software used to generate the data**: Clawpack, adapted from: http://www.clawpack.org/gallery/pyclaw/gallery/acoustics_2d_interface.html
 

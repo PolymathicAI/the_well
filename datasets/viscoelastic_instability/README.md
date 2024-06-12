@@ -6,7 +6,7 @@
 
 **Associated paper**: [Paper](https://www.cambridge.org/core/services/aop-cambridge-core/content/view/D63B7EDB638451A6FC2FBBFDA85E1BBD/S0022112024000508a.pdf/multistability-of-elasto-inertial-two-dimensional-channel-flow.pdf)
 
-**Domain scientists**: [Miguel Beneitez](https://beneitez.github.io/) and [Richard Kerswell](https://www.damtp.cam.ac.uk/user/rrk26/), DAMTP, University of Cambridge, UK.
+**Domain experts**: [Miguel Beneitez](https://beneitez.github.io/) and [Richard Kerswell](https://www.damtp.cam.ac.uk/user/rrk26/), DAMTP, University of Cambridge, UK.
 
 **Code or software used to generate the data**: [Dedalus](https://dedalus-project.readthedocs.io/en/latest/index.html) v2.
 

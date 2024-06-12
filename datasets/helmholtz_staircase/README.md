@@ -8,7 +8,7 @@ periodic, such as plane waves, but not for nonperiodic sources, e.g. a point sou
 
 **Associated paper**: https://arxiv.org/abs/2310.12486
 
-**Domain scientist**: [Fruzsina Julia Agocs](https://fruzsinaagocs.github.io/), CCM, Flatiron Institute.
+**Domain expert**: [Fruzsina Julia Agocs](https://fruzsinaagocs.github.io/), CCM, Flatiron Institute.
 
 **Code or software used to generate the data**: [Github repository](https://www.github.com/fruzsinaagocs/bies)
 
