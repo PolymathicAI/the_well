@@ -8,7 +8,7 @@
 
 **Domain scientist**: [Keiya Hirashima](https://kyafuk.github.io/utokyo-hirashima/index.html), University of Tokyo & CCA, Flatiron Institute.
 
-**Code or software used to generate the data**: ASURA-FDPS (Smoothed Particle Hydrodynamics) [[Github](https://github.com/FDPS/FDPS), TBA]
+**Code or software used to generate the data**: ASURA-FDPS (Smoothed Particle Hydrodynamics), [Github repository](https://github.com/FDPS/FDPS)
 
 **Equation**: 
 
