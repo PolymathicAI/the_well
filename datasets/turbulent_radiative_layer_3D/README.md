@@ -8,7 +8,7 @@
 
 **Domain scientist**: [Drummond Fielding](https://dfielding14.github.io/), CCA, Flatiron Institute & Cornell University.
 
-**Code or software used to generate the data**: Athena++
+**Code or software used to generate the data**: [Athena++](https://www.athena-astro.app/)
 
 **Equation**: 
 
