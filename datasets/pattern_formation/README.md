@@ -53,7 +53,7 @@ Preliminary benchmarking, in VRMSE.
 **Spatial domain size ($L_x$, $L_y$, $L_z$):** $x,y\in[-1,1]$.
 
 **Set of coefficients or non-dimensional parameters evaluated:** All simulations used $\delta_u = 2.10^{-5}$ and $\delta_v = 1.10^{-5}$.
-"Gliders": $F = 0.014, k = 0.054$. "Bubbles": $F = 0.098, k =0.057$. "Maze": $F= 0.029, k = 0.057$. "Worms": $F= 0.058, k = 0.065$. "Spirals": $F=0.018, k = 0.051$. "Spots": $F= 0.03, k=0.062$.
+"Gliders": $f = 0.014, k = 0.054$. "Bubbles": $f = 0.098, k =0.057$. "Maze": $f= 0.029, k = 0.057$. "Worms": $f= 0.058, k = 0.065$. "Spirals": $f=0.018, k = 0.051$. "Spots": $f= 0.03, k=0.062$.
 
 **Approximate time to generate the data:** 5.5 hours per set of parameters, 33 hours total.
 
@@ -61,6 +61,6 @@ Preliminary benchmarking, in VRMSE.
 
 # What is interesting and challenging about the data:
 
-**What phenomena of physical interest are catpured in the data:** Pattern formation: by sweeping the two parameters $F$ and $k$, a multitude of steady and dynamic patterns can form from random initial conditions.
+**What phenomena of physical interest are catpured in the data:** Pattern formation: by sweeping the two parameters $f$ and $k$, a multitude of steady and dynamic patterns can form from random initial conditions.
 
-**How to evaluate a new simulator operating in this space:** It would be impressive if a simulator—trained only on some of the patterns produced by a subset of the $(F, k)$ parameter space—could perform well on an unseen set of parameter values $(F, k)$ that produce fundamentally different patterns. Stability for steady-state patterns over long rollout times would also be impressive.
+**How to evaluate a new simulator operating in this space:** It would be impressive if a simulator—trained only on some of the patterns produced by a subset of the $(f, k)$ parameter space—could perform well on an unseen set of parameter values $(f, k)$ that produce fundamentally different patterns. Stability for steady-state patterns over long rollout times would also be impressive.
