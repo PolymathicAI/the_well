@@ -59,7 +59,7 @@ Preliminary benchmarking, in VRMSE.
 **Dimension of discretized data:** $200$ timesteps of 
 $512\times128$ images.
 
-**Fields are available in the data:** buoyancy (scalar vield), pressure (scalar field), velocity (vector field) [TO CHECK].
+**Fields are available in the data:** buoyancy (scalar vield), pressure (scalar field), velocity (vector field).
 
 **Number of simulations:** $1750$ ($35$ PDE parameters $\times$ $50$ initial conditions).
 
