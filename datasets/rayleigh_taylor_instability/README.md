@@ -62,7 +62,7 @@ where $\mu$ is the mean and $\sigma$ is the standard deviation of the profile. F
 
 The time difference between frames varies as the flow accelerates, thus the largest occur at the beginning of the simulation ($\delta t \sim 5s$) and the smallest at the end ($\delta t \sim 0.1s$).
 
-**Total time range ($t_{min}$ to $t_{max}$):** Varies from $t_{min}=0$ to $t_{max}$ between $\sim 30s$ and $\sim 100s$, deoending on Atwood number.
+**Total time range ($t_{min}$ to $t_{max}$):** Varies from $t_{min}=0$ to $t_{max}$ between $\sim 30s$ and $\sim 100s$, depending on Atwood number.
 
 **Spatial domain size ($L_x$, $L_y$, $L_z$):** $[0,1]\times[0,1]\times[0,1]$.
 
