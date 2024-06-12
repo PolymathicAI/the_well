@@ -80,7 +80,7 @@ The other fields $u$ and $p$ are initialized to $0$.
 
 **Set of coefficients or non-dimensional parameters evaluated:** $\text{Rayleigh}\in[1e6,1e7,1e8,1e9,1e10], \text{Prandtl}\in[0.1,0.2,0.5,1.0,2.0,5.0,10.0]$. For initial conditions $\delta b_0\in[0.2,0.4,0.6,0.8,1.0]$, the seed used to generate the initial Gaussian white noise are $40,\ldots,49$.
 
-**Approximate time to generate the data: per input parameter** from $\sim6\,000s$ to $\sim 50\,000s$ (high Rayleigh numbers take longer), total: $\sim 60$ hours. [@Rudy UPDATE NUMBER]
+**Approximate time to generate the data: per input parameter** from $\sim6\,000s$ to $\sim 50\,000s$ (high Rayleigh numbers take longer), total: $\sim 60$ hours.
 
 **Hardware used to generate the data and precision used for generating the data:** 12 nodes of 64 CPU cores with 8 processes per node, in single precision.
 
