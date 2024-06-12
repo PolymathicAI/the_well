@@ -67,6 +67,7 @@ https://github.com/lanl/nubhlight/wiki
 **Boundary conditions:** open.
 
 **Simulation time-step:** approximately 0.01 in code units. Physical time varies; roughly 147 nanoseconds for fiducial model.
+
 **Data are stored separated by ($\Delta t$):** 50 in code units. Physical time varies; roughly 0.6 milliseconds for fiducial model.
 
 **Total time range ($t_{min}$ to $t_{max}$):** 10000 in code units. Physical time varies; roughly 127 milliseocnds for fudicial model
