@@ -30,7 +30,7 @@ Preliminary benchmarking, in VRMSE.
 **Dimension of discretized data:** $81$ time-steps of $256\times256$ images per trajectory.
 
 **Fields available in the data:** concentration (scalar field),
-velocty (vector field), orientation tensor (tensor field), strain-rate tensor (tensor field).
+velocity (vector field), orientation tensor (tensor field), strain-rate tensor (tensor field).
 
 
 **Number of trajectories:** $5$ trajectories per parameter-set, each trajectory being generated with a different initialization of the state field {$c,D,U$}.
