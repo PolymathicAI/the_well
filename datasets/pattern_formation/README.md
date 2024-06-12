@@ -4,7 +4,7 @@
 
 **Longer description of the data:** The Gray-Scott equations are a set of coupled reaction-diffusion equations describing two chemical species, $A$ and $B$, whose concentrations vary in space and time. The two parameters $f$ and $k$ control the “feed” and “kill” rates in the reaction. A zoo of qualitatively different static and dynamic patterns in the solutions are possible depending on these two parameters. There is a rich landscape of pattern formation hidden in these equations. 
 
-**Associated paper**: 
+**Associated paper**: None.
 
 **Domain scientist**: [Daniel Fortunato](https://danfortunato.com/), CCM and CCB, Flatiron Institute.
 
