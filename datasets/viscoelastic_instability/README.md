@@ -60,7 +60,7 @@ where $\mathbf{u^\*} = (u^\*,v^\*)$ is the streamwise and wall-normal velocity c
 
 **Total time range ($t_{min}$ to $t_{max}$):** depends on the simulation.
 
-**Spatial domain size ($L_x$, $L_y$, $L_z$):** $[L_x,L_y] = [2\pi,2]$
+**Spatial domain size ($L_x$, $L_y$, $L_z$):** $0 \leq x \leq 2\pi$, $-1 \leq y \leq 1$.
 
 **Set of coefficients or non-dimensional parameters evaluated:** Reynold number $Re=1000$, Weissenberg number $Wi = 50$, $\beta =0.9$, $\epsilon=2.10^{-6}$, $L_{max}=70$.
 
