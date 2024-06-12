@@ -8,8 +8,7 @@
 
 **Domain scientist**: [Jonah Miller](https://www.thephysicsmill.com/), Los Alamos National Laboratory.
 
-**Code or software used to generate the data**: Open source
-  software available [nublight](https://github.com/lanl/nubhlight)
+**Code or software used to generate the data**: Open source software [nublight](https://github.com/lanl/nubhlight)
 
 **Equation**: See equations 1-5 and 16 of Miller, Ryan, Dolence (2019).
 
