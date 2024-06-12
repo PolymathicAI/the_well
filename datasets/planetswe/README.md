@@ -14,7 +14,7 @@
 
 ```math
 \begin{align}
-\frac{ \partial \vec{u}}{\partial t} &= - \vec{u} \cdot \nabla u - g \nabla h - \nu \nabla^4 - 2\Omega \times \vec{u} \\
+\frac{ \partial \vec{u}}{\partial t} &= - \vec{u} \cdot \nabla u - g \nabla h - \nu \nabla^4 \vec{u} - 2\Omega \times \vec{u} \\
 \frac{ \partial h }{\partial t} &= -H \nabla \cdot \vec{u} - \nabla \cdot (h\vec{u}) - \nu \nabla^4h + F  
 \end{align}
 ```
