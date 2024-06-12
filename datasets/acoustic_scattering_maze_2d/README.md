@@ -35,8 +35,7 @@ Traversal can be seen:
 
 **Dimension of discretized data:** $201$ steps of $256\times256$ images.
 
-**Fields available in the data:** pressure (scalar field), density (scalar field), bulk modulus (scalar field), velocity field (vector field).
-
+**Fields available in the data:** pressure (scalar field), material density (constant scalar field), material speed of sound (constant scalar field), velocity field (vector field).
 **Number of trajectories:** 2000.
 
 **Estimated size of the ensemble of all simulations:** 311.3 GB.
