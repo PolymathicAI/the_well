@@ -11,8 +11,8 @@ from torch.utils.data import Dataset
 
 well_paths = {
     "acoustic_scattering_maze_2d": "datasets/acoustic_scattering_maze_2d",
-     "acoustic_scattering_inclusions_2d": "datasets/acoustic_scattering_inclusions_2d",
-     "acoustic_scattering_discontinuous_2d": "datasets/acoustic_scattering_discontinuous_2d",
+    "acoustic_scattering_inclusions_2d": "datasets/acoustic_scattering_inclusions_2d",
+    "acoustic_scattering_discontinuous_2d": "datasets/acoustic_scattering_discontinuous_2d",
     "active_matter": "datasets/active_matter",
     "convective_envelope_rsg": "datasets/convective_envelope_rsg",
     "euler_quadrants": "datasets/euler_quadrants",
