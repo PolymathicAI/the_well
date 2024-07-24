@@ -459,16 +459,22 @@ class GenericWellDataset(Dataset):
             for field_name in file[order_fields].attrs["field_names"]:
                 field = file[order_fields][field_name]
                 use_dims = field.attrs["dim_varying"]
-                # TODO if we have slow loading, it might be better to apply both indices at once
                 # If the field is constant and in the cache, use it, otherwise go through read/pad
                 if field_name in self.constant_cache:
                     field_data = self.constant_cache[field_name]
                 else:
                     field_data = field
+                    # Index is built gradually since there can be different numbers of leading fields
+                    multi_index = ()
                     if field.attrs["sample_varying"]:
-                        field_data = field_data[sample_idx]
+                        multi_index = multi_index + (sample_idx,)
                     if field.attrs["time_varying"]:
-                        field_data = field_data[time_idx : time_idx + n_steps * dt : dt]
+                        multi_index = multi_index + (
+                            slice(time_idx, time_idx + n_steps * dt, dt),
+                        )
+                    # If any leading fields exist, select from them
+                    if len(multi_index) > 0:
+                        field_data = torch.tensor(field_data[multi_index])
                     field_data = torch.tensor(
                         self._pad_axes(
                             field_data, use_dims, time_varying=True, tensor_order=i
@@ -519,12 +525,17 @@ class GenericWellDataset(Dataset):
                 scalar_data = self.constant_cache[scalar_name]
             else:
                 scalar_data = scalar
+                # Build index gradually to account for different leading dims
+                multi_index = ()
                 if scalar.attrs["sample_varying"]:
-                    scalar_data = torch.tensor(scalar_data[sample_idx])
+                    multi_index = multi_index + (sample_idx,)
                 if scalar.attrs["time_varying"]:
-                    scalar_data = torch.tensor(
-                        scalar_data[time_idx : time_idx + n_steps * dt : dt]
+                    multi_index = multi_index + (
+                        slice(time_idx, time_idx + n_steps * dt, dt),
                     )
+                # If leading dims exist, subset based on them
+                if len(multi_index) > 0:
+                    scalar_data = torch.tensor(scalar_data[multi_index])
                 if (
                     not scalar.attrs["time_varying"]
                     and not scalar.attrs["sample_varying"]
