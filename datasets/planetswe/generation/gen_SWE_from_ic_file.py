@@ -52,7 +52,6 @@ def run_ic_file(ic_file, output_dir):
     basis = d3.SphereBasis(
         coords, (Nphi, Ntheta), radius=R, dealias=dealias, dtype=dtype
     )
-
     # Fields
     u = dist.VectorField(coords, name="u", bases=basis)
     h = dist.Field(name="h", bases=basis)

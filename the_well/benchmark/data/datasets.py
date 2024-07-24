@@ -465,10 +465,15 @@ class GenericWellDataset(Dataset):
                     field_data = self.constant_cache[field_name]
                 else:
                     field_data = field
+                    index = ()
                     if field.attrs["sample_varying"]:
-                        field_data = field_data[sample_idx]
+                        # field_data = field_data[sample_idx]
+                        index = index + (sample_idx,)
                     if field.attrs["time_varying"]:
-                        field_data = field_data[time_idx : time_idx + n_steps * dt : dt]
+                        index = index + (slice(time_idx, time_idx + n_steps * dt, dt),)
+                        # field_data = field_data[time_idx : time_idx + n_steps * dt : dt]
+                    if len(index) > 0:
+                        field_data = torch.tensor(field_data[index])
                     field_data = torch.tensor(
                         self._pad_axes(
                             field_data, use_dims, time_varying=True, tensor_order=i
@@ -519,12 +524,19 @@ class GenericWellDataset(Dataset):
                 scalar_data = self.constant_cache[scalar_name]
             else:
                 scalar_data = scalar
+                index = ()
                 if scalar.attrs["sample_varying"]:
-                    scalar_data = torch.tensor(scalar_data[sample_idx])
+                    index = index + (sample_idx,)
+                    # scalar_data = torch.tensor(scalar_data[sample_idx])
                 if scalar.attrs["time_varying"]:
-                    scalar_data = torch.tensor(
-                        scalar_data[time_idx : time_idx + n_steps * dt : dt]
+                    index = index + (
+                        slice(time_idx, time_idx + n_steps * dt, dt),
                     )
+                    # scalar_data = torch.tensor(
+                    #     scalar_data[time_idx : time_idx + n_steps * dt : dt]
+                    # )
+                if len(index) > 0:
+                    scalar_data = torch.tensor(scalar_data[index])
                 if (
                     not scalar.attrs["time_varying"]
                     and not scalar.attrs["sample_varying"]
