@@ -459,19 +459,18 @@ class GenericWellDataset(Dataset):
             for field_name in file[order_fields].attrs["field_names"]:
                 field = file[order_fields][field_name]
                 use_dims = field.attrs["dim_varying"]
-                # TODO if we have slow loading, it might be better to apply both indices at once
                 # If the field is constant and in the cache, use it, otherwise go through read/pad
                 if field_name in self.constant_cache:
                     field_data = self.constant_cache[field_name]
                 else:
                     field_data = field
+                    # Index is built gradually since there can be different numbers of leading fields
                     index = ()
                     if field.attrs["sample_varying"]:
-                        # field_data = field_data[sample_idx]
                         index = index + (sample_idx,)
                     if field.attrs["time_varying"]:
                         index = index + (slice(time_idx, time_idx + n_steps * dt, dt),)
-                        # field_data = field_data[time_idx : time_idx + n_steps * dt : dt]
+                    # If any leading fields exist, select from them
                     if len(index) > 0:
                         field_data = torch.tensor(field_data[index])
                     field_data = torch.tensor(
