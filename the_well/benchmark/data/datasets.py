@@ -469,7 +469,9 @@ class GenericWellDataset(Dataset):
                     if field.attrs["sample_varying"]:
                         multi_index = multi_index + (sample_idx,)
                     if field.attrs["time_varying"]:
-                        multi_index = multi_index + (slice(time_idx, time_idx + n_steps * dt, dt),)
+                        multi_index = multi_index + (
+                            slice(time_idx, time_idx + n_steps * dt, dt),
+                        )
                     # If any leading fields exist, select from them
                     if len(multi_index) > 0:
                         field_data = torch.tensor(field_data[multi_index])
@@ -528,7 +530,9 @@ class GenericWellDataset(Dataset):
                 if scalar.attrs["sample_varying"]:
                     multi_index = multi_index + (sample_idx,)
                 if scalar.attrs["time_varying"]:
-                    multi_index = multi_index + (slice(time_idx, time_idx + n_steps * dt, dt),)
+                    multi_index = multi_index + (
+                        slice(time_idx, time_idx + n_steps * dt, dt),
+                    )
                 # If leading dims exist, subset based on them
                 if len(multi_index) > 0:
                     scalar_data = torch.tensor(scalar_data[multi_index])
