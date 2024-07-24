@@ -529,9 +529,7 @@ class GenericWellDataset(Dataset):
                     index = index + (sample_idx,)
                     # scalar_data = torch.tensor(scalar_data[sample_idx])
                 if scalar.attrs["time_varying"]:
-                    index = index + (
-                        slice(time_idx, time_idx + n_steps * dt, dt),
-                    )
+                    index = index + (slice(time_idx, time_idx + n_steps * dt, dt),)
                     # scalar_data = torch.tensor(
                     #     scalar_data[time_idx : time_idx + n_steps * dt : dt]
                     # )
