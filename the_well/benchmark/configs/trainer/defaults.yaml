@@ -1,7 +1,7 @@
 _target_: the_well.benchmark.trainer.Trainer
-epochs: 50
-val_frequency: 2
-rollout_val_frequency: 5
+epochs: 200
+val_frequency: 1
+rollout_val_frequency: 2
 short_validation_length: 20
 max_rollout_steps: 100
 num_time_intervals: 5
