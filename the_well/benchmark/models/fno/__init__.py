@@ -21,10 +21,8 @@ class NeuralOpsCheckpointWrapper(neuralop_FNO):
 
     def optional_checkpointing(self, layer, *inputs, **kwargs):
         if self.gradient_checkpointing:
-            print("using checkpoint")
             return checkpoint(layer, *inputs, use_reentrant=False, **kwargs)
         else:
-            print("not using checkpoint")
             return layer(*inputs, **kwargs)
 
     def forward(self, x, output_shape=None, **kwargs):
