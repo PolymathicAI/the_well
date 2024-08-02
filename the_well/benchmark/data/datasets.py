@@ -99,6 +99,7 @@ class GenericWellMetadata:
     n_simulations: int
     n_steps_per_simulation: List[int]
     sample_shapes: Dict[str, Tuple[int]] = field(init=False)
+    grid_type: str = "cartesian"
 
     def __post_init__(self):
         self.sample_shapes = {
@@ -283,6 +284,7 @@ class GenericWellDataset(Dataset):
         bcs = set()
         for index, file in enumerate(self.files_paths):
             with h5.File(file, "r") as _f:
+                grid_type: str = _f.attrs["grid_type"]
                 # Run sanity checks - all files should have same ndims, size_tuple, and names
                 samples: int = _f.attrs["n_trajectories"]
                 # Number of steps is always last dim of time
@@ -405,6 +407,7 @@ class GenericWellDataset(Dataset):
         return GenericWellMetadata(
             dataset_name=self.dataset_name,
             n_spatial_dims=int(self.n_spatial_dims),
+            grid_type=grid_type,
             resolution=tuple([int(k) for k in self.size_tuple]),
             n_constant_scalars=self.num_constants,
             n_constant_fields=self.num_total_constant_fields,
