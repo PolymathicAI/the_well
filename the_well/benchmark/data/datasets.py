@@ -102,8 +102,8 @@ class GenericWellMetadata:
 
     def __post_init__(self):
         self.sample_shapes = {
-            "input_fields": (..., *self.resolution, self.n_fields),
-            "output_fields": (..., *self.resolution, self.n_fields),
+            "input_fields": (*self.resolution, self.n_fields),
+            "output_fields": (*self.resolution, self.n_fields),
             "constant_scalars": (self.n_constant_scalars),
             "space_grid": (*self.resolution, self.n_spatial_dims),
         }
