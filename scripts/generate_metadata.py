@@ -1,7 +1,7 @@
 import argparse
 import os.path
 
-import yaml
+from omegaconf import OmegaConf
 from tqdm import tqdm
 
 from the_well.benchmark.data.datasets import GenericWellDataset, well_paths
@@ -17,9 +17,10 @@ def generate_metadata(dataset_dir: str, output_dir: str):
             well_split_name="valid",
         )
         metadata = dataset.metadata
+        metadata_conf = OmegaConf.create(metadata.__dict__)
         filename = os.path.join(output_dir, f"{dataset_name}.yaml")
         with open(filename, "w") as metadata_file:
-            yaml.dump(metadata.__dict__, metadata_file)
+            metadata_file.write(OmegaConf.to_yaml(metadata_conf))
 
 
 if __name__ == "__main__":
