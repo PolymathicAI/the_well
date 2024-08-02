@@ -18,12 +18,17 @@ class TestFNO(TestCase):
         self.modes1 = 16
         self.modes2 = 16
         self.metadata = GenericWellMetadata(
+            dataset_name="fake_name",
             n_spatial_dims=2,
             resolution=(32, 32),
-            n_fields=5,
-            n_constant_fields=0,
-            dataset_name="fake_name",
             field_names=["field1", "field2", "field3", "field4", "field5"],
+            n_fields=5,
+            n_constant_scalars=0,
+            n_constant_fields=0,
+            constant_names=[],
+            boundary_condition_types=["periodic"],
+            n_simulations=1,
+            n_steps_per_simulation=[100],
         )
 
     def test_model(self):
