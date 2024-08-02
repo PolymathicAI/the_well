@@ -52,7 +52,7 @@ class TestFNO(TestCase):
         config = OmegaConf.load(FNO_CONFIG_FILE)
         model = instantiate(
             config,
-            dset_metadata=self.metadata,
+            dset_metadata=self.metadata.__dict__,
             dim_in=self.dim_in,
             dim_out=self.dim_out,
         )
