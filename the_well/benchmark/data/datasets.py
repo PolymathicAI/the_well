@@ -89,7 +89,7 @@ class GenericWellMetadata:
 
     dataset_name: str
     n_spatial_dims: int
-    resolution: Tuple[int]
+    spatial_resolution: Tuple[int]
     n_constant_scalars: int
     n_constant_fields: int
     constant_names: List[str]
@@ -103,10 +103,10 @@ class GenericWellMetadata:
 
     def __post_init__(self):
         self.sample_shapes = {
-            "input_fields": (*self.resolution, self.n_fields),
-            "output_fields": (*self.resolution, self.n_fields),
+            "input_fields": (*self.spatial_resolution, self.n_fields),
+            "output_fields": (*self.spatial_resolution, self.n_fields),
             "constant_scalars": (self.n_constant_scalars),
-            "space_grid": (*self.resolution, self.n_spatial_dims),
+            "space_grid": (*self.spatial_resolution, self.n_spatial_dims),
         }
 
 
@@ -408,7 +408,7 @@ class GenericWellDataset(Dataset):
             dataset_name=self.dataset_name,
             n_spatial_dims=int(self.n_spatial_dims),
             grid_type=grid_type,
-            resolution=tuple([int(k) for k in self.size_tuple]),
+            spatial_resolution=tuple([int(k) for k in self.size_tuple]),
             n_constant_scalars=self.num_constants,
             n_constant_fields=self.num_total_constant_fields,
             constant_names=self.constant_field_names + list(self.constant_cache.keys()),

@@ -20,7 +20,7 @@ class TestFNO(TestCase):
         self.metadata = GenericWellMetadata(
             dataset_name="fake_name",
             n_spatial_dims=2,
-            resolution=(32, 32),
+            spatial_resolution=(32, 32),
             field_names=["field1", "field2", "field3", "field4", "field5"],
             n_fields=5,
             n_constant_scalars=0,

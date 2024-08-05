@@ -11,7 +11,7 @@ class TestMetrics(TestCase):
         meta = GenericWellMetadata(
             dataset_name="test",
             n_spatial_dims=1,
-            resolution=(128,),
+            spatial_resolution=(128,),
             n_fields=1,
             field_names=["test"],
             n_constant_scalars=0,
