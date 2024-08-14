@@ -26,6 +26,6 @@ class TestInterface(TestCase):
         )
         interface = Interface(metadata)
         model = FakeModel(3, 3, 128)
-        self.assertTrue(interface.check(model, 1, 1))
+        self.assertTrue(interface.check_one_step(model, 1, 1))
         model = FakeModel(2, 2, 128)
-        self.assertFalse(interface.check(model, 1, 1))
+        self.assertFalse(interface.check_one_step(model, 1, 1))
