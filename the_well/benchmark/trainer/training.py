@@ -283,6 +283,7 @@ class Trainer:
             self.grad_scaler.scale(loss).backward()
             self.grad_scaler.step(self.optimizer)
             self.grad_scaler.update()
+            self.optimizer.zero_grad()
             # Syncing for all reduce anyway so may as well compute synchornous metrics
             epoch_loss += loss.item() / len(dataloader)
             backward_time = time.time() - batch_start - forward_time - batch_time
