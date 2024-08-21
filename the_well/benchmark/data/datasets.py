@@ -1,8 +1,8 @@
 import glob
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import h5py as h5
 import numpy as np
@@ -85,25 +85,29 @@ class BoundaryCondition(Enum):
 
 @dataclass
 class GenericWellMetadata:
-    """Dataclass to store metadata for each dataset. (in construction)
+    """Dataclass to store metadata for each dataset."""
 
-    Parameters
-    ----------
-    spatial_ndims : int
-        Number of spatial dimensions of the data.
-    dataset_name : str
-        Name of the dataset. Used for logging.
-    field_names : list
-        List of field names in the dataset. Used for logging.
-
-    """
-
-    n_spatial_dims: int
-    resolution: tuple[int]
-    n_fields: int
-    n_constant_fields: int
     dataset_name: str
-    field_names: list
+    n_spatial_dims: int
+    spatial_resolution: Tuple[int]
+    n_constant_scalars: int
+    n_constant_fields: int
+    constant_names: List[str]
+    n_fields: int
+    field_names: List[str]
+    boundary_condition_types: List[str]
+    n_simulations: int
+    n_steps_per_simulation: List[int]
+    sample_shapes: Dict[str, Tuple[int]] = field(init=False)
+    grid_type: str = "cartesian"
+
+    def __post_init__(self):
+        self.sample_shapes = {
+            "input_fields": (*self.spatial_resolution, self.n_fields),
+            "output_fields": (*self.spatial_resolution, self.n_fields),
+            "constant_scalars": (self.n_constant_scalars),
+            "space_grid": (*self.spatial_resolution, self.n_spatial_dims),
+        }
 
 
 class GenericWellDataset(Dataset):
@@ -280,6 +284,7 @@ class GenericWellDataset(Dataset):
         bcs = set()
         for index, file in enumerate(self.files_paths):
             with h5.File(file, "r") as _f:
+                grid_type: str = _f.attrs["grid_type"]
                 # Run sanity checks - all files should have same ndims, size_tuple, and names
                 samples: int = _f.attrs["n_trajectories"]
                 # Number of steps is always last dim of time
@@ -400,12 +405,18 @@ class GenericWellDataset(Dataset):
         self.num_bcs = len(bcs)  # Number of boundary condition type included in data
         self.bc_types = list(bcs)  # List of boundary condition types
         return GenericWellMetadata(
-            n_spatial_dims=int(self.n_spatial_dims),
-            resolution=tuple([int(k) for k in self.size_tuple]),
-            n_fields=int(self.num_total_fields),
-            n_constant_fields=self.num_total_constant_fields,
             dataset_name=self.dataset_name,
+            n_spatial_dims=int(self.n_spatial_dims),
+            grid_type=grid_type,
+            spatial_resolution=tuple([int(k) for k in self.size_tuple]),
+            n_constant_scalars=self.num_constants,
+            n_constant_fields=self.num_total_constant_fields,
+            constant_names=self.constant_field_names + list(self.constant_cache.keys()),
+            n_fields=int(self.num_total_fields),
             field_names=self.field_names,
+            boundary_condition_types=self.bc_types,
+            n_simulations=self.n_files,
+            n_steps_per_simulation=self.total_file_steps,
         )
 
     def _open_file(self, file_ind: int):
