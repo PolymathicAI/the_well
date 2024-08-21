@@ -1,0 +1,2 @@
+started computing the statistics of /mnt/home/polymathic/ceph/the_well/datasets/acoustic_scattering_discontinuous_2d/data
+{'pressure': 0.1038229429955576, 'density': 3.9586727905273436, 'bulk_modulus': 1.0842733001708984, 'velocity': 0.005234959546257468}

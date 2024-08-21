@@ -11,12 +11,14 @@ Thumbs.db
 clean_data.py
 clean.sh
 data_cleaning.ipynb
+recompute_stats.py
+compute_stats.sh
 #Ignoring the data
 datasets/active_matter/data/
 datasets/active_matter_v2/
 
-datasets/euler_quadrants/data/
-datasets/euler_quadrants/data_storage_non_benchmarked/
+datasets/euler_multi_quadrants_openBC/data/
+datasets/euler_multi_quadrants_periodicBC/data/
 
 datasets/pattern_formation/data/
 datasets/datasets/
