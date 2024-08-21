@@ -8,15 +8,20 @@ dist/
 Thumbs.db
 .idea/
 
+clean_data.py
+clean.sh
+data_cleaning.ipynb
 #Ignoring the data
 datasets/active_matter/data/
+datasets/active_matter_v2/
 
 datasets/euler_quadrants/data/
 datasets/euler_quadrants/data_storage_non_benchmarked/
 
 datasets/pattern_formation/data/
+datasets/datasets/
 
-
+output_slurm/
 datasets/helmholtz_staircase/data/
 datasets/viscoelastic_instability/data/
 
