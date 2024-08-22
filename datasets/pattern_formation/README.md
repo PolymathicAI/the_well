@@ -1,4 +1,4 @@
-# Pattern formation in the Gray-Scott reaciton-diffusion equations
+# Pattern formation in the Gray-Scott reaction-diffusion equations
 
 **One line description of the data:** Stable Turing patterns emerge from randomness, with drastic qualitative differences in pattern dynamics depending on the equation parameters.
 
