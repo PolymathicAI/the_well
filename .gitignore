@@ -20,7 +20,7 @@ datasets/active_matter_v2/
 datasets/euler_multi_quadrants_openBC/data/
 datasets/euler_multi_quadrants_periodicBC/data/
 
-datasets/pattern_formation/data/
+datasets/gray_scott_reaction_diffusion/data/
 datasets/datasets/
 
 output_slurm/

@@ -55,7 +55,7 @@ if __name__ == "__main__":
         "/mnt/home/polymathic/ceph/the_well/datasets/helmholtz_staircase/data",
         "/mnt/home/polymathic/ceph/the_well/datasets/MHD_64/data",
         "/mnt/home/polymathic/ceph/the_well/datasets/MHD_256/data",
-        "/mnt/home/polymathic/ceph/the_well/datasets/pattern_formation/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/gray_scott_reaction_diffusion/data",
         "/mnt/home/polymathic/ceph/the_well/datasets/planetswe/data",
         "/mnt/home/polymathic/ceph/the_well/datasets/post_neutron_star_merger/data",
         "/mnt/home/polymathic/ceph/the_well/datasets/rayleigh_benard/data",

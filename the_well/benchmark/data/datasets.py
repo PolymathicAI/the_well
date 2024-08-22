@@ -20,7 +20,7 @@ well_paths = {
     "helmholtz_staircase": "datasets/helmholtz_staircase",
     "MHD_256": "datasets/MHD_256",
     "MHD_64": "datasets/MHD_64",
-    "pattern_formation": "datasets/pattern_formation",
+    "gray_scott_reaction_diffusion": "datasets/gray_scott_reaction_diffusion",
     "planetswe": "datasets/planetswe",
     "post_neutron_star_merger": "datasets/post_neutron_star_merger",
     "rayleigh_benard": "datasets/rayleigh_benard",
