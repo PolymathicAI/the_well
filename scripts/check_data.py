@@ -1,7 +1,7 @@
 import argparse
 import multiprocessing as mp
 import os
-from typing import List
+from typing import Any, Dict, List
 
 import h5py
 import numpy as np
@@ -70,6 +70,8 @@ class ProblemReport:
         self.spatial_issue = False
         self.constant_frames = {}
         self.nan_frames = {}
+        self.field_averages = {}
+        self.statistics = {}
 
     def set_boundary_issue(self, old_value, new_value):
         self.boundary_issues = (old_value, new_value)
@@ -97,6 +99,26 @@ class ProblemReport:
             or len(self.nan_frames)
         )
 
+    def update_field_average(self, field: str, dim: int, values: np.ndarray):
+        mean_value = np.nanmean(values)
+        if field in self.field_averages:
+            if dim in self.field_averages[field]:
+                self.field_averages[field][dim].append(mean_value)
+            else:
+                self.field_averages[field][dim] = [mean_value]
+        else:
+            self.field_averages[field] = {dim: [mean_value]}
+
+    def compute_statistics(self):
+        statistics = {}
+        for field, field_dims in self.field_averages.items():
+            statistics[field] = {}
+            for dim, values in field_dims.items():
+                mean = np.mean(values)
+                std = np.std(values)
+                statistics[field].update({dim: (mean, std)})
+        self.statistics = statistics
+
     def __str__(self) -> str:
         if self.has_issue():
             report = f"{self.filename} has the following issues:\n"
@@ -115,7 +137,8 @@ class ProblemReport:
                     report += f"{field}: {problems} "
                 report += "\n"
         else:
-            report = f"{self.filename} has no detected issue"
+            report = f"{self.filename} has no detected issue\n"
+        report += f"Field statistics (mean, std): {self.statistics}\n"
         return report
 
 
@@ -124,6 +147,7 @@ class WellFileChecker:
         self.filename = filename
         self.report = ProblemReport(self.filename)
         self.modify = modifiy
+        self.field_average = {}
 
     def check_boundary_coditions(self, boundary_conditions):
         sub_keys = list(boundary_conditions.keys())
@@ -159,13 +183,15 @@ class WellFileChecker:
                         arrays = fields[sub_key][traj, time, ...]
                         arrays = arrays.reshape(*spatial_dimensions, -1)
                         arrays = np.moveaxis(arrays, -1, 0)
-                        for array in arrays:
-                            if verify_constant_array(array) and time > 0:
+                        for dim, array in enumerate(arrays):
+                            if check_nan(array):
+                                self.report.set_nan_frame_issue(sub_key, traj, time)
+                            elif verify_constant_array(array) and time > 0:
                                 self.report.set_constant_frame_issue(
                                     sub_key, traj, time
                                 )
-                            if check_nan(array):
-                                self.report.set_nan_frame_issue(sub_key, traj, time)
+                            else:
+                                self.report.update_field_average(sub_key, dim, array)
 
     def check(self):
         with h5py.File(self.filename, "r+") as file:
@@ -180,6 +206,7 @@ class WellFileChecker:
                     self.check_scalars(file[key])
                 elif "fields" in key:
                     self.check_fields(file[key])
+        self.report.compute_statistics()
         return str(self.report)
 
 
