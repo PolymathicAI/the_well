@@ -230,7 +230,7 @@ if __name__ == "__main__":
     parser.add_argument("-n", "--nproc", type=int, default=1)
     parser.add_argument("--modify", action="store_true")
     args = parser.parse_args()
-    nproc = args.n
+    nproc = args.nproc
     modify = args.modify
     files = list_files(data_register)
     with mp.Pool(nproc) as pool:
