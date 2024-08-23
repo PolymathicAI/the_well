@@ -63,9 +63,66 @@ def detect_outlier_pixels(image_array: np.ndarray, threshold: int = 10):
     return outliers, outlier_positions, has_outliers
 
 
+class ProblemReport:
+    def __init__(self, filename):
+        self.filename = filename
+        self.boundary_issues = ()
+        self.spatial_issue = False
+        self.constant_frames = {}
+        self.nan_frames = {}
+
+    def set_boundary_issue(self, old_value, new_value):
+        self.boundary_issues = (old_value, new_value)
+
+    def set_spatial_issue(self):
+        self.spatial_issue = True
+
+    def set_constant_frame_issue(self, field: str, trajectory: int, time_step: int):
+        if field in self.constant_frames:
+            self.constant_frames[field].append((trajectory, time_step))
+        else:
+            self.constant_frames[field] = [(trajectory, time_step)]
+
+    def set_nan_frame_issue(self, field: str, trajectory: int, time_step: int):
+        if field in self.nan_frames:
+            self.nan_frames[field].append((trajectory, time_step))
+        else:
+            self.nan_frames[field] = [(trajectory, time_step)]
+
+    def has_issue(self) -> bool:
+        return (
+            len(self.boundary_issues)
+            or self.spatial_issue
+            or len(self.constant_frames)
+            or len(self.nan_frames)
+        )
+
+    def __str__(self) -> str:
+        if self.has_issue():
+            report = f"{self.filename} has the following issues:\n"
+            if self.boundary_issues:
+                report += f"Boundary condition must replaced from {self.boundary_issues[0]} to {self.boundary_issues[1]}.\n"
+            if self.spatial_issue:
+                report += "Spatial dimensions must be modified.\n"
+            if self.constant_frames:
+                report += "Constant frames detected for (trajectory time_step):"
+                for field, problems in self.constant_frames.items():
+                    report += f"{field}: {problems} "
+                report += "\n"
+            if self.nan_frames:
+                report += "Frames with NAN values detected for (trajectory time_step):"
+                for field, problems in self.nan_frames.items():
+                    report += f"{field}: {problems} "
+                report += "\n"
+        else:
+            report = f"{self.filename} has no detected issue"
+        return report
+
+
 class WellFileChecker:
     def __init__(self, filename: str, modifiy: bool = False):
         self.filename = filename
+        self.report = ProblemReport(self.filename)
         self.modify = modifiy
 
     def check_boundary_coditions(self, boundary_conditions):
@@ -77,16 +134,15 @@ class WellFileChecker:
                 if bc_old != bc:
                     boundary_conditions[sub_key].attrs["bc_type"] = bc
                     temp = boundary_conditions[sub_key].attrs["bc_type"]
-                    print(f"Modified {self.filename} bc_type from {bc_old} to {temp}")
+                    self.report.set_boundary_issue(bc, temp)
+
             else:
                 if bc_old != bc:
-                    print(
-                        f"need to modify {self.filename} bc_type from {bc_old} to {bc}"
-                    )
+                    self.report.set_boundary_issue(bc_old, bc)
 
     def check_dimensions(self, dimensions, n_spatial_dims: int):
         if len(dimensions.attrs["spatial_dims"]) != n_spatial_dims:
-            print(f"need to modify {self.filename} spatial_dims")
+            self.report.set_spatial_issue()
 
     def check_scalars(self, scalars):
         pass
@@ -105,13 +161,11 @@ class WellFileChecker:
                         arrays = np.moveaxis(arrays, -1, 0)
                         for array in arrays:
                             if verify_constant_array(array) and time > 0:
-                                print(
-                                    f"Modify for CONSTANT ARRAY {array} folder, {self.filename}, {sub_key} trajectory {traj} time {time}"
+                                self.report.set_constant_frame_issue(
+                                    sub_key, traj, time
                                 )
                             if check_nan(array):
-                                print(
-                                    f"NaNs presents in  {self.filename} {sub_key} trajectory {traj} time {time}"
-                                )
+                                self.report.set_nan_frame_issue(sub_key, traj, time)
 
     def check(self):
         with h5py.File(self.filename, "r+") as file:
@@ -126,6 +180,7 @@ class WellFileChecker:
                     self.check_scalars(file[key])
                 elif "fields" in key:
                     self.check_fields(file[key])
+        return str(self.report)
 
 
 def list_files(data_register: List[str]):
@@ -152,4 +207,5 @@ if __name__ == "__main__":
     modify = args.modify
     files = list_files(data_register)
     with mp.Pool(nproc) as pool:
-        pool.map(check_file, files)
+        for report in pool.imap_unordered(check_file, files):
+            print(report)
