@@ -32,6 +32,7 @@ def train(
     world_size: int = 1,
     rank: int = 1,
     local_rank: int = 1,
+    validation_mode: bool = False,
 ):
     """Instantiate the different objects required for training and run the training loop."""
 
@@ -71,11 +72,14 @@ def train(
         model = model.to(device)
 
     logger.info(f"Instantiate optimizer {cfg.optimizer._target_}")
-    optimizer: torch.optim.Optimizer = instantiate(
-        cfg.optimizer, params=model.parameters()
-    )
+    if not validation_mode:
+        optimizer: torch.optim.Optimizer = instantiate(
+            cfg.optimizer, params=model.parameters()
+        )
+    else:
+        optimizer = None
 
-    if hasattr(cfg, "lr_scheduler"):
+    if hasattr(cfg, "lr_scheduler") and not validation_mode:
         # Instantiate LR scheduler
         logger.info(f"Instantiate learning rate scheduler {cfg.lr_scheduler._target_}")
         lr_scheduler: torch.optim.lr_scheduler._LRScheduler = instantiate(
@@ -88,6 +92,7 @@ def train(
     else:
         logger.info("No learning rate scheduler")
         lr_scheduler = None
+    # Print final config, but also log it to experiment directory. 
     logger.info(f"Final configuration:\n{OmegaConf.to_yaml(cfg)}")
     logger.info(f"Instantiate trainer {cfg.trainer._target_}")
     trainer: Trainer = instantiate(
@@ -99,8 +104,12 @@ def train(
         lr_scheduler=lr_scheduler,
         device=device,
         is_distributed=is_distributed,
+        validation_mode=cfg.validation_mode,
     )
-    trainer.train()
+    if not validation_mode:
+        trainer.train()
+    else:
+        trainer.validate()
 
 
 def get_experiment_name(cfg: DictConfig) -> str:
