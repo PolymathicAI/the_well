@@ -36,7 +36,7 @@ def param_norm(parameters):
 class Trainer:
     def __init__(
         self,
-        experiment_name: str,
+        experiment_folder: str,
         formatter: str,
         model: torch.nn.Module,
         datamodule: AbstractDataModule,
@@ -44,12 +44,12 @@ class Trainer:
         loss_fn: Callable,
         # validation_suite: list,
         epochs: int,
+        checkpoint_frequency: int,
         val_frequency: int,
         rollout_val_frequency: int,
         max_rollout_steps: int,
         short_validation_length: int,
         num_time_intervals: int,
-        base_experiment_folder: str = ".",
         lr_scheduler: Optional[torch.optim.lr_scheduler._LRScheduler] = None,
         device=torch.device("cuda"),
         is_distributed: bool = False,
@@ -61,8 +61,8 @@ class Trainer:
 
         Parameters
         ----------
-        experiment_name:
-            The name of the training experiment to be run
+        experiment_folder:
+            Path to folder used for experiment
         model:
             The Pytorch model to train
         datamodule:
@@ -74,6 +74,8 @@ class Trainer:
         epochs:
             Number of epochs to train the model.
             One epoch correspond to a full loop over the datamodule's training dataloader
+        checkpoint_frequency:
+            The frequency in terms of number of epochs to save the model checkpoint
         val_frequency:
             The frequency in terms of number of epochs to perform the validation
         rollout_val_frequency:
@@ -92,7 +94,7 @@ class Trainer:
             A boolean flag to trigger DDP training
 
         """
-        self.experiment_name = experiment_name
+        self.experiment_folder = experiment_folder
         self.device = device
         self.model = model
         self.datamodule = datamodule
@@ -101,6 +103,7 @@ class Trainer:
         self.loss_fn = loss_fn
         self.validation_suite = validation_metric_suite + [self.loss_fn]
         self.max_epoch = epochs
+        self.checkpoint_frequency = checkpoint_frequency
         self.val_frequency = val_frequency
         self.rollout_val_frequency = rollout_val_frequency
         self.max_rollout_steps = max_rollout_steps
@@ -118,6 +121,18 @@ class Trainer:
             self.formatter = DefaultChannelsFirstFormatter(self.dset_metadata)
         elif formatter == "channels_last_default":
             self.formatter = DefaultChannelsLastFormatter(self.dset_metadata)
+
+    def configure_paths(self):
+        """Configure the paths for the experiment."""
+        # Make checkpoints directory as experiment_folder/checkpoints
+        os.makedirs(os.path.join(self.experiment_folder, "checkpoints"), exist_ok=True)
+        self.checkpoint_folder = os.path.join(self.experiment_folder, "checkpoints")
+        # Make logs directory as experiment_folder/logs
+        os.makedirs(os.path.join(self.experiment_folder, "logs"), exist_ok=True)
+        self.log_folder = os.path.join(self.experiment_folder, "logs")
+        # Plot data directory as experiment_folder/plots
+        os.makedirs(os.path.join(self.experiment_folder, "plots"), exist_ok=True)
+        self.plot_folder = os.path.join(self.experiment_folder, "plots")
 
     def save_model(self, epoch: int, validation_loss: float, output_path: str):
         """Save the model checkpoint."""
@@ -309,9 +324,9 @@ class Trainer:
         rollout_val_dataloader = self.datamodule.rollout_val_dataloader()
         test_dataloader = self.datamodule.test_dataloader()
         rollout_test_dataloader = self.datamodule.rollout_test_dataloader()
-        os.makedirs(
-            "checkpoints", exist_ok=True
-        )  # Quick fix here - should parameterize.
+        # os.makedirs(
+        #     "checkpoints", exist_ok=True
+        # )  # Quick fix here - should parameterize.
         for epoch in range(self.max_epoch):
             if epoch % self.val_frequency == 0:
                 logger.info(f"Epoch {epoch+1}/{self.max_epoch}: starting validation")
@@ -325,7 +340,7 @@ class Trainer:
                 wandb.log(val_loss_dict)
                 if self.best_val_loss is None or val_loss < self.best_val_loss:
                     self.save_model(
-                        epoch, val_loss, f"{checkpoints/{self.experiment_name}-best.pt"
+                        epoch, val_loss, os.path.join(self.checkpoint_folder, "best.pt")
                     )
             if epoch % self.rollout_val_frequency == 0:
                 logger.info(
@@ -353,8 +368,14 @@ class Trainer:
             train_logs |= {"train": train_loss, "epoch": epoch}
             wandb.log(train_logs)
             self.save_model(
-                epoch, val_loss, f"checkpoints/{self.experiment_name}-recent.pt"
+                epoch, val_loss, os.path.join(self.checkpoint_folder, "recent.pt")
             )
+            if self.checkpoint_frequency >= 1 and epoch % self.checkpoint_frequency == 0:
+                self.save_model(
+                    epoch,
+                    val_loss,
+                    os.path.join(self.checkpoint_folder, f"checkpoint_{epoch}.pt"),
+                )
         # Run validation on last epoch if not already run
         if epoch % self.val_frequency != 0:
             val_loss, val_loss_dict = self.validation_loop(val_dataloder, full=True)
@@ -385,7 +406,6 @@ class Trainer:
             "epoch": epoch,
         }
         wandb.log(test_logs)
-        self.save_model(epoch, val_loss, f"checkpoints/{self.experiment_name}-last.pt")
 
     def validate(self):
         val_dataloder = self.datamodule.val_dataloader()

@@ -1,4 +1,5 @@
 import logging
+import os
 import os.path as osp
 
 import hydra
@@ -27,11 +28,12 @@ logger.info(f"Run training script for {CONFIG_PATH}")
 
 def train(
     cfg: DictConfig,
-    experiment_name: str,
+    experiment_folder: str,
     is_distributed: bool = False,
     world_size: int = 1,
     rank: int = 1,
     local_rank: int = 1,
+    resume: bool = False,
     validation_mode: bool = False,
 ):
     """Instantiate the different objects required for training and run the training loop."""
@@ -97,7 +99,7 @@ def train(
     logger.info(f"Instantiate trainer {cfg.trainer._target_}")
     trainer: Trainer = instantiate(
         cfg.trainer,
-        experiment_name=experiment_name,
+        experiment_folder=experiment_folder,
         model=model,
         datamodule=datamodule,
         optimizer=optimizer,
@@ -107,6 +109,10 @@ def train(
         validation_mode=cfg.validation_mode,
     )
     if not validation_mode:
+        # Save config to directory folder
+        if not resume:
+            with open(osp.join(experiment_folder, "extended_config.yaml"), "w") as f:
+                OmegaConf.save(cfg, f)
         trainer.train()
     else:
         trainer.validate()
@@ -114,6 +120,7 @@ def train(
 
 def get_experiment_name(cfg: DictConfig) -> str:
     model_name = cfg.model._target_.split(".")[-1]
+    # slurm_job_id = os.environ.get("SLURM_JOB_ID", "0") - Not using for now since I think it'll be easier to just use name alone
     return f"{cfg.data.well_dataset_name}-{cfg.name}-{model_name}-{cfg.optimizer.lr}"
 
 
@@ -126,6 +133,7 @@ def main(cfg: DictConfig):
     torch.set_float32_matmul_precision("high")  # Use TF32 when supported
     # Normal things
     experiment_name = get_experiment_name(cfg)
+    experiment_folder = osp.join(cfg.experiment_dir, experiment_name)
     logger.info(f"Run experiment {experiment_name}")
     logger.info(f"Configuration:\n{OmegaConf.to_yaml(cfg)}")
     # Initiate wandb logging
@@ -151,8 +159,7 @@ def main(cfg: DictConfig):
         dist.init_process_group(
             backend="nccl", init_method="env://", world_size=world_size, rank=rank
         )
-
-    train(cfg, experiment_name, is_distributed, world_size, rank, local_rank)
+    train(cfg, experiment_folder, is_distributed, world_size, rank, local_rank)
     wandb.finish()
 
 
