@@ -206,8 +206,8 @@ class WellFileChecker:
                     self.check_scalars(file[key])
                 elif "fields" in key:
                     self.check_fields(file[key])
-        self.report.compute_statistics()
-        return str(self.report)
+            self.report.compute_statistics()
+            return str(self.report)
 
 
 def list_files(data_register: List[str]):
