@@ -4,11 +4,11 @@
 
 **Longer description of the data:** Elasto-inertial turbulence (EIT) is a recently discovered two-dimensional chaotic flow state observed in dilute polymer solutions. Two-dimensional direct numerical simulations show (up to) four coexistent attractors: the laminar state (LAM), a steady arrowhead regime (SAR), Elasto-inertial turbulence (EIT) and a ‘chaotic arrowhead regime’ (CAR). The SAR is stable for all parameters considered here, while the final pair of (chaotic) flow states are visually very similar and can be distinguished only by the presence of a weak polymer arrowhead structure in the CAR regime. Both chaotic regimes are maintained by an identical near-wall mechanism and the weak arrowhead does not play a role. The data set includes snapshots on the four attractors as well as two edge states. An edge state is an unstable state that exists on the boundary between two basins of attractors, the so-called edge manifold. Edge states have a single unstable direction out of the manifold and are relevant since the lie exactly on the boundary separating qualitatively different behaviours of the flow. The edge states in the present data set are obtained through edge tracking between the laminar state and EIT and between EIT and SAR. 
 
-**Associated paper**: [Paper](https://www.cambridge.org/core/services/aop-cambridge-core/content/view/D63B7EDB638451A6FC2FBBFDA85E1BBD/S0022112024000508a.pdf/multistability-of-elasto-inertial-two-dimensional-channel-flow.pdf)
+**Associated paper**: [Paper](https://www.cambridge.org/core/services/aop-cambridge-core/content/view/D63B7EDB638451A6FC2FBBFDA85E1BBD/S0022112024000508a.pdf/multistability-of-elasto-inertial-two-dimensional-channel-flow.pdf).
 
 **Domain experts**: [Miguel Beneitez](https://beneitez.github.io/) and [Richard Kerswell](https://www.damtp.cam.ac.uk/user/rrk26/), DAMTP, University of Cambridge, UK.
 
-**Code or software used to generate the data**: [Dedalus](https://dedalus-project.readthedocs.io/en/latest/index.html) v2.
+**Code or software used to generate the data**: [Dedalus](https://dedalus-project.readthedocs.io/en/latest/index.html).
 
 **Equation**:
 

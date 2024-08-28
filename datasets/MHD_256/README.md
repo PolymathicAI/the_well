@@ -1,12 +1,14 @@
 # Magnetohydrodynamics (MHD) compressible turbulence
 
+**NOTE:** This dataset is available in two different resolutions $256^3$ for `MHD_256` and $64^3$ for `MHD_64`. The data was first generated at $256^3$ and then downsampled to $64^3$ after anti-aliasing with an ideal low-pass filter. The data is available in both resolutions.
+
 **One line description of the data:** This is an MHD fluid flows in the compressible limit (subsonic, supersonic, sub-Alfvenic, super-Alfvenic).
 
 **Longer description of the data:** An essential component of the solar wind, galaxy formation, and of interstellar medium (ISM) dynamics is magnetohydrodynamic (MHD) turbulence. This dataset consists of isothermal MHD simulations without self-gravity (such as found in the diffuse ISM) initially generated with resolution $256^3$ and then downsampled to $64^3$ after anti-aliasing with an ideal low-pass filter.
 
-**Associated paper**: [Paper](https://iopscience.iop.org/article/10.3847/1538-4357/abc484/pdf)
+**Associated paper**: [Paper](https://iopscience.iop.org/article/10.3847/1538-4357/abc484/pdf).
 
-**Domain expert**: [Blakesley Burkhart](https://www.bburkhart.com/), CCA, Flatiron Institute & Rutgers University.
+**Domain expert**: [Blakesley Burkhart](https://www.bburkhart.com/), Center for Computational Astrophysics, Flatiron Institute & Rutgers University.
 
 **Code or software used to generate the data**: Fortran + MPI.
 
@@ -43,7 +45,7 @@ where $\rho$ is the density, $\mathbf{v}$ is the velocity, $\mathbf{B}$ is the m
 
 **Total time range ($t\_{min}$ to $t\_{max}$):** $t\_{min} = 0$, $t\_{max} = 1$.
 
-**Spatial domain size ($L_x$, $L_y$, $L_z$):** dimensionless so 256 pixels.
+**Spatial domain size ($L_x$, $L_y$, $L_z$):** dimensionless so $ L_x = L_y = L_z = 256$ pixels.
 
 **Set of coefficients or non-dimensional parameters evaluated:** all combinations of $\mathcal{M}_s=${0.5, 0.7, 1.5, 2.0 7.0} and $\mathcal{M}_A =${0.7, 2.0}.
 

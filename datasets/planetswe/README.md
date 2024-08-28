@@ -4,11 +4,11 @@
 
 **Longer description of the data:** The shallow water equations are fundamentally a 2D approximation of a 3D flow in the case where horizontal length scales are significantly longer than vertical length scales. They are derived from depth-integrating the incompressible Navier-Stokes equations. The integrated dimension then only remains in the equation as a variable describing the height of the pressure surface above the flow. These equations have long been used as a simpler approximation of the primitive equations in atmospheric modeling of a single pressure level, most famously in the Williamson test problems. This scenario can be seen as similar to Williamson Problem 7 as we derive initial conditions from the hPa 500 pressure level in ERA5. These are then simulated with realistic topography and two levels of periodicity. 
 
-**Associated paper**: [Paper](https://openreview.net/forum?id=RFfUUtKYOG)
+**Associated paper**: [Paper](https://openreview.net/forum?id=RFfUUtKYOG).
 
 **Domain expert**: [Michael McCabe](https://mikemccabe210.github.io/), Polymathic AI.
 
-**Code or software used to generate the data**: [Dedalus](https://dedalus-project.readthedocs.io/en/latest/), adapted from [example](https://dedalus-project.readthedocs.io/en/latest/pages/examples/ivp_sphere_shallow_water.html)
+**Code or software used to generate the data**: [Dedalus](https://dedalus-project.readthedocs.io/en/latest/), adapted from [example](https://dedalus-project.readthedocs.io/en/latest/pages/examples/ivp_sphere_shallow_water.html).
 
 **Equation**: 
 
@@ -63,7 +63,7 @@ Visualization:
 
 **Boundary conditions:** Spherical.
 
-**Simulation time-step ($\Delta t$):** CFL-based step size with safety factor of .4. 
+**Simulation time-step ($\Delta t$):** CFL-based step size with safety factor of 0.4. 
 
 **Data are stored separated by ($\delta t$):** 1 hour in simulation time units.
 

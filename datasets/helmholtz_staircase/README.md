@@ -6,19 +6,18 @@ acoustic scattering from a nonperiodic source by a periodic surface, relevant fo
 **Longer description of the data:**  Accurate solution of PDEs near infinite, periodic boundaries poses a numerical challenge due these surfaces serving as waveguides, allowing modes to propagate for long distances from the source. This property makes numerical truncation of the (infinite) solution domain unfeasible, as it would induce large artificial reflections and therefore errors. Periodization (reducing the computational domain to one unit cell) is only possible if the incident wave is also
 periodic, such as plane waves, but not for nonperiodic sources, e.g. a point source. Computing a high-order accurate scattering solution from a point source, however, would be of scientific interest as it models applications such as remote sensing, diffraction from gratings, antennae, or acoustic/photonic metamaterials. We use a combination of the Floquet—Bloch transform (also known as array scanning method) and boundary integral equation methods to alleviate these challenges and recover the scattered solution as an integral over a family of quasiperiodic solutions parameterized by their on-surface wavenumber. The advantage of this approach is that each of the quasiperiodic solutions may be computed quickly by periodization, and accurately via high-order quadrature.
 
-**Associated paper**: https://arxiv.org/abs/2310.12486
+**Associated paper**: [Paper](https://arxiv.org/abs/2310.12486),
 
-**Domain expert**: [Fruzsina Julia Agocs](https://fruzsinaagocs.github.io/), CCM, Flatiron Institute.
+**Domain expert**: [Fruzsina Julia Agocs](https://fruzsinaagocs.github.io/), Center for Computational Mathematics, Flatiron Institute.
 
-**Code or software used to generate the data**: [Github repository](https://www.github.com/fruzsinaagocs/bies)
+**Code or software used to generate the data**: [Github repository](https://www.github.com/fruzsinaagocs/bies).
 
 **Equations**:
 
 While we solve equations in the frequency domain, the original time-domain problem is:
 
 $$\frac{\partial^2 U(t, \mathbf{x})}{\partial t^2} - \Delta U(t, \mathbf{x}) = \delta(t)\delta(\mathbf{x} - \mathbf{x}_0), $$
-where $\Delta = \nabla \cdot \nabla$ is the spatial Laplacian. [ADD what is U]
-The sound-hard boundary $\partial \Omega$ imposes Neumann boundary conditions,
+where $\Delta = \nabla \cdot \nabla$ is the spatial Laplacian and $U$ the accoustic pressure. The sound-hard boundary $\partial \Omega$ imposes Neumann boundary conditions,
 
 $$ U_n(t, \mathbf{x}) = \mathbf{n} \cdot \nabla U = 0, \quad t \in \mathbb{R}, \quad \mathbf{x} \in \partial \Omega. $$
 

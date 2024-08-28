@@ -6,7 +6,7 @@
 
 **Domain expert**: [Michael McCabe](https://mikemccabe210.github.io/), Polymathic AI.
 
-**Code or software used to generate the data**: Clawpack, adapted from: http://www.clawpack.org/gallery/pyclaw/gallery/acoustics_2d_interface.html
+**Code or software used to generate the data**: Clawpack,  adapted from [this code](http://www.clawpack.org/gallery/pyclaw/gallery/acoustics_2d_interface.html).
 
 **Equation**:
 
@@ -14,7 +14,7 @@
 \begin{align}
 \frac{ \partial p}{\partial t} + K(x, y) \left( \frac{\partial u}{\partial x} + \frac{\partial v}{\partial y} \right) &= 0 \\
 \frac{ \partial u  }{\partial t} + \frac{1}{\rho(x, y)} \frac{\partial p}{\partial x} &= 0 \\
-\frac{ \partial v  }{\partial t} + \frac{1}{\rho(x, y)} \frac{\partial p}{\partial v} &= 0 
+\frac{ \partial v  }{\partial t} + \frac{1}{\rho(x, y)} \frac{\partial p}{\partial y} &= 0 
 \end{align}
 ```
 with $\rho$ the material density, $u, v$ the velocity in the $x, y$ directions respectively, $p$ the pressure, and $K$ the bulk modulus. 
@@ -36,6 +36,7 @@ Traversal can be seen:
 **Dimension of discretized data:** $201$ steps of $256\times256$ images.
 
 **Fields available in the data:** pressure (scalar field), material density (constant scalar field), material speed of sound (constant scalar field), velocity field (vector field).
+
 **Number of trajectories:** 2000.
 
 **Estimated size of the ensemble of all simulations:** 311.3 GB.
@@ -54,9 +55,7 @@ Traversal can be seen:
 
 **Spatial domain size ($L_x$, $L_y$, $L_z$):** [-1, 1] x [-1, 1].
 
-**Set of coefficients or non-dimensional parameters evaluated:**
-
-$K$ is fixed at 4.0. 
+**Set of coefficients or non-dimensional parameters evaluated:** $K$ is fixed at 4.0. 
 
 $\rho$ is the primary coefficient here. We generated a maze with initial width between 6 and 16 pixels and upsample it via nearest neighbor resampling to create a 256 x 256 maze. The walls are set to $\rho=10^6$ while paths are set to  $\rho=3$.  
 

@@ -44,7 +44,7 @@ Example material densities can be seen below:
 
 **Data are stored separated by ($\Delta t$):** 2/101. 
 
-**Total time range ($t_{min}$ to $t_{max}$):** [0, 2.]
+**Total time range ($t_{min}$ to $t_{max}$):** [0, 2]
 
 **Spatial domain size ($L_x$, $L_y$, $L_z$):** [-1, 1] x [-1, 1]
 

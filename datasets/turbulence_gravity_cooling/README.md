@@ -8,7 +8,7 @@
 
 **Domain expert**: [Keiya Hirashima](https://kyafuk.github.io/utokyo-hirashima/index.html), University of Tokyo & CCA, Flatiron Institute.
 
-**Code or software used to generate the data**: ASURA-FDPS (Smoothed Particle Hydrodynamics), [Github repository](https://github.com/FDPS/FDPS)
+**Code or software used to generate the data**: ASURA-FDPS (Smoothed Particle Hydrodynamics), [Github repository](https://github.com/FDPS/FDPS).
 
 **Equation**: 
 
@@ -33,7 +33,7 @@ where $P$, $\rho$, and $u$ are the pressure. $r$ is the position, $a_{\rm visc}$
 
 **Dimension of discretized data:** $50$ time-steps of  $64\times 64\times 64$ cubes.
 
-**Fields available in the data:** Pressure (scalar field), density (scalar field), temperature(scalar field), velocity (tensor field).
+**Fields available in the data:** Pressure (scalar field), density (scalar field), temperature (scalar field), velocity (tensor field).
 
 **Number of trajectories:** 2700 (27 parameters sets $\times$ 100 runs).
 
@@ -41,7 +41,7 @@ where $P$, $\rho$, and $u$ are the pressure. $r$ is the position, $a_{\rm visc}$
 
 **Grid type:** uniform, cartesian coordinates.
 
-**Initial conditions:** $2700$ random seeds generated using https://github.com/amusecode/amuse/blob/main/src/amuse/ext/molecular_cloud.py (Virialized isothermal gas sphere with turbulence following the velocity spectrum $E(k) \propto k^{-2}$, which is Burgers turbulence (Burgers 1948 and Kupilas+2021 for reference )).
+**Initial conditions:** $2700$ random seeds generated using https://github.com/amusecode/amuse/blob/main/src/amuse/ext/molecular_cloud.py (Virialized isothermal gas sphere with turbulence following the velocity spectrum $E(k) \propto k^{-2}$, which is Burgers turbulence (Burgers 1948 and Kupilas+2021 for reference)).
 
 **Boundary conditions:** open.
 

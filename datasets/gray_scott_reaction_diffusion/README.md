@@ -13,11 +13,10 @@
 **Equation describing the data** 
 ```math
 \begin{align}
-\frac{\partial A}{\partial t} &= \delta_A\Delta A - AB^2 + f(1-A) \nonumber \\
-\frac{\partial B}{\partial t} &= \delta_B\Delta B - AB^2 + (f+k)B \nonumber
+\frac{\partial A}{\partial t} &= \delta_A\Delta A - AB^2 + f(1-A) \nonumber \\\frac{\partial B}{\partial t} &= \delta_B\Delta B - AB^2 - (f+k)B \nonumber
 \end{align}
 ```
-The dimensionless parameters describing the behavior are: $f$, $k$, $\frac{\delta_A}{\delta_B}$
+The dimensionless parameters describing the behavior are: $f$ the rate at which $A$ is replenished (feed rate), $k$ the rate at which $B$ is removed from the system, and  $\delta_A, \delta_B$ the diffusion coefficients of both species.
 
 
 ![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/pattern_formation/gif/concentration_A_normalized.gif)

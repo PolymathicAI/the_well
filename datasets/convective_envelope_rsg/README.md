@@ -1,14 +1,14 @@
 # Red Supergiant Convective Envelope
 
-**One line description of the data:** 3D radiation hydrodynamic simulations of convective envelopes of red supergiant stars.
+**One line description of the data:** 3D radiation hydrodynamic simulations of the convective envelope of red supergiant stars.
 
 **Longer description of the data:** Massive stars evolve into red supergiants, which have large radii and luminosities, and low-density, turbulent, convective envelopes. These simulations model the (inherently 3D) convective properties and gives insight into the progenitors of supernovae explosions.
 
-**Associated paper**: [Paper](https://iopscience.iop.org/article/10.3847/1538-4357/ac5ab3)
+**Associated paper**: [Paper](https://iopscience.iop.org/article/10.3847/1538-4357/ac5ab3).
 
 **Domain experts**: [Yan-Fei Jiang](https://jiangyanfei1986.wixsite.com/yanfei-homepage) (CCA, Flatiron Institute), [Jared Goldberg](https://jaredagoldberg.wordpress.com/) (CCA, Flatiron Institute), [Jeff Shen](https://jshen.net) (Princeton University).
 
-**Code or software used to generate the data**: [Athena++](https://www.athena-astro.app/)
+**Code or software used to generate the data**: [Athena++](https://www.athena-astro.app/).
 
 **Equations**
 ```math
@@ -20,15 +20,14 @@
 \end{align*}
 ```
 where 
-- $\rho$ = gas density
-- $\mathbf{v}$ = flow velocity
-- ${\sf P_{\rm gas}}$ = gas pressure tensor
-- $P_{\rm gas}$ = gas pressure scalar
-- $E$ = total gas energy density
-    - $E = E_g + \rho v^2 / 2$, where $E_g = 3 P_{\rm gas} / 2$ = gas internal energy density
-- $G^0_r$ and $\mathbf{G}_r$ = time-like and space-like components of the radiation four-force
-- $I$ = frequency integrated intensity, which is a function of time, spatial coordinate, and photon propagation direction $\mathbf{n}$
-- $\mathbf{n}$ = photon propagation direction
+- $\rho$ = gas density.
+- $\mathbf{v}$ = flow velocity.
+- ${\sf P_{\rm gas}}$ = gas pressure tensor.
+- $P_{\rm gas}$ = gas pressure scalar.
+- $E$ = total gas energy density: $E = E_g + \rho v^2 / 2$, where $E_g = 3 P_{\rm gas} / 2$ = gas internal energy density.
+- $G^0_r$ and $\mathbf{G}_r$ = time-like and space-like components of the radiation four-force.
+- $I$ = frequency integrated intensity, which is a function of time, spatial coordinate, and photon propagation direction $\mathbf{n}$.
+- $\mathbf{n}$ = photon propagation direction.
 
 ![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/convective_envelope_rsg/gif/density_unnormalized.gif)
 
@@ -42,7 +41,7 @@ Preliminary benchmarking, in VRMSE.
 
 **Dimension of discretized data:** $100$ time-steps of $256\times 128 \times 256$ images per trajectory.
 
-**Fields available in the data:** energy (scalar field), density (scalar field), pressure (Scalar field), velocity (vector field).
+**Fields available in the data:** energy (scalar field), density (scalar field), pressure (scalar field), velocity (vector field).
 
 **Number of trajectories:** 29 (they are cuts of one long trajectory, long trajectory available on demand).
 
@@ -58,7 +57,7 @@ Between $300\~R_\odot$ and $400\~R_\odot$, the initial profile is constructed wi
 
 **Data are stored separated by ($\Delta t$):** units here are sort of arbitrary, $\Delta t= 8$.
 
-**Total time range ($t_{min}$ to $t_{max}$):**  0, 806 (arbitrary).
+**Total time range ($t_{min}$ to $t_{max}$):**  $t_{min}= 0$, $t_{max} =806$ (arbitrary).
 
 **Spatial domain size:** $R$ from $300-6700~{\rm R_\odot}$, θ from $π/4−3π/4$ and $\phi$ from $0−π$, with $δr/r ≈ 0.01$.
 
@@ -68,7 +67,7 @@ Between $300\~R_\odot$ and $400\~R_\odot$, the initial profile is constructed wi
 |--|--|--|--|--|--|--|--|
 | Whole simulation (to obtain the 29 trajectories) | 300 | 6700 | fixed L | 256 × 128 × 256 | 5766 days | 10.79 | 12.9 |
 
-**Approximate time to generate the data:** 2 months on 80 nodes for each run.
+**Approximate time to generate the data:** 2 months on 80 nodes.
 
 **Hardware used to generate the data:** 80x NASA Pleiades Skylake CPU nodes.
 
@@ -76,6 +75,6 @@ Between $300\~R_\odot$ and $400\~R_\odot$, the initial profile is constructed wi
 
 **What phenomena of physical interest are captured in the data:** turbulence and convection (inherently 3D processes), variability.
 
-**How to evaluate a new simulator operating in this space:** can it predict behaviour of simulation in convective steady-state, given only perhaps a few snapshots at the beginning of the simulation?
+**How to evaluate a new simulator operating in this space:** can it predict behaviour of simulation in convective steady-state, given only a few snapshots at the beginning of the simulation?
 
 **Caveats:** complicated geometry, size of a slice in R varies with R (think of this as a slice of cake, where the parts of the slice closer to the outside have more area/volume than the inner parts), simulation reaches convective steady-state at some point and no longer "evolves".

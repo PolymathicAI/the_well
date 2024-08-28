@@ -1,14 +1,16 @@
 # Euler Multi-quadrants - Riemann problems (compressible, inviscid fluid)
 
+**NOTE:** this dataset is distributed in two separate datasets: `euler_multi_quadrants_openBC` with open boundary conditions and `euler_multi_quadrants_periodicBC` with periodic boundary conditions.
+
 **One line description of the data:**  Evolution of different gases starting with piecewise constant initial data in quadrants.
 
 **Longer description of the data:**  The evolution can give rise to shocks, rarefaction waves, contact discontinuities, interaction with each other and domain walls.
 
-**Associated paper**: [Paper](https://epubs.siam.org/doi/pdf/10.1137/S1064827595291819?casa_token=vkASCwD4WngAAAAA:N0jy0Z6tshitF10_YRTlZzU-P7mAiPFr3v58sw7pmRsZOarAi824-b1CWhOQts1rvaG3YpJisw)
+**Associated paper**: [Paper](https://epubs.siam.org/doi/pdf/10.1137/S1064827595291819?casa_token=vkASCwD4WngAAAAA:N0jy0Z6tshitF10_YRTlZzU-P7mAiPFr3v58sw7pmRsZOarAi824-b1CWhOQts1rvaG3YpJisw).
 
 **Domain experts**: [Marsha Berger](https://cs.nyu.edu/~berger/)(Flatiron Institute & NYU), [Ruben Ohana](https://rubenohana.github.io/) (CCM, Flatiron Institute & Polymathic AI), [Michael McCabe](https://mikemccabe210.github.io/) (Polymathic AI).
 
-**Code or software used to generate the data**: [Clawpack (AMRClaw)](http://www.clawpack.org/)
+**Code or software used to generate the data**: [Clawpack (AMRClaw)](http://www.clawpack.org/).
 
 **Equation**: Euler equations for a compressible gas:
 ```math
@@ -23,7 +25,7 @@ with $\rho$ the density, $u$ and $v$ the $x$ and $y$ velocity components, $e$ th
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| euler_multi-quadrants (periodic b.c. only)  | 2.22  | 2.19 |$\mathbf{1.98}$ |2.26|
+| `euler_multi-quadrants_periodicBC`  | 2.22  | 2.19 |$\mathbf{1.98}$ |2.26|
 
 # About the data
 
@@ -51,7 +53,7 @@ with $\rho$ the density, $u$ and $v$ the $x$ and $y$ velocity components, $e$ th
 
 **Set of coefficients or non-dimensional parameters evaluated:** all combinations of $\gamma$ constant of the gas at a certain temperature: $\gamma=${1.3,1.4,1.13,1.22,1.33,1.76, 1.365,1.404,1.453,1.597} and boundary conditions: {extrap, periodic}.
 
-**Approximate time to generate the data:** 80 hours on 160 CPU cores for all data.
+**Approximate time to generate the data:** 80 hours on 160 CPU cores for all data (periodic and open BC).
 
 **Hardware used to generate the data and precision used for generating the data:** Icelake nodes, double precision.
 
@@ -59,4 +61,4 @@ with $\rho$ the density, $u$ and $v$ the $x$ and $y$ velocity components, $e$ th
 
 **What phenomena of physical interest are catpured in the data:** capture the shock formations and interactions. Multiscale shocks.
 
-**How to evaluate a new simulator operating in this space:** the new simulator should predict the shock at the right location and time, and the right shock strength, as compared to a ‘pressure’ gauge monitoring the ‘exact’ solution.
+**How to evaluate a new simulator operating in this space:** the new simulator should predict the shock at the right location and time, and the right shock strength, as compared to a pressure gauge monitoring the exact solution.

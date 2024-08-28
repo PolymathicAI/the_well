@@ -55,7 +55,7 @@ Pressure (scalar field), density (scalar field), temperature(scalar field), velo
 
 **Boundary conditions:** open.
 
-**Data are stored separated by ($\Delta t$):** $100$ ~ $10,000$ years (variable timesteps). [CHECK]
+**Data are stored separated by ($\Delta t$):** $100$ ~ $10,000$ years (variable timesteps).
 
 **Total time range ($t_{min}$ to $t_{max}$):** $0$ yr to $0.2$ Myr.
 

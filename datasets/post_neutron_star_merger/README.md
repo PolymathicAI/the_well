@@ -8,7 +8,7 @@
 
 **Domain expert**: [Jonah Miller](https://www.thephysicsmill.com/), Los Alamos National Laboratory.
 
-**Code or software used to generate the data**: Open source software [nublight](https://github.com/lanl/nubhlight)
+**Code or software used to generate the data**: Open source software [nublight](https://github.com/lanl/nubhlight).
 
 **Equation**: See equations 1-5 and 16 of Miller, Ryan, Dolence (2019).
 
@@ -41,7 +41,7 @@ The standard radiative transfer equation is
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| post_neutron_star_merger  | 1380 | 337 | - |-|
+| `post_neutron_star_merger`  | 1380 | 337 | - |-|
 
 Preliminary benchmarking, in VRMSE. Unet and CNextU-net results are not available as these architectures needs all dimensions of the data to be multiples of 2.
 
@@ -50,12 +50,9 @@ Preliminary benchmarking, in VRMSE. Unet and CNextU-net results are not availabl
 
 **Dimension of discretized data:** 181 time-steps of $192 \times 128 \times 66$ snapshots.
 
-**Fields available in the data:** fluid density (scalar field), fluid internal energy (scalar field), electron fraction (scalar field), temperate (scalar field), entropy (scalar field), velocity (vector field), magnetic field (vector field), contravariant tensor metric of space-time (tensor field, no time-dependency).
+**Fields available in the data:** fluid density (scalar field), fluid internal energy (scalar field), electron fraction (scalar field), temperate (scalar field), entropy (scalar field), velocity (vector field), magnetic field (vector field), contravariant tensor metric of space-time (tensor field, no time-dependency). A description of fields available in an output file can be found [here](https://github.com/lanl/nubhlight/wiki)
 
-A description of fields available in an output file can be found here:
-https://github.com/lanl/nubhlight/wiki
-
-**Number of trajectories:** Currently eight full simulations. 
+**Number of trajectories:** 8 full simulations. 
 
 **Size of the ensemble of all simulations:** 110.1 GB.
 
@@ -96,8 +93,7 @@ https://github.com/lanl/nubhlight/wiki
 
 ## General relativistic quantities
 The core quantity that describes the curvature of spacetime and its
-impact on a simulation is `['t0_fields']['gcon']` of the HDF5 file. From this other
-quantities can be computed.
+impact on a simulation is `['t0_fields']['gcon']` of the HDF5 file. From this, other quantities can be computed.
 
 ## To reproduce
 The values in `simulation_parameters.json` are sufficient to reproduce a
@@ -170,7 +166,7 @@ dramatic systems rely on much the same physics and modeling as
 post-merger disks, and can also be a key driver of r-processes
 nucleosynthesis.
 
-**How to evaluate a new simulator operating in this space:** The electron fraction of material blown off from the disk is the core
+**How to evaluate a new simulator operating in this space:** The electron fraction Yeof material blown off from the disk is the core
 "delivarable." It determines how heavy elements are synthesized, which
 in turn determines the electromagnetic counterpart as observed on
 Earth. This is the most important piece to get right from an emulator.
