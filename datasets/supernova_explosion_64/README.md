@@ -34,7 +34,7 @@ where $P$, $\rho$, and $u$ are the pressure. $r$ is the position, $a_{\rm visc}$
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| supernova_explosion_64  | 1.01 | 1.01 |1.06|$\mathbf{0.968}$|
+| `supernova_explosion_64`  | 1.01 | 1.01 |1.06|$\mathbf{0.968}$|
 
 Preliminary benchmarking, in VRMSE.
 

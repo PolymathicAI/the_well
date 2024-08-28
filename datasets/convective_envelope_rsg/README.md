@@ -33,7 +33,7 @@ where
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| convective_envelope_rsg  | 1.08  | $\mathbf{1.06}$ |1.15|1.07|
+| `convective_envelope_rsg`  | 1.08  | $\mathbf{1.06}$ |1.15|1.07|
 
 Preliminary benchmarking, in VRMSE.
 

@@ -36,7 +36,7 @@ with outwards radiation conditions as described in [1]. The region $\Omega$ lies
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| helmholtz_staircase  |0.00555 |$\mathbf{0.00205}$ | 0.0825 | 0.00520|
+| `helmholtz_staircase`  |0.00555 |$\mathbf{0.00205}$ | 0.0825 | 0.00520|
 
 Preliminary benchmarking, in VRMSE.
 

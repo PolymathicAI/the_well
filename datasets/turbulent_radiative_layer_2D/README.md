@@ -26,7 +26,7 @@ with $\rho$ the density, $\vec{v}$ the 2D velocity, $P$ the pressure, $E$ the to
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| turbulent_radiative_layer_2D  | 0.967| 1.01 |0.576| 0.575|
+| `turbulent_radiative_layer_2D`  | 0.967| 1.01 |0.576| 0.575|
 
 Preliminary benchmarking, in VRMSE.
 

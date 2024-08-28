@@ -44,7 +44,7 @@ Visualization:
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| planetswe  | 0.0800| 0.0768 |0.930| $\mathbf{0.0624}$|
+| `planetswe`  | 0.0800| 0.0768 |0.930| $\mathbf{0.0624}$|
 
 
 # About the data

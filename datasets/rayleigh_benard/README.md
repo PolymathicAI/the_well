@@ -50,7 +50,7 @@ These PDE are parameterized by the Rayleigh and Prandtl numbers through $\kappa$
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| rayleigh_benard | 0.290  | 0.361 |0.564|$\mathbf{0.149}$|
+| `rayleigh_benard` | 0.290  | 0.361 |0.564|$\mathbf{0.149}$|
 
 Preliminary benchmarking, in VRMSE.
 

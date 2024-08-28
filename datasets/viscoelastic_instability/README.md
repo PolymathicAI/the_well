@@ -27,6 +27,12 @@ where $\mathbf{u^\*} = (u^\*,v^\*)$ is the streamwise and wall-normal velocity c
 
 ![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability/gif/pressure_normalized.gif)
 
+| Dataset    | FNO | TFNO  | Unet | CNextU-net
+|:-:|:-:|:-:|:-:|:-:|
+| `viscoelastic_instability` | 48.2 | 216 | 11.69 | $\mathbf{4.38}$ |
+
+Preliminary benchmark, in VRMSE.
+
 # About the data
 
 **Dimension of discretized data:** 

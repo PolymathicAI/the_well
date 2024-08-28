@@ -29,7 +29,7 @@ Traversal can be seen:
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| acoustic_scattering_maze  | 1.00 | 1.00| 1.00| $\mathbf{0.173}$|
+| `acoustic_scattering_maze`  | 1.00 | 1.00| 1.00| $\mathbf{0.173}$|
 
 # About the data
 

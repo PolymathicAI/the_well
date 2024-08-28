@@ -17,7 +17,7 @@
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| active_matter  | $\mathbf{0.982}$  | 143 |2.77|1.09|
+| `active_matter`  | $\mathbf{0.982}$  | 143 |2.77|1.09|
 
 Preliminary benchmarking, in VRMSE.
 

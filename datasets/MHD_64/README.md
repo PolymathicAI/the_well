@@ -24,7 +24,7 @@ where $\rho$ is the density, $\mathbf{v}$ is the velocity, $\mathbf{B}$ is the m
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| MHD_64  | 0.351 | 0.314 |0.270|$\mathbf{0.211}$|
+| `MHD_64`  | 0.351 | 0.314 |0.270|$\mathbf{0.211}$|
 
 Preliminary benchmarking, in VRMSE.
 

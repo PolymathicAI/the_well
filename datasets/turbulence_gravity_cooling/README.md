@@ -27,7 +27,9 @@ where $P$, $\rho$, and $u$ are the pressure. $r$ is the position, $a_{\rm visc}$
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| turbulence_gravity_cooling | 1.31 |2.06| 1.44 |$\mathbf{1.16}$ |
+| `turbulence_gravity_cooling` | 1.31 |2.06| 1.44 |$\mathbf{1.16}$ |
+
+Preliminary benchmark, in VRMSE.
 
 # About the data
 
