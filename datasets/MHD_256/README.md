@@ -58,3 +58,18 @@ where $\rho$ is the density, $\mathbf{v}$ is the velocity, $\mathbf{B}$ is the m
 **What phenomena of physical interest are catpured in the data:** MHD fluid flows in the compressible limit (sub and super sonic, sub and super Alfvenic).
 
 **How to evaluate a new simulator operating in this space:** Check metrics such as Power spectrum, two points correlation function.
+
+Please cite the associated paper if you use this data in your research:
+
+```
+@article{burkhart2020catalogue,
+  title={The catalogue for astrophysical turbulence simulations (cats)},
+  author={Burkhart, B and Appel, SM and Bialy, S and Cho, J and Christensen, AJ and Collins, D and Federrath, Christoph and Fielding, DB and Finkbeiner, D and Hill, AS and others},
+  journal={The Astrophysical Journal},
+  volume={905},
+  number={1},
+  pages={14},
+  year={2020},
+  publisher={IOP Publishing}
+}
+```

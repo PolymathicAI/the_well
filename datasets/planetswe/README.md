@@ -80,3 +80,14 @@ Visualization:
 # What is interesting and challenging about the data:
 
 Spherical geometry and planet-like topography and forcing make for a proxy for real-world atmospheric dynamics where true dynamics are known. The dataset has annual and daily periodicity forcing models to either process a sufficient context length to learn these patterns or to be explicitly time aware. Furthermore, the system becomes stable making this a good system for exploring long run stability of models.
+
+Please cite the associated paper if you use this data in your research:
+
+```
+@article{mccabe2023towards,
+  title={Towards stability of autoregressive neural operators},
+  author={McCabe, Michael and Harrington, Peter and Subramanian, Shashank and Brown, Jed},
+  journal={arXiv preprint arXiv:2306.10619},
+  year={2023}
+}
+```

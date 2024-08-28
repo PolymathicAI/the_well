@@ -70,3 +70,18 @@ Preliminary benchmarking, in VRMSE.
 
 
 **How to evaluate a new simulator operating in this space:** See whether it captures the right mass flux, the right turbulent velocities, and the right amount of mass per temperature bin.
+
+Please cite the associated paper if you use this data in your research:
+
+```
+@article{fielding2020multiphase,
+  title={Multiphase gas and the fractal nature of radiative turbulent mixing layers},
+  author={Fielding, Drummond B and Ostriker, Eve C and Bryan, Greg L and Jermyn, Adam S},
+  journal={The Astrophysical Journal Letters},
+  volume={894},
+  number={2},
+  pages={L24},
+  year={2020},
+  publisher={IOP Publishing}
+}
+```

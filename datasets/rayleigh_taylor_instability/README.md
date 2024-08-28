@@ -77,3 +77,17 @@ where $\mu$ is the mean and $\sigma$ is the standard deviation of the profile. F
 **How to evaluate a new simulator operating in this space:**
 
 From a fundamental standpoint, we would expect the density field to be advected and mixed rather than created or destroyed to give appropriate statistics. From a qualitative perspective, given that the underlying simulations are of comparable spatial resolution to the simulations run by the alpha group (Dimonte et. al. 2003), we would consider a good emulator to produce a comparable value for α as reported in their paper for an appropriately similar set of initial conditions. This parameter is derived by considering the flow after the initial transient. At this stage, the width of the turbulent mixing zone, $L$, is self-similar and grows as $L= \alpha \* At \* g \* t^2$. They reported a value of $\alpha$=0.025±0.003. In addition, during this self-regime, we would expect to observe energy spectra with a similar shape to those reported in Cabot and Cook 2006, specifically exhibiting an appropriate $k^{-\frac53}$ cascade. From a structural perspective, we would expect that for an initialization with a large variety of modes in the initial spectrum to observe a range of bubbles and spikes (upward and downward moving structures), whereas in the other limit (where this only on mode in the initial spectrum) we expect to observe a single bubble and spike.  In addition, a good emulator would exhibit symmetric mixing with for low Atwood numbers in the Boussinesq regime (defined as $At$ < 0.1 by Andrews and Dalziel 2010) and asymmetries in the mixing with for large Atwood number.  
+
+Please cite the associated paper if you use this data in your research:
+```
+@article{cabot2006reynolds,
+  title={Reynolds number effects on Rayleigh--Taylor instability with possible implications for type Ia supernovae},
+  author={Cabot, William H and Cook, Andrew W},
+  journal={Nature Physics},
+  volume={2},
+  number={8},
+  pages={562--568},
+  year={2006},
+  publisher={Nature Publishing Group UK London}
+}
+```

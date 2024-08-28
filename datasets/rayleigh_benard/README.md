@@ -88,3 +88,16 @@ The other fields $u$ and $p$ are initialized to $0$.
 
 Rayleigh-Bénard convection datasets offer valuable insights into fluid dynamics under thermal gradients, revealing phenomena like thermal plumes and turbulent eddies. Understanding these dynamics is crucial for applications in engineering and environmental science.
 
+Please cite the associated paper if you use this data in your research:
+
+```
+@article{wen2022steady,
+  title={Steady Rayleigh--B{\'e}nard convection between no-slip boundaries},
+  author={Wen, Baole and Goluskin, David and Doering, Charles R},
+  journal={Journal of Fluid Mechanics},
+  volume={933},
+  pages={R4},
+  year={2022},
+  publisher={Cambridge University Press}
+}
+```

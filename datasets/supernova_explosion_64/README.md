@@ -83,3 +83,24 @@ However, calclating the propagation of blastwaves requires tiny timesteps to cal
 
 **How to evaluate a new simulator operating in this space:**
 In context of galaxy simulations, the time evolution of thermal energy and momentum are important. We note that those physical quantities are not necessarily conserved because radiative cooling and heating are considered and thermal energy is seamlessly being converted into momentum.
+
+Please cite these associated papers if you use this data in your research:
+
+```
+@article{hirashima20233d,
+  title={3D-Spatiotemporal forecasting the expansion of supernova shells using deep learning towards high-resolution galaxy simulations},
+  author={Hirashima, Keiya and Moriwaki, Kana and Fujii, Michiko S and Hirai, Yutaka and Saitoh, Takayuki R and Makino, Junichiro},
+  journal={Monthly Notices of the Royal Astronomical Society},
+  volume={526},
+  number={3},
+  pages={4054--4066},
+  year={2023},
+  publisher={Oxford University Press}
+}
+@article{hirashima2023surrogate,
+  title={Surrogate Modeling for Computationally Expensive Simulations of Supernovae in High-Resolution Galaxy Simulations},
+  author={Hirashima, Keiya and Moriwaki, Kana and Fujii, Michiko S and Hirai, Yutaka and Saitoh, Takayuki R and Makino, Junichiro and Ho, Shirley},
+  journal={arXiv preprint arXiv:2311.08460},
+  year={2023}
+}
+```

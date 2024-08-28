@@ -62,3 +62,16 @@ $\zeta =$ {1,3,5,7,9,11,13,15,17}.
 
 
 **How to evaluate a new simulator operating in this space:** Reproducing some summary statistics like power spectra and average scalar order parameters. Additionally, being able to accurately capture the phase transition from isotropic to nematic state. 
+
+Please cite the associated paper if you use this data in your research:
+```
+@article{maddu2024learning,
+  title={Learning fast, accurate, and stable closures of a kinetic theory of an active fluid},
+  author={Maddu, Suryanarayana and Weady, Scott and Shelley, Michael J},
+  journal={Journal of Computational Physics},
+  volume={504},
+  pages={112869},
+  year={2024},
+  publisher={Elsevier}
+}
+```

@@ -66,3 +66,18 @@ $\rho$ is the primary coefficient here. We generated a maze with initial width b
 # What is interesting and challenging about the data:
 
 This is an example of simple dynamics in complicated geometry. The sharp discontinuities can be a significant problem for machine learning models, yet they are a common feature in many real-world physics. While visually the walls appear to stop the signal, it is actually simply the case that the speed of sound is much much lower inside the walls leading to partial reflection/absorbtion at the interfaces. 
+
+
+Please cite the associated paper if you use this data in your research:
+
+```
+@article{mandli2016clawpack,
+  title={Clawpack: building an open source ecosystem for solving hyperbolic PDEs},
+  author={Mandli, Kyle T and Ahmadia, Aron J and Berger, Marsha and Calhoun, Donna and George, David L and Hadjimichael, Yiannis and Ketcheson, David I and Lemoine, Grady I and LeVeque, Randall J},
+  journal={PeerJ Computer Science},
+  volume={2},
+  pages={e68},
+  year={2016},
+  publisher={PeerJ Inc.}
+}
+```

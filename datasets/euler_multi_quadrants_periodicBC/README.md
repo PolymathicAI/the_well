@@ -62,3 +62,17 @@ with $\rho$ the density, $u$ and $v$ the $x$ and $y$ velocity components, $e$ th
 **What phenomena of physical interest are catpured in the data:** capture the shock formations and interactions. Multiscale shocks.
 
 **How to evaluate a new simulator operating in this space:** the new simulator should predict the shock at the right location and time, and the right shock strength, as compared to a pressure gauge monitoring the exact solution.
+
+Please cite the associated paper if you use this data in your research:
+
+```
+@article{mandli2016clawpack,
+  title={Clawpack: building an open source ecosystem for solving hyperbolic PDEs},
+  author={Mandli, Kyle T and Ahmadia, Aron J and Berger, Marsha and Calhoun, Donna and George, David L and Hadjimichael, Yiannis and Ketcheson, David I and Lemoine, Grady I and LeVeque, Randall J},
+  journal={PeerJ Computer Science},
+  volume={2},
+  pages={e68},
+  year={2016},
+  publisher={PeerJ Inc.}
+}
+```

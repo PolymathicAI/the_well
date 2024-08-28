@@ -83,3 +83,14 @@ analytic).
 
 **How to evaluate a new simulator operating in this space:**
 The (spatial) accuracy of a new simulator/method could be checked by requiring that it conserves flux – whatever the source injects into the system also needs to come out. The trapped modes’ dispersion relation may be another metric, my method generates this to 7-8 digits of accuracy at the moment, but 10-12 digits may also be obtained. The time-dependence learnt by a machine learning algorithm can be compared to the analytic solution $e^{-i\omega t}$, this can be used to evaluate temporal accuracy.
+
+Please cite the associated paper if you use this data in your research:
+
+```
+@article{agocs2023trapped,
+  title={Trapped acoustic waves and raindrops: high-order accurate integral equation method for localized excitation of a periodic staircase},
+  author={Agocs, Fruzsina J and Barnett, Alex H},
+  journal={arXiv preprint arXiv:2310.12486},
+  year={2023}
+}
+```

@@ -170,3 +170,58 @@ nucleosynthesis.
 "delivarable." It determines how heavy elements are synthesized, which
 in turn determines the electromagnetic counterpart as observed on
 Earth. This is the most important piece to get right from an emulator.
+
+Please cite these associated papers if you use this data in your research:
+
+```
+@article{miller2019nubhlight,
+  title={$\nu$bhlight: radiation GRMHD for neutrino-driven accretion flows},
+  author={Miller, Jonah M and Ryan, Ben R and Dolence, Joshua C},
+  journal={The Astrophysical Journal Supplement Series},
+  volume={241},
+  number={2},
+  pages={30},
+  year={2019},
+  publisher={IOP Publishing}
+}
+@article{miller2019full,
+  title={Full transport model of GW170817-like disk produces a blue kilonova},
+  author={Miller, Jonah M and Ryan, Benjamin R and Dolence, Joshua C and Burrows, Adam and Fontes, Christopher J and Fryer, Christopher L and Korobkin, Oleg and Lippuner, Jonas and Mumpower, Matthew R and Wollaeger, Ryan T},
+  journal={Physical Review D},
+  volume={100},
+  number={2},
+  pages={023008},
+  year={2019},
+  publisher={APS}
+}
+@article{miller2020full,
+  title={Full transport general relativistic radiation magnetohydrodynamics for nucleosynthesis in collapsars},
+  author={Miller, Jonah M and Sprouse, Trevor M and Fryer, Christopher L and Ryan, Benjamin R and Dolence, Joshua C and Mumpower, Matthew R and Surman, Rebecca},
+  journal={The Astrophysical Journal},
+  volume={902},
+  number={1},
+  pages={66},
+  year={2020},
+  publisher={IOP Publishing}
+}
+@article{curtis2023nucleosynthesis,
+  title={Nucleosynthesis in outflows from black hole--neutron star merger disks with full gr ($\nu$) rmhd},
+  author={Curtis, Sanjana and Miller, Jonah M and Fr{\"o}hlich, Carla and Sprouse, Trevor and Lloyd-Ronning, Nicole and Mumpower, Matthew},
+  journal={The Astrophysical Journal Letters},
+  volume={945},
+  number={1},
+  pages={L13},
+  year={2023},
+  publisher={IOP Publishing}
+}
+@article{lund2024magnetic,
+  title={Magnetic Field Strength Effects on Nucleosynthesis from Neutron Star Merger Outflows},
+  author={Lund, Kelsey A and McLaughlin, Gail C and Miller, Jonah M and Mumpower, Matthew R},
+  journal={The Astrophysical Journal},
+  volume={964},
+  number={2},
+  pages={111},
+  year={2024},
+  publisher={IOP Publishing}
+}
+```

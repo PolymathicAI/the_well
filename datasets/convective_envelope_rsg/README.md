@@ -78,3 +78,18 @@ Between $300\~R_\odot$ and $400\~R_\odot$, the initial profile is constructed wi
 **How to evaluate a new simulator operating in this space:** can it predict behaviour of simulation in convective steady-state, given only a few snapshots at the beginning of the simulation?
 
 **Caveats:** complicated geometry, size of a slice in R varies with R (think of this as a slice of cake, where the parts of the slice closer to the outside have more area/volume than the inner parts), simulation reaches convective steady-state at some point and no longer "evolves".
+
+Please cite the associated paper if you use this data in your research:
+    
+```
+@article{goldberg2022numerical,
+  title={Numerical simulations of convective three-dimensional red supergiant envelopes},
+  author={Goldberg, Jared A and Jiang, Yan-Fei and Bildsten, Lars},
+  journal={The Astrophysical Journal},
+  volume={929},
+  number={2},
+  pages={156},
+  year={2022},
+  publisher={IOP Publishing}
+}
+```

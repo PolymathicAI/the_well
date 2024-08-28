@@ -74,3 +74,17 @@ where $\mathbf{u^\*} = (u^\*,v^\*)$ is the streamwise and wall-normal velocity c
 
 **How to evaluate a new simulator operating in this space:**
 A new simulator would need to capture EIT/CAR adequately for a physically relevant parameter range. 
+
+Please cite the associated paper if you use this data in your research:
+
+```
+@article{beneitez2024multistability,
+  title={Multistability of elasto-inertial two-dimensional channel flow},
+  author={Beneitez, Miguel and Page, Jacob and Dubief, Yves and Kerswell, Rich R},
+  journal={Journal of Fluid Mechanics},
+  volume={981},
+  pages={A30},
+  year={2024},
+  publisher={Cambridge University Press}
+}
+```

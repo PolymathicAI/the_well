@@ -65,3 +65,18 @@ Preliminary benchmarking, in VRMSE.
 **What phenomena of physical interest are catpured in the data:** Capte the mass flux from hot to cold phase. Capture turbulent velocities. Capture the amount of mass per temperature bin ($T = \frac{P}{\rho}$).
 
 **How to evaluate a new simulator operating in this space:** Check whether the above physical phenomena are captured by the algorithm.
+
+Please cite the associated paper if you use this data in your research:
+
+```
+@article{fielding2020multiphase,
+  title={Multiphase gas and the fractal nature of radiative turbulent mixing layers},
+  author={Fielding, Drummond B and Ostriker, Eve C and Bryan, Greg L and Jermyn, Adam S},
+  journal={The Astrophysical Journal Letters},
+  volume={894},
+  number={2},
+  pages={L24},
+  year={2020},
+  publisher={IOP Publishing}
+}
+```

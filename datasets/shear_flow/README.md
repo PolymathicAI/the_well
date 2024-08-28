@@ -82,4 +82,44 @@ Shear flow are non-linear phenomena arrising in fluid mechanics and turbulence.
 Predicting the behavior of the shear flow under different Reynolds and Schmidt numbers is essential for a number of applications in aerodynamics, automotive, biomedical. 
 Furthermore, such flow are unstable at large Reynolds number. 
 
+Please cite these associated papers if you use this data in your research:
+
+```
+@article{PhysRevFluids.6.100504,
+  title = {Space-time energy spectra in turbulent shear flows},
+  author = {Wu, Ting and He, Guowei},
+  journal = {Phys. Rev. Fluids},
+  volume = {6},
+  issue = {10},
+  pages = {100504},
+  numpages = {23},
+  year = {2021},
+  month = {Oct},
+  publisher = {American Physical Society},
+  doi = {10.1103/PhysRevFluids.6.100504},
+  url = {https://link.aps.org/doi/10.1103/PhysRevFluids.6.100504}
+}
+
+@article{PhysRevFluids.9.014202,
+  title = {Self-organization of autophoretic suspensions in confined shear flows},
+  author = {Vinze, Prathmesh and Michelin, Sebastien},
+  journal = {Phys. Rev. Fluids},
+  volume = {9},
+  issue = {1},
+  pages = {014202},
+  numpages = {34},
+  year = {2024},
+  month = {Jan},
+  publisher = {American Physical Society},
+  doi = {10.1103/PhysRevFluids.9.014202},
+  url = {https://link.aps.org/doi/10.1103/PhysRevFluids.9.014202}
+}
+
+@book{kundu2015fluid,
+  title={Fluid mechanics},
+  author={Kundu, Pijush K and Cohen, Ira M and Dowling, David R},
+  year={2015},
+  publisher={Academic press}
+}
+```
 
