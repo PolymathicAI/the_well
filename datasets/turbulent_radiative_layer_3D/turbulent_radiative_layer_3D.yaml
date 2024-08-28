@@ -1,0 +1,48 @@
+dataset_name: turbulent_radiative_layer_
+n_spatial_dims: 3
+spatial_resolution:
+- 128
+- 128
+- 256
+n_constant_scalars: 1
+n_constant_fields: 0
+constant_names: []
+n_fields: 5
+field_names:
+- density
+- pressure
+- velocity_x
+- velocity_y
+- velocity_z
+boundary_condition_types:
+- OPEN
+- PERIODIC
+n_simulations: 9
+n_steps_per_simulation:
+- 101
+- 101
+- 101
+- 101
+- 101
+- 101
+- 101
+- 101
+- 101
+grid_type: cartesian
+sample_shapes:
+  input_fields:
+  - 128
+  - 128
+  - 256
+  - 5
+  output_fields:
+  - 128
+  - 128
+  - 256
+  - 5
+  constant_scalars: 1
+  space_grid:
+  - 128
+  - 128
+  - 256
+  - 3
