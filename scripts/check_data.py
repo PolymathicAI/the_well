@@ -71,7 +71,9 @@ class ProblemReport:
         self.constant_frames = {}
         self.nan_frames = {}
         self.field_averages = {}
-        self.statistics = {}
+        self.means = {}
+        self.stds = {}
+        self.outliers = {}
 
     def set_boundary_issue(self, old_value, new_value):
         self.boundary_issues = (old_value, new_value)
@@ -105,25 +107,58 @@ class ProblemReport:
             or len(self.nan_frames)
         )
 
-    def update_field_average(self, field: str, dim: int, values: np.ndarray):
+    def update_field_average(self, trajectory: int, field: str, dim: int, values: np.ndarray):
         mean_value = np.nanmean(values)
-        if field in self.field_averages:
-            if dim in self.field_averages[field]:
-                self.field_averages[field][dim].append(mean_value)
+        if trajectory in self.field_averages:
+            if field in self.field_averages[trajectory]:
+                if dim in self.field_averages[trajectory][field]:
+                    self.field_averages[trajectory][field][dim].append(mean_value)
+                else:
+                    self.field_averages[trajectory][field][dim] = [mean_value]
             else:
-                self.field_averages[field][dim] = [mean_value]
+                self.field_averages[trajectory][field] = {dim: [mean_value]}
         else:
-            self.field_averages[field] = {dim: [mean_value]}
+            self.field_averages[trajectory] = {field: {dim: [mean_value]}}
 
     def compute_statistics(self):
-        statistics = {}
-        for field, field_dims in self.field_averages.items():
-            statistics[field] = {}
-            for dim, values in field_dims.items():
-                mean = np.mean(values)
-                std = np.std(values)
-                statistics[field].update({dim: (mean, std)})
-        self.statistics = statistics
+        means = {}
+        stds = {}
+        for trajectory, trajectory_means in self.field_averages.items():
+            means[trajectory] = {field: {} for field in trajectory_means.keys()}
+            stds[trajectory] = {field: {} for field in trajectory_means.keys()}
+            for field, field_means in trajectory_means.items():
+                for dim, dim_means in field_means.items():
+                    mean = np.mean(dim_means)
+                    std = np.std(dim_means)
+                    means[trajectory][field].update({dim: mean})
+                    stds[trajectory][field].update({dim: std})
+
+        self.means = means
+        self.stds = stds
+
+
+    def find_outliers(self, sigma_factor: int = 5):
+        outliers = {}
+
+        for trajectory, trajectory_means in self.field_averages.items():
+            trajectory_ouliers = {}
+            for field, field_means in trajectory_means.items():
+                field_outliers = {}
+                for dim, dim_means in field_means.items():
+                    mean = self.means[trajectory][field][dim]
+                    std = self.stds[trajectory][field][dim]
+                    dim_outliers = []
+                    for step, value in enumerate(dim_means):
+                        if np.sqrt((value - mean)**2) >= sigma_factor * std:
+                            dim_outliers.append(step)
+                    field_outliers.update({dim: dim_outliers})
+                if field_outliers:
+                    trajectory_ouliers.update({field: field_outliers})
+            if trajectory_ouliers:
+                outliers.update({trajectory: trajectory_ouliers})
+        
+        self.outliers = outliers
+
 
     def __str__(self) -> str:
         if self.has_issue():
@@ -146,13 +181,18 @@ class ProblemReport:
                     for field, n_nan_frames in trajectory_issues.items():
                         report += f"{field}:{n_nan_frames} "
                     report += "\n"
-
-                for field, problems in self.nan_frames.items():
-                    report += f"{field}: {problems} "
-                report += "\n"
+            if self.outliers:
+                for trajectory, trajectory_outliers in self.outliers.items():
+                    report += f"Trajectory {trajectory} has outliers: "
+                    for field, field_outliers in trajectory_outliers.items():
+                        report += f"{field}: "
+                        for dim, dim_outliers in field_outliers.items():
+                            if dim_outliers:
+                                report += f"{dim}: steps {dim_outliers} "
+                    report += "\n"
         else:
             report = f"{self.filename} has no detected issue\n"
-        report += f"Field statistics (mean, std): {self.statistics}\n"
+        report += f"Field statistics means: {self.means} +/- {self.stds}\n"
         return report
 
 
@@ -205,7 +245,7 @@ class WellFileChecker:
                                     sub_key, traj, time
                                 )
                             else:
-                                self.report.update_field_average(sub_key, dim, array)
+                                self.report.update_field_average(traj, sub_key, dim, array)
 
     def check(self):
         with h5py.File(self.filename, "r+") as file:
@@ -221,6 +261,7 @@ class WellFileChecker:
                 elif "fields" in key:
                     self.check_fields(file[key])
             self.report.compute_statistics()
+            self.report.find_outliers()
             return str(self.report)
 
 
