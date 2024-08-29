@@ -91,13 +91,14 @@ Rayleigh-Bénard convection datasets offer valuable insights into fluid dynamics
 Please cite the associated paper if you use this data in your research:
 
 ```
-@article{wen2022steady,
-  title={Steady Rayleigh--B{\'e}nard convection between no-slip boundaries},
-  author={Wen, Baole and Goluskin, David and Doering, Charles R},
-  journal={Journal of Fluid Mechanics},
-  volume={933},
-  pages={R4},
-  year={2022},
-  publisher={Cambridge University Press}
+@article{burns2020dedalus,
+  title={Dedalus: A flexible framework for numerical simulations with spectral methods},
+  author={Burns, Keaton J and Vasil, Geoffrey M and Oishi, Jeffrey S and Lecoanet, Daniel and Brown, Benjamin P},
+  journal={Physical Review Research},
+  volume={2},
+  number={2},
+  pages={023068},
+  year={2020},
+  publisher={APS}
 }
 ```

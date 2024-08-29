@@ -166,7 +166,7 @@ dramatic systems rely on much the same physics and modeling as
 post-merger disks, and can also be a key driver of r-processes
 nucleosynthesis.
 
-**How to evaluate a new simulator operating in this space:** The electron fraction Yeof material blown off from the disk is the core
+**How to evaluate a new simulator operating in this space:** The electron fraction Ye of material blown off from the disk is the core
 "delivarable." It determines how heavy elements are synthesized, which
 in turn determines the electromagnetic counterpart as observed on
 Earth. This is the most important piece to get right from an emulator.

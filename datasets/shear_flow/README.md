@@ -63,7 +63,7 @@ The initial condition is thus indexed by $n_\text{shear},n_\text{blobs},w$.
 
 **Boundary conditions:** periodic.
 
-**Simulation time-step:** 0.1 (arbitrary units).
+**Simulation time-step:** 0.1 (simulation time unit).
 
 **Total time range ($t_{min}$ to $t_{max}$):** $t_{min} = 0$, $t_{max} = 20$.
 
@@ -85,41 +85,15 @@ Furthermore, such flow are unstable at large Reynolds number.
 Please cite these associated papers if you use this data in your research:
 
 ```
-@article{PhysRevFluids.6.100504,
-  title = {Space-time energy spectra in turbulent shear flows},
-  author = {Wu, Ting and He, Guowei},
-  journal = {Phys. Rev. Fluids},
-  volume = {6},
-  issue = {10},
-  pages = {100504},
-  numpages = {23},
-  year = {2021},
-  month = {Oct},
-  publisher = {American Physical Society},
-  doi = {10.1103/PhysRevFluids.6.100504},
-  url = {https://link.aps.org/doi/10.1103/PhysRevFluids.6.100504}
-}
-
-@article{PhysRevFluids.9.014202,
-  title = {Self-organization of autophoretic suspensions in confined shear flows},
-  author = {Vinze, Prathmesh and Michelin, Sebastien},
-  journal = {Phys. Rev. Fluids},
-  volume = {9},
-  issue = {1},
-  pages = {014202},
-  numpages = {34},
-  year = {2024},
-  month = {Jan},
-  publisher = {American Physical Society},
-  doi = {10.1103/PhysRevFluids.9.014202},
-  url = {https://link.aps.org/doi/10.1103/PhysRevFluids.9.014202}
-}
-
-@book{kundu2015fluid,
-  title={Fluid mechanics},
-  author={Kundu, Pijush K and Cohen, Ira M and Dowling, David R},
-  year={2015},
-  publisher={Academic press}
+@article{burns2020dedalus,
+  title={Dedalus: A flexible framework for numerical simulations with spectral methods},
+  author={Burns, Keaton J and Vasil, Geoffrey M and Oishi, Jeffrey S and Lecoanet, Daniel and Brown, Benjamin P},
+  journal={Physical Review Research},
+  volume={2},
+  number={2},
+  pages={023068},
+  year={2020},
+  publisher={APS}
 }
 ```
 

@@ -19,11 +19,11 @@
 The dimensionless parameters describing the behavior are: $f$ the rate at which $A$ is replenished (feed rate), $k$ the rate at which $B$ is removed from the system, and  $\delta_A, \delta_B$ the diffusion coefficients of both species.
 
 
-![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/pattern_formation/gif/concentration_A_normalized.gif)
+![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/gray_scott_reaction_diffusion/gif/concentration_A_normalized.gif)
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| `pattern_formation` | 0.178  | 0.177 | 0.322|$\mathbf{0.0512}$|
+| `gray_scott_reaction_diffusion` | 0.178  | 0.177 | 0.322|$\mathbf{0.0512}$|
 
 Preliminary benchmarking, in VRMSE.
 

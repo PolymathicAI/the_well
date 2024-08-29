@@ -21,7 +21,7 @@ U_t + F(U)_x + G(U)_y &= 0 \nonumber\\
 ```
 with $\rho$ the density, $u$ and $v$ the $x$ and $y$ velocity components, $e$ the energy, $p$ the pressure, $\gamma$ the gas constant, and $A>0$ is a function of entropy.
 
-![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/euler_quadrants/gif/density_normalized.gif)
+![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/euler_multi_quadrants_openBC/gif/density_normalized.gif)
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
