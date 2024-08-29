@@ -4,11 +4,11 @@
 
 **Longer description of the data:** In this simulation, there is cold, dense gas on the bottom and hot dilute gas on the top. They are moving relative to each other at highly subsonic velocities. This set up is unstable to the Kelvin Helmholtz instability, which is seeded with small scale noise that is varied between the simulations. The hot gas and cold gas are both in thermal equilibrium in the sense that the heating and cooling are exactly balanced. However, once mixing occurs as a result of the turbulence induced by the Kelvin Helmholtz instability, the intermediate temperatures become populated. This intermediate temperature gas is not in thermal equilibrium, and cooling beats heating. This leads to a net mass flux from the hot phase to the cold phase. This process occurs in the interstellar medium, and in the Circum-Galactic medium when cold clouds move through the ambient, hot medium. By understanding how the total cooling and mass transfer scale with the cooling rate, we are able to constrain how this process controls the overall phase structure, energetics and dynamics of the gas in and around galaxies.
 
-**Associated paper**: [Paper](https://iopscience.iop.org/article/10.3847/2041-8213/ab8d2c/pdf)
+**Associated paper**: [Paper](https://iopscience.iop.org/article/10.3847/2041-8213/ab8d2c/pdf).
 
 **Domain expert**: [Drummond Fielding](https://dfielding14.github.io/), CCA, Flatiron Institute & Cornell University.
 
-**Code or software used to generate the data**: [Athena++](https://www.athena-astro.app/)
+**Code or software used to generate the data**: [Athena++](https://www.athena-astro.app/).
 
 **Equation**: 
 
@@ -26,13 +26,13 @@ with $\rho$ the density, $\vec{v}$ the 3D velocity, $P$ the pressure, $E$ the to
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| turbulent_radiative_layer_2D  | 103 |98.0| 61.5 |73.0|
+| `turbulent_radiative_layer_3D`  | 103 |98.0| 61.5 |73.0|
 
 Preliminary benchmarking, in VRMSE.
 
 # About the data
 
-**Dimension of discretized data:** 101 timesteps of 256x128x128 arrays.
+**Dimension of discretized data:** $101$ timesteps of $256\times128\times128$ cubes.
 
 **Fields available in the data:** Density (scalar field), pressure (scalar field), velocity (vector field).
 
@@ -65,3 +65,18 @@ Preliminary benchmarking, in VRMSE.
 **What phenomena of physical interest are catpured in the data:** Capte the mass flux from hot to cold phase. Capture turbulent velocities. Capture the amount of mass per temperature bin ($T = \frac{P}{\rho}$).
 
 **How to evaluate a new simulator operating in this space:** Check whether the above physical phenomena are captured by the algorithm.
+
+Please cite the associated paper if you use this data in your research:
+
+```
+@article{fielding2020multiphase,
+  title={Multiphase gas and the fractal nature of radiative turbulent mixing layers},
+  author={Fielding, Drummond B and Ostriker, Eve C and Bryan, Greg L and Jermyn, Adam S},
+  journal={The Astrophysical Journal Letters},
+  volume={894},
+  number={2},
+  pages={L24},
+  year={2020},
+  publisher={IOP Publishing}
+}
+```

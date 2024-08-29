@@ -21,7 +21,7 @@ with $\rho$ the material density, $u, v$ the velocity in the $x, y$ directions r
 
 Example material densities can be seen below:
 
-![image](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_inclusions_2d/gif/inclusions_density.png)
+![image](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_inclusions/gif/inclusions_density.png)
 
 # About the data
 
@@ -67,3 +67,18 @@ Inclusions are then added as 1-15 random ellipsoids with center uniformly sample
 # What is interesting and challenging about the data:
 
 Wave propogation through discontinuous media. Most existing machine learning datasets for computational physics are highly smooth and the acoustic challenges presented here offer challenging discontinuous scenarios that approximate complicated geometry through the variable density. The inclusions change wave propogation speed but only in small, irregular areas. 
+
+
+Please cite the associated paper if you use this data in your research:
+
+```
+@article{mandli2016clawpack,
+  title={Clawpack: building an open source ecosystem for solving hyperbolic PDEs},
+  author={Mandli, Kyle T and Ahmadia, Aron J and Berger, Marsha and Calhoun, Donna and George, David L and Hadjimichael, Yiannis and Ketcheson, David I and Lemoine, Grady I and LeVeque, Randall J},
+  journal={PeerJ Computer Science},
+  volume={2},
+  pages={e68},
+  year={2016},
+  publisher={PeerJ Inc.}
+}
+```

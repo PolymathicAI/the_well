@@ -10,9 +10,9 @@ import torch
 from torch.utils.data import Dataset
 
 well_paths = {
-    "acoustic_scattering_maze_2d": "datasets/acoustic_scattering_maze_2d",
-    "acoustic_scattering_inclusions_2d": "datasets/acoustic_scattering_inclusions_2d",
-    "acoustic_scattering_discontinuous_2d": "datasets/acoustic_scattering_discontinuous_2d",
+    "acoustic_scattering_maze": "datasets/acoustic_scattering_maze",
+    "acoustic_scattering_inclusions": "datasets/acoustic_scattering_inclusions",
+    "acoustic_scattering_discontinuous": "datasets/acoustic_scattering_discontinuous",
     "active_matter": "datasets/active_matter",
     "convective_envelope_rsg": "datasets/convective_envelope_rsg",
     "euler_multi_quadrants_openBC": "datasets/euler_multi_quadrants_openBC",
@@ -20,7 +20,7 @@ well_paths = {
     "helmholtz_staircase": "datasets/helmholtz_staircase",
     "MHD_256": "datasets/MHD_256",
     "MHD_64": "datasets/MHD_64",
-    "pattern_formation": "datasets/pattern_formation",
+    "gray_scott_reaction_diffusion": "datasets/gray_scott_reaction_diffusion",
     "planetswe": "datasets/planetswe",
     "post_neutron_star_merger": "datasets/post_neutron_star_merger",
     "rayleigh_benard": "datasets/rayleigh_benard",

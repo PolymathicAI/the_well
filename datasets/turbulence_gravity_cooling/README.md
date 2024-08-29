@@ -8,7 +8,7 @@
 
 **Domain expert**: [Keiya Hirashima](https://kyafuk.github.io/utokyo-hirashima/index.html), University of Tokyo & CCA, Flatiron Institute.
 
-**Code or software used to generate the data**: ASURA-FDPS (Smoothed Particle Hydrodynamics), [Github repository](https://github.com/FDPS/FDPS)
+**Code or software used to generate the data**: ASURA-FDPS (Smoothed Particle Hydrodynamics), [Github repository](https://github.com/FDPS/FDPS).
 
 **Equation**: 
 
@@ -27,13 +27,15 @@ where $P$, $\rho$, and $u$ are the pressure. $r$ is the position, $a_{\rm visc}$
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| turbulence_gravity_cooling | 1.31 |2.06| 1.44 |$\mathbf{1.16}$ |
+| `turbulence_gravity_cooling` | 1.31 |2.06| 1.44 |$\mathbf{1.16}$ |
+
+Preliminary benchmark, in VRMSE.
 
 # About the data
 
 **Dimension of discretized data:** $50$ time-steps of  $64\times 64\times 64$ cubes.
 
-**Fields available in the data:** Pressure (scalar field), density (scalar field), temperature(scalar field), velocity (tensor field).
+**Fields available in the data:** Pressure (scalar field), density (scalar field), temperature (scalar field), velocity (tensor field).
 
 **Number of trajectories:** 2700 (27 parameters sets $\times$ 100 runs).
 
@@ -41,7 +43,7 @@ where $P$, $\rho$, and $u$ are the pressure. $r$ is the position, $a_{\rm visc}$
 
 **Grid type:** uniform, cartesian coordinates.
 
-**Initial conditions:** $2700$ random seeds generated using https://github.com/amusecode/amuse/blob/main/src/amuse/ext/molecular_cloud.py (Virialized isothermal gas sphere with turbulence following the velocity spectrum $E(k) \propto k^{-2}$, which is Burgers turbulence (Burgers 1948 and Kupilas+2021 for reference )).
+**Initial conditions:** $2700$ random seeds generated using https://github.com/amusecode/amuse/blob/main/src/amuse/ext/molecular_cloud.py (Virialized isothermal gas sphere with turbulence following the velocity spectrum $E(k) \propto k^{-2}$, which is Burgers turbulence (Burgers 1948 and Kupilas+2021 for reference)).
 
 **Boundary conditions:** open.
 
@@ -101,3 +103,17 @@ In the case of cold gas with strong cooling/heating, it can easily make dense re
 **How to evaluate a new simulator operating in this space:**
 The new simulator should be able to detect potential regions of star formation / potential number of newborn stars, because star formation regions are very dense and need very small timesteps, which results in a massive number of calculation steps.
 
+Please cite the associated paper if you use this data in your research:
+
+```
+@article{hirashima20233d,
+  title={3D-Spatiotemporal forecasting the expansion of supernova shells using deep learning towards high-resolution galaxy simulations},
+  author={Hirashima, Keiya and Moriwaki, Kana and Fujii, Michiko S and Hirai, Yutaka and Saitoh, Takayuki R and Makino, Junichiro},
+  journal={Monthly Notices of the Royal Astronomical Society},
+  volume={526},
+  number={3},
+  pages={4054--4066},
+  year={2023},
+  publisher={Oxford University Press}
+}
+```
