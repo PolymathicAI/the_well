@@ -45,9 +45,9 @@ def write_to_json(data, output_file):
 if __name__ == "__main__":
     # List of directories you want to index
     directories_to_index = [
-        "/mnt/home/polymathic/ceph/the_well/datasets/acoustic_scattering_discontinuous_2d/data",
-        "/mnt/home/polymathic/ceph/the_well/datasets/acoustic_scattering_inclusions_2d/data",
-        "/mnt/home/polymathic/ceph/the_well/datasets/acoustic_scattering_maze_2d/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/acoustic_scattering_discontinuous/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/acoustic_scattering_inclusions/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/acoustic_scattering_maze/data",
         "/mnt/home/polymathic/ceph/the_well/datasets/active_matter/data",
         "/mnt/home/polymathic/ceph/the_well/datasets/convective_envelope_rsg/data",
         "/mnt/home/polymathic/ceph/the_well/datasets/euler_multi_quadrants_openBC/data",

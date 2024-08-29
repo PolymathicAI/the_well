@@ -10,9 +10,9 @@ import torch
 from torch.utils.data import Dataset
 
 well_paths = {
-    "acoustic_scattering_maze_2d": "datasets/acoustic_scattering_maze_2d",
-    "acoustic_scattering_inclusions_2d": "datasets/acoustic_scattering_inclusions_2d",
-    "acoustic_scattering_discontinuous_2d": "datasets/acoustic_scattering_discontinuous_2d",
+    "acoustic_scattering_maze": "datasets/acoustic_scattering_maze",
+    "acoustic_scattering_inclusions": "datasets/acoustic_scattering_inclusions",
+    "acoustic_scattering_discontinuous": "datasets/acoustic_scattering_discontinuous",
     "active_matter": "datasets/active_matter",
     "convective_envelope_rsg": "datasets/convective_envelope_rsg",
     "euler_multi_quadrants_openBC": "datasets/euler_multi_quadrants_openBC",

@@ -21,7 +21,7 @@ with $\rho$ the material density, $u, v$ the velocity in the $x, y$ directions r
 
 Example material densities can be seen below:
 
-![image](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_inclusions_2d/gif/inclusions_density.png)
+![image](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_inclusions/gif/inclusions_density.png)
 
 # About the data
 

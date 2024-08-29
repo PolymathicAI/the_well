@@ -21,11 +21,11 @@ with $\rho$ the material density, $u, v$ the velocity in the $x, y$ directions r
 
 Example material densities can be seen below:
 
-![image](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_maze_2d/gif/mazes_density.png)
+![image](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_maze/gif/mazes_density.png)
 
 Traversal can be seen:
 
-![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_maze_2d/gif/pressure_normalized.gif)
+![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_maze/gif/pressure_normalized.gif)
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
