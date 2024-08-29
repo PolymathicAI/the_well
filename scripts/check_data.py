@@ -80,16 +80,22 @@ class ProblemReport:
         self.spatial_issue = True
 
     def set_constant_frame_issue(self, field: str, trajectory: int, time_step: int):
-        if field in self.constant_frames:
-            self.constant_frames[field].append((trajectory, time_step))
+        if trajectory in self.constant_frames:
+            if field in self.constant_frames[trajectory]:
+                self.constant_frames[trajectory][field] += 1
+            else:
+                self.constant_frames[trajectory].update({field: 0})
         else:
-            self.constant_frames[field] = [(trajectory, time_step)]
+            self.constant_frames.update({trajectory: {field: 0}})
 
     def set_nan_frame_issue(self, field: str, trajectory: int, time_step: int):
-        if field in self.nan_frames:
-            self.nan_frames[field].append((trajectory, time_step))
+        if trajectory in self.nan_frames:
+            if field in self.nan_frames[trajectory]:
+                self.nan_frames[trajectory][field] += 1
+            else:
+                self.nan_frames[trajectory].update({field: 0})
         else:
-            self.nan_frames[field] = [(trajectory, time_step)]
+            self.nan_frames.update({trajectory: {field: 0}})
 
     def has_issue(self) -> bool:
         return (
@@ -127,12 +133,20 @@ class ProblemReport:
             if self.spatial_issue:
                 report += "Spatial dimensions must be modified.\n"
             if self.constant_frames:
-                report += "Constant frames detected for (trajectory time_step):"
-                for field, problems in self.constant_frames.items():
-                    report += f"{field}: {problems} "
-                report += "\n"
+                report += "Constant frames detected:\n"
+                for trajectory, trajectory_issues in self.constant_frames.items():
+                    report += f"Trajectory {trajectory} has constant frames: "
+                    for field, n_constant_frames in trajectory_issues.items():
+                        report += f"{field}:{n_constant_frames} "
+                    report += "\n"
             if self.nan_frames:
-                report += "Frames with NAN values detected for (trajectory time_step):"
+                report += "Frames with NAN values detected:"
+                for trajectory, trajectory_issues in self.nan_frames.items():
+                    report += f"Trajectory {trajectory} has NAN value frames: "
+                    for field, n_nan_frames in trajectory_issues.items():
+                        report += f"{field}:{n_nan_frames} "
+                    report += "\n"
+
                 for field, problems in self.nan_frames.items():
                     report += f"{field}: {problems} "
                 report += "\n"
@@ -222,7 +236,9 @@ def list_files(data_register: List[str]):
 
 def check_file(filename: str):
     file_checker = WellFileChecker(filename, modify)
-    file_checker.check()
+    report = file_checker.check()
+    return report
+
 
 
 if __name__ == "__main__":
@@ -235,4 +251,4 @@ if __name__ == "__main__":
     files = list_files(data_register)
     with mp.Pool(nproc) as pool:
         for report in pool.imap_unordered(check_file, files):
-            print(report)
+            print(report, flush=True)
