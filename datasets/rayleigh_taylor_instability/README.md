@@ -8,7 +8,7 @@
 
 **Domain experts**: [Stefan Nixon](https://www.maths.cam.ac.uk/person/ssn34), University of Cambridge, [Romain Watteaux](https://www.linkedin.com/in/romain-watteaux-978b08162/?locale=en_US), CEA DAM, [Suart B. Dalziel](https://scholar.google.com/citations?user=OJcK5CAAAAAJ&hl=en), University of Cambridge.
 
-**Code or software used to generate the data**: [TurMix3D](https://theses.hal.science/tel-00669707/document)
+**Code or software used to generate the data**: [TurMix3D](https://theses.hal.science/tel-00669707/document).
 
 **Equation**:The flow is governed by equations for continuity, momentum and incompressibility in the case of miscible fluids with common molecular diffusivity:
 ```math
@@ -33,7 +33,7 @@ where $\nu$ is the kinematic viscosity and $\vec{I}$ is the identity matrix.
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| rayleigh_taylor_instability (At = 0.25) | $\mathbf{0.875}$  | 1.57 |4.61|0.991|
+| `rayleigh_taylor_instability` (At = 0.25) | $\mathbf{0.875}$  | 1.57 |4.61|0.991|
 
 Preliminary benchmarking, in VRMSE.
 
@@ -54,19 +54,17 @@ $$A(k) = \frac{1}{k\sigma\sqrt{2\pi}} \exp\Big(-\frac{(\ln (k) - \mu)^2}{2\sigma
 where $\mu$ is the mean and $\sigma$ is the standard deviation of the profile. Furthermore, we have imposed a random phase to the corresponding complex Fourier component (i.e. a random value for the argument of the complex Fourier component) between zero and a varied maximum ($\phi_{max}$), finally after Fourier transforming to physical space the mean of the resulting profile is normalized to $3.10^5$ to ensure comparable power. 
 
 
-**Boundary conditions:**** Periodic boundary conditions on sides walls and slip conditions on the top and bottom walls.
+**Boundary conditions:** Periodic boundary conditions on sides walls and slip conditions on the top and bottom walls.
 
 **Simulation time-step:** $\Delta t$ is set such that the maximum Courant number is $\frac12(CFL_{max}=0.5)$. Therefore, the time step decreases as the flow accelerates.
 
-**Data are stored separated by ($\Delta t$):**  different according to At number.
-
-The time difference between frames varies as the flow accelerates, thus the largest occur at the beginning of the simulation ($\delta t \sim 5s$) and the smallest at the end ($\delta t \sim 0.1s$).
+**Data are stored separated by ($\Delta t$):**  varies with the Atwood number.
 
 **Total time range ($t_{min}$ to $t_{max}$):** Varies from $t_{min}=0$ to $t_{max}$ between $\sim 30s$ and $\sim 100s$, depending on Atwood number.
 
 **Spatial domain size ($L_x$, $L_y$, $L_z$):** $[0,1]\times[0,1]\times[0,1]$.
 
-**Set of coefficients or non-dimensional parameters evaluated:** We run simulations with 13 different initializations for five different Atwood number $At\in {\frac34, \frac12, \frac14, \frac18, \frac{1}{16}}$. The first set on initial conditions considers varying the mean $\mu$ and standard deviation $\sigma$ of the profile $A(k)$ with $\mu\in{1, 4, 16}$ and $\sigma\in{\frac14, \frac12, 1}$, the phase (argument of the complex Fourier component) $\phi$ was set randomly in the range $[0,2\pi)$. The second set of initial conditions considers a fixed mean ($\mu=16$) and standard deviation ($\sigma =0.25$) and a varieed range of random phases (complex arguments $\phi\in[0,\phi_{max}$)) given to each Fourier component. The four cases considered are specified by $\phi_{max}\in { \frac{\pi}{128}, \frac{\pi}{8}, \frac{\pi}{2}, \pi}$. 
+**Set of coefficients or non-dimensional parameters evaluated:** We run simulations with 13 different initializations for five different Atwood number values $At\in {\frac34, \frac12, \frac14, \frac18, \frac{1}{16}}$. The first set on initial conditions considers varying the mean $\mu$ and standard deviation $\sigma$ of the profile $A(k)$ with $\mu\in{1, 4, 16}$ and $\sigma\in{\frac14, \frac12, 1}$, the phase (argument of the complex Fourier component) $\phi$ was set randomly in the range $[0,2\pi)$. The second set of initial conditions considers a fixed mean ($\mu=16$) and standard deviation ($\sigma =0.25$) and a varieed range of random phases (complex arguments $\phi\in[0,\phi_{max}$)) given to each Fourier component. The four cases considered are specified by $\phi_{max}\in { \frac{\pi}{128}, \frac{\pi}{8}, \frac{\pi}{2}, \pi}$. 
 
 **Approximate time to generate the data:** 1 hour on 128 CPU cores for 1 simulation. 65 hours on 128 CPU cores for all simulations.
 
@@ -74,8 +72,22 @@ The time difference between frames varies as the flow accelerates, thus the larg
 
 # What is interesting and challenging about the data:
 
-**What phenomena of physical interest are catpured in the data:** In this data there are three key aspects of physical interest. Firstly, impact of coherence on otherwise random initial conditions. Secondly, the effect of the shape of the initial energy spectrum on the structure of the flow. Finally, the transition from the Boussinesq to the non-Boussinesq regime where the mixing width transitions from symmetric to asymmetric growth.  
+**What phenomena of physical interest are catpured in the data:** In this dataset, there are three key aspects of physical interest. Firstly, impact of coherence on otherwise random initial conditions. Secondly, the effect of the shape of the initial energy spectrum on the structure of the flow. Finally, the transition from the Boussinesq to the non-Boussinesq regime where the mixing width transitions from symmetric to asymmetric growth.  
 
 **How to evaluate a new simulator operating in this space:**
 
-From a fundamental standpoint we, would expect the density field to be advected and mixed rather than created or destroyed to give appropriate statistics. From a qualitative perspective, given that the underlying simulations are of comparable spatial resolution to the simulations run by the alpha group (Dimonte et. al. 2003) we would consider a good emulator to produce a comparable value for α as reported in their paper for an appropriately similar set of initial conditions. This parameter is derived by considering the flow after the initial transient. At this stage, the width of the turbulent mixing zone, $L$, is self-similar and grows as $L= \alpha \* At \* g \* t^2$. They reported a value of $\alpha$=0.025±0.003. In addition, during this self-regime, we would expect to observe energy spectra with a similar shape to those reported in Cabot and Cook 2006, specifically exhibiting an appropriate $k^{-\frac53}$ cascade. From a structural perspective, we would expect that for an initialization with a large variety of modes in the initial spectrum to observe a range of bubbles and spikes (upward and downward moving structures), whereas in the other limit (where this only on mode in the initial spectrum) we expect to observe a single bubble and spike.  In addition, a good emulator would exhibit symmetric mixing with for low Atwood numbers in the Boussinesq regime (defined as $At$ < 0.1 by Andrews and Dalziel 2010) and asymmetries in the mixing with for large Atwood number.  
+From a fundamental standpoint, we would expect the density field to be advected and mixed rather than created or destroyed to give appropriate statistics. From a qualitative perspective, given that the underlying simulations are of comparable spatial resolution to the simulations run by the alpha group (Dimonte et. al. 2003), we would consider a good emulator to produce a comparable value for α as reported in their paper for an appropriately similar set of initial conditions. This parameter is derived by considering the flow after the initial transient. At this stage, the width of the turbulent mixing zone, $L$, is self-similar and grows as $L= \alpha \* At \* g \* t^2$. They reported a value of $\alpha$=0.025±0.003. In addition, during this self-regime, we would expect to observe energy spectra with a similar shape to those reported in Cabot and Cook 2006, specifically exhibiting an appropriate $k^{-\frac53}$ cascade. From a structural perspective, we would expect that for an initialization with a large variety of modes in the initial spectrum to observe a range of bubbles and spikes (upward and downward moving structures), whereas in the other limit (where this only on mode in the initial spectrum) we expect to observe a single bubble and spike.  In addition, a good emulator would exhibit symmetric mixing with for low Atwood numbers in the Boussinesq regime (defined as $At$ < 0.1 by Andrews and Dalziel 2010) and asymmetries in the mixing with for large Atwood number.  
+
+Please cite the associated paper if you use this data in your research:
+```
+@article{cabot2006reynolds,
+  title={Reynolds number effects on Rayleigh--Taylor instability with possible implications for type Ia supernovae},
+  author={Cabot, William H and Cook, Andrew W},
+  journal={Nature Physics},
+  volume={2},
+  number={8},
+  pages={562--568},
+  year={2006},
+  publisher={Nature Publishing Group UK London}
+}
+```

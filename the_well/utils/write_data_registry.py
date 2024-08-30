@@ -45,9 +45,9 @@ def write_to_json(data, output_file):
 if __name__ == "__main__":
     # List of directories you want to index
     directories_to_index = [
-        "/mnt/home/polymathic/ceph/the_well/datasets/acoustic_scattering_discontinuous_2d/data",
-        "/mnt/home/polymathic/ceph/the_well/datasets/acoustic_scattering_inclusions_2d/data",
-        "/mnt/home/polymathic/ceph/the_well/datasets/acoustic_scattering_maze_2d/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/acoustic_scattering_discontinuous/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/acoustic_scattering_inclusions/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/acoustic_scattering_maze/data",
         "/mnt/home/polymathic/ceph/the_well/datasets/active_matter/data",
         "/mnt/home/polymathic/ceph/the_well/datasets/convective_envelope_rsg/data",
         "/mnt/home/polymathic/ceph/the_well/datasets/euler_multi_quadrants_openBC/data",
@@ -55,7 +55,7 @@ if __name__ == "__main__":
         "/mnt/home/polymathic/ceph/the_well/datasets/helmholtz_staircase/data",
         "/mnt/home/polymathic/ceph/the_well/datasets/MHD_64/data",
         "/mnt/home/polymathic/ceph/the_well/datasets/MHD_256/data",
-        "/mnt/home/polymathic/ceph/the_well/datasets/pattern_formation/data",
+        "/mnt/home/polymathic/ceph/the_well/datasets/gray_scott_reaction_diffusion/data",
         "/mnt/home/polymathic/ceph/the_well/datasets/planetswe/data",
         "/mnt/home/polymathic/ceph/the_well/datasets/post_neutron_star_merger/data",
         "/mnt/home/polymathic/ceph/the_well/datasets/rayleigh_benard/data",

@@ -20,7 +20,7 @@ datasets/active_matter_v2/
 datasets/euler_multi_quadrants_openBC/data/
 datasets/euler_multi_quadrants_periodicBC/data/
 
-datasets/pattern_formation/data/
+datasets/gray_scott_reaction_diffusion/data/
 datasets/datasets/
 
 output_slurm/
@@ -40,14 +40,14 @@ datasets/rayleigh_taylor_instability/data/
 datasets/turbulent_radiative_layer_3D/data/
 datasets/split_turbulent_radiative_layer_3D/
 datasets/turbulent_radiative_layer_2D/data/
-datasets/acoustic_scattering_discontinuous_2d/data/
-datasets/acoustic_scattering_inclusions_2d/data/
-datasets/acoustic_scattering_maze_2d/data/
+datasets/acoustic_scattering_discontinuous/data/
+datasets/acoustic_scattering_inclusions/data/
+datasets/acoustic_scattering_maze/data/
 datasets/planetswe/data/
 datasets/post_neutron_star_merger/data/
-datasets/acoustic_scattering_discontinuous_2d/gif/
-datasets/acoustic_scattering_inclusions_2d/gif/
-datasets/acoustic_scattering_maze_2d/gif/
+datasets/acoustic_scattering_discontinuous/gif/
+datasets/acoustic_scattering_inclusions/gif/
+datasets/acoustic_scattering_maze/gif/
 2D/
 3D/
 3D/rayleigh_taylor_instability/data/
