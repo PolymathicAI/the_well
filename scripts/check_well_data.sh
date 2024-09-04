@@ -1,7 +1,7 @@
 #!/usr/bin/bash -l
 
 #SBATCH --partition=polymathic
-#SBATCH --time=10:00:00
+#SBATCH --time=40:00:00
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH --cpus-per-task=64
@@ -10,4 +10,4 @@
 module load python
 source ~/well_venv/bin/activate
 
-python -u check_data.py -n 64
+python -u check_well_data.py -n 64

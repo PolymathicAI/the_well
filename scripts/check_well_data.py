@@ -17,9 +17,9 @@ data_register = [
     "/mnt/home/polymathic/ceph/the_well/datasets/helmholtz_staircase/data",
     "/mnt/home/polymathic/ceph/the_well/datasets/MHD_64/data",
     "/mnt/home/polymathic/ceph/the_well/datasets/MHD_256/data",
-    "/mnt/home/polymathic/ceph/the_well/datasets/pattern_formation/data",
+    "/mnt/home/polymathic/ceph/the_well/datasets/gray_scott_reaction_diffusion/data",
     "/mnt/home/polymathic/ceph/the_well/datasets/planetswe/data",
-    "/mnt/home/polymathic/ceph/the_well/datasets/post_neutron_star_merger/data",
+    # "/mnt/home/polymathic/ceph/the_well/datasets/post_neutron_star_merger/data",
     "/mnt/home/polymathic/ceph/the_well/datasets/rayleigh_benard/data",
     "/mnt/home/polymathic/ceph/the_well/datasets/rayleigh_taylor_instability/data",
     "/mnt/home/polymathic/ceph/the_well/datasets/shear_flow/data",
@@ -107,7 +107,9 @@ class ProblemReport:
             or len(self.nan_frames)
         )
 
-    def update_field_average(self, trajectory: int, field: str, dim: int, values: np.ndarray):
+    def update_field_average(
+        self, trajectory: int, field: str, dim: int, values: np.ndarray
+    ):
         mean_value = np.nanmean(values)
         if trajectory in self.field_averages:
             if field in self.field_averages[trajectory]:
@@ -136,7 +138,6 @@ class ProblemReport:
         self.means = means
         self.stds = stds
 
-
     def find_outliers(self, sigma_factor: int = 5):
         outliers = {}
 
@@ -149,16 +150,15 @@ class ProblemReport:
                     std = self.stds[trajectory][field][dim]
                     dim_outliers = []
                     for step, value in enumerate(dim_means):
-                        if np.sqrt((value - mean)**2) >= sigma_factor * std:
+                        if np.sqrt((value - mean) ** 2) >= sigma_factor * std:
                             dim_outliers.append(step)
                     field_outliers.update({dim: dim_outliers})
                 if field_outliers:
                     trajectory_ouliers.update({field: field_outliers})
             if trajectory_ouliers:
                 outliers.update({trajectory: trajectory_ouliers})
-        
-        self.outliers = outliers
 
+        self.outliers = outliers
 
     def __str__(self) -> str:
         if self.has_issue():
@@ -245,7 +245,9 @@ class WellFileChecker:
                                     sub_key, traj, time
                                 )
                             else:
-                                self.report.update_field_average(traj, sub_key, dim, array)
+                                self.report.update_field_average(
+                                    traj, sub_key, dim, array
+                                )
 
     def check(self):
         with h5py.File(self.filename, "r+") as file:
@@ -281,7 +283,6 @@ def check_file(filename: str):
     return report
 
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("Data Sanity Checker")
     parser.add_argument("-n", "--nproc", type=int, default=1)
@@ -291,5 +292,5 @@ if __name__ == "__main__":
     modify = args.modify
     files = list_files(data_register)
     with mp.Pool(nproc) as pool:
-        for report in pool.imap_unordered(check_file, files):
+        for report in pool.imap_unordered(check_file, files, chunksize=16):
             print(report, flush=True)
