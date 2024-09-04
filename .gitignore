@@ -8,11 +8,6 @@ dist/
 Thumbs.db
 .idea/
 
-clean_data.py
-clean.sh
-data_cleaning.ipynb
-recompute_stats.py
-compute_stats.sh
 #Ignoring the data
 datasets/active_matter/data/
 datasets/active_matter_v2/
