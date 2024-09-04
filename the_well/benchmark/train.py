@@ -54,6 +54,7 @@ def train(
     logger.info(
         f"Instantiate model {cfg.model._target_}",
     )
+    print(cfg.model)
     model: torch.nn.Module = instantiate(
         cfg.model,
         dset_metadata=dset_metadata,

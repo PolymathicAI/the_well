@@ -102,13 +102,13 @@ class GenericWellMetadata:
     sample_shapes: Dict[str, Tuple[int]] = field(init=False)
     grid_type: str = "cartesian"
 
-    def __post_init__(self):
-        self.sample_shapes = {
-            "input_fields": (*self.spatial_resolution, self.n_fields),
-            "output_fields": (*self.spatial_resolution, self.n_fields),
-            "constant_scalars": (self.n_constant_scalars),
-            "space_grid": (*self.spatial_resolution, self.n_spatial_dims),
-        }
+    # def __post_init__(self):
+    #     self.sample_shapes = {
+    #         "input_fields": (*self.spatial_resolution, self.n_fields),
+    #         "output_fields": (*self.spatial_resolution, self.n_fields),
+    #         "constant_scalars": (self.n_constant_scalars),
+    #         "space_grid": (*self.spatial_resolution, self.n_spatial_dims),
+    #     }
 
 
 class GenericWellDataset(Dataset):

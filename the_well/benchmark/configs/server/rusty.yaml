@@ -1,3 +1,4 @@
 # @package _global_
 data:
   well_base_path: "/mnt/home/polymathic/ceph/the_well/"
+experiment_dir: "experiments/"
