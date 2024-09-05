@@ -7,7 +7,7 @@ include = ["the_well", "the_well.utils", "the_well.benchmark"]
 
 [project]
 name = "the_well"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 version = "0.0.1"
 readme = "README.md"
 dependencies = [
