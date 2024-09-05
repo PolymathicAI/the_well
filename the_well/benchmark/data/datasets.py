@@ -99,15 +99,15 @@ class GenericWellMetadata:
     boundary_condition_types: List[str]
     n_simulations: int
     n_steps_per_simulation: List[int]
-    sample_shapes: Dict[str, Tuple[int]] = field(init=False)
+    sample_shapes: Dict[str, List[int]] = field(init=False)
     grid_type: str = "cartesian"
 
     def __post_init__(self):
         self.sample_shapes = {
-            "input_fields": (*self.spatial_resolution, self.n_fields),
-            "output_fields": (*self.spatial_resolution, self.n_fields),
-            "constant_scalars": (self.n_constant_scalars),
-            "space_grid": (*self.spatial_resolution, self.n_spatial_dims),
+            "input_fields": [*self.spatial_resolution, self.n_fields],
+            "output_fields": [*self.spatial_resolution, self.n_fields],
+            "constant_scalars": [self.n_constant_scalars],
+            "space_grid": [*self.spatial_resolution, self.n_spatial_dims],
         }
 
 
