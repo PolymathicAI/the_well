@@ -4,11 +4,11 @@ The folder contains a collection of scripts whose goals are described below
 
 Go through the different datasets that compose the Well to generate YAML files containing the metadata of the corresponding dataset.
 
-# `recompute_stats.py`
+# `compute_statistics.py`
 
 Go through the different datasets that compose the Well to compute their statistics in terms of mean and std for each tensor field.
 
-# `check_well_data.py`
+# `check_thewell_data.py`
 
 Check for all the HDF5 files that compose the dataset if:
 - the name of boundary conditions is consistant;
@@ -16,7 +16,7 @@ Check for all the HDF5 files that compose the dataset if:
 - the different tensor fields contain constant frames;
 - the different tensor fields contain outliers compared to the mean and std computed on the fly. A default value of $5\sigma$ serves as threshold for characterizing outliers.
 
-# `check_hdf5_format.py`
+# `check_thewell_formatting.py`
 
 Check that a HDF5 file follows the format expected by the Well.
 
