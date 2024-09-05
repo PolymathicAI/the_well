@@ -3,11 +3,11 @@ import os
 import re
 import shutil
 
-import imageio
-import matplotlib.pyplot as plt
-
 
 def create_gif(time_series, saving_directory, name_file="density", delete_imgs=True):
+    import imageio
+    import matplotlib.pyplot as plt
+
     time_series_min = time_series.min()
     time_series_max = time_series.max()
     if time_series.ndim > 3:

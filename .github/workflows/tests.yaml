@@ -1,6 +1,6 @@
 name: Tests
 
-on: [pull_request]
+on: [push, pull_request]
 jobs:
   build:
       runs-on: ubuntu-latest
@@ -17,7 +17,7 @@ jobs:
             pip install ruff isort[colors] pytest pytest-order
         - name: Install the_well
           run: |
-            pip install ".[benchmark]"
+            pip install .[benchmark,test]
         - name: Run linter
           run: |
             ruff check the_well tests
