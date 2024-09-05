@@ -107,7 +107,6 @@ def train(
         lr_scheduler=lr_scheduler,
         device=device,
         is_distributed=is_distributed,
-        validation_mode=cfg.validation_mode,
     )
     if not validation_mode:
         # Save config to directory folder
@@ -128,12 +127,17 @@ def configure_experiment(cfg: DictConfig):
     cfg.trainer.resume = False
     experiment_name = get_experiment_name(cfg)
     base_experiment_folder = osp.join(cfg.experiment_dir, experiment_name)
+    experiment_folder = None
     # Want to allow for multiple runs to exist with same name or things will get very annoying
     if osp.exists(base_experiment_folder):
         prev_runs = sorted(os.listdir(base_experiment_folder), key=lambda x: int(x))
-        # If we're auto-resuming, start from most recent run
-        if cfg.auto_resume:
-            experiment_folder = osp.join(base_experiment_folder, prev_runs[-1])
+        if len(cfg.folder_override) > 0:
+            experiment_folder = cfg.folder_override
+        # Override the config if we're resuming or validating
+        if cfg.auto_resume or cfg.validation_mode:
+            # If we're auto-resuming, start from most recent run unless it was overridden
+            if experiment_folder is None:
+                experiment_folder = osp.join(base_experiment_folder, prev_runs[-1])
             # Load the previous yaml for exact correspondence
             cfg = OmegaConf.load(osp.join(experiment_folder, "extended_config.yaml"))
             cfg.trainer.resume = True
@@ -162,10 +166,12 @@ def main(cfg: DictConfig):
     logger.info(f"Run experiment {experiment_name}")
     logger.info(f"Configuration:\n{OmegaConf.to_yaml(cfg)}")
     # Initiate wandb logging
+    wandb_logged_cfg = OmegaConf.to_container(cfg, resolve=True)
+    wandb_logged_cfg['experiment_folder'] = experiment_folder
     wandb.init(
         project=cfg.wandb_project_name,
         group=f"{cfg.data.well_dataset_name}",
-        config=OmegaConf.to_container(cfg, resolve=True),
+        config=wandb_logged_cfg,
         name=experiment_name,
     )
 

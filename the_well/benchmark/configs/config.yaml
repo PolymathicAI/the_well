@@ -11,4 +11,5 @@ data:
 data_workers: 14
 validation_mode: False
 auto_resume: False # Automatically resume from the most recent checkpoint for given name
+folder_override: "" # Override the folder name for the experiment
 wandb_project_name: "the_well_extended_again"
