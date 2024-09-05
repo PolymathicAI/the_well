@@ -10,4 +10,4 @@
 module load python
 source ~/well_venv/bin/activate
 
-python -u plot_velocity.py /mnt/ceph/users/polymathic/the_well/datasets/ ~/ceph/well_figure
+python -u plot_velocity.py $@

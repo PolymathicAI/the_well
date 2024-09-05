@@ -1,35 +1,12 @@
 import argparse
 import multiprocessing as mp
 import os
-from typing import Any, Dict, List
+from typing import List
 
 import h5py
 import numpy as np
 
-data_register = [
-    "/mnt/home/polymathic/ceph/the_well/datasets/acoustic_scattering_discontinuous_2d/data",
-    "/mnt/home/polymathic/ceph/the_well/datasets/acoustic_scattering_inclusions_2d/data",
-    "/mnt/home/polymathic/ceph/the_well/datasets/acoustic_scattering_maze_2d/data",
-    "/mnt/home/polymathic/ceph/the_well/datasets/active_matter/data",
-    "/mnt/home/polymathic/ceph/the_well/datasets/convective_envelope_rsg/data",
-    "/mnt/home/polymathic/ceph/the_well/datasets/euler_multi_quadrants_openBC/data",
-    "/mnt/home/polymathic/ceph/the_well/datasets/euler_multi_quadrants_periodicBC/data",
-    "/mnt/home/polymathic/ceph/the_well/datasets/helmholtz_staircase/data",
-    "/mnt/home/polymathic/ceph/the_well/datasets/MHD_64/data",
-    "/mnt/home/polymathic/ceph/the_well/datasets/MHD_256/data",
-    "/mnt/home/polymathic/ceph/the_well/datasets/gray_scott_reaction_diffusion/data",
-    "/mnt/home/polymathic/ceph/the_well/datasets/planetswe/data",
-    # "/mnt/home/polymathic/ceph/the_well/datasets/post_neutron_star_merger/data",
-    "/mnt/home/polymathic/ceph/the_well/datasets/rayleigh_benard/data",
-    "/mnt/home/polymathic/ceph/the_well/datasets/rayleigh_taylor_instability/data",
-    "/mnt/home/polymathic/ceph/the_well/datasets/shear_flow/data",
-    "/mnt/home/polymathic/ceph/the_well/datasets/supernova_explosion_64/data",
-    "/mnt/home/polymathic/ceph/the_well/datasets/supernova_explosion_128/data",
-    "/mnt/home/polymathic/ceph/the_well/datasets/turbulence_gravity_cooling/data",
-    "/mnt/home/polymathic/ceph/the_well/datasets/turbulent_radiative_layer_2D/data",
-    "/mnt/home/polymathic/ceph/the_well/datasets/turbulent_radiative_layer_3D/data",
-    "/mnt/home/polymathic/ceph/the_well/datasets/viscoelastic_instability/data",
-]
+from the_well.benchmark.data.datasets import well_paths
 
 
 def check_bc(bc: str) -> str:
@@ -285,11 +262,16 @@ def check_file(filename: str):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("Data Sanity Checker")
+    parser.add_argument("the_well_dir", type=str)
     parser.add_argument("-n", "--nproc", type=int, default=1)
     parser.add_argument("--modify", action="store_true")
     args = parser.parse_args()
+    data_dir = args.the_well_dir
     nproc = args.nproc
     modify = args.modify
+    data_register = [
+        os.path.join(data_dir, dataset_path) for dataset_path in well_paths.values()
+    ]
     files = list_files(data_register)
     with mp.Pool(nproc) as pool:
         for report in pool.imap_unordered(check_file, files, chunksize=16):

@@ -1,35 +1,11 @@
+import argparse
 import os
 
 import h5py as h5
 import numpy as np
 import torch
 
-from the_well.benchmark.data.datasets import GenericWellDataset
-
-data_register = [
-    "/mnt/home/polymathic/ceph/the_well/datasets/acoustic_scattering_discontinuous_2d/data",
-    "/mnt/home/polymathic/ceph/the_well/datasets/acoustic_scattering_inclusions_2d/data",
-    "/mnt/home/polymathic/ceph/the_well/datasets/acoustic_scattering_maze_2d/data",
-    "/mnt/home/polymathic/ceph/the_well/datasets/active_matter/data",
-    # "/mnt/home/polymathic/ceph/the_well/datasets/convective_envelope_rsg/data",
-    # "/mnt/home/polymathic/ceph/the_well/datasets/euler_multi_quadrants_openBC/data",
-    # "/mnt/home/polymathic/ceph/the_well/datasets/euler_multi_quadrants_periodicBC/data",
-    # #"/mnt/home/polymathic/ceph/the_well/datasets/helmholtz_staircase/data",
-    # "/mnt/home/polymathic/ceph/the_well/datasets/MHD_64/data",
-    # "/mnt/home/polymathic/ceph/the_well/datasets/MHD_256/data",
-    # "/mnt/home/polymathic/ceph/the_well/datasets/pattern_formation/data",
-    # "/mnt/home/polymathic/ceph/the_well/datasets/planetswe/data",
-    # "/mnt/home/polymathic/ceph/the_well/datasets/post_neutron_star_merger/data",
-    # "/mnt/home/polymathic/ceph/the_well/datasets/rayleigh_benard/data",
-    # "/mnt/home/polymathic/ceph/the_well/datasets/rayleigh_taylor_instability/data",
-    # "/mnt/home/polymathic/ceph/the_well/datasets/shear_flow/data",
-    # "/mnt/home/polymathic/ceph/the_well/datasets/supernova_explosion_64/data",
-    # "/mnt/home/polymathic/ceph/the_well/datasets/supernova_explosion_128/data",
-    # "/mnt/home/polymathic/ceph/the_well/datasets/turbulence_gravity_cooling/data",
-    # "/mnt/home/polymathic/ceph/the_well/datasets/turbulent_radiative_layer_2D/data",
-    # "/mnt/home/polymathic/ceph/the_well/datasets/turbulent_radiative_layer_3D/data",
-    # "/mnt/home/polymathic/ceph/the_well/datasets/viscoelastic_instability/data",
-]
+from the_well.benchmark.data.datasets import GenericWellDataset, well_paths
 
 
 def compute_statistics(train_path, original_path):
@@ -42,12 +18,8 @@ def compute_statistics(train_path, original_path):
     for p in paths:
         os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
         with h5.File(p, "r") as f:
-            # print('\n',p)
-            # print(f)
             for fi in fields:
-                # print('\n',fi)
                 for field in f[fi].attrs["field_names"]:
-                    # print('\t',field)
                     data = f[fi][field][:]
                     if field not in means:
                         means[field] = data.sum()
@@ -66,11 +38,8 @@ def compute_statistics(train_path, original_path):
     for p in paths:
         os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
         with h5.File(p, "r") as f:
-            # print('\n',p)
             for fi in fields:
-                # print('\n',fi)
                 for field in f[fi].attrs["field_names"]:
-                    # print('\t',field)
                     data = f[fi][field][:]
                     if field not in variances:
                         variances[field] = ((data - means[field]) ** 2).sum()
@@ -102,4 +71,11 @@ def recompute_statistics(data_register):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser("Compute the Well dataset statistics")
+    parser.add_argument("the_well_dir", type=str)
+    args = parser.parse_args()
+    data_dir = args.the_well_dir
+    data_register = [
+        os.path.join(data_dir, dataset_path) for dataset_path in well_paths.values()
+    ]
     recompute_statistics(data_register)
