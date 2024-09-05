@@ -1,6 +1,8 @@
+import argparse
 import os.path
 import shutil
 
+import h5py
 import imageio
 import matplotlib.pyplot as plt
 import numpy as np
@@ -46,3 +48,47 @@ def create_gif(
     imageio.mimsave(saving_directory + "/" + name_file + ".gif", images, duration=0.1)
     if delete_imgs:
         shutil.rmtree(saving_directory + "/img_for_gif")
+
+
+def get_trajectory(
+    file_name: str, field_name: str, trajectory: int, dim=None
+) -> np.ndarray:
+    with h5py.File(file_name, "r") as file:
+        for field_type in ["t0_fields", "t1_fields", "t2_fields"]:
+            if field_name in file[field_type].keys():
+                field = file[field_type][field_name]
+                # Field is expected to be N, T, H, W, (D1, D2)
+                if dim:
+                    assert (
+                        field.shape >= 4 + len(dim)
+                    ), f"Dimension should specify the tensor dimension to retrieve in shape {field.shape}"
+                    traj = field[trajectory, :, :, :, dim]
+                else:
+                    traj = field[trajectory, :, :, :]
+                return traj
+    raise IndexError(f"{field_name} not found in the fields of {file_name}")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser("Trajectory GIF creator")
+    parser.add_argument("input_filename", type=str)
+    parser.add_argument("field_name", type=str)
+    parser.add_argument("trajectory", type=int)
+    parser.add_argument("output_directory", type=str)
+    parser.add_argument("output_filename", type=str)
+    parser.add_argument("--dimension", nargs="+", type=int, default=None)
+    args = parser.parse_args()
+    file_name = args.input_filename
+    field_name = args.field_name
+    trajectory = args.trajectory
+    dims = args.dimension
+    print(
+        f"Retrieve trajectory {trajectory} for field {field_name} in {file_name}. Optional dimension {dims}"
+    )
+    traj = get_trajectory(file_name, field_name, trajectory, dims)
+    print(f"Trajectory of shape {traj.shape} retrieved.")
+    output_dir = args.output_directory
+    output_filename = args.output_filename
+    print(f"Generat GIF to {output_dir}")
+    create_gif(traj, output_dir, output_filename)
+    print("Done.")
