@@ -3,7 +3,7 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["the_well"]
+include = ["the_well", "the_well.utils", "the_well.benchmark"]
 
 [project]
 name = "the_well"
