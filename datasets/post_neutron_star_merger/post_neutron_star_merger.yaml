@@ -1,0 +1,47 @@
+dataset_name: post_neutron_star_merger
+n_spatial_dims: 3
+spatial_resolution:
+- 192
+- 128
+- 66
+n_constant_scalars: 2
+n_constant_fields: 0
+constant_names: []
+n_fields: 12
+field_names:
+- density
+- internal_energy
+- pressure
+- temperature
+- electron_fraction
+- entropy
+- magnetic_field_log_r
+- magnetic_field_theta
+- magnetic_field_phi
+- velocity_log_r
+- velocity_theta
+- velocity_phi
+boundary_condition_types:
+- OPEN
+- PERIODIC
+n_simulations: 1
+n_steps_per_simulation:
+- 181
+grid_type: spherical
+sample_shapes:
+  input_fields:
+  - 192
+  - 128
+  - 66
+  - 12
+  output_fields:
+  - 192
+  - 128
+  - 66
+  - 12
+  constant_scalars: 2
+  space_grid:
+  - 192
+  - 128
+  - 66
+  - 3

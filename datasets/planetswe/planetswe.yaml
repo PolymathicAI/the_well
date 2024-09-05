@@ -1,0 +1,45 @@
+dataset_name: planetswe
+n_spatial_dims: 2
+spatial_resolution:
+- 256
+- 512
+n_constant_scalars: 0
+n_constant_fields: 0
+constant_names: []
+n_fields: 3
+field_names:
+- height
+- velocity_theta
+- velocity_phi
+boundary_condition_types:
+- OPEN
+- PERIODIC
+n_simulations: 12
+n_steps_per_simulation:
+- 1008
+- 1008
+- 1008
+- 1008
+- 1008
+- 1008
+- 1008
+- 1008
+- 1008
+- 1008
+- 1008
+- 1008
+grid_type: equiangular
+sample_shapes:
+  input_fields:
+  - 256
+  - 512
+  - 3
+  output_fields:
+  - 256
+  - 512
+  - 3
+  constant_scalars: 0
+  space_grid:
+  - 256
+  - 512
+  - 2

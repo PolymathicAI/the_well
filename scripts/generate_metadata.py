@@ -15,6 +15,7 @@ def generate_metadata(dataset_dir: str, output_dir: str):
             n_steps_input=1,
             n_steps_output=1,
             well_split_name="valid",
+            use_normalization=False,
         )
         metadata = dataset.metadata
         metadata_conf = OmegaConf.create(metadata.__dict__)

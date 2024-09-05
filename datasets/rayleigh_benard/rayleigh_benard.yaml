@@ -1,0 +1,69 @@
+dataset_name: rayleigh_benard
+n_spatial_dims: 2
+spatial_resolution:
+- 512
+- 128
+n_constant_scalars: 2
+n_constant_fields: 0
+constant_names: []
+n_fields: 4
+field_names:
+- buoyancy
+- pressure
+- velocity_x
+- velocity_y
+boundary_condition_types:
+- WALL
+- PERIODIC
+n_simulations: 35
+n_steps_per_simulation:
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+- 200
+grid_type: cartesian
+sample_shapes:
+  input_fields:
+  - 512
+  - 128
+  - 4
+  output_fields:
+  - 512
+  - 128
+  - 4
+  constant_scalars: 2
+  space_grid:
+  - 512
+  - 128
+  - 2

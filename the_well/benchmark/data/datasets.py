@@ -95,7 +95,7 @@ class GenericWellMetadata:
     n_constant_fields: int
     constant_names: List[str]
     n_fields: int
-    field_names: List[str]
+    field_names: Dict[str, List[str]]
     boundary_condition_types: List[str]
     n_simulations: int
     n_steps_per_simulation: List[int]
@@ -276,7 +276,7 @@ class GenericWellDataset(Dataset):
         self.available_file_steps = []  # Number of actual time steps in each simulation for each file
         self.file_samples = []  # Number of simulation per file
         self.file_index_offsets = [0]  # Used to track where each file starts
-        self.field_names = []
+        self.field_names = {}
         self.constant_field_names = []
         # Things where we just care every file has same value
         size_tuples = set()
@@ -329,12 +329,13 @@ class GenericWellDataset(Dataset):
                     self.num_fields_by_tensor_order = {}
                     self.num_constant_fields_by_tensor_order = {}
                     self.num_constants = len(_f.attrs["simulation_parameters"])
+                    t0_field_names = []
                     for field in _f["t0_fields"].attrs["field_names"]:
                         if (
                             _f["t0_fields"][field].attrs["time_varying"]
                             and _f["t0_fields"][field].attrs["sample_varying"]
                         ):
-                            self.field_names.append(field)
+                            t0_field_names.append(field)
                             self.num_fields_by_tensor_order[0] = (
                                 self.num_fields_by_tensor_order.get(0, 0) + 1
                             )
@@ -343,13 +344,16 @@ class GenericWellDataset(Dataset):
                             self.num_constant_fields_by_tensor_order[0] = (
                                 self.num_constant_fields_by_tensor_order.get(0, 0) + 1
                             )
+                    if t0_field_names:
+                        self.field_names.update({0: t0_field_names})
+                    t1_field_names = []
                     for field in _f["t1_fields"].attrs["field_names"]:
                         for dim in _f["dimensions"].attrs["spatial_dims"]:
                             if (
                                 _f["t1_fields"][field].attrs["time_varying"]
                                 and _f["t1_fields"][field].attrs["sample_varying"]
                             ):
-                                self.field_names.append(f"{field}_{dim}")
+                                t1_field_names.append(f"{field}_{dim}")
                                 self.num_fields_by_tensor_order[1] = (
                                     self.num_fields_by_tensor_order.get(1, 0) + 1
                                 )
@@ -359,6 +363,9 @@ class GenericWellDataset(Dataset):
                                     self.num_constant_fields_by_tensor_order.get(1, 0)
                                     + 1
                                 )
+                    if t1_field_names:
+                        self.field_names.update({1: t1_field_names})
+                    t2_field_names = []
                     for field in _f["t2_fields"].attrs["field_names"]:
                         for i, dim1 in enumerate(
                             _f["dimensions"].attrs["spatial_dims"]
@@ -375,7 +382,7 @@ class GenericWellDataset(Dataset):
                                     _f["t2_fields"][field].attrs["time_varying"]
                                     and _f["t2_fields"][field].attrs["sample_varying"]
                                 ):
-                                    self.field_names.append(f"{field}_{dim1}{dim2}")
+                                    t2_field_names.append(f"{field}_{dim1}{dim2}")
                                     self.num_fields_by_tensor_order[2] = (
                                         self.num_fields_by_tensor_order.get(2, 0) + 1
                                     )
@@ -389,6 +396,8 @@ class GenericWellDataset(Dataset):
                                         )
                                         + 1
                                     )
+                    if t2_field_names:
+                        self.field_names.update({2: t2_field_names})
 
         # Just to make sure it doesn't put us in file -1
         self.file_index_offsets[0] = -1

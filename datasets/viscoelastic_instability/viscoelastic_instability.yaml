@@ -1,0 +1,45 @@
+dataset_name: viscoelastic_instability
+n_spatial_dims: 2
+spatial_resolution:
+- 512
+- 512
+n_constant_scalars: 5
+n_constant_fields: 0
+constant_names: []
+n_fields: 8
+field_names:
+- pressure
+- c_zz
+- velocity_x
+- velocity_y
+- C_xx
+- C_xy
+- C_yx
+- C_yy
+boundary_condition_types:
+- WALL
+- PERIODIC
+n_simulations: 7
+n_steps_per_simulation:
+- 20
+- 60
+- 60
+- 20
+- 20
+- 20
+- 20
+grid_type: cartesian
+sample_shapes:
+  input_fields:
+  - 512
+  - 512
+  - 8
+  output_fields:
+  - 512
+  - 512
+  - 8
+  constant_scalars: 5
+  space_grid:
+  - 512
+  - 512
+  - 2

@@ -1,0 +1,43 @@
+dataset_name: convective_envelope_rsg
+n_spatial_dims: 3
+spatial_resolution:
+- 256
+- 128
+- 256
+n_constant_scalars: 0
+n_constant_fields: 0
+constant_names: []
+n_fields: 6
+field_names:
+- density
+- energy
+- pressure
+- velocity_r
+- velocity_theta
+- velocity_phi
+boundary_condition_types:
+- OPEN
+- PERIODIC
+n_simulations: 3
+n_steps_per_simulation:
+- 100
+- 100
+- 100
+grid_type: spherical
+sample_shapes:
+  input_fields:
+  - 256
+  - 128
+  - 256
+  - 6
+  output_fields:
+  - 256
+  - 128
+  - 256
+  - 6
+  constant_scalars: 0
+  space_grid:
+  - 256
+  - 128
+  - 256
+  - 3

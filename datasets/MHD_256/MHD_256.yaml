@@ -1,0 +1,47 @@
+dataset_name: MHD
+n_spatial_dims: 3
+spatial_resolution:
+- 256
+- 256
+- 256
+n_constant_scalars: 2
+n_constant_fields: 0
+constant_names: []
+n_fields: 4
+field_names:
+- density
+- magnetic_field_x
+- magnetic_field_y
+- magnetic_field_z
+boundary_condition_types:
+- PERIODIC
+n_simulations: 10
+n_steps_per_simulation:
+- 100
+- 100
+- 100
+- 100
+- 100
+- 100
+- 100
+- 100
+- 100
+- 100
+grid_type: cartesian
+sample_shapes:
+  input_fields:
+  - 256
+  - 256
+  - 256
+  - 4
+  output_fields:
+  - 256
+  - 256
+  - 256
+  - 4
+  constant_scalars: 2
+  space_grid:
+  - 256
+  - 256
+  - 256
+  - 3

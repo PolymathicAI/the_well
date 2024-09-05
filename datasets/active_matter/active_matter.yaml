@@ -1,0 +1,56 @@
+dataset_name: active_matter
+n_spatial_dims: 2
+spatial_resolution:
+- 256
+- 256
+n_constant_scalars: 3
+n_constant_fields: 0
+constant_names: []
+n_fields: 11
+field_names:
+- concentration
+- velocity_x
+- velocity_y
+- D_xx
+- D_xy
+- D_yx
+- D_yy
+- E_xx
+- E_xy
+- E_yx
+- E_yy
+boundary_condition_types:
+- PERIODIC
+n_simulations: 16
+n_steps_per_simulation:
+- 81
+- 81
+- 81
+- 81
+- 81
+- 81
+- 81
+- 81
+- 81
+- 81
+- 81
+- 81
+- 81
+- 81
+- 81
+- 81
+grid_type: cartesian
+sample_shapes:
+  input_fields:
+  - 256
+  - 256
+  - 11
+  output_fields:
+  - 256
+  - 256
+  - 11
+  constant_scalars: 3
+  space_grid:
+  - 256
+  - 256
+  - 2
