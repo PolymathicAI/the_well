@@ -128,16 +128,17 @@ def configure_experiment(cfg: DictConfig):
     experiment_name = get_experiment_name(cfg)
     base_experiment_folder = osp.join(cfg.experiment_dir, experiment_name)
     experiment_folder = None
+    if len(cfg.folder_override) > 0:
+        experiment_folder = cfg.folder_override
     # Want to allow for multiple runs to exist with same name or things will get very annoying
-    if osp.exists(base_experiment_folder):
+    if osp.exists(base_experiment_folder) or experiment_folder is not None:
         prev_runs = sorted(os.listdir(base_experiment_folder), key=lambda x: int(x))
-        if len(cfg.folder_override) > 0:
-            experiment_folder = cfg.folder_override
         # Override the config if we're resuming or validating
         if cfg.auto_resume or cfg.validation_mode:
             # If we're auto-resuming, start from most recent run unless it was overridden
             if experiment_folder is None:
                 experiment_folder = osp.join(base_experiment_folder, prev_runs[-1])
+            logger.info(f"Autoresume or validation enabled. Resuming from settings in {experiment_folder}")
             # Load the previous yaml for exact correspondence
             cfg = OmegaConf.load(osp.join(experiment_folder, "extended_config.yaml"))
             cfg.trainer.resume = True
