@@ -99,7 +99,7 @@ class GenericWellMetadata:
     boundary_condition_types: List[str]
     n_simulations: int
     n_steps_per_simulation: List[int]
-    sample_shapes: Dict[str, Tuple[int]] = field(init=False)
+    # sample_shapes: Dict[str, Tuple[int]] = field(init=False)
     grid_type: str = "cartesian"
 
     # def __post_init__(self):

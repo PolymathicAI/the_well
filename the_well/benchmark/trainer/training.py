@@ -54,6 +54,7 @@ class Trainer:
         device=torch.device("cuda"),
         is_distributed: bool = False,
         enable_amp: bool = False,
+        resume: bool = False,
         amp_type: str = "float16",  # bfloat not supported in FFT
     ):
         """
@@ -92,7 +93,12 @@ class Trainer:
             A Pytorch device (e.g. "cuda" or "cpu")
         is_distributed:
             A boolean flag to trigger DDP training
-
+        enable_amp:
+            A boolean flag to enable automatic mixed precision training
+        resume:
+            A boolean flag to resume training from a checkpoint.
+        amp_type:
+            The type of automatic mixed precision to use. Can be "float16" or "bfloat16"
         """
         self.experiment_folder = experiment_folder
         self.device = device
@@ -121,6 +127,7 @@ class Trainer:
             self.formatter = DefaultChannelsFirstFormatter(self.dset_metadata)
         elif formatter == "channels_last_default":
             self.formatter = DefaultChannelsLastFormatter(self.dset_metadata)
+        self.configure_paths()
 
     def configure_paths(self):
         """Configure the paths for the experiment."""

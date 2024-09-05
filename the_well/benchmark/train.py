@@ -107,7 +107,6 @@ def train(
         lr_scheduler=lr_scheduler,
         device=device,
         is_distributed=is_distributed,
-        validation_mode=cfg.validation_mode,
     )
     if not validation_mode:
         # Save config to directory folder
@@ -124,6 +123,28 @@ def get_experiment_name(cfg: DictConfig) -> str:
     # slurm_job_id = os.environ.get("SLURM_JOB_ID", "0") - Not using for now since I think it'll be easier to just use name alone
     return f"{cfg.data.well_dataset_name}-{cfg.name}-{model_name}-{cfg.optimizer.lr}"
 
+def configure_experiment(cfg: DictConfig):
+    cfg.trainer.resume = False
+    experiment_name = get_experiment_name(cfg)
+    base_experiment_folder = osp.join(cfg.experiment_dir, experiment_name)
+    # Want to allow for multiple runs to exist with same name or things will get very annoying
+    if osp.exists(base_experiment_folder):
+        prev_runs = sorted(os.listdir(base_experiment_folder), key=lambda x: int(x))
+        # If we're auto-resuming, start from most recent run
+        if cfg.auto_resume:
+            experiment_folder = osp.join(base_experiment_folder, prev_runs[-1])
+            # Load the previous yaml for exact correspondence
+            cfg = OmegaConf.load(osp.join(experiment_folder, "extended_config.yaml"))
+            cfg.trainer.resume = True
+        # Otherwise, make a new folder
+        else:
+            experiment_folder = osp.join(base_experiment_folder, str(len(prev_runs)))
+    # Otherwise, increment the internal folder by 1 and make a new base folder
+    else:
+        experiment_folder = osp.join(base_experiment_folder, "0")
+    # Make the folder if it does not currently exist
+    os.makedirs(experiment_folder, exist_ok=True)
+    return cfg, experiment_name, experiment_folder
 
 @hydra.main(version_base=None, config_path=CONFIG_DIR, config_name=CONFIG_NAME)
 def main(cfg: DictConfig):
@@ -133,8 +154,8 @@ def main(cfg: DictConfig):
     )
     torch.set_float32_matmul_precision("high")  # Use TF32 when supported
     # Normal things
-    experiment_name = get_experiment_name(cfg)
-    experiment_folder = osp.join(cfg.experiment_dir, experiment_name)
+    cfg, experiment_name, experiment_folder = configure_experiment(cfg)
+    
     logger.info(f"Run experiment {experiment_name}")
     logger.info(f"Configuration:\n{OmegaConf.to_yaml(cfg)}")
     # Initiate wandb logging

@@ -9,4 +9,6 @@ data:
 # model:
 #   gradient_checkpointing: False
 data_workers: 14
+validation_mode: False
+auto_resume: False # Automatically resume from the most recent checkpoint for given name
 wandb_project_name: "the_well_extended_again"

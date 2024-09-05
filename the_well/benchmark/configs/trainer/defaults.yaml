@@ -8,3 +8,4 @@ num_time_intervals: 5
 checkpoint_frequency: 20 # Frequency of saving checkpoints. If 0, only use best/most recent. Setting this to 1 uses A LOT of disk space. 
 # enable_amp: False
 loss_fn: ???
+resume: False # This is a default that is overridden by the code
