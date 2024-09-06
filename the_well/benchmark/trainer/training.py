@@ -54,8 +54,8 @@ class Trainer:
         device=torch.device("cuda"),
         is_distributed: bool = False,
         enable_amp: bool = False,
-        resume: bool = False,
         amp_type: str = "float16",  # bfloat not supported in FFT
+        checkpoint_path: str = "",
     ):
         """
         Class in charge of the training loop. It performs train, validation and test.
@@ -95,10 +95,10 @@ class Trainer:
             A boolean flag to trigger DDP training
         enable_amp:
             A boolean flag to enable automatic mixed precision training
-        resume:
-            A boolean flag to resume training from a checkpoint.
         amp_type:
             The type of automatic mixed precision to use. Can be "float16" or "bfloat16"
+        checkpoint_path:
+            The path to the model checkpoint to load. If empty, the model is trained from scratch. 
         """
         self.experiment_folder = experiment_folder
         self.device = device
@@ -134,12 +134,12 @@ class Trainer:
         # Make checkpoints directory as experiment_folder/checkpoints
         os.makedirs(os.path.join(self.experiment_folder, "checkpoints"), exist_ok=True)
         self.checkpoint_folder = os.path.join(self.experiment_folder, "checkpoints")
-        # Make logs directory as experiment_folder/logs
-        os.makedirs(os.path.join(self.experiment_folder, "logs"), exist_ok=True)
-        self.log_folder = os.path.join(self.experiment_folder, "logs")
-        # Plot data directory as experiment_folder/plots
-        os.makedirs(os.path.join(self.experiment_folder, "plots"), exist_ok=True)
-        self.plot_folder = os.path.join(self.experiment_folder, "plots")
+        # Store run/validation data as experiment_folder/artifacts
+        os.makedirs(os.path.join(self.experiment_folder, "artifacts"), exist_ok=True)
+        self.artifact_folder = os.path.join(self.experiment_folder, "artifacts")
+        # Plot data directory as experiment_folder/viz
+        os.makedirs(os.path.join(self.experiment_folder, "viz"), exist_ok=True)
+        self.viz_folder = os.path.join(self.experiment_folder, "viz")
 
     def save_model(self, epoch: int, validation_loss: float, output_path: str):
         """Save the model checkpoint."""
