@@ -164,10 +164,14 @@ class GenericWellDataset(Dataset):
             for long run validation.
     name_override :
         Override name of dataset (used for more precise logging)
-    transforms :
-        List of transforms to apply to data
-    tensor_transformers :
-        List of transforms to apply to tensor fields
+    transform :
+        Transform to apply to data. Provide this in the form
+        `f(data: torch.Tensor, **metadata) -> torch.Tensor`, where
+        `metadata` includes `order: int`, the tensor order of the field,
+        `field_names: List[str]`, the names of the fields, `field_attrs`,
+        dataset-specific metadata, as well as `dataset` which is the
+        dataset itself (from which one can get `dataset.metadata` to access
+        more detailed metadata).
     """
 
     def __init__(
@@ -192,8 +196,7 @@ class GenericWellDataset(Dataset):
         boundary_return_type: str = "padding",
         full_trajectory_mode: bool = False,
         name_override: Optional[str] = None,
-        transforms: List[Callable] = [],
-        tensor_transforms: List[Callable] = [],
+        transform: Optional[Callable[[torch.Tensor], torch.Tensor]] = None,
     ):
         super().__init__()
         assert path is not None or (
@@ -220,8 +223,6 @@ class GenericWellDataset(Dataset):
             self.stds = torch.load(os.path.join(self.normalization_path, "stds.pkl"))
 
         # Input checks
-        if len(transforms) > 0 or len(tensor_transforms) > 0:
-            raise NotImplementedError("Transforms not yet implemented")
         if boundary_return_type not in ["padding"]:
             raise NotImplementedError("Only padding boundary conditions supported")
         if not flatten_tensors:
@@ -242,8 +243,7 @@ class GenericWellDataset(Dataset):
         self.full_trajectory_mode = full_trajectory_mode
         self.cache_constants = cache_constants
         self.max_cache_size = max_cache_size
-        self.transforms = transforms
-        self.tensor_transforms = tensor_transforms
+        self.transform = transform
         # Check the directory has hdf5 that meet our exclusion criteria
         sub_files = glob.glob(self.data_path + "/*.h5") + glob.glob(
             self.data_path + "/*.hdf5"
@@ -457,12 +457,12 @@ class GenericWellDataset(Dataset):
         expand_dims = expand_dims + (1,) * tensor_order
         return np.tile(field_data, expand_dims)
 
-    def _postprocess_field_list(self, field_list, output_list, order):
+    def _postprocess_field_list(self, field_list, output_list, order, metadata):
         """Postprocesses field list to apply tensor transforms"""
         if len(field_list) > 0:
             field_list = torch.stack(field_list, -(order + 1))
-            for tensor_transform in self.tensor_transforms:
-                field_list = tensor_transform(field_list, order=order)
+            if self.transform is not None:
+                field_list = self.transform(field_list, order=order, **metadata)
             if self.flatten_tensors:
                 field_list = field_list.flatten(-(order + 1))
             output_list.append(field_list)
@@ -477,7 +477,8 @@ class GenericWellDataset(Dataset):
         for i, order_fields in enumerate(["t0_fields", "t1_fields", "t2_fields"]):
             variable_subfields = []
             constant_subfields = []
-            for field_name in file[order_fields].attrs["field_names"]:
+            field_names = file[order_fields].attrs["field_names"]
+            for field_name in field_names:
                 field = file[order_fields][field_name]
                 use_dims = field.attrs["dim_varying"]
                 # If the field is constant and in the cache, use it, otherwise go through read/pad
@@ -513,12 +514,20 @@ class GenericWellDataset(Dataset):
                 else:
                     constant_subfields.append(field_data)
 
+            metadata = {
+                "dataset": self,
+                "field_names": field_names,
+                "field_attrs": {
+                    field_name: file[order_fields][field_name].attrs
+                    for field_name in file[order_fields].attrs["field_names"]
+                },
+            }
             # Stack fields such that the last i dims are the tensor dims
             variable_fields = self._postprocess_field_list(
-                variable_subfields, variable_fields, i
+                variable_subfields, variable_fields, i, metadata
             )
             constant_fields = self._postprocess_field_list(
-                constant_subfields, constant_fields, i
+                constant_subfields, constant_fields, i, metadata
             )
 
         return tuple(
