@@ -33,11 +33,9 @@ def train(
     world_size: int = 1,
     rank: int = 1,
     local_rank: int = 1,
-    resume: bool = False,
-    validation_mode: bool = False,
 ):
     """Instantiate the different objects required for training and run the training loop."""
-
+    validation_mode = cfg.validation_mode
     logger.info(f"Instantiate datamodule {cfg.data._target_}")
     datamodule: WellDataModule = instantiate(
         cfg.data, world_size=world_size, rank=rank, data_workers=cfg.data_workers
@@ -109,15 +107,13 @@ def train(
         is_distributed=is_distributed,
 
     )
-    if not validation_mode:
-        # Save config to directory folder
-        if not resume:
-            with open(osp.join(experiment_folder, "extended_config.yaml"), "w") as f:
-                OmegaConf.save(cfg, f)
-        trainer.train()
-    else:
+    if validation_mode:
         trainer.validate()
-
+    else:
+        # Save config to directory folder
+        with open(osp.join(experiment_folder, "extended_config.yaml"), "w") as f:
+            OmegaConf.save(cfg, f)
+        trainer.train()
 
 def get_experiment_name(cfg: DictConfig) -> str:
     model_name = cfg.model._target_.split(".")[-1]

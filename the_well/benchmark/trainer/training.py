@@ -160,8 +160,10 @@ class Trainer:
         """Load the model checkpoint."""
         logger.info(f"Loading checkpoint from {checkpoint_path}")
         checkpoint = torch.load(checkpoint_path, weights_only=False)
-        self.model.load_state_dict(checkpoint["model_state_dict"])
-        self.optimizer.load_state_dict(checkpoint["optimizer_state_dit"])
+        if self.model is not None:
+            self.model.load_state_dict(checkpoint["model_state_dict"])
+        if self.optimizer is not None:
+            self.optimizer.load_state_dict(checkpoint["optimizer_state_dit"])
         self.best_val_loss = checkpoint["validation_loss"]
         self.starting_epoch = checkpoint["epoch"] + 1
 
