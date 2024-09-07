@@ -107,6 +107,7 @@ def train(
         lr_scheduler=lr_scheduler,
         device=device,
         is_distributed=is_distributed,
+
     )
     if not validation_mode:
         # Save config to directory folder
@@ -180,24 +181,25 @@ def configure_experiment(cfg: DictConfig):
         checkpoint_path = osp.join(osp.dirname(checkpoint_file), osp.pardir, "extended_config.yaml")
         folder_path = osp.join(experiment_folder, "extended_config.yaml")
         if osp.isfile(checkpoint_path):
-            logger.log(f"Config file exists relative to checkpoint override provided,
+            logger.info(f"Config file exists relative to checkpoint override provided, \
                             using config file {checkpoint_path}")
         elif osp.isfile(folder_path):
-            logger.warn(f"Config file not found in checkpoint override path.
-                        Found in experiment folder, using config file {folder_path}.
-                        This could lead to weight compatibility issues if the checkpoints do not align with
+            logger.warn(f"Config file not found in checkpoint override path. \
+                        Found in experiment folder, using config file {folder_path}. \
+                        This could lead to weight compatibility issues if the checkpoints do not align with \
                         the specified folder.")
         else:
-            logger.warn(f"Checkpoint override provided, but config file not found in checkpoint override path 
+            logger.warn(f"Checkpoint override provided, but config file not found in checkpoint override path \
                         or experiment folder. Using default configuration which may not be compatible with checkpoint.")
-        resume = True
+        # resume = True
     elif len(config_file) > 0:
         logger.log(f"Config override provided, using config file {config_file}")
     elif validation_mode:
         raise ValueError(f"Validation mode enabled but no checkpoint provided or found in {experiment_folder}.")
     if len(config_file) > 0:
         cfg = OmegaConf.load(config_file)
-        cfg.trainer.resume = resume
+    cfg.trainer.checkpoint_path = checkpoint_file
+        # cfg.trainer.resume = resume
     # Create experiment folder if it doesn't already exist
     os.makedirs(experiment_folder, exist_ok=True)
     return cfg, experiment_name, experiment_folder

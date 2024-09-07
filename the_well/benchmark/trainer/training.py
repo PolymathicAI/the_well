@@ -100,6 +100,7 @@ class Trainer:
         checkpoint_path:
             The path to the model checkpoint to load. If empty, the model is trained from scratch. 
         """
+        self.starting_epoch = 1 # Gets overridden on resume
         self.experiment_folder = experiment_folder
         self.device = device
         self.model = model
@@ -128,6 +129,8 @@ class Trainer:
         elif formatter == "channels_last_default":
             self.formatter = DefaultChannelsLastFormatter(self.dset_metadata)
         self.configure_paths()
+        if len(checkpoint_path) > 0:
+            self.load_checkpoint(checkpoint_path)
 
     def configure_paths(self):
         """Configure the paths for the experiment."""
@@ -152,6 +155,15 @@ class Trainer:
             },
             output_path,
         )
+
+    def load_checkpoint(self, checkpoint_path: str):
+        """Load the model checkpoint."""
+        logger.info(f"Loading checkpoint from {checkpoint_path}")
+        checkpoint = torch.load(checkpoint_path, weights_only=False)
+        self.model.load_state_dict(checkpoint["model_state_dict"])
+        self.optimizer.load_state_dict(checkpoint["optimizer_state_dit"])
+        self.best_val_loss = checkpoint["validation_loss"]
+        self.starting_epoch = checkpoint["epoch"] + 1
 
     def rollout_model(self, model, batch, formatter):
         """Rollout the model for as many steps as we have data for."""
@@ -318,7 +330,7 @@ class Trainer:
             )
             batch_start = time.time()
         train_logs["time_per_train_iter"] = (time.time() - start_time) / len(dataloader)
-        train_logs["train_loss"] = epoch_loss
+        train_logs["train_loss"] = epoch_loss 
         if self.lr_scheduler:
             self.lr_scheduler.step()
             train_logs["lr"] = self.lr_scheduler.get_last_lr()[-1]
@@ -334,14 +346,14 @@ class Trainer:
         # os.makedirs(
         #     "checkpoints", exist_ok=True
         # )  # Quick fix here - should parameterize.
-        for epoch in range(self.max_epoch):
+        for epoch in range(self.starting_epoch, self.max_epoch+1):
             if epoch % self.val_frequency == 0:
-                logger.info(f"Epoch {epoch+1}/{self.max_epoch}: starting validation")
+                logger.info(f"Epoch {epoch}/{self.max_epoch}: starting validation")
                 val_loss, val_loss_dict = self.validation_loop(
-                    val_dataloder, full=epoch == self.max_epoch - 1
+                    val_dataloder, full=epoch == self.max_epoch
                 )
                 logger.info(
-                    f"Epoch {epoch+1}/{self.max_epoch}: validation loss {val_loss}"
+                    f"Epoch {epoch}/{self.max_epoch}: validation loss {val_loss}"
                 )
                 val_loss_dict |= {"valid": val_loss, "epoch": epoch}
                 wandb.log(val_loss_dict)
@@ -351,15 +363,15 @@ class Trainer:
                     )
             if epoch % self.rollout_val_frequency == 0:
                 logger.info(
-                    f"Epoch {epoch+1}/{self.max_epoch}: starting rollout validation"
+                    f"Epoch {epoch}/{self.max_epoch}: starting rollout validation"
                 )
                 rollout_val_loss, rollout_val_loss_dict = self.validation_loop(
                     rollout_val_dataloader,
                     valid_or_test="rollout_valid",
-                    full=epoch == self.max_epoch - 1,
+                    full=epoch == self.max_epoch,
                 )
                 logger.info(
-                    f"Epoch {epoch+1}/{self.max_epoch}: rollout validation loss {rollout_val_loss}"
+                    f"Epoch {epoch}/{self.max_epoch}: rollout validation loss {rollout_val_loss}"
                 )
                 rollout_val_loss_dict |= {
                     "rollout_valid": rollout_val_loss,
@@ -369,11 +381,12 @@ class Trainer:
 
             if self.is_distributed:
                 train_dataloader.sampler.set_epoch(epoch)
-            logger.info(f"Epoch {epoch+1}/{self.max_epoch}: starting training")
+            logger.info(f"Epoch {epoch}/{self.max_epoch}: starting training")
             train_loss, train_logs = self.train_one_epoch(epoch, train_dataloader)
-            logger.info(f"Epoch {epoch+1}/{self.max_epoch}: training loss {train_loss}")
+            logger.info(f"Epoch {epoch}/{self.max_epoch}: training loss {train_loss}")
             train_logs |= {"train": train_loss, "epoch": epoch}
             wandb.log(train_logs)
+            # Save the most recent iteration
             self.save_model(
                 epoch, val_loss, os.path.join(self.checkpoint_folder, "recent.pt")
             )
@@ -386,7 +399,7 @@ class Trainer:
         # Run validation on last epoch if not already run
         if epoch % self.val_frequency != 0:
             val_loss, val_loss_dict = self.validation_loop(val_dataloder, full=True)
-            logger.info(f"Epoch {epoch+1}/{self.max_epoch}: validation loss {val_loss}")
+            logger.info(f"Epoch {epoch}/{self.max_epoch}: validation loss {val_loss}")
             val_loss_dict |= {"valid": val_loss, "epoch": epoch}
             wandb.log(val_loss_dict)
         if epoch % self.rollout_val_frequency != 0:
@@ -394,7 +407,7 @@ class Trainer:
                 rollout_val_dataloader, valid_or_test="rollout_valid", full=True
             )
             logger.info(
-                f"Epoch {epoch+1}/{self.max_epoch}: rollout validation loss {rollout_val_loss}"
+                f"Epoch {epoch}/{self.max_epoch}: rollout validation loss {rollout_val_loss}"
             )
             rollout_val_loss_dict |= {"rollout_valid": rollout_val_loss, "epoch": epoch}
             wandb.log(rollout_val_loss_dict)
@@ -415,6 +428,11 @@ class Trainer:
         wandb.log(test_logs)
 
     def validate(self):
+        """ Runs only validation passes - does not save checkpoints or perform training.
+
+        This can probably be refactored to be merged with train, but the flow is already
+        convoluted enough that I'm splitting it for now. 
+        """
         val_dataloder = self.datamodule.val_dataloader()
         rollout_val_dataloader = self.datamodule.rollout_val_dataloader()
         test_dataloader = self.datamodule.test_dataloader()
