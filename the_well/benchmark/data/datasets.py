@@ -457,12 +457,12 @@ class GenericWellDataset(Dataset):
         expand_dims = expand_dims + (1,) * tensor_order
         return np.tile(field_data, expand_dims)
 
-    def _postprocess_field_list(self, field_list, output_list, order, metadata):
+    def _postprocess_field_list(self, field_list, output_list, order, tensor_metadata):
         """Postprocesses field list to apply tensor transforms"""
         if len(field_list) > 0:
             field_list = torch.stack(field_list, -(order + 1))
             if self.transform is not None:
-                field_list = self.transform(field_list, order=order, **metadata)
+                field_list = self.transform(field_list, order=order, **tensor_metadata)
             if self.flatten_tensors:
                 field_list = field_list.flatten(-(order + 1))
             output_list.append(field_list)
@@ -514,7 +514,7 @@ class GenericWellDataset(Dataset):
                 else:
                     constant_subfields.append(field_data)
 
-            metadata = {
+            tensor_metadata = {
                 "dataset": self,
                 "field_names": field_names,
                 "field_attrs": {
@@ -524,10 +524,10 @@ class GenericWellDataset(Dataset):
             }
             # Stack fields such that the last i dims are the tensor dims
             variable_fields = self._postprocess_field_list(
-                variable_subfields, variable_fields, i, metadata
+                variable_subfields, variable_fields, i, tensor_metadata
             )
             constant_fields = self._postprocess_field_list(
-                constant_subfields, constant_fields, i, metadata
+                constant_subfields, constant_fields, i, tensor_metadata
             )
 
         return tuple(
