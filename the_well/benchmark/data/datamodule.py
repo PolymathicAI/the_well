@@ -1,6 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import List
+from typing import Any, Dict, List, Literal, Optional
 
 from torch.utils.data import DataLoader, DistributedSampler
 
@@ -46,16 +46,28 @@ class WellDataModule(AbstractDataModule):
         world_size: int = 1,
         data_workers: int = 4,
         rank: int = 1,
+        dataset_kws: Optional[
+            Dict[
+                Literal["train", "val", "rollout_val", "test", "rollout_test"],
+                Dict[str, Any],
+            ]
+        ] = None,
     ):
         """Data module class to yield batches of samples.
 
         Parameters
         ----------
-        path:
+        well_base_path:
             Path to the data folder containing the splits (train, validation, and test).
+        well_dataset_name:
+            Name of the well dataset to use.
         batch_size:
             Size of the batches yielded by the dataloaders
 
+        ...
+
+        dataset_kws:
+            Additional keyword arguments to pass to each dataset, as a dict of dicts.
         """
         self.train_dataset = GenericWellDataset(
             well_base_path=well_base_path,
@@ -66,6 +78,11 @@ class WellDataModule(AbstractDataModule):
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
             dt_stride=dt_stride,
+            **(
+                dataset_kws["train"]
+                if dataset_kws is not None and "train" in dataset_kws
+                else {}
+            ),
         )
         self.val_dataset = GenericWellDataset(
             well_base_path=well_base_path,
@@ -76,6 +93,11 @@ class WellDataModule(AbstractDataModule):
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
             dt_stride=dt_stride,
+            **(
+                dataset_kws["val"]
+                if dataset_kws is not None and "val" in dataset_kws
+                else {}
+            ),
         )
         self.rollout_val_dataset = GenericWellDataset(
             well_base_path=well_base_path,
@@ -88,6 +110,11 @@ class WellDataModule(AbstractDataModule):
             n_steps_output=n_steps_output,
             full_trajectory_mode=True,
             dt_stride=dt_stride,
+            **(
+                dataset_kws["rollout_val"]
+                if dataset_kws is not None and "rollout_val" in dataset_kws
+                else {}
+            ),
         )
         self.test_dataset = GenericWellDataset(
             well_base_path=well_base_path,
@@ -98,6 +125,11 @@ class WellDataModule(AbstractDataModule):
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
             dt_stride=dt_stride,
+            **(
+                dataset_kws["test"]
+                if dataset_kws is not None and "test" in dataset_kws
+                else {}
+            ),
         )
         self.rollout_test_dataset = GenericWellDataset(
             well_base_path=well_base_path,
@@ -110,6 +142,11 @@ class WellDataModule(AbstractDataModule):
             n_steps_output=n_steps_output,
             full_trajectory_mode=True,
             dt_stride=dt_stride,
+            **(
+                dataset_kws["rollout_test"]
+                if dataset_kws is not None and "rollout_test" in dataset_kws
+                else {}
+            ),
         )
         self.batch_size = batch_size
         self.world_size = world_size
