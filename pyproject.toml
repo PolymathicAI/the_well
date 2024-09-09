@@ -29,7 +29,7 @@ benchmark = [
     "plotly>=5.0,<6",
     "timm>=1.0,<2",
     "torch_harmonics>=0.6,<0.7",
-    "wandb>=0.17,<0.18",
+    "wandb>=0.17.9,<0.18",
 ]
 test = [
     "isort[colors]",

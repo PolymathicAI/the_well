@@ -7,9 +7,8 @@ import numpy as np
 import torch
 import torch.distributed as dist
 import tqdm
-from torch.utils.data import DataLoader
-
 import wandb
+from torch.utils.data import DataLoader
 
 from ..data.data_formatter import (
     DefaultChannelsFirstFormatter,
