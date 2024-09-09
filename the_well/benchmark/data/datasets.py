@@ -83,16 +83,21 @@ class BoundaryCondition(Enum):
     OPEN = 1
     PERIODIC = 2
 
+
 def flatten_field_names(metadata, include_constants=True):
-    field_names =  (metadata.field_names.get(0, []) 
-            + metadata.field_names.get(1, []) 
-            + metadata.field_names.get(2, [])
+    field_names = (
+        metadata.field_names.get(0, [])
+        + metadata.field_names.get(1, [])
+        + metadata.field_names.get(2, [])
     )
     # TODO: constant names could theoretically be tensor-valued as well
     if include_constants:
-        constant_names = metadata.constant_names if metadata.constant_names is not None else []
+        constant_names = (
+            metadata.constant_names if metadata.constant_names is not None else []
+        )
         field_names += constant_names
     return field_names
+
 
 @dataclass
 class GenericWellMetadata:

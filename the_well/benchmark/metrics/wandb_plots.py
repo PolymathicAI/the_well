@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-import wandb
 
+import wandb
 from the_well.benchmark.data.datasets import GenericWellMetadata, flatten_field_names
 
 
@@ -44,8 +44,12 @@ def field_histograms(
         fig, ax = plt.subplots()
         title = f"{field_names[i]} Histogram"
         # Using these for debugging weird error
-        np_y = np.nan_to_num(y[..., i].flatten().cpu().numpy(), nan=1000, posinf=10000, neginf=-10000)
-        np_x = np.nan_to_num(x[..., i].flatten().cpu().numpy(), nan=1000, posinf=10000, neginf=-10000)
+        np_y = np.nan_to_num(
+            y[..., i].flatten().cpu().numpy(), nan=1000, posinf=10000, neginf=-10000
+        )
+        np_x = np.nan_to_num(
+            x[..., i].flatten().cpu().numpy(), nan=1000, posinf=10000, neginf=-10000
+        )
         use_bins = np.histogram_bin_edges(np_y, bins=bins)
         ax.hist(
             np_x,
