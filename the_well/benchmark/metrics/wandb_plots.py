@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-
 import wandb
+
 from the_well.benchmark.data.datasets import GenericWellMetadata, flatten_field_names
 
 
