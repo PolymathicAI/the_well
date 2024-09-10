@@ -3,7 +3,7 @@ import numpy as np
 import torch
 import wandb
 
-from the_well.benchmark.data.datasets import GenericWellMetadata
+from the_well.benchmark.data.datasets import GenericWellMetadata, flatten_field_names
 
 
 def field_histograms(
@@ -38,21 +38,28 @@ def field_histograms(
         x = torch.from_numpy(x)
     if isinstance(y, np.ndarray):
         y = torch.from_numpy(y)
-    field_names = meta.field_names
+    field_names = flatten_field_names(meta)
     out_dict = {}
     for i in range(x.shape[-1]):
         fig, ax = plt.subplots()
         title = f"{field_names[i]} Histogram"
-        use_bins = np.histogram_bin_edges(y[..., i].flatten().cpu(), bins=bins)
+        # Using these for debugging weird error
+        np_y = np.nan_to_num(
+            y[..., i].flatten().cpu().numpy(), nan=1000, posinf=10000, neginf=-10000
+        )
+        np_x = np.nan_to_num(
+            x[..., i].flatten().cpu().numpy(), nan=1000, posinf=10000, neginf=-10000
+        )
+        use_bins = np.histogram_bin_edges(np_y, bins=bins)
         ax.hist(
-            x[..., i].flatten().cpu(),
+            np_x,
             bins=use_bins,
             density=True,
             alpha=0.5,
             label="Predicted",
         )
         ax.hist(
-            y[..., i].flatten().cpu(),
+            np_y,
             bins=use_bins,
             density=True,
             alpha=0.5,
@@ -83,7 +90,7 @@ def plot_power_spectrum_by_field(x, y, metadata):
         Input tensor.
 
     """
-    field_names = metadata.field_names
+    field_names = flatten_field_names(metadata)
     spatial_dims = tuple(range(-metadata.n_spatial_dims - 1, -1))
 
     y_fft = build_1d_power_spectrum(y, spatial_dims)
@@ -94,24 +101,27 @@ def plot_power_spectrum_by_field(x, y, metadata):
     out_dict = {}
     for i in range(x.shape[-1]):
         fig, ax = plt.subplots()
+        np_x_fft = x_fft[..., i].sqrt().cpu().numpy()
+        np_y_ftt = y_fft[..., i].sqrt().cpu().numpy()
+        np_res_ftt = res_fft[..., i].sqrt().cpu().numpy()
         title = f"{field_names[i]} First Axis Mean Power Spectrum"
         ax.semilogy(
             axis,
-            x_fft[..., i].sqrt().cpu(),
+            np_x_fft[..., i],
             label="Predicted Spectrum",
             alpha=0.5,
             linestyle="--",
         )
         ax.semilogy(
             axis,
-            y_fft[..., i].sqrt().cpu(),
+            np_y_ftt,
             label="Target Spectrum",
             alpha=0.5,
             linestyle="-.",
         )
         ax.semilogy(
             axis,
-            res_fft[..., i].sqrt().cpu(),
+            np_res_ftt,
             label="Residual Spectrum",
             alpha=0.5,
             linestyle=":",

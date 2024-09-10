@@ -18,8 +18,9 @@ This example shows how to solve a problem with variable coefficients.
 The left and right halves of the domain consist of different materials.
 """
 
-import numpy as np
 from functools import partial
+
+import numpy as np
 from scipy.ndimage import gaussian_filter
 
 

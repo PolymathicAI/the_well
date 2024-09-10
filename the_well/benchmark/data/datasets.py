@@ -84,6 +84,21 @@ class BoundaryCondition(Enum):
     PERIODIC = 2
 
 
+def flatten_field_names(metadata, include_constants=True):
+    field_names = (
+        metadata.field_names.get(0, [])
+        + metadata.field_names.get(1, [])
+        + metadata.field_names.get(2, [])
+    )
+    # TODO: constant names could theoretically be tensor-valued as well
+    if include_constants:
+        constant_names = (
+            metadata.constant_names if metadata.constant_names is not None else []
+        )
+        field_names += constant_names
+    return field_names
+
+
 @dataclass
 class GenericWellMetadata:
     """Dataclass to store metadata for each dataset."""
@@ -157,7 +172,7 @@ class GenericWellDataset(Dataset):
         Maximum numel of constant tensor to cache
     return_grid :
         Whether to return grid coordinates
-    boundary_return_type : options=['padding', 'mask', 'exact']
+    boundary_return_type : options=['padding', 'mask', 'exact', 'none']
         How to return boundary conditions. Currently only padding supported.
     full_trajectory_mode :
         Overrides to return full trajectory starting from t0 instead of samples
@@ -223,7 +238,7 @@ class GenericWellDataset(Dataset):
             self.stds = torch.load(os.path.join(self.normalization_path, "stds.pkl"))
 
         # Input checks
-        if boundary_return_type not in ["padding"]:
+        if boundary_return_type is not None and boundary_return_type not in ["padding"]:
             raise NotImplementedError("Only padding boundary conditions supported")
         if not flatten_tensors:
             raise NotImplementedError("Only flattened tensors supported right now")
@@ -639,7 +654,7 @@ class GenericWellDataset(Dataset):
                 bc_type = bc.attrs["bc_type"].upper()  # Enum is in upper case
                 if len(bc.attrs["associated_dims"]) > 1:
                     raise NotImplementedError(
-                        "Only axis-aligned boundaries supported for now"
+                        "Only axis-aligned boundaries supported for now. If your code is not using BCs, consider setting `boundary_return_type` to None."
                     )
                 dim = bc.attrs["associated_dims"][0]
                 mask = bc["mask"]
@@ -647,7 +662,7 @@ class GenericWellDataset(Dataset):
                     boundary_output[dim_indices[dim]][0] = BoundaryCondition[
                         bc_type
                     ].value
-                if mask[1]:
+                if mask[-1]:
                     boundary_output[dim_indices[dim]][1] = BoundaryCondition[
                         bc_type
                     ].value
@@ -735,15 +750,16 @@ class GenericWellDataset(Dataset):
                     sample[k] = (sample[k] - self.means[k]) / (self.stds[k] + 1e-4)
 
         # For complex BCs, might need to do this pre_normalization
-        # TODO Re-enable this when we fix BCs.
-        # bcs = self._reconstruct_bcs(
-        #     self.files[file_idx],
-        #     sample_idx,
-        #     time_idx,
-        #     self.n_steps_input + output_steps,
-        #     dt,
-        # )
-        # sample["boundary_conditions"] = bcs  # Currently only mask is an option
+        # TODO Need to generalize
+        if self.boundary_return_type is not None:
+            bcs = self._reconstruct_bcs(
+                self.files[file_idx],
+                sample_idx,
+                time_idx,
+                self.n_steps_input + output_steps,
+                dt,
+            )
+            sample["boundary_conditions"] = bcs  # Currently only mask is an option
         if self.return_grid:
             space_grid, time_grid = self._reconstruct_grids(
                 self.files[file_idx],

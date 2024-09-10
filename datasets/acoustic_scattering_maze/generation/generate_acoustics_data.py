@@ -1,9 +1,10 @@
 import argparse
-import numpy as np
-from acoustics_2d_interface_random_medium import setup as random_setup
-from acoustics_2d_interface_maze import setup as maze_setup
-from functools import partial
 import multiprocessing as mp
+from functools import partial
+
+import numpy as np
+from acoustics_2d_interface_maze import setup as maze_setup
+from acoustics_2d_interface_random_medium import setup as random_setup
 
 # Time/steps/samples
 steps_map = {

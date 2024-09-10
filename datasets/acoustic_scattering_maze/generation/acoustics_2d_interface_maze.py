@@ -18,9 +18,10 @@ This example shows how to solve a problem with variable coefficients.
 The left and right halves of the domain consist of different materials.
 """
 
-import numpy as np
-import matplotlib.pyplot as plt
 from functools import partial
+
+import matplotlib.pyplot as plt
+import numpy as np
 from skimage.transform import resize
 
 

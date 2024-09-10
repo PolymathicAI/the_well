@@ -1,10 +1,10 @@
-import os
-import glob
 import argparse
+import glob
+import os
 
+import dedalus.public as d3
 import h5py as h5
 import numpy as np
-import dedalus.public as d3
 
 
 def populate_empty_file(file):

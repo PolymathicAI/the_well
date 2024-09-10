@@ -9,12 +9,13 @@ import os
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["NUMEXPR_MAX_THREADS"] = "1"
 
-import numpy as np
-import dedalus.public as d3
-import logging
 import argparse
+import logging
 import multiprocessing as mp
 from glob import glob
+
+import dedalus.public as d3
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
