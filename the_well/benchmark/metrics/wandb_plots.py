@@ -92,7 +92,6 @@ def plot_power_spectrum_by_field(x, y, metadata):
     """
     field_names = flatten_field_names(metadata)
     spatial_dims = tuple(range(-metadata.n_spatial_dims - 1, -1))
-
     y_fft = build_1d_power_spectrum(y, spatial_dims)
     x_fft = build_1d_power_spectrum(x, spatial_dims)
     res_fft = build_1d_power_spectrum(y - x, spatial_dims)
@@ -107,7 +106,7 @@ def plot_power_spectrum_by_field(x, y, metadata):
         title = f"{field_names[i]} First Axis Mean Power Spectrum"
         ax.semilogy(
             axis,
-            np_x_fft[..., i],
+            np_x_fft,
             label="Predicted Spectrum",
             alpha=0.5,
             linestyle="--",
