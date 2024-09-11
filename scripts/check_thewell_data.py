@@ -21,6 +21,10 @@ def check_nan(f: np.ndarray) -> bool:
     return np.isnan(f).any()
 
 
+def check_close_previous_frame(f: np.ndarray, prev_f: np.ndarray) -> bool:
+    return np.allclose(f, prev_f)
+
+
 def detect_outlier_pixels(image_array: np.ndarray, threshold: int = 10):
     mean = np.mean(image_array)
     std = np.std(image_array)
@@ -46,6 +50,7 @@ class ProblemReport:
         self.boundary_issues = ()
         self.spatial_issue = False
         self.constant_frames = {}
+        self.close_frames = {}
         self.nan_frames = {}
         self.field_averages = {}
         self.means = {}
@@ -66,6 +71,16 @@ class ProblemReport:
                 self.constant_frames[trajectory].update({field: [time_step]})
         else:
             self.constant_frames.update({trajectory: {field: [time_step]}})
+
+    def set_close_to_previous(self, field: str, trajectory: int, time_step: int):
+        if trajectory in self.close_frames:
+            if field in self.close_frames[trajectory]:
+                self.close_frames[trajectory][field].append(time_step)
+            else:
+                self.close_frames[trajectory].update({field: [time_step]})
+        else:
+            self.close_frames.update({trajectory: {field: [time_step]}})
+
 
     def set_nan_frame_issue(self, field: str, trajectory: int, time_step: int):
         if trajectory in self.nan_frames:
@@ -211,6 +226,7 @@ class WellFileChecker:
             spatial_dimensions = fields[sub_key].shape[2:2+n_spatial_dims]
             if fields[sub_key].attrs["time_varying"] == True:
                 for traj in range(n_traj):
+                    prev_arrays = None
                     for time in range(n_time):
                         arrays = fields[sub_key][traj, time, ...]
                         arrays = arrays.reshape(*spatial_dimensions, -1)
@@ -226,6 +242,9 @@ class WellFileChecker:
                                 self.report.update_field_average(
                                     traj, sub_key, dim, array
                                 )
+                            if (prev_arrays is not None) and check_close_previous_frame(array, prev_arrays[dim]):
+                                self.report.set_close_to_previous(sub_key, traj, time)
+                        prev_arrays = arrays
 
     def check(self):
         with h5py.File(self.filename, "r+") as file:
