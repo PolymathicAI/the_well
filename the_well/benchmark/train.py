@@ -13,7 +13,7 @@ from torchinfo import summary
 
 from the_well.benchmark.data import WellDataModule
 from the_well.benchmark.trainer import Trainer
-from the_well.benchmark.trainer.utils import set_master_config
+from the_well.benchmark.trainer.utils import set_master_config, configure_experiment
 
 logger = logging.getLogger("the_well")
 logger.setLevel(level=logging.DEBUG)
@@ -125,8 +125,6 @@ def main(cfg: DictConfig):
     )
     torch.set_float32_matmul_precision("high")  # Use TF32 when supported
     # Normal things
-    experiment_name = get_experiment_name(cfg)
-    experiment_folder = osp.join(cfg.experiment_dir, experiment_name)
     cfg, experiment_name, experiment_folder = configure_experiment(cfg)
     
     logger.info(f"Run experiment {experiment_name}")
