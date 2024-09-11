@@ -166,6 +166,13 @@ class ProblemReport:
                     for field, constant_frames in trajectory_issues.items():
                         report += f"{field}:{len(constant_frames)}:{constant_frames} "
                     report += "\n"
+            if self.close_frames:
+                report += "Time frames close to previous ones detected:"
+                for trajectory, trajectory_issues in self.close_frames.items():
+                    report += f"Trajectory {trajectory} has close subsequent frames: "
+                    for field, close_frames in trajectory_issues.items():
+                        report += f"{field}:{len(close_frames)}:{close_frames} "
+                    report += "\n"
             if self.nan_frames:
                 report += "Frames with NAN values detected:"
                 for trajectory, trajectory_issues in self.nan_frames.items():
