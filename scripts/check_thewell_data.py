@@ -254,7 +254,7 @@ class WellFileChecker:
                         prev_arrays = arrays
 
     def check(self):
-        with h5py.File(self.filename, "r+") as file:
+        with h5py.File(self.filename, "r") as file:
             keys_list = list(file.keys())
             for key in keys_list:
                 if key == "boundary_conditions":
@@ -282,7 +282,7 @@ def list_files(data_register: List[str]):
 
 
 def check_file(filename: str):
-    file_checker = WellFileChecker(filename, modify)
+    file_checker = WellFileChecker(filename)
     report = file_checker.check()
     return report
 
