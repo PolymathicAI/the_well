@@ -13,8 +13,8 @@ def check_bc(bc: str) -> str:
     return bc.upper()
 
 
-def verify_constant_array(f: np.ndarray) -> bool:
-    return np.all(f == f[0])
+def check_constant(f: np.ndarray) -> bool:
+    return np.all(f == f.item(0))
 
 
 def check_nan(f: np.ndarray) -> bool:
@@ -61,20 +61,20 @@ class ProblemReport:
     def set_constant_frame_issue(self, field: str, trajectory: int, time_step: int):
         if trajectory in self.constant_frames:
             if field in self.constant_frames[trajectory]:
-                self.constant_frames[trajectory][field] += 1
+                self.constant_frames[trajectory][field].append(time_step)
             else:
-                self.constant_frames[trajectory].update({field: 0})
+                self.constant_frames[trajectory].update({field: [time_step]})
         else:
-            self.constant_frames.update({trajectory: {field: 0}})
+            self.constant_frames.update({trajectory: {field: [time_step]}})
 
     def set_nan_frame_issue(self, field: str, trajectory: int, time_step: int):
         if trajectory in self.nan_frames:
             if field in self.nan_frames[trajectory]:
-                self.nan_frames[trajectory][field] += 1
+                self.nan_frames[trajectory][field].append(time_step)
             else:
-                self.nan_frames[trajectory].update({field: 0})
+                self.nan_frames[trajectory].update({field: [time_step]})
         else:
-            self.nan_frames.update({trajectory: {field: 0}})
+            self.nan_frames.update({trajectory: {field: [time_step]}})
 
     def has_issue(self) -> bool:
         return (
@@ -148,15 +148,15 @@ class ProblemReport:
                 report += "Constant frames detected:\n"
                 for trajectory, trajectory_issues in self.constant_frames.items():
                     report += f"Trajectory {trajectory} has constant frames: "
-                    for field, n_constant_frames in trajectory_issues.items():
-                        report += f"{field}:{n_constant_frames} "
+                    for field, constant_frames in trajectory_issues.items():
+                        report += f"{field}:{len(constant_frames)}:{constant_frames} "
                     report += "\n"
             if self.nan_frames:
                 report += "Frames with NAN values detected:"
                 for trajectory, trajectory_issues in self.nan_frames.items():
                     report += f"Trajectory {trajectory} has NAN value frames: "
-                    for field, n_nan_frames in trajectory_issues.items():
-                        report += f"{field}:{n_nan_frames} "
+                    for field, nan_frames in trajectory_issues.items():
+                        report += f"{field}:{len(nan_frames)}:{nan_frames} "
                     report += "\n"
             if self.outliers:
                 for trajectory, trajectory_outliers in self.outliers.items():
@@ -202,12 +202,13 @@ class WellFileChecker:
     def check_scalars(self, scalars):
         pass
 
-    def check_fields(self, fields):
+    def check_fields(self, fields, n_spatial_dims: int):
         sub_keys = list(fields.keys())
         for sub_key in sub_keys:
             n_traj = fields[sub_key].shape[0]
             n_time = fields[sub_key].shape[1]
-            spatial_dimensions = fields[sub_key].shape[2:4]
+            # TODO: Fix spatial dim
+            spatial_dimensions = fields[sub_key].shape[2:2+n_spatial_dims]
             if fields[sub_key].attrs["time_varying"] == True:
                 for traj in range(n_traj):
                     for time in range(n_time):
@@ -217,7 +218,7 @@ class WellFileChecker:
                         for dim, array in enumerate(arrays):
                             if check_nan(array):
                                 self.report.set_nan_frame_issue(sub_key, traj, time)
-                            elif verify_constant_array(array) and time > 0:
+                            elif check_constant(array) and time > 0:
                                 self.report.set_constant_frame_issue(
                                     sub_key, traj, time
                                 )
@@ -238,7 +239,7 @@ class WellFileChecker:
                 elif key == "scalars":
                     self.check_scalars(file[key])
                 elif "fields" in key:
-                    self.check_fields(file[key])
+                    self.check_fields(file[key], n_spatial_dimensions)
             self.report.compute_statistics()
             self.report.find_outliers()
             return str(self.report)
@@ -248,7 +249,7 @@ def list_files(data_register: List[str]):
     folder = ["train", "test", "valid"]
     for data in data_register:
         for f in folder:
-            file_path = f"{data}/{f}/"
+            file_path = f"{data}/data/{f}/"
             for file_name in os.listdir(file_path):
                 full_path = os.path.join(file_path, file_name)
                 yield full_path
