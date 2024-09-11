@@ -10,4 +10,4 @@
 module load python
 source ~/well_venv/bin/activate
 
-python -u check_well_data.py $@ -n 64
+python -u check_thewell_data.py $@ -n 64
