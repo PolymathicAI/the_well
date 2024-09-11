@@ -1,3 +1,4 @@
 # @package _global_
 data:
   well_base_path: "../../datasets/"
+experiment_dir: "experiments/"
