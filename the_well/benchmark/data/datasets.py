@@ -110,7 +110,7 @@ class GenericWellMetadata:
     n_constant_fields: int
     constant_names: List[str]
     n_fields: int
-    field_names: Dict[str, List[str]]
+    field_names: Dict[int, List[str]]
     boundary_condition_types: List[str]
     n_simulations: int
     n_steps_per_simulation: List[int]
