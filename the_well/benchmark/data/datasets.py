@@ -84,11 +84,14 @@ class BoundaryCondition(Enum):
     PERIODIC = 2
 
 
-def flatten_field_names(metadata, include_constants=True):
+def flatten_field_names(metadata=None, dict_field_names=None, include_constants=True):
+    assert metadata is not None or dict_field_names is not None, "Must provide metadata or field names"
+    if dict_field_names is None:
+        dict_field_names = metadata.field_names
     field_names = (
-        metadata.field_names.get(0, [])
-        + metadata.field_names.get(1, [])
-        + metadata.field_names.get(2, [])
+        dict_field_names.get(0, [])
+        + dict_field_names.get(1, [])
+        + dict_field_names.get(2, [])
     )
     # TODO: constant names could theoretically be tensor-valued as well
     if include_constants:
@@ -425,7 +428,8 @@ class GenericWellDataset(Dataset):
         self.size_tuple = list(size_tuples)[0]  # Size of spatial dims
         self.dataset_name = list(names)[0]  # Name of dataset
         # Total number of fields (flattening tensor-valued fields)
-        self.num_total_fields = len(flatten_field_names(self.field_names))
+        # TODO - Clean this logic up. Just temporarily adjusting it to make it work after the change to a dictionary.
+        self.num_total_fields = len(flatten_field_names(dict_field_names=self.field_names, include_constants=False))
         self.num_total_constant_fields = len(self.constant_field_names)
         self.num_bcs = len(bcs)  # Number of boundary condition type included in data
         self.bc_types = list(bcs)  # List of boundary condition types
