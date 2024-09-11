@@ -425,7 +425,7 @@ class GenericWellDataset(Dataset):
         self.size_tuple = list(size_tuples)[0]  # Size of spatial dims
         self.dataset_name = list(names)[0]  # Name of dataset
         # Total number of fields (flattening tensor-valued fields)
-        self.num_total_fields = len(self.field_names)
+        self.num_total_fields = len(flatten_field_names(self.field_names))
         self.num_total_constant_fields = len(self.constant_field_names)
         self.num_bcs = len(bcs)  # Number of boundary condition type included in data
         self.bc_types = list(bcs)  # List of boundary condition types
