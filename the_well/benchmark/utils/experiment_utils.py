@@ -1,8 +1,9 @@
+import logging
 import os
 import os.path as osp
-import logging
-from omegaconf import DictConfig, OmegaConf
 from typing import Tuple
+
+from omegaconf import DictConfig, OmegaConf
 
 
 def configure_paths(experiment_folder):
