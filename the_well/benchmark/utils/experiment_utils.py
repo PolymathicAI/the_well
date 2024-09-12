@@ -43,6 +43,15 @@ def configure_experiment(cfg: DictConfig, logger: logging.Logger) -> Tuple[DictC
       - If checkpoint is being used, look to see if it has an associated config file
       - If no checkpoint but folder, look in folder
       - If not, just use the default config (whatever is currently set)
+
+
+
+    Parameters
+    ----------
+    experiment_folder:
+        Path to base folder used for experiment
+    logger:
+        Logger object to print messages to console
     """
     # Sort out default names and folders
     experiment_name = get_experiment_name(cfg)

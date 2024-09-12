@@ -237,8 +237,8 @@ class GenericWellDataset(Dataset):
             )
 
         if use_normalization:
-            self.means = torch.load(os.path.join(self.normalization_path, "means.pkl"))
-            self.stds = torch.load(os.path.join(self.normalization_path, "stds.pkl"))
+            self.means = torch.load(os.path.join(self.normalization_path, "means.pkl"), weights_only=False)
+            self.stds = torch.load(os.path.join(self.normalization_path, "stds.pkl"), weights_only=False)
 
         # Input checks
         if boundary_return_type is not None and boundary_return_type not in ["padding"]:
