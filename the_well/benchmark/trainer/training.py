@@ -21,6 +21,7 @@ from ..metrics import (
     validation_metric_suite,
     validation_plots,
 )
+from the_well.benchmark.data.datasets import flatten_field_names
 
 logger = logging.getLogger(__name__)
 
@@ -129,6 +130,7 @@ class Trainer:
         )
         self.is_distributed = is_distributed
         self.best_val_loss = None
+        self.starting_val_loss = float("inf")
         self.dset_metadata = self.datamodule.train_dataset.metadata
         if formatter == "channels_first_default":
             self.formatter = DefaultChannelsFirstFormatter(self.dset_metadata)
@@ -145,6 +147,7 @@ class Trainer:
                 "model_state_dict": self.model.state_dict(),
                 "optimizer_state_dit": self.optimizer.state_dict(),
                 "validation_loss": validation_loss,
+                "best_validation_loss": self.best_val_loss,
             },
             output_path,
         )
@@ -157,8 +160,9 @@ class Trainer:
             self.model.load_state_dict(checkpoint["model_state_dict"])
         if self.optimizer is not None:
             self.optimizer.load_state_dict(checkpoint["optimizer_state_dit"])
-        self.best_val_loss = checkpoint["validation_loss"]
-        self.starting_epoch = checkpoint["epoch"] + 1
+        self.best_val_loss = checkpoint["best_validation_loss"]
+        self.starting_val_loss = checkpoint["validation_loss"]
+        self.starting_epoch = checkpoint["epoch"] + 1 # Saves after training loop, so start at next epoch
 
     def rollout_model(self, model, batch, formatter):
         """Rollout the model for as many steps as we have data for."""
@@ -239,7 +243,7 @@ class Trainer:
         """Run validation by looping over the dataloader."""
         self.model.eval()
         validation_loss = 0.0
-        field_names = self.dset_metadata.field_names
+        field_names = flatten_field_names(self.dset_metadata)
         dset_name = self.dset_metadata.dataset_name
         loss_dict = {}
         time_logs = {}
@@ -338,17 +342,37 @@ class Trainer:
         rollout_val_dataloader = self.datamodule.rollout_val_dataloader()
         test_dataloader = self.datamodule.test_dataloader()
         rollout_test_dataloader = self.datamodule.rollout_test_dataloader()
-        # os.makedirs(
-        #     "checkpoints", exist_ok=True
-        # )  # Quick fix here - should parameterize.
+        val_loss = self.starting_val_loss
+
         for epoch in range(self.starting_epoch, self.max_epoch+1):
-            if epoch % self.val_frequency == 0:
+            # Distributed samplers need to be set for each epoch
+            if self.is_distributed:
+                train_dataloader.sampler.set_epoch(epoch)
+            # Run training and log training results
+            logger.info(f"Epoch {epoch}/{self.max_epoch}: starting training")
+            train_loss, train_logs = self.train_one_epoch(epoch, train_dataloader)
+            logger.info(f"Epoch {epoch}/{self.max_epoch}: avg training loss {train_loss}")
+            train_logs |= {"train": train_loss, "epoch": epoch}
+            wandb.log(train_logs, step=epoch)
+            # Save the most recent iteration
+            self.save_model(
+                epoch, val_loss, os.path.join(self.checkpoint_folder, "recent.pt")
+            )
+            # Check for periodic checkpointing
+            if self.checkpoint_frequency >= 1 and epoch % self.checkpoint_frequency == 0:
+                self.save_model(
+                    epoch,
+                    val_loss,
+                    os.path.join(self.checkpoint_folder, f"checkpoint_{epoch}.pt"),
+                )
+            # Check if time to perform standard validation - periodic or final
+            if epoch % self.val_frequency == 0 or (epoch == self.max_epoch):
                 logger.info(f"Epoch {epoch}/{self.max_epoch}: starting validation")
                 val_loss, val_loss_dict = self.validation_loop(
                     val_dataloder, full=epoch == self.max_epoch
                 )
                 logger.info(
-                    f"Epoch {epoch}/{self.max_epoch}: validation loss {val_loss}"
+                    f"Epoch {epoch}/{self.max_epoch}: avg validation loss {val_loss}"
                 )
                 val_loss_dict |= {"valid": val_loss, "epoch": epoch}
                 wandb.log(val_loss_dict, step=epoch)
@@ -356,7 +380,8 @@ class Trainer:
                     self.save_model(
                         epoch, val_loss, os.path.join(self.checkpoint_folder, "best.pt")
                     )
-            if epoch % self.rollout_val_frequency == 0:
+            # Check if time for expensive validation - periodic or final
+            if epoch % self.rollout_val_frequency == 0 or (epoch == self.max_epoch):
                 logger.info(
                     f"Epoch {epoch}/{self.max_epoch}: starting rollout validation"
                 )
@@ -366,46 +391,13 @@ class Trainer:
                     full=epoch == self.max_epoch,
                 )
                 logger.info(
-                    f"Epoch {epoch}/{self.max_epoch}: rollout validation loss {rollout_val_loss}"
+                    f"Epoch {epoch}/{self.max_epoch}: avg rollout validation loss {rollout_val_loss}"
                 )
                 rollout_val_loss_dict |= {
                     "rollout_valid": rollout_val_loss,
                     "epoch": epoch,
                 }
                 wandb.log(rollout_val_loss_dict, step=epoch)
-
-            if self.is_distributed:
-                train_dataloader.sampler.set_epoch(epoch)
-            logger.info(f"Epoch {epoch}/{self.max_epoch}: starting training")
-            train_loss, train_logs = self.train_one_epoch(epoch, train_dataloader)
-            logger.info(f"Epoch {epoch}/{self.max_epoch}: training loss {train_loss}")
-            train_logs |= {"train": train_loss, "epoch": epoch}
-            wandb.log(train_logs, step=epoch)
-            # Save the most recent iteration
-            self.save_model(
-                epoch, val_loss, os.path.join(self.checkpoint_folder, "recent.pt")
-            )
-            if self.checkpoint_frequency >= 1 and epoch % self.checkpoint_frequency == 0:
-                self.save_model(
-                    epoch,
-                    val_loss,
-                    os.path.join(self.checkpoint_folder, f"checkpoint_{epoch}.pt"),
-                )
-        # Run validation on last epoch if not already run
-        if epoch % self.val_frequency != 0:
-            val_loss, val_loss_dict = self.validation_loop(val_dataloder, full=True)
-            logger.info(f"Epoch {epoch}/{self.max_epoch}: validation loss {val_loss}")
-            val_loss_dict |= {"valid": val_loss, "epoch": epoch}
-            wandb.log(val_loss_dict, step=epoch)
-        if epoch % self.rollout_val_frequency != 0:
-            rollout_val_loss, rollout_val_loss_dict = self.validation_loop(
-                rollout_val_dataloader, valid_or_test="rollout_valid", full=True
-            )
-            logger.info(
-                f"Epoch {epoch}/{self.max_epoch}: rollout validation loss {rollout_val_loss}"
-            )
-            rollout_val_loss_dict |= {"rollout_valid": rollout_val_loss, "epoch": epoch}
-            wandb.log(rollout_val_loss_dict, step=epoch)
 
         test_loss, test_logs = self.validation_loop(
             test_dataloader, valid_or_test="test", full=True
