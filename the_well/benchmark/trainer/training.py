@@ -37,6 +37,9 @@ class Trainer:
     def __init__(
         self,
         experiment_folder: str,
+        checkpoint_folder: str,
+        artifact_folder: str,
+        viz_folder: str,
         formatter: str,
         model: torch.nn.Module,
         datamodule: AbstractDataModule,
@@ -102,6 +105,9 @@ class Trainer:
         """
         self.starting_epoch = 1 # Gets overridden on resume
         self.experiment_folder = experiment_folder
+        self.checkpoint_folder = checkpoint_folder
+        self.artifact_folder = artifact_folder
+        self.viz_folder = viz_folder
         self.device = device
         self.model = model
         self.datamodule = datamodule
@@ -128,21 +134,8 @@ class Trainer:
             self.formatter = DefaultChannelsFirstFormatter(self.dset_metadata)
         elif formatter == "channels_last_default":
             self.formatter = DefaultChannelsLastFormatter(self.dset_metadata)
-        self.configure_paths()
         if len(checkpoint_path) > 0:
             self.load_checkpoint(checkpoint_path)
-
-    def configure_paths(self):
-        """Configure the paths for the experiment."""
-        # Make checkpoints directory as experiment_folder/checkpoints
-        os.makedirs(os.path.join(self.experiment_folder, "checkpoints"), exist_ok=True)
-        self.checkpoint_folder = os.path.join(self.experiment_folder, "checkpoints")
-        # Store run/validation data as experiment_folder/artifacts
-        os.makedirs(os.path.join(self.experiment_folder, "artifacts"), exist_ok=True)
-        self.artifact_folder = os.path.join(self.experiment_folder, "artifacts")
-        # Plot data directory as experiment_folder/viz
-        os.makedirs(os.path.join(self.experiment_folder, "viz"), exist_ok=True)
-        self.viz_folder = os.path.join(self.experiment_folder, "viz")
 
     def save_model(self, epoch: int, validation_loss: float, output_path: str):
         """Save the model checkpoint."""
