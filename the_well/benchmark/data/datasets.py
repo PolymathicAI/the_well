@@ -85,7 +85,9 @@ class BoundaryCondition(Enum):
 
 
 def flatten_field_names(metadata=None, dict_field_names=None, include_constants=True):
-    assert metadata is not None or dict_field_names is not None, "Must provide metadata or field names"
+    assert (
+        metadata is not None or dict_field_names is not None
+    ), "Must provide metadata or field names"
     if dict_field_names is None:
         dict_field_names = metadata.field_names
     field_names = (
@@ -237,8 +239,12 @@ class GenericWellDataset(Dataset):
             )
 
         if use_normalization:
-            self.means = torch.load(os.path.join(self.normalization_path, "means.pkl"), weights_only=False)
-            self.stds = torch.load(os.path.join(self.normalization_path, "stds.pkl"), weights_only=False)
+            self.means = torch.load(
+                os.path.join(self.normalization_path, "means.pkl"), weights_only=False
+            )
+            self.stds = torch.load(
+                os.path.join(self.normalization_path, "stds.pkl"), weights_only=False
+            )
 
         # Input checks
         if boundary_return_type is not None and boundary_return_type not in ["padding"]:
@@ -429,7 +435,11 @@ class GenericWellDataset(Dataset):
         self.dataset_name = list(names)[0]  # Name of dataset
         # Total number of fields (flattening tensor-valued fields)
         # TODO - Clean this logic up. Just temporarily adjusting it to make it work after the change to a dictionary.
-        self.num_total_fields = len(flatten_field_names(dict_field_names=self.field_names, include_constants=False))
+        self.num_total_fields = len(
+            flatten_field_names(
+                dict_field_names=self.field_names, include_constants=False
+            )
+        )
         self.num_total_constant_fields = len(self.constant_field_names)
         self.num_bcs = len(bcs)  # Number of boundary condition type included in data
         self.bc_types = list(bcs)  # List of boundary condition types

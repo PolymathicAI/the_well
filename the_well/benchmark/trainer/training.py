@@ -103,9 +103,9 @@ class Trainer:
         amp_type:
             The type of automatic mixed precision to use. Can be "float16" or "bfloat16"
         checkpoint_path:
-            The path to the model checkpoint to load. If empty, the model is trained from scratch. 
+            The path to the model checkpoint to load. If empty, the model is trained from scratch.
         """
-        self.starting_epoch = 1 # Gets overridden on resume
+        self.starting_epoch = 1  # Gets overridden on resume
         self.checkpoint_folder = checkpoint_folder
         self.artifact_folder = artifact_folder
         self.viz_folder = viz_folder
@@ -125,8 +125,8 @@ class Trainer:
         self.num_time_intervals = num_time_intervals
         self.enable_amp = enable_amp
         self.amp_type = torch.bfloat16 if amp_type == "bfloat16" else torch.float16
-        self.grad_scaler = torch.GradScaler(self.device.type,
-            enabled=enable_amp and amp_type != "bfloat16"
+        self.grad_scaler = torch.GradScaler(
+            self.device.type, enabled=enable_amp and amp_type != "bfloat16"
         )
         self.is_distributed = is_distributed
         self.best_val_loss = None
@@ -162,7 +162,9 @@ class Trainer:
             self.optimizer.load_state_dict(checkpoint["optimizer_state_dit"])
         self.best_val_loss = checkpoint["best_validation_loss"]
         self.starting_val_loss = checkpoint["validation_loss"]
-        self.starting_epoch = checkpoint["epoch"] + 1 # Saves after training loop, so start at next epoch
+        self.starting_epoch = (
+            checkpoint["epoch"] + 1
+        )  # Saves after training loop, so start at next epoch
 
     def rollout_model(self, model, batch, formatter):
         """Rollout the model for as many steps as we have data for."""
@@ -249,7 +251,9 @@ class Trainer:
         time_logs = {}
         count = 0
         denom = len(dataloader) if full else self.short_validation_length
-        with torch.autocast(self.device.type, enabled=self.enable_amp, dtype=self.amp_type):
+        with torch.autocast(
+            self.device.type, enabled=self.enable_amp, dtype=self.amp_type
+        ):
             for i, batch in enumerate(tqdm.tqdm(dataloader)):
                 # Rollout for length of target
                 y_pred, y_ref = self.rollout_model(self.model, batch, self.formatter)
@@ -308,7 +312,9 @@ class Trainer:
         start_time = time.time()  # Don't need to sync this.
         batch_start = time.time()
         for i, batch in enumerate(dataloader):
-            with torch.autocast(self.device.type, enabled=self.enable_amp, dtype=self.amp_type):
+            with torch.autocast(
+                self.device.type, enabled=self.enable_amp, dtype=self.amp_type
+            ):
                 batch_time = time.time() - batch_start
                 y_pred, y_ref = self.rollout_model(self.model, batch, self.formatter)
                 forward_time = time.time() - batch_start - batch_time
@@ -329,7 +335,7 @@ class Trainer:
             )
             batch_start = time.time()
         train_logs["time_per_train_iter"] = (time.time() - start_time) / len(dataloader)
-        train_logs["train_loss"] = epoch_loss 
+        train_logs["train_loss"] = epoch_loss
         if self.lr_scheduler:
             self.lr_scheduler.step()
             train_logs["lr"] = self.lr_scheduler.get_last_lr()[-1]
@@ -344,14 +350,16 @@ class Trainer:
         rollout_test_dataloader = self.datamodule.rollout_test_dataloader()
         val_loss = self.starting_val_loss
 
-        for epoch in range(self.starting_epoch, self.max_epoch+1):
+        for epoch in range(self.starting_epoch, self.max_epoch + 1):
             # Distributed samplers need to be set for each epoch
             if self.is_distributed:
                 train_dataloader.sampler.set_epoch(epoch)
             # Run training and log training results
             logger.info(f"Epoch {epoch}/{self.max_epoch}: starting training")
             train_loss, train_logs = self.train_one_epoch(epoch, train_dataloader)
-            logger.info(f"Epoch {epoch}/{self.max_epoch}: avg training loss {train_loss}")
+            logger.info(
+                f"Epoch {epoch}/{self.max_epoch}: avg training loss {train_loss}"
+            )
             train_logs |= {"train": train_loss, "epoch": epoch}
             wandb.log(train_logs, step=epoch)
             # Save the most recent iteration
@@ -359,7 +367,10 @@ class Trainer:
                 epoch, val_loss, os.path.join(self.checkpoint_folder, "recent.pt")
             )
             # Check for periodic checkpointing
-            if self.checkpoint_frequency >= 1 and epoch % self.checkpoint_frequency == 0:
+            if (
+                self.checkpoint_frequency >= 1
+                and epoch % self.checkpoint_frequency == 0
+            ):
                 self.save_model(
                     epoch,
                     val_loss,
@@ -415,29 +426,30 @@ class Trainer:
         wandb.log(test_logs, step=epoch)
 
     def validate(self):
-        """ Runs only validation passes - does not save checkpoints or perform training.
+        """Runs only validation passes - does not save checkpoints or perform training.
 
         This can probably be refactored to be merged with train, but the flow is already
-        convoluted enough that I'm splitting it for now. 
+        convoluted enough that I'm splitting it for now.
         """
         val_dataloder = self.datamodule.val_dataloader()
         rollout_val_dataloader = self.datamodule.rollout_val_dataloader()
         test_dataloader = self.datamodule.test_dataloader()
         rollout_test_dataloader = self.datamodule.rollout_test_dataloader()
-        epoch = self.max_epoch+1
+        epoch = self.max_epoch + 1
         # Regular val
         val_loss, val_loss_dict = self.validation_loop(val_dataloder, full=True)
         logger.info(f"Post-run: validation loss {val_loss}")
-        val_loss_dict |= {"valid": val_loss, "epoch": self.max_epoch+1}
+        val_loss_dict |= {"valid": val_loss, "epoch": self.max_epoch + 1}
         wandb.log(val_loss_dict, step=epoch)
         # Rollout val
         rollout_val_loss, rollout_val_loss_dict = self.validation_loop(
             rollout_val_dataloader, valid_or_test="rollout_valid", full=True
         )
-        logger.info(
-            f"Post run: rollout validation loss {rollout_val_loss}"
-        )
-        rollout_val_loss_dict |= {"rollout_valid": rollout_val_loss, "epoch": self.max_epoch+1}
+        logger.info(f"Post run: rollout validation loss {rollout_val_loss}")
+        rollout_val_loss_dict |= {
+            "rollout_valid": rollout_val_loss,
+            "epoch": self.max_epoch + 1,
+        }
         wandb.log(rollout_val_loss_dict, step=epoch)
         # Regular test
         test_loss, test_logs = self.validation_loop(
@@ -450,12 +462,10 @@ class Trainer:
         )
         test_logs |= rollout_test_logs
         logger.info(f"Post run: rollout test loss {rollout_test_loss}")
-        
+
         test_logs |= {
             "test": test_loss,
             "rollout_test": rollout_test_loss,
-            "epoch": self.max_epoch+1,
+            "epoch": self.max_epoch + 1,
         }
         wandb.log(test_logs, step=epoch)
-
-

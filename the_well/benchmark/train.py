@@ -1,5 +1,4 @@
 import logging
-import os
 import os.path as osp
 
 import hydra
@@ -96,7 +95,7 @@ def train(
     else:
         logger.info("No learning rate scheduler")
         lr_scheduler = None
-    # Print final config, but also log it to experiment directory. 
+    # Print final config, but also log it to experiment directory.
     logger.info(f"Final configuration:\n{OmegaConf.to_yaml(cfg)}")
     logger.info(f"Instantiate trainer {cfg.trainer._target_}")
     trainer: Trainer = instantiate(
@@ -110,7 +109,6 @@ def train(
         lr_scheduler=lr_scheduler,
         device=device,
         is_distributed=is_distributed,
-
     )
     if validation_mode:
         trainer.validate()
@@ -121,7 +119,6 @@ def train(
         trainer.train()
 
 
-
 @hydra.main(version_base=None, config_path=CONFIG_DIR, config_name=CONFIG_NAME)
 def main(cfg: DictConfig):
     # Torch optimization settings
@@ -130,22 +127,29 @@ def main(cfg: DictConfig):
     )
     torch.set_float32_matmul_precision("high")  # Use TF32 when supported
     # Normal things
-    cfg, experiment_name, experiment_folder, checkpoint_folder, artifact_folder, viz_folder = configure_experiment(cfg, logger)
-    
+    (
+        cfg,
+        experiment_name,
+        experiment_folder,
+        checkpoint_folder,
+        artifact_folder,
+        viz_folder,
+    ) = configure_experiment(cfg, logger)
+
     logger.info(f"Run experiment {experiment_name}")
     logger.info(f"Configuration:\n{OmegaConf.to_yaml(cfg)}")
     # Initiate wandb logging
     wandb_logged_cfg = OmegaConf.to_container(cfg, resolve=True)
-    wandb_logged_cfg['experiment_folder'] = experiment_folder
+    wandb_logged_cfg["experiment_folder"] = experiment_folder
     wandb.init(
         dir=experiment_folder,
         project=cfg.wandb_project_name,
         group=f"{cfg.data.well_dataset_name}",
         config=wandb_logged_cfg,
         name=experiment_name,
-        resume=True
+        resume=True,
     )
-    
+
     # Retrieve multiple processes context to setup DDP
     is_distributed, world_size, rank, local_rank = (
         False,
@@ -161,9 +165,17 @@ def main(cfg: DictConfig):
         dist.init_process_group(
             backend="nccl", init_method="env://", world_size=world_size, rank=rank
         )
-    train(cfg, experiment_folder, 
-            checkpoint_folder, artifact_folder, viz_folder,
-          is_distributed, world_size, rank, local_rank)
+    train(
+        cfg,
+        experiment_folder,
+        checkpoint_folder,
+        artifact_folder,
+        viz_folder,
+        is_distributed,
+        world_size,
+        rank,
+        local_rank,
+    )
     wandb.finish()
 
 

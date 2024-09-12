@@ -9,6 +9,7 @@ from typing import List, Tuple, Union
 
 logger = logging.getLogger(__name__)
 
+
 def nodelist() -> Union[List[str], str]:
     compact_nodelist = os.environ["SLURM_STEP_NODELIST"]
     try:
