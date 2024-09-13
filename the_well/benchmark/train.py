@@ -13,6 +13,7 @@ from torchinfo import summary
 from the_well.benchmark.data import WellDataModule
 from the_well.benchmark.trainer import Trainer
 from the_well.benchmark.trainer.utils import set_master_config
+from the_well.benchmark.utils.experiment_utils import configure_experiment
 
 logger = logging.getLogger("the_well")
 logger.setLevel(level=logging.DEBUG)
@@ -27,14 +28,17 @@ logger.info(f"Run training script for {CONFIG_PATH}")
 
 def train(
     cfg: DictConfig,
-    experiment_name: str,
+    experiment_folder: str,
+    checkpoint_folder: str,
+    artifact_folder: str,
+    viz_folder: str,
     is_distributed: bool = False,
     world_size: int = 1,
     rank: int = 1,
     local_rank: int = 1,
 ):
     """Instantiate the different objects required for training and run the training loop."""
-
+    validation_mode = cfg.validation_mode
     logger.info(f"Instantiate datamodule {cfg.data._target_}")
     datamodule: WellDataModule = instantiate(
         cfg.data, world_size=world_size, rank=rank, data_workers=cfg.data_workers
@@ -71,11 +75,14 @@ def train(
         model = model.to(device)
 
     logger.info(f"Instantiate optimizer {cfg.optimizer._target_}")
-    optimizer: torch.optim.Optimizer = instantiate(
-        cfg.optimizer, params=model.parameters()
-    )
+    if not validation_mode:
+        optimizer: torch.optim.Optimizer = instantiate(
+            cfg.optimizer, params=model.parameters()
+        )
+    else:
+        optimizer = None
 
-    if hasattr(cfg, "lr_scheduler"):
+    if hasattr(cfg, "lr_scheduler") and not validation_mode:
         # Instantiate LR scheduler
         logger.info(f"Instantiate learning rate scheduler {cfg.lr_scheduler._target_}")
         lr_scheduler: torch.optim.lr_scheduler._LRScheduler = instantiate(
@@ -88,11 +95,14 @@ def train(
     else:
         logger.info("No learning rate scheduler")
         lr_scheduler = None
+    # Print final config, but also log it to experiment directory.
     logger.info(f"Final configuration:\n{OmegaConf.to_yaml(cfg)}")
     logger.info(f"Instantiate trainer {cfg.trainer._target_}")
     trainer: Trainer = instantiate(
         cfg.trainer,
-        experiment_name=experiment_name,
+        checkpoint_folder=checkpoint_folder,
+        artifact_folder=artifact_folder,
+        viz_folder=viz_folder,
         model=model,
         datamodule=datamodule,
         optimizer=optimizer,
@@ -100,12 +110,13 @@ def train(
         device=device,
         is_distributed=is_distributed,
     )
-    trainer.train()
-
-
-def get_experiment_name(cfg: DictConfig) -> str:
-    model_name = cfg.model._target_.split(".")[-1]
-    return f"{cfg.data.well_dataset_name}-{cfg.name}-{model_name}-{cfg.optimizer.lr}"
+    if validation_mode:
+        trainer.validate()
+    else:
+        # Save config to directory folder
+        with open(osp.join(experiment_folder, "extended_config.yaml"), "w") as f:
+            OmegaConf.save(cfg, f)
+        trainer.train()
 
 
 @hydra.main(version_base=None, config_path=CONFIG_DIR, config_name=CONFIG_NAME)
@@ -116,15 +127,27 @@ def main(cfg: DictConfig):
     )
     torch.set_float32_matmul_precision("high")  # Use TF32 when supported
     # Normal things
-    experiment_name = get_experiment_name(cfg)
+    (
+        cfg,
+        experiment_name,
+        experiment_folder,
+        checkpoint_folder,
+        artifact_folder,
+        viz_folder,
+    ) = configure_experiment(cfg, logger)
+
     logger.info(f"Run experiment {experiment_name}")
     logger.info(f"Configuration:\n{OmegaConf.to_yaml(cfg)}")
     # Initiate wandb logging
+    wandb_logged_cfg = OmegaConf.to_container(cfg, resolve=True)
+    wandb_logged_cfg["experiment_folder"] = experiment_folder
     wandb.init(
+        dir=experiment_folder,
         project=cfg.wandb_project_name,
         group=f"{cfg.data.well_dataset_name}",
-        config=OmegaConf.to_container(cfg, resolve=True),
+        config=wandb_logged_cfg,
         name=experiment_name,
+        resume=True,
     )
 
     # Retrieve multiple processes context to setup DDP
@@ -142,8 +165,17 @@ def main(cfg: DictConfig):
         dist.init_process_group(
             backend="nccl", init_method="env://", world_size=world_size, rank=rank
         )
-
-    train(cfg, experiment_name, is_distributed, world_size, rank, local_rank)
+    train(
+        cfg,
+        experiment_folder,
+        checkpoint_folder,
+        artifact_folder,
+        viz_folder,
+        is_distributed,
+        world_size,
+        rank,
+        local_rank,
+    )
     wandb.finish()
 
 

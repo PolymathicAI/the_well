@@ -1,0 +1,6 @@
+# @package _global_
+auto_resume: True # Automatically resume if default experiment_folder and checkpoint exist
+folder_override: "" # Override the folder name for the experiment - considered "resume" if folder has chpts
+checkpoint_override: "" # Override search path for a resume checkpoint - considered "resume" if populated
+config_override: "" # Override the search path for a config file
+validation_mode: False

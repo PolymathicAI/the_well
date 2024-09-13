@@ -3,6 +3,7 @@ defaults:
   - optimizer: adam
   - experiment: ???
   - server: ???
+  - resume_overrides: no_overrides
 data:
   n_steps_input: 4
   n_steps_output: 1
