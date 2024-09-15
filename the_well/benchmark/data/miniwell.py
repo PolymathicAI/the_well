@@ -122,52 +122,30 @@ def process_dataset(
         if name == "time":
             data = data[::time_downsample_factor]
         elif name in ["t0_fields", "t1_fields", "t2_fields"]:
-            time_varying: bool = attrs["time_varying"]
-
-            n_non_spatial_dims = {
-                "t0_fields": 1,  # sample dimension
-                "t1_fields": 2,  # sample and tensor component dimensions
-                "t2_fields": 3,  # sample and two tensor component dimensions
-            }[name] + (1 if time_varying else 0)
-
-            n_spatial_dims = len(data.shape) - n_non_spatial_dims
-
-            # Gaussian filter and downsample spatial dimensions
-            sigma = (
-                [0]  # sample
-                + ([0] if time_varying else [])  # time
-                + [spatial_downsample_factor / 2] * n_spatial_dims  # spatial
+            n_tensor_components = {
+                "t0_fields": 0,  # sample dimension
+                "t1_fields": 1,  # sample and tensor component dimensions
+                "t2_fields": 2,  # sample and two tensor component dimensions
+            }[name]
+            data = downsample_field(
+                data,
+                attrs=attrs,
+                spatial_filtering=True,
+                n_tensor_dims=n_tensor_components,
+                spatial_downsample_factor=spatial_downsample_factor,
+                time_downsample_factor=time_downsample_factor,
             )
-            while len(sigma) < len(data.shape):
-                sigma.append(0)  # channels
-
-            data = gaussian_filter(data, sigma=sigma)
-
-            # fmt: off
-            slices = (
-                [slice(None)]  # sample
-                + ([slice(None, None, time_downsample_factor)] if time_varying else [])  # time
-                + [slice(None, None, spatial_downsample_factor)] * n_spatial_dims  # spatial
+        elif len(data.shape) > 1:
+            data = downsample_field(
+                data,
+                attrs=attrs,
+                spatial_filtering=False,  # No spatial filtering!
+                n_tensor_dims=0,  # Assume everything is a spatial dimension past batch and time
+                spatial_downsample_factor=spatial_downsample_factor,
+                time_downsample_factor=time_downsample_factor,
             )
-            while len(slices) < len(data.shape):
-                slices.append(slice(None))  # channels
-            # fmt: on
-
-            data = data[tuple(slices)]
         else:
-            # TODO: Is this the right behavior?
-            # For other datasets, downsample all dimensions except the first by striding
-            n_dims = len(data.shape)
-            if n_dims > 1:
-                time_varying: bool = attrs["time_varying"]
-                # fmt: off
-                slices = (
-                    [slice(None)]  # sample
-                    + ([slice(None, None, time_downsample_factor)] if time_varying else [])  # time
-                    + [slice(None, None, spatial_downsample_factor)] * (n_dims - 1 - int(time_varying))  # spatial
-                )
-                # fmt: on
-                data = data[tuple(slices)]
+            pass
 
     dst_group.create_dataset(name, data=data)
 
@@ -180,3 +158,36 @@ def process_dataset(
             dim // spatial_downsample_factor for dim in old_resolution
         )
         dst_group[name].attrs["spatial_resolution"] = new_resolution
+
+
+def downsample_field(
+    data,
+    *,
+    attrs: dict,
+    spatial_filtering: bool,
+    n_batch_dims: int = 1,
+    n_tensor_dims: int,
+    spatial_downsample_factor: int,
+    time_downsample_factor: int,
+):
+    time_varying: bool = attrs["time_varying"]
+    n_spatial_dims = len(data.shape) - n_batch_dims - n_tensor_dims - int(time_varying)
+
+    if spatial_filtering:
+        sigma = (
+            [0] * n_batch_dims
+            + ([0] if time_varying else [])
+            + [spatial_downsample_factor / 2] * n_spatial_dims
+            + [0] * n_tensor_dims
+        )
+
+        data = gaussian_filter(data, sigma=sigma)
+
+    slices = (
+        [slice(None)] * n_batch_dims
+        + ([slice(None, None, time_downsample_factor)] if time_varying else [])
+        + [slice(None, None, spatial_downsample_factor)] * n_spatial_dims
+        + [slice(None)] * n_tensor_dims
+    )
+
+    return data[tuple(slices)]
