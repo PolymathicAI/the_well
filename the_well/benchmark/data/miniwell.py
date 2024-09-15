@@ -129,7 +129,7 @@ def process_dataset(
             }[name]
             data = downsample_field(
                 data,
-                attrs=attrs,
+                time_varying=attrs["time_varying"],
                 spatial_filtering=True,
                 n_tensor_dims=n_tensor_dims,
                 spatial_downsample_factor=spatial_downsample_factor,
@@ -138,7 +138,7 @@ def process_dataset(
         elif len(data.shape) > 1:
             data = downsample_field(
                 data,
-                attrs=attrs,
+                time_varying=attrs["time_varying"],
                 spatial_filtering=False,  # No spatial filtering!
                 n_tensor_dims=0,  # Assume everything is a spatial dimension past batch and time
                 spatial_downsample_factor=spatial_downsample_factor,
@@ -163,25 +163,31 @@ def process_dataset(
 def downsample_field(
     data,
     *,
-    attrs: dict,
+    time_varying: bool,
     spatial_filtering: bool,
     n_batch_dims: int = 1,
     n_tensor_dims: int,
     spatial_downsample_factor: int,
     time_downsample_factor: int,
 ):
-    n_time_dims = 1 if attrs["time_varying"] else 0
+    n_time_dims = 1 if time_varying else 0
     n_spatial_dims = len(data.shape) - n_batch_dims - n_tensor_dims - n_time_dims
 
     if spatial_filtering:
+        spatial_sigma = (spatial_downsample_factor - 1) / 2
         sigma = (
             [0] * n_batch_dims
             + [0] * n_time_dims
-            + [spatial_downsample_factor / 2] * n_spatial_dims
+            + [spatial_sigma] * n_spatial_dims
             + [0] * n_tensor_dims
         )
 
-        data = gaussian_filter(data, sigma=sigma)
+        # TODO: Use a better filtering method. scipy does not support
+        # different filtering modes per axis, meaning we cannot support
+        # the different `bc_type` options. So, for simplicity, we just
+        # use the nearest neighbor mode here.
+        # See https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.gaussian_filter.html
+        data = gaussian_filter(data, sigma=sigma, mode="nearest")
 
     slices = (
         [slice(None)] * n_batch_dims
