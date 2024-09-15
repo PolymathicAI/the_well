@@ -111,33 +111,40 @@ def process_dataset(
         if name == "time":
             data = data[::time_downsample_factor]
         elif name in ["t0_fields", "t1_fields", "t2_fields"]:
+            # Mapping for number of non-spatial dimensions for each field type
+            non_spatial_dims_map = {
+                "t0_fields": 2,  # Exclude sample and time dimensions
+                "t1_fields": 3,  # Exclude sample, time, and tensor component dimensions
+                "t2_fields": 4,  # Exclude sample, time, and two tensor component dimensions
+            }
+
             # Downsample time
             data = data[:, ::time_downsample_factor, ...]
 
+            # Get the number of spatial dimensions based on the field type
+            n_spatial_dims = len(data.shape) - non_spatial_dims_map[name]
+
             # Gaussian filter and downsample spatial dimensions
-            n_spatial_dims = (
-                len(data.shape) - 3
-            )  # Exclude sample, time, and channel dimensions
             sigma = (
-                [0] * 2
+                [0]  # sample
+                + [0]  # time
                 + [spatial_downsample_factor / 2] * n_spatial_dims
-                + [0] * (len(data.shape) - 2 - n_spatial_dims)
+                + [0] * (len(data.shape) - 1 - 1 - n_spatial_dims)
             )
             data = gaussian_filter(data, sigma=sigma)
 
             slices = (
-                [slice(None)] * 2
+                [slice(None)]  # sample
+                + [slice(None)]  # time
                 + [slice(None, None, spatial_downsample_factor)] * n_spatial_dims
-                + [slice(None)] * (len(data.shape) - 2 - n_spatial_dims)
+                + [slice(None)] * (len(data.shape) - 1 - 1 - n_spatial_dims)
             )
             data = data[tuple(slices)]
         else:
-            # For other datasets, apply Gaussian filter and downsample all dimensions except the first
+            # TODO: Is this the right behavior?
+            # For other datasets, downsample all dimensions except the first by striding
             n_dims = len(data.shape)
             if n_dims > 1:
-                sigma = [0] + [spatial_downsample_factor / 2] * (n_dims - 1)
-                data = gaussian_filter(data, sigma=sigma)
-
                 slices = [slice(None)] + [
                     slice(None, None, spatial_downsample_factor)
                 ] * (n_dims - 1)
