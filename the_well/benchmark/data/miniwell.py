@@ -122,7 +122,7 @@ def process_dataset(
         if name == "time":
             data = data[::time_downsample_factor]
         elif name in ["t0_fields", "t1_fields", "t2_fields"]:
-            n_tensor_components = {
+            n_tensor_dims = {
                 "t0_fields": 0,  # sample dimension
                 "t1_fields": 1,  # sample and tensor component dimensions
                 "t2_fields": 2,  # sample and two tensor component dimensions
@@ -131,7 +131,7 @@ def process_dataset(
                 data,
                 attrs=attrs,
                 spatial_filtering=True,
-                n_tensor_dims=n_tensor_components,
+                n_tensor_dims=n_tensor_dims,
                 spatial_downsample_factor=spatial_downsample_factor,
                 time_downsample_factor=time_downsample_factor,
             )
@@ -170,13 +170,13 @@ def downsample_field(
     spatial_downsample_factor: int,
     time_downsample_factor: int,
 ):
-    time_varying: bool = attrs["time_varying"]
-    n_spatial_dims = len(data.shape) - n_batch_dims - n_tensor_dims - int(time_varying)
+    n_time_dims = 1 if attrs["time_varying"] else 0
+    n_spatial_dims = len(data.shape) - n_batch_dims - n_tensor_dims - n_time_dims
 
     if spatial_filtering:
         sigma = (
             [0] * n_batch_dims
-            + ([0] if time_varying else [])
+            + [0] * n_time_dims
             + [spatial_downsample_factor / 2] * n_spatial_dims
             + [0] * n_tensor_dims
         )
@@ -185,7 +185,7 @@ def downsample_field(
 
     slices = (
         [slice(None)] * n_batch_dims
-        + ([slice(None, None, time_downsample_factor)] if time_varying else [])
+        + [slice(None, None, time_downsample_factor)] * n_time_dims
         + [slice(None, None, spatial_downsample_factor)] * n_spatial_dims
         + [slice(None)] * n_tensor_dims
     )
