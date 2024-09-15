@@ -59,7 +59,12 @@ def create_mini_well(
     return mini_metadata
 
 
-def process_file(src_file, dst_file, spatial_downsample_factor, time_downsample_factor):
+def process_file(
+    src_file: h5py.File,
+    dst_file: h5py.File,
+    spatial_downsample_factor: int,
+    time_downsample_factor: int,
+):
     for key, value in src_file.attrs.items():
         dst_file.attrs[key] = value
 
@@ -79,7 +84,10 @@ def process_file(src_file, dst_file, spatial_downsample_factor, time_downsample_
 
 
 def process_group(
-    src_group, dst_group, spatial_downsample_factor, time_downsample_factor
+    src_group: h5py.Group,
+    dst_group: h5py.Group,
+    spatial_downsample_factor: int,
+    time_downsample_factor: int,
 ):
     for key, value in src_group.attrs.items():
         dst_group.attrs[key] = value
@@ -99,7 +107,11 @@ def process_group(
 
 
 def process_dataset(
-    src_dataset, dst_group, name, spatial_downsample_factor, time_downsample_factor
+    src_dataset: h5py.Dataset,
+    dst_group: h5py.Group,
+    name: str,
+    spatial_downsample_factor: int,
+    time_downsample_factor: int,
 ):
     attrs = dict(src_dataset.attrs)
 
