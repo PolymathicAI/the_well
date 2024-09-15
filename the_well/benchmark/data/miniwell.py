@@ -39,9 +39,7 @@ def create_mini_well(
         dim // spatial_downsample_factor for dim in mini_metadata.spatial_resolution
     )
 
-    for file_idx, file_path in enumerate(
-        tqdm(dataset.files_paths[:max_samples], desc="Processing files")
-    ):
+    for file_path in tqdm(dataset.files_paths[:max_samples], desc="Processing files"):
         with h5py.File(file_path, "r") as src_file:
             relative_path = os.path.relpath(
                 file_path, os.path.dirname(os.path.dirname(dataset.data_path))
