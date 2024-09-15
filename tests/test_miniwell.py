@@ -1,9 +1,9 @@
 import os
 import shutil
-import tempfile
-import unittest
 import subprocess
 import sys
+import tempfile
+import unittest
 
 from the_well.benchmark.data.datasets import GenericWellDataset
 from the_well.benchmark.data.miniwell import create_mini_well

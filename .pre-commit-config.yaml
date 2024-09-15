@@ -6,4 +6,10 @@ repos:
     - id: ruff
       args: [--fix]
     - id: ruff-format
-      args: [-- --fix]
+
+- repo: https://github.com/pycqa/isort
+  rev: 5.12.0
+  hooks:
+    - id: isort
+      args: [--profile, black]
+      files: ^(the_well|tests)/
