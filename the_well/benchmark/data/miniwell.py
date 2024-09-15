@@ -122,43 +122,51 @@ def process_dataset(
         if name == "time":
             data = data[::time_downsample_factor]
         elif name in ["t0_fields", "t1_fields", "t2_fields"]:
-            # Mapping for number of non-spatial dimensions for each field type
-            non_spatial_dims_map = {
-                "t0_fields": 2,  # Exclude sample and time dimensions
-                "t1_fields": 3,  # Exclude sample, time, and tensor component dimensions
-                "t2_fields": 4,  # Exclude sample, time, and two tensor component dimensions
-            }
+            time_varying: bool = attrs["time_varying"]
 
-            # Downsample time
-            data = data[:, ::time_downsample_factor, ...]
+            n_non_spatial_dims = {
+                "t0_fields": 1,  # sample dimension
+                "t1_fields": 2,  # sample and tensor component dimensions
+                "t2_fields": 3,  # sample and two tensor component dimensions
+            }[name] + (1 if time_varying else 0)
 
-            # Get the number of spatial dimensions based on the field type
-            n_spatial_dims = len(data.shape) - non_spatial_dims_map[name]
+            n_spatial_dims = len(data.shape) - n_non_spatial_dims
 
             # Gaussian filter and downsample spatial dimensions
             sigma = (
                 [0]  # sample
-                + [0]  # time
-                + [spatial_downsample_factor / 2] * n_spatial_dims
-                + [0] * (len(data.shape) - 1 - 1 - n_spatial_dims)
+                + ([0] if time_varying else [])  # time
+                + [spatial_downsample_factor / 2] * n_spatial_dims  # spatial
             )
+            while len(sigma) < len(data.shape):
+                sigma.append(0)  # channels
+
             data = gaussian_filter(data, sigma=sigma)
 
+            # fmt: off
             slices = (
                 [slice(None)]  # sample
-                + [slice(None)]  # time
-                + [slice(None, None, spatial_downsample_factor)] * n_spatial_dims
-                + [slice(None)] * (len(data.shape) - 1 - 1 - n_spatial_dims)
+                + ([slice(None, None, time_downsample_factor)] if time_varying else [])  # time
+                + [slice(None, None, spatial_downsample_factor)] * n_spatial_dims  # spatial
             )
+            while len(slices) < len(data.shape):
+                slices.append(slice(None))  # channels
+            # fmt: on
+
             data = data[tuple(slices)]
         else:
             # TODO: Is this the right behavior?
             # For other datasets, downsample all dimensions except the first by striding
             n_dims = len(data.shape)
             if n_dims > 1:
-                slices = [slice(None)] + [
-                    slice(None, None, spatial_downsample_factor)
-                ] * (n_dims - 1)
+                time_varying: bool = attrs["time_varying"]
+                # fmt: off
+                slices = (
+                    [slice(None)]  # sample
+                    + ([slice(None, None, time_downsample_factor)] if time_varying else [])  # time
+                    + [slice(None, None, spatial_downsample_factor)] * (n_dims - 1 - int(time_varying))  # spatial
+                )
+                # fmt: on
                 data = data[tuple(slices)]
 
     dst_group.create_dataset(name, data=data)
