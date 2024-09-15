@@ -4,7 +4,6 @@ import os.path
 
 import h5py
 import matplotlib.pyplot as plt
-import numpy as np
 from tqdm import tqdm
 
 from the_well.benchmark.data.datasets import well_paths
@@ -34,9 +33,9 @@ def plot_velocity(dataset_dir: str, output_dir: str):
             fig, axs = plt.subplots(1, 4, figsize=(20, 5))
             T = traj_to_plot.shape[0]
             # Fix colorbar for all subplots:
-            vmin = np.min(traj_to_plot)
-            vmax = np.max(traj_to_plot)
-            norm = plt.Normalize(vmin=vmin, vmax=vmax)
+            # vmin = np.min(traj_to_plot)
+            # vmax = np.max(traj_to_plot)
+            # norm = plt.Normalize(vmin=vmin, vmax=vmax)
 
             for i, t in enumerate([0, T // 3, (2 * T) // 3, T - 1]):
                 axs[i].imshow(traj_to_plot[t], cmap="viridis")

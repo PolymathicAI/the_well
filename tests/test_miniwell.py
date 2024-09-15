@@ -20,51 +20,62 @@ class TestMiniWell(unittest.TestCase):
         # Create temporary directory for mini dataset
         temp_dir = tempfile.mkdtemp()
 
+        datasets_to_test = ["active_matter", "turbulent_radiative_layer_2D"]
+
         try:
-            # Load original dataset
-            dataset_name = "active_matter"
-            original_dataset = GenericWellDataset(
-                well_base_path=WELL_BASE_PATH,
-                well_dataset_name=dataset_name,
-                well_split_name="train",
-                n_steps_input=1,
-                n_steps_output=1,
-                use_normalization=False,
-                max_rollout_steps=2,
-            )
+            # Load original datasets and create mini versions
+            for dataset_name in datasets_to_test:
+                original_dataset = GenericWellDataset(
+                    well_base_path=WELL_BASE_PATH,
+                    well_dataset_name=dataset_name,
+                    well_split_name="train",
+                    n_steps_input=1,
+                    n_steps_output=1,
+                    use_normalization=False,
+                    max_rollout_steps=2,
+                )
 
-            # Create mini dataset
-            mini_metadata = create_mini_well(
-                dataset=original_dataset,
-                output_base_path=temp_dir,
-                spatial_downsample_factor=4,
-                time_downsample_factor=2,
-                max_samples=1,
-            )
+                # Create mini dataset
+                mini_metadata = create_mini_well(
+                    dataset=original_dataset,
+                    output_base_path=temp_dir,
+                    spatial_downsample_factor=4,
+                    time_downsample_factor=2,
+                    max_samples=1,
+                )
 
-            # Load mini dataset
-            mini_dataset = GenericWellDataset(
-                well_base_path=temp_dir,
-                well_dataset_name=dataset_name,
-                well_split_name="train",
-                n_steps_input=1,
-                n_steps_output=1,
-                use_normalization=False,
-                max_rollout_steps=2,
-            )
+                # Load mini dataset
+                mini_dataset = GenericWellDataset(
+                    well_base_path=temp_dir,
+                    well_dataset_name=dataset_name,
+                    well_split_name="train",
+                    n_steps_input=1,
+                    n_steps_output=1,
+                    use_normalization=False,
+                    max_rollout_steps=2,
+                )
 
-            # Basic assertions
-            self.assertEqual(len(mini_dataset.files_paths), 1)
-            # Check for downsampling in both spatial dimensions
-            expected_resolution = tuple(
-                dim // 4 for dim in original_dataset.metadata.spatial_resolution
-            )
-            self.assertEqual(mini_metadata.spatial_resolution, expected_resolution)
-            self.assertLess(len(mini_dataset), len(original_dataset))
+                # Basic assertions
+                self.assertEqual(len(mini_dataset.files_paths), 1)
+                # Check for downsampling in both spatial dimensions
+                expected_resolution = tuple(
+                    dim // 4 for dim in original_dataset.metadata.spatial_resolution
+                )
+                self.assertEqual(mini_metadata.spatial_resolution, expected_resolution)
+                self.assertLess(len(mini_dataset), len(original_dataset))
 
-            # We also run the data validation utility on the mini dataset
+            # Run the data validation utility on all mini datasets at once
+            datasets_arg = ",".join(datasets_to_test)
             result = subprocess.run(
-                [sys.executable, CHECK_THEWELL_DATA_SCRIPT, temp_dir, "-n", "1"],
+                [
+                    sys.executable,
+                    CHECK_THEWELL_DATA_SCRIPT,
+                    temp_dir,
+                    "-n",
+                    "1",
+                    "--datasets",
+                    datasets_arg,
+                ],
                 capture_output=True,
                 text=True,
             )

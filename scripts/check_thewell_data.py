@@ -208,7 +208,7 @@ class WellFileChecker:
             n_traj = fields[sub_key].shape[0]
             n_time = fields[sub_key].shape[1]
             spatial_dimensions = fields[sub_key].shape[2:4]
-            if fields[sub_key].attrs["time_varying"] == True:
+            if fields[sub_key].attrs["time_varying"]:
                 for traj in range(n_traj):
                     for time in range(n_time):
                         arrays = fields[sub_key][traj, time, ...]
@@ -265,13 +265,31 @@ if __name__ == "__main__":
     parser.add_argument("the_well_dir", type=str)
     parser.add_argument("-n", "--nproc", type=int, default=1)
     parser.add_argument("--modify", action="store_true")
+    parser.add_argument(
+        "--datasets", type=str, help="Comma-separated list of datasets to check"
+    )
     args = parser.parse_args()
     data_dir = args.the_well_dir
     nproc = args.nproc
     modify = args.modify
+
+    if args.datasets:
+        selected_datasets = [dataset.strip() for dataset in args.datasets.split(",")]
+        invalid_datasets = [
+            dataset for dataset in selected_datasets if dataset not in well_paths
+        ]
+        if invalid_datasets:
+            raise ValueError(
+                f"Error: The following datasets are not available: {', '.join(invalid_datasets)}"
+            )
+        datasets_to_check = selected_datasets
+    else:
+        datasets_to_check = well_paths.keys()
+
     data_register = [
-        os.path.join(data_dir, dataset_path) for dataset_path in well_paths.values()
+        os.path.join(data_dir, well_paths[dataset]) for dataset in datasets_to_check
     ]
+
     files = list_files(data_register)
     with mp.Pool(nproc) as pool:
         for report in pool.imap_unordered(check_file, files, chunksize=16):

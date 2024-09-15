@@ -225,7 +225,7 @@ def check_hdf5_format(path: str):
         for sim_param in f.attrs["simulation_parameters"]:
             assert (
                 sim_param in f.attrs
-            ), f"Every listed simulation parameter should be included at attribute"
+            ), "Every listed simulation parameter should be included at attribute"
         print("Top level attributes passed!")
         assert "dimensions" in f, "No dimensions group found in HDF5 file"
         check_dimensions(f)
