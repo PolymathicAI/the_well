@@ -41,7 +41,7 @@ class TestMiniWell(unittest.TestCase):
                     output_base_path=temp_dir,
                     spatial_downsample_factor=4,
                     time_downsample_factor=2,
-                    max_samples=1,
+                    max_files=1,
                 )
 
                 # Load mini dataset
