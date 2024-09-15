@@ -11,7 +11,7 @@ from .datasets import GenericWellDataset
 def create_mini_well(
     dataset: GenericWellDataset,
     output_base_path: str,
-    spatial_downsample_factor: int = 2,
+    spatial_downsample_factor: int = 4,
     time_downsample_factor: int = 2,
     max_samples: int = 10,
 ):
