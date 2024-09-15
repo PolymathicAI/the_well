@@ -2,11 +2,16 @@ import os
 import shutil
 import tempfile
 import unittest
+import subprocess
+import sys
 
 from the_well.benchmark.data.datasets import GenericWellDataset
 from the_well.benchmark.data.miniwell import create_mini_well
 
 WELL_BASE_PATH = os.environ.get("WELL_BASE_PATH")
+CHECK_THEWELL_DATA_SCRIPT = os.path.join(
+    os.path.dirname(__file__), "../scripts/check_thewell_data.py"
+)
 
 
 @unittest.skipIf(WELL_BASE_PATH is None, "WELL_BASE_PATH environment variable not set")
@@ -56,6 +61,14 @@ class TestMiniWell(unittest.TestCase):
             )
             self.assertEqual(mini_metadata.spatial_resolution, expected_resolution)
             self.assertLess(len(mini_dataset), len(original_dataset))
+
+            # We also run the data validation utility on the mini dataset
+            result = subprocess.run(
+                [sys.executable, CHECK_THEWELL_DATA_SCRIPT, temp_dir, "-n", "1"],
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(result.returncode, 0, f"Script failed: {result.stderr}")
 
         finally:
             # Clean up temporary directory
