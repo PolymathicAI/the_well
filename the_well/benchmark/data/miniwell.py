@@ -1,9 +1,10 @@
+import copy
 import os
+import shutil
+
 import h5py
 from scipy.ndimage import gaussian_filter
 from tqdm import tqdm
-import shutil
-import copy
 
 from .datasets import GenericWellDataset
 

@@ -1,6 +1,6 @@
 import os
-import tempfile
 import shutil
+import tempfile
 import unittest
 
 from the_well.benchmark.data.datasets import GenericWellDataset
