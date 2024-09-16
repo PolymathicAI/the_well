@@ -17,6 +17,7 @@ def create_mini_well(
     time_downsample_factor: int = 2,
     max_files: int = 10,
     split: str = "train",
+    time_fraction: float = 1.0,
 ):
     dataset_name = dataset.metadata.dataset_name
     output_path = os.path.join(output_base_path, "datasets", dataset_name)
@@ -55,6 +56,7 @@ def create_mini_well(
                     dst_file,
                     spatial_downsample_factor,
                     time_downsample_factor,
+                    time_fraction,
                 )
 
     return mini_metadata
@@ -65,6 +67,7 @@ def process_file(
     dst_file: h5py.File,
     spatial_downsample_factor: int,
     time_downsample_factor: int,
+    time_fraction: float,
 ):
     for key, value in src_file.attrs.items():
         dst_file.attrs[key] = value
@@ -81,6 +84,7 @@ def process_file(
             dst_file.create_group(group_name),
             spatial_downsample_factor,
             time_downsample_factor,
+            time_fraction,
         )
 
 
@@ -89,6 +93,7 @@ def process_group(
     dst_group: h5py.Group,
     spatial_downsample_factor: int,
     time_downsample_factor: int,
+    time_fraction: float,
 ):
     for key, value in src_group.attrs.items():
         dst_group.attrs[key] = value
@@ -100,10 +105,16 @@ def process_group(
                 dst_group.create_group(name),
                 spatial_downsample_factor,
                 time_downsample_factor,
+                time_fraction,
             )
         elif isinstance(item, h5py.Dataset):
             process_dataset(
-                item, dst_group, name, spatial_downsample_factor, time_downsample_factor
+                item,
+                dst_group,
+                name,
+                spatial_downsample_factor,
+                time_downsample_factor,
+                time_fraction,
             )
 
 
@@ -113,6 +124,7 @@ def process_dataset(
     name: str,
     spatial_downsample_factor: int,
     time_downsample_factor: int,
+    time_fraction: float,
 ):
     attrs = dict(src_dataset.attrs)
 
@@ -122,7 +134,8 @@ def process_dataset(
         data = src_dataset[:]
 
         if name == "time":
-            data = data[::time_downsample_factor]
+            time_length = int(len(data) * time_fraction)
+            data = data[:time_length:time_downsample_factor]
         elif name in ["t0_fields", "t1_fields", "t2_fields"]:
             n_tensor_dims = {
                 "t0_fields": 0,  # sample dimension
@@ -136,6 +149,7 @@ def process_dataset(
                 n_tensor_dims=n_tensor_dims,
                 spatial_downsample_factor=spatial_downsample_factor,
                 time_downsample_factor=time_downsample_factor,
+                time_fraction=time_fraction,
             )
         elif len(data.shape) > 1:
             if "time_varying" not in attrs:
@@ -151,6 +165,7 @@ def process_dataset(
                 n_tensor_dims=0,  # Assume everything is a spatial dimension past batch and time
                 spatial_downsample_factor=spatial_downsample_factor,
                 time_downsample_factor=time_downsample_factor,
+                time_fraction=time_fraction,
             )
         else:
             pass
@@ -177,14 +192,20 @@ def downsample_field(
     n_tensor_dims: int,
     spatial_downsample_factor: int,
     time_downsample_factor: int,
+    time_fraction: float,
 ):
     n_time_dims = 1 if time_varying else 0
     n_spatial_dims = len(data.shape) - n_batch_dims - n_tensor_dims - n_time_dims
 
+    # Compute the new time length before downsampling
+    new_time_length = (
+        int(data.shape[n_batch_dims] * time_fraction) if time_varying else None
+    )
+
     # First, do time downsampling, so we can save some compute
     time_slices = (
         [slice(None)] * n_batch_dims
-        + [slice(None, None, time_downsample_factor)] * n_time_dims
+        + [slice(None, new_time_length, time_downsample_factor)] * n_time_dims
         + [slice(None)] * n_spatial_dims
         + [slice(None)] * n_tensor_dims
     )

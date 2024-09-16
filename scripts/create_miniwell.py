@@ -53,6 +53,12 @@ def main():
         default=2,
         help="Maximum number of files to process for the test split.",
     )
+    parser.add_argument(
+        "--time-fraction",
+        type=float,
+        default=1.0,
+        help="Fraction of the time dimension to keep, starting from the first timestep. Default is 1.0 (keep all).",
+    )
 
     args = parser.parse_args()
 
@@ -74,6 +80,7 @@ def main():
             time_downsample_factor=args.time_downsample_factor,
             max_files=max_files,
             split=split,
+            time_fraction=args.time_fraction,
         )
 
         # Optionally, save the mini_metadata or print it
