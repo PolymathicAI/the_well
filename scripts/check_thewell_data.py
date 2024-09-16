@@ -14,7 +14,7 @@ def check_bc(bc: str) -> str:
 
 
 def check_constant(f: np.ndarray) -> bool:
-    return np.all(f == f.item(0))
+    return np.allclose(f, f.item(0))
 
 
 def check_nan(f: np.ndarray) -> bool:
