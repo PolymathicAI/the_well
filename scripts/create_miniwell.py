@@ -13,6 +13,11 @@ def main():
         "output_base_path", type=str, help="Base path for the output dataset."
     )
     parser.add_argument(
+        "--dataset",
+        type=str,
+        help="Name of the dataset to create a mini version of.",
+    )
+    parser.add_argument(
         "--dataset-path",
         type=str,
         default="/mnt/ceph/users/polymathic/the_well/",
@@ -51,21 +56,24 @@ def main():
 
     args = parser.parse_args()
 
-    # Load the dataset
-    dataset = GenericWellDataset(args.dataset_path)
-
     # Call the create_mini_well function for each split
     for split, max_files in zip(
         ["train", "valid", "test"],
         [args.max_files_per_train, args.max_files_per_val, args.max_files_per_test],
     ):
+        # Load the dataset
+        dataset = GenericWellDataset(
+            well_base_path=args.dataset_path,
+            well_dataset_name=args.dataset,
+            well_split_name=split,
+        )
         mini_metadata = create_mini_well(
-            dataset,
-            args.output_base_path,
-            args.spatial_downsample_factor,
-            args.time_downsample_factor,
-            max_files,
-            split,
+            dataset=dataset,
+            output_base_path=args.output_base_path,
+            spatial_downsample_factor=args.spatial_downsample_factor,
+            time_downsample_factor=args.time_downsample_factor,
+            max_files=max_files,
+            split=split,
         )
 
         # Optionally, save the mini_metadata or print it
