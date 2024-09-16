@@ -13,12 +13,16 @@ def check_bc(bc: str) -> str:
     return bc.upper()
 
 
-def verify_constant_array(f: np.ndarray) -> bool:
-    return np.all(f == f[0])
+def check_constant(f: np.ndarray) -> bool:
+    return np.allclose(f, f.item(0))
 
 
 def check_nan(f: np.ndarray) -> bool:
     return np.isnan(f).any()
+
+
+def check_close_previous_frame(f: np.ndarray, prev_f: np.ndarray) -> bool:
+    return np.allclose(f, prev_f)
 
 
 def detect_outlier_pixels(image_array: np.ndarray, threshold: int = 10):
@@ -46,6 +50,7 @@ class ProblemReport:
         self.boundary_issues = ()
         self.spatial_issue = False
         self.constant_frames = {}
+        self.close_frames = {}
         self.nan_frames = {}
         self.field_averages = {}
         self.means = {}
@@ -61,20 +66,30 @@ class ProblemReport:
     def set_constant_frame_issue(self, field: str, trajectory: int, time_step: int):
         if trajectory in self.constant_frames:
             if field in self.constant_frames[trajectory]:
-                self.constant_frames[trajectory][field] += 1
+                self.constant_frames[trajectory][field].append(time_step)
             else:
-                self.constant_frames[trajectory].update({field: 0})
+                self.constant_frames[trajectory].update({field: [time_step]})
         else:
-            self.constant_frames.update({trajectory: {field: 0}})
+            self.constant_frames.update({trajectory: {field: [time_step]}})
+
+    def set_close_to_previous(self, field: str, trajectory: int, time_step: int):
+        if trajectory in self.close_frames:
+            if field in self.close_frames[trajectory]:
+                self.close_frames[trajectory][field].append(time_step)
+            else:
+                self.close_frames[trajectory].update({field: [time_step]})
+        else:
+            self.close_frames.update({trajectory: {field: [time_step]}})
+
 
     def set_nan_frame_issue(self, field: str, trajectory: int, time_step: int):
         if trajectory in self.nan_frames:
             if field in self.nan_frames[trajectory]:
-                self.nan_frames[trajectory][field] += 1
+                self.nan_frames[trajectory][field].append(time_step)
             else:
-                self.nan_frames[trajectory].update({field: 0})
+                self.nan_frames[trajectory].update({field: [time_step]})
         else:
-            self.nan_frames.update({trajectory: {field: 0}})
+            self.nan_frames.update({trajectory: {field: [time_step]}})
 
     def has_issue(self) -> bool:
         return (
@@ -148,15 +163,22 @@ class ProblemReport:
                 report += "Constant frames detected:\n"
                 for trajectory, trajectory_issues in self.constant_frames.items():
                     report += f"Trajectory {trajectory} has constant frames: "
-                    for field, n_constant_frames in trajectory_issues.items():
-                        report += f"{field}:{n_constant_frames} "
+                    for field, constant_frames in trajectory_issues.items():
+                        report += f"{field}:{len(constant_frames)}:{constant_frames} "
+                    report += "\n"
+            if self.close_frames:
+                report += "Time frames close to previous ones detected:"
+                for trajectory, trajectory_issues in self.close_frames.items():
+                    report += f"Trajectory {trajectory} has close subsequent frames: "
+                    for field, close_frames in trajectory_issues.items():
+                        report += f"{field}:{len(close_frames)}:{close_frames} "
                     report += "\n"
             if self.nan_frames:
                 report += "Frames with NAN values detected:"
                 for trajectory, trajectory_issues in self.nan_frames.items():
                     report += f"Trajectory {trajectory} has NAN value frames: "
-                    for field, n_nan_frames in trajectory_issues.items():
-                        report += f"{field}:{n_nan_frames} "
+                    for field, nan_frames in trajectory_issues.items():
+                        report += f"{field}:{len(nan_frames)}:{nan_frames} "
                     report += "\n"
             if self.outliers:
                 for trajectory, trajectory_outliers in self.outliers.items():
@@ -202,14 +224,15 @@ class WellFileChecker:
     def check_scalars(self, scalars):
         pass
 
-    def check_fields(self, fields):
+    def check_fields(self, fields, n_spatial_dims: int):
         sub_keys = list(fields.keys())
         for sub_key in sub_keys:
-            n_traj = fields[sub_key].shape[0]
-            n_time = fields[sub_key].shape[1]
-            spatial_dimensions = fields[sub_key].shape[2:4]
-            if fields[sub_key].attrs["time_varying"] == True:
+            if fields[sub_key].attrs["time_varying"]:
+                n_traj = fields[sub_key].shape[0]
+                n_time = fields[sub_key].shape[1]
+                spatial_dimensions = fields[sub_key].shape[2 : 2 + n_spatial_dims]
                 for traj in range(n_traj):
+                    prev_arrays = None
                     for time in range(n_time):
                         arrays = fields[sub_key][traj, time, ...]
                         arrays = arrays.reshape(*spatial_dimensions, -1)
@@ -217,7 +240,7 @@ class WellFileChecker:
                         for dim, array in enumerate(arrays):
                             if check_nan(array):
                                 self.report.set_nan_frame_issue(sub_key, traj, time)
-                            elif verify_constant_array(array) and time > 0:
+                            elif check_constant(array) and time > 0:
                                 self.report.set_constant_frame_issue(
                                     sub_key, traj, time
                                 )
@@ -225,9 +248,12 @@ class WellFileChecker:
                                 self.report.update_field_average(
                                     traj, sub_key, dim, array
                                 )
+                            if (prev_arrays is not None) and check_close_previous_frame(array, prev_arrays[dim]):
+                                self.report.set_close_to_previous(sub_key, traj, time)
+                        prev_arrays = arrays
 
     def check(self):
-        with h5py.File(self.filename, "r+") as file:
+        with h5py.File(self.filename, "r") as file:
             keys_list = list(file.keys())
             for key in keys_list:
                 if key == "boundary_conditions":
@@ -238,7 +264,7 @@ class WellFileChecker:
                 elif key == "scalars":
                     self.check_scalars(file[key])
                 elif "fields" in key:
-                    self.check_fields(file[key])
+                    self.check_fields(file[key], n_spatial_dimensions)
             self.report.compute_statistics()
             self.report.find_outliers()
             return str(self.report)
@@ -248,14 +274,14 @@ def list_files(data_register: List[str]):
     folder = ["train", "test", "valid"]
     for data in data_register:
         for f in folder:
-            file_path = f"{data}/{f}/"
+            file_path = f"{data}/data/{f}/"
             for file_name in os.listdir(file_path):
                 full_path = os.path.join(file_path, file_name)
                 yield full_path
 
 
 def check_file(filename: str):
-    file_checker = WellFileChecker(filename, modify)
+    file_checker = WellFileChecker(filename)
     report = file_checker.check()
     return report
 
