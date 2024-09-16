@@ -180,6 +180,15 @@ def downsample_field(
     n_time_dims = 1 if time_varying else 0
     n_spatial_dims = len(data.shape) - n_batch_dims - n_tensor_dims - n_time_dims
 
+    # First, do time downsampling, so we can save some compute
+    time_slices = (
+        [slice(None)] * n_batch_dims
+        + [slice(None, None, time_downsample_factor)] * n_time_dims
+        + [slice(None)] * n_spatial_dims
+        + [slice(None)] * n_tensor_dims
+    )
+    data = data[tuple(time_slices)]
+
     if spatial_filtering:
         spatial_sigma = (spatial_downsample_factor - 1) / 2
         sigma = (
@@ -196,11 +205,12 @@ def downsample_field(
         # See https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.gaussian_filter.html
         data = gaussian_filter(data, sigma=sigma, mode="nearest")
 
-    slices = (
+    # Finally, do spatial downsampling
+    spatial_slices = (
         [slice(None)] * n_batch_dims
-        + [slice(None, None, time_downsample_factor)] * n_time_dims
+        + [slice(None)] * n_time_dims
         + [slice(None, None, spatial_downsample_factor)] * n_spatial_dims
         + [slice(None)] * n_tensor_dims
     )
 
-    return data[tuple(slices)]
+    return data[tuple(spatial_slices)]
