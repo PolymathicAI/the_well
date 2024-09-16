@@ -16,14 +16,14 @@ def create_mini_well(
     spatial_downsample_factor: int = 4,
     time_downsample_factor: int = 2,
     max_files: int = 10,
+    split: str = "train",
 ):
     dataset_name = dataset.metadata.dataset_name
     output_path = os.path.join(output_base_path, "datasets", dataset_name)
     os.makedirs(output_path, exist_ok=True)
 
-    for split in ["train", "valid", "test"]:
-        split_path = os.path.join(output_path, "data", split)
-        os.makedirs(split_path, exist_ok=True)
+    split_path = os.path.join(output_path, "data", split)
+    os.makedirs(split_path, exist_ok=True)
 
     stats_path = os.path.join(output_path, "stats")
     os.makedirs(stats_path, exist_ok=True)
@@ -40,7 +40,8 @@ def create_mini_well(
         dim // spatial_downsample_factor for dim in mini_metadata.spatial_resolution
     )
 
-    for file_path in tqdm(dataset.files_paths[:max_files], desc="Processing files"):
+    split_files = [f for f in dataset.files_paths if split in f]
+    for file_path in tqdm(split_files[:max_files], desc=f"Processing {split} files"):
         with h5py.File(file_path, "r") as src_file:
             relative_path = os.path.relpath(
                 file_path, os.path.dirname(os.path.dirname(dataset.data_path))
