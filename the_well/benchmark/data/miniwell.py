@@ -1,6 +1,7 @@
 import copy
 import os
 import shutil
+import warnings
 
 import h5py
 from scipy.ndimage import gaussian_filter
@@ -136,9 +137,15 @@ def process_dataset(
                 time_downsample_factor=time_downsample_factor,
             )
         elif len(data.shape) > 1:
+            if "time_varying" not in attrs:
+                warnings.warn(
+                    f"Dataset {name} has no time_varying attribute. Assuming time_varying=False."
+                )
             data = downsample_field(
                 data,
-                time_varying=attrs["time_varying"],
+                time_varying=(
+                    attrs["time_varying"] if "time_varying" in attrs else False
+                ),
                 spatial_filtering=False,  # No spatial filtering!
                 n_tensor_dims=0,  # Assume everything is a spatial dimension past batch and time
                 spatial_downsample_factor=spatial_downsample_factor,
