@@ -29,10 +29,8 @@ class TestMiniWell(unittest.TestCase):
                     well_base_path=WELL_BASE_PATH,
                     well_dataset_name=dataset_name,
                     well_split_name="train",
-                    n_steps_input=1,
-                    n_steps_output=1,
-                    use_normalization=False,
-                    max_rollout_steps=2,
+                    # Other options don't matter; we just use
+                    # this to get the files and metadata
                 )
 
                 # Create mini dataset
