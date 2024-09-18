@@ -46,6 +46,7 @@ def compute_statistics(train_path: str, stats_path: str):
     for field in counts:
         weights = torch.as_tensor(counts[field], dtype=torch.int64)
         weights = weights / weights.sum()
+        weights = torch.as_tensor(weights, dtype=torch.float64)
 
         means[field] = torch.einsum("i...,i", torch.stack(means[field]), weights)
         variances[field] = torch.einsum(
