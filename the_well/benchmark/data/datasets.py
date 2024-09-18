@@ -199,7 +199,7 @@ class GenericWellDataset(Dataset):
     def __init__(
         self,
         path: Optional[str] = None,
-        normalization_path: str = "../stats/",
+        normalization_path: str = "../stats.json",
         well_base_path: Optional[str] = None,
         well_dataset_name: Optional[str] = None,
         well_split_name: str = "train",
@@ -227,18 +227,20 @@ class GenericWellDataset(Dataset):
         if path is not None:
             path = os.path.abspath(path)
             self.data_path = path
-            self.stats_path = os.path.join(path, "stats.json")
+            self.normalization_path = os.path.abspath(
+                os.path.join(path, normalization_path)
+            )
         else:
             well_base_path = os.path.abspath(well_base_path)
             self.data_path = os.path.join(
                 well_base_path, well_paths[well_dataset_name], "data", well_split_name
             )
-            self.stats_path = os.path.join(
+            self.normalization_path = os.path.join(
                 well_base_path, well_paths[well_dataset_name], "stats.json"
             )
 
         if use_normalization:
-            with open(self.stats_path, mode="r") as f:
+            with open(self.normalization_path, mode="r") as f:
                 stats = json.load(f)
 
             self.means = {
