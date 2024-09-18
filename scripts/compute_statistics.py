@@ -1,73 +1,64 @@
 import argparse
+import json
+import math
 import os
 
 import h5py as h5
-import numpy as np
 import torch
 
 from the_well.benchmark.data.datasets import GenericWellDataset, well_paths
 
 
-def compute_statistics(train_path, original_path):
+def compute_statistics(train_path: str, stats_path: str):
     ds = GenericWellDataset(train_path, use_normalization=False)
     paths = ds.files_paths
-    means = {}
+
     counts = {}
-    fields = ["t0_fields", "t1_fields", "t2_fields"]
-    print("started computing the statistics of", original_path)
-    for p in paths:
-        os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
-        with h5.File(p, "r") as f:
-            for fi in fields:
-                for field in f[fi].attrs["field_names"]:
-                    data = f[fi][field][:]
-                    if field not in means:
-                        means[field] = data.sum()
-                        counts[field] = np.prod(data.shape)
-                    else:
-                        means[field] += data.sum()
-                        counts[field] += np.prod(data.shape)
-
-    # Compute means from sum and counts
-    for field in means:
-        means[field] /= counts[field]
-    print(means)
-
-    # Now let's compute the variance
+    means = {}
     variances = {}
+    stds = {}
+
+    os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
+
     for p in paths:
-        os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
         with h5.File(p, "r") as f:
-            for fi in fields:
-                for field in f[fi].attrs["field_names"]:
-                    data = f[fi][field][:]
-                    if field not in variances:
-                        variances[field] = ((data - means[field]) ** 2).sum()
+            for i in range(3):
+                ti = f"t{i}_fields"
+
+                for field in f[ti].attrs["field_names"]:
+                    data = f[ti][field]
+                    data = torch.as_tensor(data, dtype=torch.float64)
+
+                    count = math.prod(data.shape[: data.dim - i])
+                    var, mean = torch.var_mean(
+                        data, dim=range(0, data.ndim - i), unbiased=False
+                    )
+
+                    if field in counts:
+                        counts[field].append(count)
+                        means[field].append(mean)
+                        variances[field].append(var)
                     else:
-                        variances[field] += ((data - means[field]) ** 2).sum()
+                        counts[field] = [count]
+                        means[field] = [mean]
+                        variances[field] = [var]
 
-    # Compute vars from sum and counts
-    for field in variances:
-        variances[field] /= counts[field] - 1
+    for field in counts:
+        weights = torch.as_tensor(counts[field], dtype=torch.int64)
+        weights = weights / weights.sum()
 
-    stds = {k: np.sqrt(v) for k, v in variances.items()}
-    print("saving for ", original_path)
-    # delete "data" in the original path
-    original_path = original_path[:-4]
-    stats_path = original_path + "stats_new"
-    if not os.path.exists(stats_path):
-        os.makedirs(stats_path)
-    with open(stats_path + "/means.pkl", "wb") as f:
-        torch.save(means, f)
+        means[field] = torch.einsum("i...,i", torch.stack(means[field]), weights)
+        variances[field] = torch.einsum(
+            "i...,i", torch.stack(variances[field]), weights
+        )
 
-    with open(stats_path + "/stds.pkl", "wb") as f:
-        torch.save(stds, f)
+        means[field] = means[field].tolist()
+        stds[field] = variances[field].sqrt().tolist()
 
+    stats = {"mean": means, "std": stds}
 
-def recompute_statistics(data_register):
-    for data_path in data_register:
-        data_train_path = f"{data_path}/train/"
-        compute_statistics(data_train_path, data_path)
+    with open(stats_path, mode="x") as f:
+        json.dump(stats, f, indent=4)
 
 
 if __name__ == "__main__":
@@ -75,7 +66,9 @@ if __name__ == "__main__":
     parser.add_argument("the_well_dir", type=str)
     args = parser.parse_args()
     data_dir = args.the_well_dir
-    data_register = [
-        os.path.join(data_dir, dataset_path) for dataset_path in well_paths.values()
-    ]
-    recompute_statistics(data_register)
+
+    for dataset_path in well_paths.values():
+        compute_statistics(
+            train_path=os.path.join(data_dir, dataset_path, "data/train"),
+            stats_path=os.path.join(data_dir, dataset_path, "stats.json"),
+        )
