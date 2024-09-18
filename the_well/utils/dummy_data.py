@@ -71,7 +71,7 @@ def write_dummy_data(filename: str):
         group = file.create_group("t0_fields")
         group.attrs["field_names"] = ["constant_field"]
         # Add a constant field regarding time
-        dset = group.create_dataset("field", data=t0_constant_field_values)
+        dset = group.create_dataset("constant_field", data=t0_constant_field_values)
         dset.attrs["dim_varying"] = [True, True]
         dset.attrs["sample_varying"] = True
         dset.attrs["time_varying"] = False
