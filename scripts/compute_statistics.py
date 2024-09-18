@@ -27,9 +27,11 @@ def compute_statistics(train_path: str, stats_path: str):
                     data = f[ti][field]
                     data = torch.as_tensor(data, dtype=torch.float64)
 
-                    count = math.prod(data.shape[: data.dim - i])
+                    count = math.prod(data.shape[: data.ndim - i])
                     var, mean = torch.var_mean(
-                        data, dim=range(0, data.ndim - i), unbiased=False
+                        data,
+                        dim=tuple(range(0, data.ndim - i)),
+                        unbiased=False,
                     )
 
                     if field in counts:
