@@ -48,10 +48,17 @@ def compute_statistics(train_path: str, stats_path: str):
         weights = weights / weights.sum()
         weights = torch.as_tensor(weights, dtype=torch.float64)
 
-        means[field] = torch.einsum("i...,i", torch.stack(means[field]), weights)
-        variances[field] = torch.einsum(
-            "i...,i", torch.stack(variances[field]), weights
+        means[field] = torch.stack(means[field])
+        variances[field] = torch.stack(variances[field])
+
+        # https://wikipedia.org/wiki/Mixture_distribution#Moments
+        first_moment = torch.einsum("i...,i", means[field], weights)
+        second_moment = torch.einsum(
+            "i...,i", variances[field] + means[field] ** 2, weights
         )
+
+        means[field] = first_moment
+        variances[field] = second_moment - first_moment**2
 
         means[field] = means[field].tolist()
         stds[field] = variances[field].sqrt().tolist()
