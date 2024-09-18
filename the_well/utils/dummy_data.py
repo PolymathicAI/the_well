@@ -28,7 +28,7 @@ def write_dummy_data(filename: str):
     t1_field_values = np.random.rand(n_trajectories, dim_t, dim_x, dim_y, n_dim).astype(
         np.float32
     )
-    t0_constant_field_values = np.random.rand(n_trajectories, dim_x, dim_y, 1).astype(
+    t0_constant_field_values = np.random.rand(n_trajectories, 1, dim_x, dim_y).astype(
         np.float32
     )
 
