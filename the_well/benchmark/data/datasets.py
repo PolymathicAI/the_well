@@ -1,4 +1,5 @@
 import glob
+import json
 import os
 from dataclasses import dataclass
 from enum import Enum
@@ -226,26 +227,26 @@ class GenericWellDataset(Dataset):
         if path is not None:
             path = os.path.abspath(path)
             self.data_path = path
-            # Note - if the second path is absolute, this op just uses second
-            self.normalization_path = os.path.abspath(
-                os.path.join(self.data_path, normalization_path)
-            )
+            self.stats_path = os.path.join(path, "stats.json")
         else:
             well_base_path = os.path.abspath(well_base_path)
             self.data_path = os.path.join(
                 well_base_path, well_paths[well_dataset_name], "data", well_split_name
             )
-            self.normalization_path = os.path.abspath(
-                os.path.join(well_base_path, well_paths[well_dataset_name], "stats/")
+            self.stats_path = os.path.join(
+                well_base_path, well_paths[well_dataset_name], "stats.json"
             )
 
         if use_normalization:
-            self.means = torch.load(
-                os.path.join(self.normalization_path, "means.pkl"), weights_only=False
-            )
-            self.stds = torch.load(
-                os.path.join(self.normalization_path, "stds.pkl"), weights_only=False
-            )
+            with open(self.stats_path, mode="r") as f:
+                stats = json.load(f)
+
+            self.means = {
+                field: torch.as_tensor(val) for field, val in stats["mean"].items()
+            }
+            self.stds = {
+                field: torch.as_tensor(val) for field, val in stats["std"].items()
+            }
 
         # Input checks
         if boundary_return_type is not None and boundary_return_type not in ["padding"]:
@@ -526,12 +527,19 @@ class GenericWellDataset(Dataset):
                         )
                     # If any leading fields exist, select from them
                     if len(multi_index) > 0:
-                        field_data = torch.tensor(field_data[multi_index])
-                    field_data = torch.tensor(
+                        field_data = torch.as_tensor(field_data[multi_index])
+                    field_data = torch.as_tensor(
                         self._pad_axes(
                             field_data, use_dims, time_varying=True, tensor_order=i
                         )
                     )
+
+                    if self.use_normalization:
+                        if field_name in self.means:
+                            field_data = field_data - self.means[field_name]
+                        if field_name in self.stds:
+                            field_data = field_data / self.stds[field_name]
+
                     if (
                         not field.attrs["time_varying"]
                         and not field.attrs["sample_varying"]
@@ -756,13 +764,6 @@ class GenericWellDataset(Dataset):
             "output_time_varying_scalars": time_varying_scalars[self.n_steps_input :],
             "constant_scalars": constant_scalars,  # 1 x C tensor with constant values corresponding to parameters
         }
-
-        if self.use_normalization:
-            # Load normalization constants
-            for k in self.means.keys():
-                k = k.replace("output", "input")  # Use fields computed from input
-                if k in sample:
-                    sample[k] = (sample[k] - self.means[k]) / (self.stds[k] + 1e-4)
 
         # For complex BCs, might need to do this pre_normalization
         # TODO Need to generalize
