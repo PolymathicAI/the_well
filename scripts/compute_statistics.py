@@ -24,7 +24,7 @@ def compute_statistics(train_path: str, stats_path: str):
                 ti = f"t{i}_fields"
 
                 for field in f[ti].attrs["field_names"]:
-                    data = f[ti][field]
+                    data = f[ti][field][:]
                     data = torch.as_tensor(data, dtype=torch.float64)
 
                     count = math.prod(data.shape[: data.ndim - i])
