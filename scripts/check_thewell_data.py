@@ -311,7 +311,7 @@ if __name__ == "__main__":
     data_register = [
         os.path.join(data_dir, well_paths[dataset]) for dataset in datasets_to_check
     ]
-    files = list_files(data_register)
+    files = list(list_files(data_register))
     print(f"{len(files)} to check.")
     with mp.Pool(nproc) as pool:
         for report in pool.imap_unordered(check_file, files, chunksize=16):
