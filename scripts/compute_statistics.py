@@ -10,15 +10,16 @@ from the_well.benchmark.data.datasets import GenericWellDataset, well_paths
 
 
 def compute_statistics(train_path: str, stats_path: str):
+    assert not os.path.isfile(stats_path), f"{stats_path} already exists."
+
     ds = GenericWellDataset(train_path, use_normalization=False)
-    paths = ds.files_paths
 
     counts = {}
     means = {}
     variances = {}
     stds = {}
 
-    for p in paths:
+    for p in ds.files_paths:
         with h5.File(p, "r") as f:
             for i in range(3):
                 ti = f"t{i}_fields"
