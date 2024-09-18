@@ -25,7 +25,10 @@ def write_dummy_data(filename: str):
     x_peridocity_mask[0] = x_peridocity_mask[-1]
     y_peridocity_mask = np.zeros_like(y).astype(bool)
     y_peridocity_mask[0] = y_peridocity_mask[-1]
-    field_values = np.random.rand(n_trajectories, dim_t, dim_x, dim_y, n_dim).astype(
+    t1_field_values = np.random.rand(n_trajectories, dim_t, dim_x, dim_y, n_dim).astype(
+        np.float32
+    )
+    t0_constant_field_values = np.random.rand(n_trajectories, dim_x, dim_y, 1).astype(
         np.float32
     )
 
@@ -66,13 +69,19 @@ def write_dummy_data(filename: str):
             group[key].attrs["sample_varying"] = False
         # Fields
         group = file.create_group("t0_fields")
-        group.attrs["field_names"] = []
+        group.attrs["field_names"] = ["constant_field"]
+        # Add a constant field regarding time
+        dset = group.create_dataset("field", data=t0_constant_field_values)
+        dset.attrs["dim_varying"] = [True, True]
+        dset.attrs["sample_varying"] = True
+        dset.attrs["time_varying"] = False
+        # Add a field varying both in time and space
         group = file.create_group("t1_fields")
         group.attrs["field_names"] = ["field"]
-        group.create_dataset("field", data=field_values)
-        group["field"].attrs["dim_varying"] = [True, True]
-        group["field"].attrs["sample_varying"] = True
-        group["field"].attrs["time_varying"] = True
+        dset = group.create_dataset("field", data=t1_field_values)
+        dset.attrs["dim_varying"] = [True, True]
+        dset.attrs["sample_varying"] = True
+        dset.attrs["time_varying"] = True
         group = file.create_group("t2_fields")
         group.attrs["field_names"] = []
 
