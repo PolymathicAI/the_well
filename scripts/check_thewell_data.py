@@ -14,7 +14,7 @@ def check_bc(bc: str) -> str:
 
 
 def check_constant(f: np.ndarray) -> bool:
-    return np.all(f == f.item(0))
+    return np.allclose(f, f.item(0))
 
 
 def check_nan(f: np.ndarray) -> bool:
@@ -226,11 +226,10 @@ class WellFileChecker:
     def check_fields(self, fields, n_spatial_dims: int):
         sub_keys = list(fields.keys())
         for sub_key in sub_keys:
-            n_traj = fields[sub_key].shape[0]
-            n_time = fields[sub_key].shape[1]
-            # TODO: Fix spatial dim
-            spatial_dimensions = fields[sub_key].shape[2 : 2 + n_spatial_dims]
             if fields[sub_key].attrs["time_varying"]:
+                n_traj = fields[sub_key].shape[0]
+                n_time = fields[sub_key].shape[1]
+                spatial_dimensions = fields[sub_key].shape[2 : 2 + n_spatial_dims]
                 for traj in range(n_traj):
                     prev_arrays = None
                     for time in range(n_time):
