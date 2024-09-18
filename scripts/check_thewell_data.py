@@ -229,7 +229,7 @@ class WellFileChecker:
             n_traj = fields[sub_key].shape[0]
             n_time = fields[sub_key].shape[1]
             # TODO: Fix spatial dim
-            spatial_dimensions = fields[sub_key].shape[2:2+n_spatial_dims]
+            spatial_dimensions = fields[sub_key].shape[2 : 2 + n_spatial_dims]
             if fields[sub_key].attrs["time_varying"]:
                 for traj in range(n_traj):
                     prev_arrays = None
@@ -248,7 +248,9 @@ class WellFileChecker:
                                 self.report.update_field_average(
                                     traj, sub_key, dim, array
                                 )
-                            if (prev_arrays is not None) and check_close_previous_frame(array, prev_arrays[dim]):
+                            if (prev_arrays is not None) and check_close_previous_frame(
+                                array, prev_arrays[dim]
+                            ):
                                 self.report.set_close_to_previous(sub_key, traj, time)
                         prev_arrays = arrays
 
