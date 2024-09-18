@@ -1,6 +1,6 @@
 import glob
 import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
@@ -120,11 +120,11 @@ class GenericWellMetadata:
     boundary_condition_types: List[str]
     n_simulations: int
     n_steps_per_simulation: List[int]
-    sample_shapes: Dict[str, List[int]] = field(init=False)
     grid_type: str = "cartesian"
 
-    def __post_init__(self):
-        self.sample_shapes = {
+    @property
+    def sample_shapes(self) -> Dict[str, List[int]]:
+        return {
             "input_fields": [*self.spatial_resolution, self.n_fields],
             "output_fields": [*self.spatial_resolution, self.n_fields],
             "constant_scalars": [self.n_constant_scalars],
