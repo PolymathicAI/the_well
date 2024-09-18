@@ -81,7 +81,6 @@ class ProblemReport:
         else:
             self.close_frames.update({trajectory: {field: [time_step]}})
 
-
     def set_nan_frame_issue(self, field: str, trajectory: int, time_step: int):
         if trajectory in self.nan_frames:
             if field in self.nan_frames[trajectory]:
@@ -289,35 +288,30 @@ def check_file(filename: str):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("Data Sanity Checker")
-    parser.add_argument("the_well_dir", type=str)
-    parser.add_argument("-n", "--nproc", type=int, default=1)
-    parser.add_argument("--modify", action="store_true")
     parser.add_argument(
-        "--datasets", type=str, help="Comma-separated list of datasets to check"
+        "-d",
+        "--dir",
+        type=str,
+        help="Path to the Well directory where are stored the data",
+    )
+    parser.add_argument("-n", "--nproc", type=int, default=1)
+    parser.add_argument(
+        "--datasets",
+        type=str,
+        nargs="+",
+        default=list(well_paths.keys()),
+        choices=list(well_paths.keys()),
+        help="Name of the dataset to check",
     )
     args = parser.parse_args()
-    data_dir = args.the_well_dir
+    data_dir = args.dir
     nproc = args.nproc
-    modify = args.modify
-
-    if args.datasets:
-        selected_datasets = [dataset.strip() for dataset in args.datasets.split(",")]
-        invalid_datasets = [
-            dataset for dataset in selected_datasets if dataset not in well_paths
-        ]
-        if invalid_datasets:
-            raise ValueError(
-                f"Error: The following datasets are not available: {', '.join(invalid_datasets)}"
-            )
-        datasets_to_check = selected_datasets
-    else:
-        datasets_to_check = well_paths.keys()
-
+    datasets_to_check = args.datasets
     data_register = [
         os.path.join(data_dir, well_paths[dataset]) for dataset in datasets_to_check
     ]
-
     files = list_files(data_register)
+    print(f"{len(files)} to check.")
     with mp.Pool(nproc) as pool:
         for report in pool.imap_unordered(check_file, files, chunksize=16):
             print(report, flush=True)
