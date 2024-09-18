@@ -1,3 +1,5 @@
+import os.path
+import tempfile
 from unittest import TestCase
 
 from the_well.benchmark.data.datasets import (
@@ -5,6 +7,7 @@ from the_well.benchmark.data.datasets import (
     maximum_stride_for_initial_index,
     raw_steps_to_possible_sample_t0s,
 )
+from the_well.utils.dummy_data import write_dummy_data
 
 
 class TestDataset(TestCase):
@@ -73,3 +76,13 @@ class TestDataset(TestCase):
         # ex5: time_idx=5, total_steps_in_trajectory = 5, n_steps_input = 2, n_steps_output = 2
         #   Maximum stride is 0
         self.assertEqual(maximum_stride_for_initial_index(5, 5, 1, 1), 0)
+
+    def test_dummy_dataset(self):
+        with tempfile.TemporaryDirectory() as dir_name:
+            filename = os.path.join(dir_name, "dummy_well_data.hdf5")
+            write_dummy_data(filename)
+            dataset = GenericWellDataset(path=dir_name, use_normalization=False)
+            # Dummy dataset should contain 2 trajectories of 9 valid samples each
+            self.assertEqual(len(dataset), 2 * 9)
+            self.assertIn("input_fields", dataset[0])
+            self.assertIn("output_fields", dataset[0])

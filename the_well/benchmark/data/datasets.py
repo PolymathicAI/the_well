@@ -31,6 +31,7 @@ well_paths = {
     "turbulent_radiative_layer_2D": "datasets/turbulent_radiative_layer_2D",
     "turbulent_radiative_layer_3D": "datasets/turbulent_radiative_layer_3D",
     "viscoelastic_instability": "datasets/viscoelastic_instability",
+    "dummy": "datasets/dummy_placeholder",
 }
 
 
