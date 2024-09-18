@@ -18,8 +18,6 @@ def compute_statistics(train_path: str, stats_path: str):
     variances = {}
     stds = {}
 
-    os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
-
     for p in paths:
         with h5.File(p, "r") as f:
             for i in range(3):
