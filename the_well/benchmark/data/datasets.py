@@ -1,5 +1,4 @@
 import glob
-import json
 import os
 from dataclasses import dataclass
 from enum import Enum
@@ -8,6 +7,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 import h5py as h5
 import numpy as np
 import torch
+import yaml
 from torch.utils.data import Dataset
 
 well_paths = {
@@ -199,7 +199,7 @@ class GenericWellDataset(Dataset):
     def __init__(
         self,
         path: Optional[str] = None,
-        normalization_path: str = "../stats.json",
+        normalization_path: str = "../stats.yaml",
         well_base_path: Optional[str] = None,
         well_dataset_name: Optional[str] = None,
         well_split_name: str = "train",
@@ -236,12 +236,12 @@ class GenericWellDataset(Dataset):
                 well_base_path, well_paths[well_dataset_name], "data", well_split_name
             )
             self.normalization_path = os.path.join(
-                well_base_path, well_paths[well_dataset_name], "stats.json"
+                well_base_path, well_paths[well_dataset_name], "stats.yaml"
             )
 
         if use_normalization:
             with open(self.normalization_path, mode="r") as f:
-                stats = json.load(f)
+                stats = yaml.safe_load(f)
 
             self.means = {
                 field: torch.as_tensor(val) for field, val in stats["mean"].items()
@@ -249,6 +249,11 @@ class GenericWellDataset(Dataset):
             self.stds = {
                 field: torch.as_tensor(val) for field, val in stats["std"].items()
             }
+
+            for field, std in self.stds.items():
+                assert torch.all(
+                    std > 1e-3
+                ), f"The standard deviation of the '{field}' field is abnormally low."
 
         # Input checks
         if boundary_return_type is not None and boundary_return_type not in ["padding"]:

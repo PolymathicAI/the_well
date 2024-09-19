@@ -1,7 +1,7 @@
 import argparse
-import json
 import math
 import os
+import yaml
 
 import h5py as h5
 import torch
@@ -58,16 +58,20 @@ def compute_statistics(train_path: str, stats_path: str):
             "i...,i", variances[field] + means[field] ** 2, weights
         )
 
-        means[field] = first_moment
-        variances[field] = second_moment - first_moment**2
+        mean = first_moment
+        std = (second_moment - first_moment**2).sqrt()
 
-        means[field] = means[field].tolist()
-        stds[field] = variances[field].sqrt().tolist()
+        assert torch.all(
+            std > 1e-3
+        ), f"The standard deviation of the '{field}' field is abnormally low."
+
+        means[field] = mean.tolist()
+        stds[field] = std.tolist()
 
     stats = {"mean": means, "std": stds}
 
-    with open(stats_path, mode="x") as f:
-        json.dump(stats, f, indent=4)
+    with open(stats_path, mode="x", encoding="utf8") as f:
+        yaml.dump(stats, f)
 
 
 if __name__ == "__main__":
@@ -79,5 +83,5 @@ if __name__ == "__main__":
     for dataset_path in well_paths.values():
         compute_statistics(
             train_path=os.path.join(data_dir, dataset_path, "data/train"),
-            stats_path=os.path.join(data_dir, dataset_path, "stats.json"),
+            stats_path=os.path.join(data_dir, dataset_path, "stats.yaml"),
         )
