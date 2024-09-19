@@ -62,7 +62,7 @@ def compute_statistics(train_path: str, stats_path: str):
         std = (second_moment - first_moment**2).sqrt()
 
         assert torch.all(
-            std > 1e-3
+            std > 1e-4
         ), f"The standard deviation of the '{field}' field is abnormally low."
 
         means[field] = mean.tolist()

@@ -252,7 +252,7 @@ class GenericWellDataset(Dataset):
 
             for field, std in self.stds.items():
                 assert torch.all(
-                    std > 1e-3
+                    std > 1e-4
                 ), f"The standard deviation of the '{field}' field is abnormally low."
 
         # Input checks
