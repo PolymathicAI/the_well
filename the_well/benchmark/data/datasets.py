@@ -194,6 +194,9 @@ class GenericWellDataset(Dataset):
         dataset-specific metadata, as well as `dataset` which is the
         dataset itself (from which one can get `dataset.metadata` to access
         more detailed metadata).
+    min_std :
+        Minimum standard deviation for field normalization. If a field standard
+        deviation is lower than this value, it is replaced by this value.
     """
 
     def __init__(
@@ -219,6 +222,7 @@ class GenericWellDataset(Dataset):
         full_trajectory_mode: bool = False,
         name_override: Optional[str] = None,
         transform: Optional[Callable[[torch.Tensor], torch.Tensor]] = None,
+        min_std: float = 1e-4,
     ):
         super().__init__()
         assert path is not None or (
@@ -247,13 +251,9 @@ class GenericWellDataset(Dataset):
                 field: torch.as_tensor(val) for field, val in stats["mean"].items()
             }
             self.stds = {
-                field: torch.as_tensor(val) for field, val in stats["std"].items()
+                field: torch.clip(torch.as_tensor(val), min=min_std)
+                for field, val in stats["std"].items()
             }
-
-            for field, std in self.stds.items():
-                assert torch.all(
-                    std > 1e-4
-                ), f"The standard deviation of the '{field}' field is abnormally low."
 
         # Input checks
         if boundary_return_type is not None and boundary_return_type not in ["padding"]:
