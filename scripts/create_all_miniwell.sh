@@ -9,13 +9,20 @@
 # ]
 
 datasets=(
-    "turbulent_radiative_layer_2D" "active_matter"
-    "helmholtz_staircase" "viscoelastic_instability"
-    "MHD_64" "post_neutron_star_merger"
-    "shear_flow" "gray_scott_reaction_diffusion"
-    "acoustic_scattering_discontinuous" "planetswe"
-    "rayleigh_taylor_instability" "supernova_explosion_64"
-    "acoustic_scattering_inclusions" "acoustic_scattering_maze"
+    "turbulent_radiative_layer_2D"
+    "active_matter"
+    "helmholtz_staircase"
+    "viscoelastic_instability"
+    "MHD_64"
+    "post_neutron_star_merger"
+    "shear_flow"
+    "gray_scott_reaction_diffusion"
+    "acoustic_scattering_discontinuous"
+    "planetswe"
+    "rayleigh_taylor_instability"
+    "supernova_explosion_64"
+    "acoustic_scattering_inclusions"
+    "acoustic_scattering_maze"
 )
 
 SPATIAL=4
