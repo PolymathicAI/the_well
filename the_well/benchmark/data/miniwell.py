@@ -142,17 +142,14 @@ def process_dataset(
     spatial_downsample_factor: int,
     time_downsample_factor: int,
     time_fraction: float,
-    max_trajectories: int = None,
+    max_trajectories: int,
 ):
     attrs = dict(src_dataset.attrs)
 
     if src_dataset.shape == ():
         data = src_dataset[()]
     else:
-        data = src_dataset[:]
-
-        if attrs.get("sample_varying", False) and max_trajectories is not None:
-            data = data[:max_trajectories]
+        data = src_dataset[:max_trajectories]
 
         if name == "time":
             time_length = int(len(data) * time_fraction)
