@@ -28,6 +28,7 @@ well_paths = {
     "rayleigh_taylor_instability": "datasets/rayleigh_taylor_instability",
     "shear_flow": "datasets/shear_flow",
     "supernova_explosion_64": "datasets/supernova_explosion_64",
+    "supernova_explosion_128": "datasets/supernova_explosion_128",
     "turbulence_gravity_cooling": "datasets/turbulence_gravity_cooling",
     "turbulent_radiative_layer_2D": "datasets/turbulent_radiative_layer_2D",
     "turbulent_radiative_layer_3D": "datasets/turbulent_radiative_layer_3D",
