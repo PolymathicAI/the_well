@@ -36,22 +36,22 @@ def main():
         help="Factor by which to downsample time dimensions.",
     )
     parser.add_argument(
-        "--max-files-per-train",
+        "--max-trajectories-per-train",
         type=int,
-        default=10,
-        help="Maximum number of files to process for the training split.",
+        default=100,
+        help="Maximum number of trajectories to process for the training split.",
     )
     parser.add_argument(
-        "--max-files-per-val",
+        "--max-trajectories-per-val",
         type=int,
-        default=2,
-        help="Maximum number of files to process for the validation split.",
+        default=20,
+        help="Maximum number of trajectories to process for the validation split.",
     )
     parser.add_argument(
-        "--max-files-per-test",
+        "--max-trajectories-per-test",
         type=int,
-        default=2,
-        help="Maximum number of files to process for the test split.",
+        default=20,
+        help="Maximum number of trajectories to process for the test split.",
     )
     parser.add_argument(
         "--time-fraction",
@@ -63,9 +63,13 @@ def main():
     args = parser.parse_args()
 
     # Call the create_mini_well function for each split
-    for split, max_files in zip(
+    for split, max_trajectories in zip(
         ["train", "valid", "test"],
-        [args.max_files_per_train, args.max_files_per_val, args.max_files_per_test],
+        [
+            args.max_trajectories_per_train,
+            args.max_trajectories_per_val,
+            args.max_trajectories_per_test,
+        ],
     ):
         # Load the dataset
         dataset = GenericWellDataset(
@@ -78,7 +82,7 @@ def main():
             output_base_path=args.output_base_path,
             spatial_downsample_factor=args.spatial_downsample_factor,
             time_downsample_factor=args.time_downsample_factor,
-            max_files=max_files,
+            max_trajectories=max_trajectories,  # Changed to max_trajectories
             split=split,
             time_fraction=args.time_fraction,
         )
