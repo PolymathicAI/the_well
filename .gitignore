@@ -26,7 +26,7 @@ datasets/viscoelastic_instability/data/
 2D/planetswe/data/
 
 datasets/rayleigh_benard/data/
-
+datasets/acoustic_scattering_inclusions/old_and_problematic_data/
 datasets/shear_flow/data/
 datasets/supernova_explosion_128/data/
 datasets/supernova_explosion_64/data/
