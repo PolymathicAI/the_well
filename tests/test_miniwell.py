@@ -28,19 +28,20 @@ class TestMiniWell(unittest.TestCase):
                 original_dataset = GenericWellDataset(
                     well_base_path=WELL_BASE_PATH,
                     well_dataset_name=dataset_name,
-                    well_split_name="train",
                     # Other options don't matter; we just use
                     # this to get the files and metadata
                 )
 
                 # Create mini dataset
-                mini_metadata = create_mini_well(
-                    dataset=original_dataset,
-                    output_base_path=temp_dir,
-                    spatial_downsample_factor=4,
-                    time_downsample_factor=2,
-                    max_trajectories=100,
-                )
+                for split in ["train", "valid", "test"]:
+                    mini_metadata = create_mini_well(
+                        dataset=original_dataset,
+                        output_base_path=temp_dir,
+                        spatial_downsample_factor=4,
+                        time_downsample_factor=2,
+                        split=split,
+                        max_trajectories=1,
+                    )
 
                 # Load mini dataset
                 mini_dataset = GenericWellDataset(
@@ -63,16 +64,16 @@ class TestMiniWell(unittest.TestCase):
                 self.assertLess(len(mini_dataset), len(original_dataset))
 
             # Run the data validation utility on all mini datasets at once
-            datasets_arg = ",".join(datasets_to_test)
             result = subprocess.run(
                 [
                     sys.executable,
                     CHECK_THEWELL_DATA_SCRIPT,
+                    "--dir",
                     temp_dir,
-                    "-n",
+                    "--nproc",
                     "1",
                     "--datasets",
-                    datasets_arg,
+                    *datasets_to_test,
                 ],
                 capture_output=True,
                 text=True,
