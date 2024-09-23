@@ -28,9 +28,12 @@ SPATIAL=4
 TIME=2
 TIME_FRACTION=1.0
 
+# Create the logging directory if it does not exist
+mkdir -p ./logs
+
 for dataset in ${datasets[@]}; do
     echo "Processing dataset: $dataset"
-    python ./scripts/create_miniwell.py \
+    nohup python ./scripts/create_miniwell.py \
         "/mnt/ceph/users/mcranmer/the_well/mini_spatial${SPATIAL}x_time${TIME}x" \
         --dataset $dataset \
         --max-trajectories-per-train 20 \
@@ -38,6 +41,8 @@ for dataset in ${datasets[@]}; do
         --max-trajectories-per-test 5 \
         --time-fraction $TIME_FRACTION \
         --spatial-downsample-factor $SPATIAL \
-        --time-downsample-factor $TIME
+        --time-downsample-factor $TIME > ./logs/${dataset}.log 2>&1 &
+    sleep 1
 done
 
+wait
