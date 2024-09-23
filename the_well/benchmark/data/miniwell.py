@@ -149,12 +149,13 @@ def process_dataset(
     if src_dataset.shape == ():
         data = src_dataset[()]
     else:
-        data = src_dataset[:max_trajectories]
+        data = src_dataset[:]
 
         if name == "time":
             time_length = int(len(data) * time_fraction)
             data = data[:time_length:time_downsample_factor]
         elif name in ["t0_fields", "t1_fields", "t2_fields"]:
+            data = data[:max_trajectories, ...]
             n_tensor_dims = {
                 "t0_fields": 0,  # sample dimension
                 "t1_fields": 1,  # sample and tensor component dimensions
@@ -170,6 +171,7 @@ def process_dataset(
                 time_fraction=time_fraction,
             )
         elif len(data.shape) > 1:
+            data = data[:max_trajectories, ...]
             if "time_varying" not in attrs:
                 warnings.warn(
                     f"Dataset {name} has no time_varying attribute. Assuming time_varying=False."
