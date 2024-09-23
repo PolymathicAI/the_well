@@ -15,11 +15,12 @@ def create_mini_well(
     output_base_path: str,
     spatial_downsample_factor: int = 4,
     time_downsample_factor: int = 2,
-    max_files: int = 10,
+    max_trajectories: int = 100,
     split: str = "train",
     time_fraction: float = 1.0,
 ):
-    dataset_name = dataset.metadata.dataset_name
+    dataset_name = dataset.well_dataset_name
+
     output_path = os.path.join(output_base_path, "datasets", dataset_name)
     os.makedirs(output_path, exist_ok=True)
 
@@ -35,15 +36,24 @@ def create_mini_well(
         if os.path.exists(src):
             shutil.copy2(src, dst)
 
-    # Make a copy of the metadata to avoid modifying the original dataset's metadata
     mini_metadata = copy.deepcopy(dataset.metadata)
     mini_metadata.spatial_resolution = tuple(
         dim // spatial_downsample_factor for dim in mini_metadata.spatial_resolution
     )
 
+    total_trajectories = 0
     split_files = [f for f in dataset.files_paths if split in f]
-    for file_path in tqdm(split_files[:max_files], desc=f"Processing {split} files"):
+    for file_path in tqdm(split_files, desc=f"Processing {split} files"):
+        if total_trajectories >= max_trajectories:
+            break
+
         with h5py.File(file_path, "r") as src_file:
+            num_trajectories_in_file = src_file.attrs["n_trajectories"]
+            remaining_trajectories = max_trajectories - total_trajectories
+            trajectories_to_process = min(
+                num_trajectories_in_file, remaining_trajectories
+            )
+
             relative_path = os.path.relpath(
                 file_path, os.path.dirname(os.path.dirname(dataset.data_path))
             )
@@ -57,7 +67,10 @@ def create_mini_well(
                     spatial_downsample_factor,
                     time_downsample_factor,
                     time_fraction,
+                    trajectories_to_process,
                 )
+
+            total_trajectories += trajectories_to_process
 
     return mini_metadata
 
@@ -68,6 +81,7 @@ def process_file(
     spatial_downsample_factor: int,
     time_downsample_factor: int,
     time_fraction: float,
+    max_trajectories: int,
 ):
     for key, value in src_file.attrs.items():
         dst_file.attrs[key] = value
@@ -85,6 +99,7 @@ def process_file(
             spatial_downsample_factor,
             time_downsample_factor,
             time_fraction,
+            max_trajectories,
         )
 
 
@@ -94,6 +109,7 @@ def process_group(
     spatial_downsample_factor: int,
     time_downsample_factor: int,
     time_fraction: float,
+    max_trajectories: int,
 ):
     for key, value in src_group.attrs.items():
         dst_group.attrs[key] = value
@@ -106,6 +122,7 @@ def process_group(
                 spatial_downsample_factor,
                 time_downsample_factor,
                 time_fraction,
+                max_trajectories,
             )
         elif isinstance(item, h5py.Dataset):
             process_dataset(
@@ -115,6 +132,7 @@ def process_group(
                 spatial_downsample_factor,
                 time_downsample_factor,
                 time_fraction,
+                max_trajectories,
             )
 
 
@@ -125,6 +143,7 @@ def process_dataset(
     spatial_downsample_factor: int,
     time_downsample_factor: int,
     time_fraction: float,
+    max_trajectories: int,
 ):
     attrs = dict(src_dataset.attrs)
 
@@ -137,6 +156,7 @@ def process_dataset(
             time_length = int(len(data) * time_fraction)
             data = data[:time_length:time_downsample_factor]
         elif name in ["t0_fields", "t1_fields", "t2_fields"]:
+            data = data[:max_trajectories, ...]
             n_tensor_dims = {
                 "t0_fields": 0,  # sample dimension
                 "t1_fields": 1,  # sample and tensor component dimensions
@@ -152,6 +172,7 @@ def process_dataset(
                 time_fraction=time_fraction,
             )
         elif len(data.shape) > 1:
+            data = data[:max_trajectories, ...]
             if "time_varying" not in attrs:
                 warnings.warn(
                     f"Dataset {name} has no time_varying attribute. Assuming time_varying=False."
