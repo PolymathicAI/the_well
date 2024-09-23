@@ -17,11 +17,12 @@ datasets=(
     "acoustic_scattering_inclusions"
     "acoustic_scattering_maze"
     "rayleigh_benard"
-    "convective_envelope_rsg"
     "turbulence_gravity_cooling"
     "euler_multi_quadrants_openBC"
     "euler_multi_quadrants_periodicBC"
-    "MHD_256"
+    ## These ones are too large:
+    # "convective_envelope_rsg"
+    # "MHD_256"
 )
 
 SPATIAL=4
