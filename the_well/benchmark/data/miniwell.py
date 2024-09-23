@@ -19,7 +19,8 @@ def create_mini_well(
     split: str = "train",
     time_fraction: float = 1.0,
 ):
-    dataset_name = dataset.dataset_name
+    dataset_name = dataset.well_dataset_name
+
     output_path = os.path.join(output_base_path, "datasets", dataset_name)
     os.makedirs(output_path, exist_ok=True)
 

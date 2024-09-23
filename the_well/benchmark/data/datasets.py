@@ -263,6 +263,7 @@ class GenericWellDataset(Dataset):
             raise NotImplementedError("Only flattened tensors supported right now")
 
         # Copy params
+        self.well_dataset_name = well_dataset_name
         self.use_normalization = use_normalization
         self.include_filters = include_filters
         self.exclude_filters = exclude_filters
