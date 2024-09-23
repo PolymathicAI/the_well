@@ -1,12 +1,13 @@
 import glob
 import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import h5py as h5
 import numpy as np
 import torch
+import yaml
 from torch.utils.data import Dataset
 
 well_paths = {
@@ -27,10 +28,12 @@ well_paths = {
     "rayleigh_taylor_instability": "datasets/rayleigh_taylor_instability",
     "shear_flow": "datasets/shear_flow",
     "supernova_explosion_64": "datasets/supernova_explosion_64",
+    "supernova_explosion_128": "datasets/supernova_explosion_128",
     "turbulence_gravity_cooling": "datasets/turbulence_gravity_cooling",
     "turbulent_radiative_layer_2D": "datasets/turbulent_radiative_layer_2D",
     "turbulent_radiative_layer_3D": "datasets/turbulent_radiative_layer_3D",
     "viscoelastic_instability": "datasets/viscoelastic_instability",
+    "dummy": "datasets/dummy_placeholder",
 }
 
 
@@ -119,11 +122,11 @@ class GenericWellMetadata:
     boundary_condition_types: List[str]
     n_simulations: int
     n_steps_per_simulation: List[int]
-    sample_shapes: Dict[str, List[int]] = field(init=False)
     grid_type: str = "cartesian"
 
-    def __post_init__(self):
-        self.sample_shapes = {
+    @property
+    def sample_shapes(self) -> Dict[str, List[int]]:
+        return {
             "input_fields": [*self.spatial_resolution, self.n_fields],
             "output_fields": [*self.spatial_resolution, self.n_fields],
             "constant_scalars": [self.n_constant_scalars],
@@ -192,12 +195,15 @@ class GenericWellDataset(Dataset):
         dataset-specific metadata, as well as `dataset` which is the
         dataset itself (from which one can get `dataset.metadata` to access
         more detailed metadata).
+    min_std :
+        Minimum standard deviation for field normalization. If a field standard
+        deviation is lower than this value, it is replaced by this value.
     """
 
     def __init__(
         self,
         path: Optional[str] = None,
-        normalization_path: str = "../stats/",
+        normalization_path: str = "../stats.yaml",
         well_base_path: Optional[str] = None,
         well_dataset_name: Optional[str] = None,
         well_split_name: str = "train",
@@ -217,6 +223,7 @@ class GenericWellDataset(Dataset):
         full_trajectory_mode: bool = False,
         name_override: Optional[str] = None,
         transform: Optional[Callable[[torch.Tensor], torch.Tensor]] = None,
+        min_std: float = 1e-4,
     ):
         super().__init__()
         assert path is not None or (
@@ -225,26 +232,29 @@ class GenericWellDataset(Dataset):
         if path is not None:
             path = os.path.abspath(path)
             self.data_path = path
-            # Note - if the second path is absolute, this op just uses second
             self.normalization_path = os.path.abspath(
-                os.path.join(self.data_path, normalization_path)
+                os.path.join(path, normalization_path)
             )
         else:
             well_base_path = os.path.abspath(well_base_path)
             self.data_path = os.path.join(
                 well_base_path, well_paths[well_dataset_name], "data", well_split_name
             )
-            self.normalization_path = os.path.abspath(
-                os.path.join(well_base_path, well_paths[well_dataset_name], "stats/")
+            self.normalization_path = os.path.join(
+                well_base_path, well_paths[well_dataset_name], "stats.yaml"
             )
 
         if use_normalization:
-            self.means = torch.load(
-                os.path.join(self.normalization_path, "means.pkl"), weights_only=False
-            )
-            self.stds = torch.load(
-                os.path.join(self.normalization_path, "stds.pkl"), weights_only=False
-            )
+            with open(self.normalization_path, mode="r") as f:
+                stats = yaml.safe_load(f)
+
+            self.means = {
+                field: torch.as_tensor(val) for field, val in stats["mean"].items()
+            }
+            self.stds = {
+                field: torch.clip(torch.as_tensor(val), min=min_std)
+                for field, val in stats["std"].items()
+            }
 
         # Input checks
         if boundary_return_type is not None and boundary_return_type not in ["padding"]:
@@ -525,12 +535,19 @@ class GenericWellDataset(Dataset):
                         )
                     # If any leading fields exist, select from them
                     if len(multi_index) > 0:
-                        field_data = torch.tensor(field_data[multi_index])
-                    field_data = torch.tensor(
+                        field_data = torch.as_tensor(field_data[multi_index])
+                    field_data = torch.as_tensor(
                         self._pad_axes(
                             field_data, use_dims, time_varying=True, tensor_order=i
                         )
                     )
+
+                    if self.use_normalization:
+                        if field_name in self.means:
+                            field_data = field_data - self.means[field_name]
+                        if field_name in self.stds:
+                            field_data = field_data / self.stds[field_name]
+
                     if (
                         not field.attrs["time_varying"]
                         and not field.attrs["sample_varying"]
@@ -755,13 +772,6 @@ class GenericWellDataset(Dataset):
             "output_time_varying_scalars": time_varying_scalars[self.n_steps_input :],
             "constant_scalars": constant_scalars,  # 1 x C tensor with constant values corresponding to parameters
         }
-
-        if self.use_normalization:
-            # Load normalization constants
-            for k in self.means.keys():
-                k = k.replace("output", "input")  # Use fields computed from input
-                if k in sample:
-                    sample[k] = (sample[k] - self.means[k]) / (self.stds[k] + 1e-4)
 
         # For complex BCs, might need to do this pre_normalization
         # TODO Need to generalize

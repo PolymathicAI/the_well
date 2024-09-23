@@ -39,7 +39,7 @@ def plot_velocity(dataset_dir: str, output_dir: str):
             norm = plt.Normalize(vmin=vmin, vmax=vmax)
 
             for i, t in enumerate([0, T // 3, (2 * T) // 3, T - 1]):
-                axs[i].imshow(traj_to_plot[t], cmap="viridis")
+                axs[i].imshow(traj_to_plot[t], cmap="viridis", norm=norm)
                 axs[i].set_xticks([])
                 axs[i].set_yticks([])
             figure_filename = os.path.join(output_dir, f"{dataset_name}_{label}.png")
