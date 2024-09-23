@@ -20,7 +20,7 @@ class TestMiniWell(unittest.TestCase):
         # Create temporary directory for mini dataset
         temp_dir = tempfile.mkdtemp()
 
-        datasets_to_test = ["active_matter", "turbulent_radiative_layer_2D"]
+        datasets_to_test = ["active_matter", "turbulent_radiative_layer_2D", "MHD_64"]
 
         try:
             # Load original datasets and create mini versions
