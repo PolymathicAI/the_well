@@ -1,6 +1,6 @@
 from .spatial import MSE, NMSE, NRMSE, RMSE, VMSE, VRMSE, LInfinity
 from .spectral import binned_spectral_mse
-from .wandb_plots import (
+from .plottable_data import (
     field_histograms,
     plot_all_time_metrics,
     plot_power_spectrum_by_field,
