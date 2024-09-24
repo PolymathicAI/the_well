@@ -7,9 +7,9 @@ import numpy as np
 import torch
 import torch.distributed as dist
 import tqdm
+import wandb
 from torch.utils.data import DataLoader
 
-import wandb
 from the_well.benchmark.data.datasets import flatten_field_names
 
 from ..data.data_formatter import (
