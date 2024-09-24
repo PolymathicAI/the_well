@@ -168,3 +168,97 @@ def plot_all_time_metrics(time_logs: dict,
         title = k.split("/")[-1]
         np.save(f"{output_dir}/{metadata.dataset_name}/rollout_losses/epoch_{epoch_number}/{title}.npy", v)
     return dict() # Keeping to avoid breaking downstream code
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+
+def make_video(predicted_images: torch.Tensor,
+               true_images: torch.Tensor,
+               metadata: GenericWellMetadata,
+               output_dir: str,
+                epoch_number: int = 0):
+    """ Make a video of the rollout comparison.
+
+    Predicted/true are 2/3D channels last tensors. 
+    """
+    field_names = flatten_field_names(metadata, include_constants=False)
+    dset_name = metadata.dataset_name
+    ndims = metadata.n_spatial_dims
+    if ndims == 3:
+        # Slice the data along the middle of the last axis
+        true_images = true_images[..., true_images.shape[-1] // 2, :]
+        predicted_images = predicted_images[..., predicted_images.shape[-1] // 2, :]
+    # Calculate the error
+    error_images = (true_images - predicted_images).abs()
+
+    if isinstance(predicted_images, torch.Tensor):
+        predicted_images = predicted_images.cpu().numpy()
+    if isinstance(true_images, torch.Tensor):
+        true_images = true_images.cpu().numpy()
+    if isinstance(error_images, torch.Tensor):
+        error_images = error_images.cpu().numpy()
+
+    # Calculate percentiles for normalization
+    vmaxes, vmins = [], []
+    emaxes, emins = [], []
+    for i in range(len(field_names)):
+        vmaxes.append(np.nanpercentile(true_images[..., i].flatten(), 99))
+        vmins.append(np.nanpercentile(true_images[..., i].flatten(), 1))
+        emaxes.append(np.nanpercentile(error_images[..., i].flatten(), 99.99))
+        emins.append(np.nanpercentile(error_images[..., i].flatten(), .01))
+
+    fig, axes = plt.subplots(3, len(field_names), figsize=(4.5 * len(field_names), 10))
+    if len(field_names) == 1:
+        axes = axes[:, np.newaxis]
+    suptitle = plt.suptitle(f"{dset_name} - Rollout Comparison")
+
+    # Initialize the plot with the first frame
+    ims = []
+    for j, field_name in enumerate(field_names):
+        axes[0, j].set_title(field_name)
+        im = axes[0, j].imshow(true_images[0, ..., j], cmap='viridis'
+                               , vmax=vmaxes[j], vmin=vmins[j]
+                               )
+        fig.colorbar(im, ax=axes[0, j], orientation='vertical', fraction=0.046, pad=0.04)
+        ims.append(im)
+        im = axes[1, j].imshow(predicted_images[0, ..., j], cmap='viridis',
+                                vmax=vmaxes[j], vmin=vmins[j]
+                                )
+        fig.colorbar(im, ax=axes[1, j], orientation='vertical', fraction=0.046, pad=0.04)
+       
+        ims.append(im)
+        im = axes[2, j].imshow(error_images[0, ..., j], cmap='viridis', vmax=emaxes[j], vmin=emins[j])
+        fig.colorbar(im, ax=axes[2, j], orientation='vertical', fraction=0.046, pad=0.04)
+
+        ims.append(im)
+
+        for i in range(3):
+            plt.setp(axes[i, j].get_xticklabels(), visible=False)
+            plt.setp(axes[i, j].get_yticklabels(), visible=False)
+            axes[i, j].tick_params(axis='both', which='both', length=0)
+
+    axes[0, 0].set_ylabel("True State")
+    axes[1, 0].set_ylabel("Predicted State")
+    axes[2, 0].set_ylabel("Error")
+    plt.tight_layout()
+    # Add a colorbar for each row
+    # # Update function for the animation
+    def update(frame):
+        for i, array in enumerate([true_images, predicted_images, error_images]):
+            for j in range(len(field_names)):
+                ims[i + j*3].set_array(array[frame, ..., j])
+        suptitle.set_text(f"{dset_name} - Frame {frame}")
+        return ims
+    
+    # # Create the animation
+    anim = FuncAnimation(fig, update, frames=range(true_images.shape[0]), interval=200, blit=True)
+
+    # Save the animation (optional)
+    write_path = f"{output_dir}/{metadata.dataset_name}/rollout_video"
+    os.makedirs(write_path, exist_ok=True)
+    anim.save(f'{write_path}/epoch{epoch_number}_{dset_name}.mp4', writer='ffmpeg', fps=int(predicted_images.shape[0] / 10))
+    plt.close()
+    return dict() # Keeping to avoid breaking downstream code
+    
