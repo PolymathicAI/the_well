@@ -306,7 +306,6 @@ class Trainer:
             f"{dset_name}/full_{self.loss_fn.__class__.__name__}_T=all"
         ].item()
         loss_dict = {f"{valid_or_test}_{k}": v.item() for k, v in loss_dict.items()}
-        # loss_dict |= plot_dicts
         # Misc metrics
         loss_dict["param_norm"] = param_norm(self.model.parameters())
         return validation_loss, loss_dict
