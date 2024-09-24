@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import os
-import wandb
 from the_well.benchmark.data.datasets import GenericWellMetadata, flatten_field_names
 
 
@@ -21,20 +20,14 @@ def field_histograms(
 
     Parameters
     ----------
-    x : torch.Tensor | np.ndarray
-        Input tensor.
-    y : torch.Tensor | np.ndarray
-        Target tensor.
-    meta : GenericWellMetadata
-        Metadata for the dataset.
-    bins : int
-        Number of bins for the histogram. Default is 100.
-    log_scale : bool
-        Whether to plot the histogram on a log scale. Default is False.
-    title : str
-        Title for the plot. Default is None.
-    wandb_log : bool
-        Whether to log the plot to Weights & Biases. Default is True.
+    x : Predicted tensor
+    y : Target tensor
+    metadata : Metadata object associated with dset
+    output_dir : Directory to save the plots
+    epoch_number : Current epoch number
+    bins : Number of bins for the histogram. Default is 100.
+    log_scale : Whether to plot the histogram on a log scale. Default is False.
+    title : Title for the plot. Default is None.
     """
     if isinstance(x, np.ndarray):
         x = torch.from_numpy(x)
@@ -76,7 +69,6 @@ def field_histograms(
         np.save(f"{output_dir}/{meta.dataset_name}/{title}/epoch{epoch_number}_xhist.npy", x_hist)
         np.save(f"{output_dir}/{meta.dataset_name}/{title}/epoch{epoch_number}_yhist.npy", y_hist)
         np.save(f"{output_dir}/{meta.dataset_name}/{title}/epoch{epoch_number}_bins.npy", use_bins)
-        # out_dict[f"{meta.dataset_name}/{title}"] = wandb.Image(fig)
         plt.close()
     return out_dict
 
@@ -98,9 +90,11 @@ def plot_power_spectrum_by_field(x: torch.Tensor | np.ndarray,
 
     Parameters
     ----------
-    x : torch.Tensor
-        Input tensor.
-
+    x : Predicted tensor
+    y : Target tensor
+    metadata : Metadata object associated with dset
+    output_dir : Directory to save the plots
+    epoch_number : Current epoch number
     """
     if isinstance(x, np.ndarray):
         x = torch.from_numpy(x)
@@ -113,7 +107,6 @@ def plot_power_spectrum_by_field(x: torch.Tensor | np.ndarray,
     res_fft = build_1d_power_spectrum(y - x, spatial_dims)
     axis = torch.fft.fftshift(torch.fft.fftfreq(x.shape[spatial_dims[0]], d=1.0))
 
-    out_dict = {}
     for i in range(x.shape[-1]):
         fig, ax = plt.subplots()
         np_x_fft = x_fft[..., i].sqrt().cpu().numpy()
@@ -145,7 +138,6 @@ def plot_power_spectrum_by_field(x: torch.Tensor | np.ndarray,
         ax.set_ylabel("Power spectrum")
         ax.legend()
         ax.set_title(title)
-        # out_dict[f"{metadata.dataset_name}/{title}"] = wandb.Image(fig)
         os.makedirs(f"{output_dir}/{metadata.dataset_name}/{title}", exist_ok=True)
         # Save to disk
         plt.savefig(f"{output_dir}/{metadata.dataset_name}/{title}/{title}_epoch{epoch_number}.png")
@@ -153,7 +145,7 @@ def plot_power_spectrum_by_field(x: torch.Tensor | np.ndarray,
         np.save(f"{output_dir}/{metadata.dataset_name}/{title}/epoch{epoch_number}_y.npy", np_y_ftt)
         np.save(f"{output_dir}/{metadata.dataset_name}/{title}/epoch{epoch_number}_res.npy", np_res_ftt)
         plt.close()
-    return out_dict
+    return dict() # Keeping to avoid breaking downstream code
 
 
 def plot_all_time_metrics(time_logs: dict,
@@ -162,17 +154,17 @@ def plot_all_time_metrics(time_logs: dict,
                           epoch_number: int = 0,
                           ):
     """ Plot loss over time for all time metrics. 
-    
+
+    Parameters
+    ----------
+    time_logs : Dict of time metrics
+    metadata : Metadata object associated with dset
+    output_dir : Directory to save the plots
+    epoch_number : Current epoch number
     """
-    out_dict = {}
     os.makedirs(f"{output_dir}/{metadata.dataset_name}/rollout_losses/epoch_{epoch_number}", exist_ok=True)
     for k, v in time_logs.items():
         v = np.array(v)
-        # os.makedirs(f"{output_dir}/{metadata.dataset_name}/epoch_{epoch_number}", exist_ok=True)
         title = k.split("/")[-1]
         np.save(f"{output_dir}/{metadata.dataset_name}/rollout_losses/epoch_{epoch_number}/{title}.npy", v)
-        # data = [[t, loss] for t, loss in zip(range(len(v)), v)]
-        # table = wandb.Table(data=data, columns=["time_step", "loss"])
-        # fig = wandb.plot.line(table, "time_step", "loss", title=k)
-        # out_dict[k] = fig
-    return out_dict
+    return dict() # Keeping to avoid breaking downstream code
