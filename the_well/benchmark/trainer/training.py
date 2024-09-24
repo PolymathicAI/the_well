@@ -241,12 +241,13 @@ class Trainer:
 
     @torch.inference_mode()
     def validation_loop(
-        self, dataloader: DataLoader, valid_or_test: str = "valid", full=False
+        self, dataloader: DataLoader, valid_or_test: str = "valid", full: bool=False,
+        epoch: int = 0
     ) -> float:
         """Run validation by looping over the dataloader."""
         self.model.eval()
         validation_loss = 0.0
-        field_names = flatten_field_names(self.dset_metadata)
+        field_names = flatten_field_names(self.dset_metadata, include_constants=False)
         dset_name = self.dset_metadata.dataset_name
         loss_dict = {}
         time_logs = {}
@@ -286,12 +287,12 @@ class Trainer:
                     break
 
         # Last batch plots - too much work to combine from batches
-        plot_dicts = {}
+        # plot_dicts = {}
         for plot_fn in validation_plots:
-            plot_dicts |= plot_fn(y_pred, y_ref, self.dset_metadata)
+            plot_fn(y_pred, y_ref, self.dset_metadata, self.viz_folder, epoch)
         if y_ref.shape[1] > 1:
             # Only plot if we have more than one timestep, but then track loss over timesteps
-            plot_dicts |= plot_all_time_metrics(time_logs)
+            plot_all_time_metrics(time_logs, self.dset_metadata, self.viz_folder, epoch)
 
         if self.is_distributed:
             for k, v in loss_dict.items():
@@ -300,7 +301,7 @@ class Trainer:
             f"{dset_name}/full_{self.loss_fn.__class__.__name__}_T=all"
         ].item()
         loss_dict = {f"{valid_or_test}_{k}": v.item() for k, v in loss_dict.items()}
-        loss_dict |= plot_dicts
+        # loss_dict |= plot_dicts
         # Misc metrics
         loss_dict["param_norm"] = param_norm(self.model.parameters())
         return validation_loss, loss_dict
@@ -357,12 +358,12 @@ class Trainer:
                 train_dataloader.sampler.set_epoch(epoch)
             # Run training and log training results
             logger.info(f"Epoch {epoch}/{self.max_epoch}: starting training")
-            train_loss, train_logs = self.train_one_epoch(epoch, train_dataloader)
-            logger.info(
-                f"Epoch {epoch}/{self.max_epoch}: avg training loss {train_loss}"
-            )
-            train_logs |= {"train": train_loss, "epoch": epoch}
-            wandb.log(train_logs, step=epoch)
+            # train_loss, train_logs = self.train_one_epoch(epoch, train_dataloader)
+            # logger.info(
+            #     f"Epoch {epoch}/{self.max_epoch}: avg training loss {train_loss}"
+            # )
+            # train_logs |= {"train": train_loss, "epoch": epoch}
+            # wandb.log(train_logs, step=epoch)
             # Save the most recent iteration
             self.save_model(
                 epoch, val_loss, os.path.join(self.checkpoint_folder, "recent.pt")
@@ -381,7 +382,7 @@ class Trainer:
             if epoch % self.val_frequency == 0 or (epoch == self.max_epoch):
                 logger.info(f"Epoch {epoch}/{self.max_epoch}: starting validation")
                 val_loss, val_loss_dict = self.validation_loop(
-                    val_dataloder, full=epoch == self.max_epoch
+                    val_dataloder, full=epoch == self.max_epoch, epoch=epoch
                 )
                 logger.info(
                     f"Epoch {epoch}/{self.max_epoch}: avg validation loss {val_loss}"
@@ -401,6 +402,7 @@ class Trainer:
                     rollout_val_dataloader,
                     valid_or_test="rollout_valid",
                     full=epoch == self.max_epoch,
+                    epoch=epoch,
                 )
                 logger.info(
                     f"Epoch {epoch}/{self.max_epoch}: avg rollout validation loss {rollout_val_loss}"
@@ -412,10 +414,12 @@ class Trainer:
                 wandb.log(rollout_val_loss_dict, step=epoch)
 
         test_loss, test_logs = self.validation_loop(
-            test_dataloader, valid_or_test="test", full=True
+            test_dataloader, valid_or_test="test", full=True,
+            epoch=epoch+1000 # Just use this to flag test
         )
         rollout_test_loss, rollout_test_logs = self.validation_loop(
-            rollout_test_dataloader, valid_or_test="rollout_test", full=True
+            rollout_test_dataloader, valid_or_test="rollout_test", full=True,
+            epoch=epoch+1000 # Just use this to flag test
         )
         test_logs |= rollout_test_logs
         logger.info(f"Test loss {test_loss}")
