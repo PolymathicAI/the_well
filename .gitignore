@@ -56,11 +56,18 @@ datasets/convective_envelope_rsg/sim.mp4
 testing_before_adding/
 viz/
 venv_benchmark_well/
+disbatch_benchmarking/
+disbatch_new_benchmarking/
+
 # Ignore logs and temporary files
 *.log
 *.tmp
 *.pt
 *.gif
+
+#ignore HDF5 files
+*.hdf5
+*.h5
 
 # Ignore compiled binaries and libraries
 *.exe

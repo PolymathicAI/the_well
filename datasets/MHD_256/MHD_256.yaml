@@ -1,4 +1,4 @@
-dataset_name: MHD
+dataset_name: MHD_256
 n_spatial_dims: 3
 spatial_resolution:
 - 256
