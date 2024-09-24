@@ -7,9 +7,9 @@ import numpy as np
 import torch
 import torch.distributed as dist
 import tqdm
-import wandb
 from torch.utils.data import DataLoader
 
+import wandb
 from the_well.benchmark.data.datasets import flatten_field_names
 
 from ..data.data_formatter import (
@@ -19,10 +19,10 @@ from ..data.data_formatter import (
 from ..data.datamodule import AbstractDataModule
 from ..metrics import (
     long_time_metrics,
+    make_video,
     plot_all_time_metrics,
     validation_metric_suite,
     validation_plots,
-    make_video
 )
 
 logger = logging.getLogger(__name__)
@@ -242,8 +242,11 @@ class Trainer:
 
     @torch.inference_mode()
     def validation_loop(
-        self, dataloader: DataLoader, valid_or_test: str = "valid", full: bool=False,
-        epoch: int = 0
+        self,
+        dataloader: DataLoader,
+        valid_or_test: str = "valid",
+        full: bool = False,
+        epoch: int = 0,
     ) -> float:
         """Run validation by looping over the dataloader."""
         self.model.eval()
@@ -360,12 +363,12 @@ class Trainer:
                 train_dataloader.sampler.set_epoch(epoch)
             # Run training and log training results
             logger.info(f"Epoch {epoch}/{self.max_epoch}: starting training")
-            # train_loss, train_logs = self.train_one_epoch(epoch, train_dataloader)
-            # logger.info(
-            #     f"Epoch {epoch}/{self.max_epoch}: avg training loss {train_loss}"
-            # )
-            # train_logs |= {"train": train_loss, "epoch": epoch}
-            # wandb.log(train_logs, step=epoch)
+            train_loss, train_logs = self.train_one_epoch(epoch, train_dataloader)
+            logger.info(
+                f"Epoch {epoch}/{self.max_epoch}: avg training loss {train_loss}"
+            )
+            train_logs |= {"train": train_loss, "epoch": epoch}
+            wandb.log(train_logs, step=epoch)
             # Save the most recent iteration
             self.save_model(
                 epoch, val_loss, os.path.join(self.checkpoint_folder, "recent.pt")
@@ -416,12 +419,16 @@ class Trainer:
                 wandb.log(rollout_val_loss_dict, step=epoch)
 
         test_loss, test_logs = self.validation_loop(
-            test_dataloader, valid_or_test="test", full=True,
-            epoch=epoch+1000 # Just use this to flag test
+            test_dataloader,
+            valid_or_test="test",
+            full=True,
+            epoch=epoch + 1000,  # Just use this to flag test
         )
         rollout_test_loss, rollout_test_logs = self.validation_loop(
-            rollout_test_dataloader, valid_or_test="rollout_test", full=True,
-            epoch=epoch+1000 # Just use this to flag test
+            rollout_test_dataloader,
+            valid_or_test="rollout_test",
+            full=True,
+            epoch=epoch + 1000,  # Just use this to flag test
         )
         test_logs |= rollout_test_logs
         logger.info(f"Test loss {test_loss}")
