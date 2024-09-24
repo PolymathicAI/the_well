@@ -1,7 +1,10 @@
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-import os
+from matplotlib.animation import FuncAnimation
+
 from the_well.benchmark.data.datasets import GenericWellMetadata, flatten_field_names
 
 
@@ -65,10 +68,21 @@ def field_histograms(
         ax.set_title(title)
         os.makedirs(f"{output_dir}/{meta.dataset_name}/{title}/", exist_ok=True)
         # Save to disk
-        plt.savefig(f"{output_dir}/{meta.dataset_name}/{title}/epoch{epoch_number}_{title}.png")
-        np.save(f"{output_dir}/{meta.dataset_name}/{title}/epoch{epoch_number}_xhist.npy", x_hist)
-        np.save(f"{output_dir}/{meta.dataset_name}/{title}/epoch{epoch_number}_yhist.npy", y_hist)
-        np.save(f"{output_dir}/{meta.dataset_name}/{title}/epoch{epoch_number}_bins.npy", use_bins)
+        plt.savefig(
+            f"{output_dir}/{meta.dataset_name}/{title}/epoch{epoch_number}_{title}.png"
+        )
+        np.save(
+            f"{output_dir}/{meta.dataset_name}/{title}/epoch{epoch_number}_xhist.npy",
+            x_hist,
+        )
+        np.save(
+            f"{output_dir}/{meta.dataset_name}/{title}/epoch{epoch_number}_yhist.npy",
+            y_hist,
+        )
+        np.save(
+            f"{output_dir}/{meta.dataset_name}/{title}/epoch{epoch_number}_bins.npy",
+            use_bins,
+        )
         plt.close()
     return out_dict
 
@@ -79,11 +93,12 @@ def build_1d_power_spectrum(x, spatial_dims):
     return torch.fft.fftshift(x_fft.mean(spatial_dims[1:]).mean(0).mean(0).sqrt())
 
 
-def plot_power_spectrum_by_field(x: torch.Tensor | np.ndarray,
-                                y: torch.Tensor | np.ndarray,
-                                metadata: GenericWellMetadata,
-                                output_dir: str,
-                                epoch_number: int = 0,
+def plot_power_spectrum_by_field(
+    x: torch.Tensor | np.ndarray,
+    y: torch.Tensor | np.ndarray,
+    metadata: GenericWellMetadata,
+    output_dir: str,
+    epoch_number: int = 0,
 ):
     """
     Plot the power spectrum of the input tensor x and y.
@@ -140,20 +155,32 @@ def plot_power_spectrum_by_field(x: torch.Tensor | np.ndarray,
         ax.set_title(title)
         os.makedirs(f"{output_dir}/{metadata.dataset_name}/{title}", exist_ok=True)
         # Save to disk
-        plt.savefig(f"{output_dir}/{metadata.dataset_name}/{title}/{title}_epoch{epoch_number}.png")
-        np.save(f"{output_dir}/{metadata.dataset_name}/{title}/epoch{epoch_number}_x.npy", np_x_fft)
-        np.save(f"{output_dir}/{metadata.dataset_name}/{title}/epoch{epoch_number}_y.npy", np_y_ftt)
-        np.save(f"{output_dir}/{metadata.dataset_name}/{title}/epoch{epoch_number}_res.npy", np_res_ftt)
+        plt.savefig(
+            f"{output_dir}/{metadata.dataset_name}/{title}/{title}_epoch{epoch_number}.png"
+        )
+        np.save(
+            f"{output_dir}/{metadata.dataset_name}/{title}/epoch{epoch_number}_x.npy",
+            np_x_fft,
+        )
+        np.save(
+            f"{output_dir}/{metadata.dataset_name}/{title}/epoch{epoch_number}_y.npy",
+            np_y_ftt,
+        )
+        np.save(
+            f"{output_dir}/{metadata.dataset_name}/{title}/epoch{epoch_number}_res.npy",
+            np_res_ftt,
+        )
         plt.close()
-    return dict() # Keeping to avoid breaking downstream code
+    return dict()  # Keeping to avoid breaking downstream code
 
 
-def plot_all_time_metrics(time_logs: dict,
-                          metadata: GenericWellMetadata,
-                          output_dir: str,
-                          epoch_number: int = 0,
-                          ):
-    """ Plot loss over time for all time metrics. 
+def plot_all_time_metrics(
+    time_logs: dict,
+    metadata: GenericWellMetadata,
+    output_dir: str,
+    epoch_number: int = 0,
+):
+    """Plot loss over time for all time metrics.
 
     Parameters
     ----------
@@ -162,26 +189,30 @@ def plot_all_time_metrics(time_logs: dict,
     output_dir : Directory to save the plots
     epoch_number : Current epoch number
     """
-    os.makedirs(f"{output_dir}/{metadata.dataset_name}/rollout_losses/epoch_{epoch_number}", exist_ok=True)
+    os.makedirs(
+        f"{output_dir}/{metadata.dataset_name}/rollout_losses/epoch_{epoch_number}",
+        exist_ok=True,
+    )
     for k, v in time_logs.items():
         v = np.array(v)
         title = k.split("/")[-1]
-        np.save(f"{output_dir}/{metadata.dataset_name}/rollout_losses/epoch_{epoch_number}/{title}.npy", v)
-    return dict() # Keeping to avoid breaking downstream code
+        np.save(
+            f"{output_dir}/{metadata.dataset_name}/rollout_losses/epoch_{epoch_number}/{title}.npy",
+            v,
+        )
+    return dict()  # Keeping to avoid breaking downstream code
 
 
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
+def make_video(
+    predicted_images: torch.Tensor,
+    true_images: torch.Tensor,
+    metadata: GenericWellMetadata,
+    output_dir: str,
+    epoch_number: int = 0,
+):
+    """Make a video of the rollout comparison.
 
-def make_video(predicted_images: torch.Tensor,
-               true_images: torch.Tensor,
-               metadata: GenericWellMetadata,
-               output_dir: str,
-                epoch_number: int = 0):
-    """ Make a video of the rollout comparison.
-
-    Predicted/true are 2/3D channels last tensors. 
+    Predicted/true are 2/3D channels last tensors.
     """
     field_names = flatten_field_names(metadata, include_constants=False)
     dset_name = metadata.dataset_name
@@ -207,7 +238,7 @@ def make_video(predicted_images: torch.Tensor,
         vmaxes.append(np.nanpercentile(true_images[..., i].flatten(), 99))
         vmins.append(np.nanpercentile(true_images[..., i].flatten(), 1))
         emaxes.append(np.nanpercentile(error_images[..., i].flatten(), 99.99))
-        emins.append(np.nanpercentile(error_images[..., i].flatten(), .01))
+        emins.append(np.nanpercentile(error_images[..., i].flatten(), 0.01))
 
     fig, axes = plt.subplots(3, len(field_names), figsize=(4.5 * len(field_names), 10))
     if len(field_names) == 1:
@@ -218,47 +249,61 @@ def make_video(predicted_images: torch.Tensor,
     ims = []
     for j, field_name in enumerate(field_names):
         axes[0, j].set_title(field_name)
-        im = axes[0, j].imshow(true_images[0, ..., j], cmap='viridis'
-                               , vmax=vmaxes[j], vmin=vmins[j]
-                               )
-        fig.colorbar(im, ax=axes[0, j], orientation='vertical', fraction=0.046, pad=0.04)
+        im = axes[0, j].imshow(
+            true_images[0, ..., j], cmap="viridis", vmax=vmaxes[j], vmin=vmins[j]
+        )
+        fig.colorbar(
+            im, ax=axes[0, j], orientation="vertical", fraction=0.046, pad=0.04
+        )
         ims.append(im)
-        im = axes[1, j].imshow(predicted_images[0, ..., j], cmap='viridis',
-                                vmax=vmaxes[j], vmin=vmins[j]
-                                )
-        fig.colorbar(im, ax=axes[1, j], orientation='vertical', fraction=0.046, pad=0.04)
-       
+        im = axes[1, j].imshow(
+            predicted_images[0, ..., j], cmap="viridis", vmax=vmaxes[j], vmin=vmins[j]
+        )
+        fig.colorbar(
+            im, ax=axes[1, j], orientation="vertical", fraction=0.046, pad=0.04
+        )
+
         ims.append(im)
-        im = axes[2, j].imshow(error_images[0, ..., j], cmap='viridis', vmax=emaxes[j], vmin=emins[j])
-        fig.colorbar(im, ax=axes[2, j], orientation='vertical', fraction=0.046, pad=0.04)
+        im = axes[2, j].imshow(
+            error_images[0, ..., j], cmap="viridis", vmax=emaxes[j], vmin=emins[j]
+        )
+        fig.colorbar(
+            im, ax=axes[2, j], orientation="vertical", fraction=0.046, pad=0.04
+        )
 
         ims.append(im)
 
         for i in range(3):
             plt.setp(axes[i, j].get_xticklabels(), visible=False)
             plt.setp(axes[i, j].get_yticklabels(), visible=False)
-            axes[i, j].tick_params(axis='both', which='both', length=0)
+            axes[i, j].tick_params(axis="both", which="both", length=0)
 
     axes[0, 0].set_ylabel("True State")
     axes[1, 0].set_ylabel("Predicted State")
     axes[2, 0].set_ylabel("Error")
     plt.tight_layout()
+
     # Add a colorbar for each row
     # # Update function for the animation
     def update(frame):
         for i, array in enumerate([true_images, predicted_images, error_images]):
             for j in range(len(field_names)):
-                ims[i + j*3].set_array(array[frame, ..., j])
+                ims[i + j * 3].set_array(array[frame, ..., j])
         suptitle.set_text(f"{dset_name} - Frame {frame}")
         return ims
-    
+
     # # Create the animation
-    anim = FuncAnimation(fig, update, frames=range(true_images.shape[0]), interval=200, blit=True)
+    anim = FuncAnimation(
+        fig, update, frames=range(true_images.shape[0]), interval=200, blit=True
+    )
 
     # Save the animation (optional)
     write_path = f"{output_dir}/{metadata.dataset_name}/rollout_video"
     os.makedirs(write_path, exist_ok=True)
-    anim.save(f'{write_path}/epoch{epoch_number}_{dset_name}.mp4', writer='ffmpeg', fps=int(predicted_images.shape[0] / 10))
+    anim.save(
+        f"{write_path}/epoch{epoch_number}_{dset_name}.mp4",
+        writer="ffmpeg",
+        fps=int(predicted_images.shape[0] / 10),
+    )
     plt.close()
-    return dict() # Keeping to avoid breaking downstream code
-    
+    return dict()  # Keeping to avoid breaking downstream code

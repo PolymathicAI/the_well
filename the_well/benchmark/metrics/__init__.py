@@ -1,11 +1,11 @@
-from .spatial import MSE, NMSE, NRMSE, RMSE, VMSE, VRMSE, LInfinity
-from .spectral import binned_spectral_mse
 from .plottable_data import (
     field_histograms,
+    make_video,
     plot_all_time_metrics,
     plot_power_spectrum_by_field,
-    make_video
 )
+from .spatial import MSE, NMSE, NRMSE, RMSE, VMSE, VRMSE, LInfinity
+from .spectral import binned_spectral_mse
 
 # I hate that the linter is forcing an all function...
 __all__ = [
