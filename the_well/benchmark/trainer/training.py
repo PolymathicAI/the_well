@@ -22,6 +22,7 @@ from ..metrics import (
     plot_all_time_metrics,
     validation_metric_suite,
     validation_plots,
+    make_video
 )
 
 logger = logging.getLogger(__name__)
@@ -287,12 +288,13 @@ class Trainer:
                     break
 
         # Last batch plots - too much work to combine from batches
-        # plot_dicts = {}
         for plot_fn in validation_plots:
             plot_fn(y_pred, y_ref, self.dset_metadata, self.viz_folder, epoch)
         if y_ref.shape[1] > 1:
             # Only plot if we have more than one timestep, but then track loss over timesteps
             plot_all_time_metrics(time_logs, self.dset_metadata, self.viz_folder, epoch)
+            # Make_video expects T x H [x W x D] C data so select out the batch dim
+            make_video(y_pred[0], y_ref[0], self.dset_metadata, self.viz_folder, epoch)
 
         if self.is_distributed:
             for k, v in loss_dict.items():
