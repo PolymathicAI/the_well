@@ -297,13 +297,13 @@ def make_video(
         fig, update, frames=range(true_images.shape[0]), interval=200, blit=True
     )
 
-    # Save the animation (optional)
+    # Save the animation 
     write_path = f"{output_dir}/{metadata.dataset_name}/rollout_video"
     os.makedirs(write_path, exist_ok=True)
     anim.save(
         f"{write_path}/epoch{epoch_number}_{dset_name}.mp4",
         writer="ffmpeg",
-        fps=int(predicted_images.shape[0] / 10),
+        fps=max(1, int(predicted_images.shape[0] / 10)),
     )
     plt.close()
     return dict()  # Keeping to avoid breaking downstream code
