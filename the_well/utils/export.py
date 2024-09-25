@@ -69,11 +69,14 @@ def hdf5_to_xarray(hdf5_file_path: str, backend: Literal["numpy", "dask"] = "num
 
         if time_sample_varying:
             # time_data is 2D: [n_samples, n_times]
-            n_samples, n_times = time_data.shape
+            n_samples_in_time, n_times = time_data.shape
             coords["sample"] = sample_coords
-            # Do not add 'time' to coords here; we'll handle it in DataArray construction
+            # Remove 'time' from coords to avoid conflicts
+            if "time" in coords:
+                del coords["time"]
         else:
             # time_data is 1D: [n_times]
+            time_data.shape[0]
             coords["time"] = time_data
             # 'sample' will be added to coords when needed
 
@@ -269,8 +272,8 @@ def hdf5_to_xarray(hdf5_file_path: str, backend: Literal["numpy", "dask"] = "num
                 data_var.attrs = dict(bc_ds.attrs)
                 data_vars[bc_name] = data_var
 
-        # Create Dataset
-        ds = xr.Dataset(data_vars=data_vars, coords=coords, attrs=attrs)
+        # Create Dataset without passing coords
+        ds = xr.Dataset(data_vars=data_vars, attrs=attrs)
         return ds
 
 
@@ -282,7 +285,6 @@ if __name__ == "__main__":
         "/mnt/home/polymathic/ceph/the_well/datasets/shear_flow/data/train/shear_flow_Reynolds_1e4_Schmidt_1e-1.hdf5",
         "/mnt/home/polymathic/ceph/the_well/datasets/helmholtz_staircase/data/train/helmholtz_staircase_omega_006.hdf5",
         "/mnt/home/polymathic/ceph/the_well/datasets/MHD_64/data/train/MHD_Ma_0.7_Ms_0.5.hdf5",
-        "/mnt/home/polymathic/ceph/the_well/datasets/viscoelastic_instability/data/train/viscoelastic_instability_AH.hdf5",
     ]
 
     # Loop over the file paths, convert each HDF5 file, and print the dataset
