@@ -156,9 +156,7 @@ def plot_power_spectrum_by_field(
         subdir = f"{output_dir}/{metadata.dataset_name}/{title}"
         os.makedirs(subdir, exist_ok=True)
         # Save to disk
-        plt.savefig(
-            f"{subdir}/epoch{epoch_number}.png"
-        )
+        plt.savefig(f"{subdir}/epoch{epoch_number}.png")
         np.save(
             f"{subdir}/epoch{epoch_number}_x.npy",
             np_x_fft,
@@ -298,7 +296,7 @@ def make_video(
         fig, update, frames=range(true_images.shape[0]), interval=200, blit=True
     )
 
-    # Save the animation 
+    # Save the animation
     write_path = f"{output_dir}/{metadata.dataset_name}/rollout_video"
     os.makedirs(write_path, exist_ok=True)
     anim.save(
