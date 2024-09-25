@@ -126,33 +126,33 @@ def hdf5_to_xarray(f: h5py.File, backend: Literal["numpy", "dask"] = "numpy"):
 
         # Handle tensor components
         if tensor_order > 0:
-            # Check if data already includes tensor components
-            expected_components = []
-            axes = spatial_dims
-            if tensor_order == 1:
-                expected_components = axes
-            elif tensor_order == 2:
-                for i, a in enumerate(axes):
-                    for j, b in enumerate(axes):
-                        expected_components.append(f"{a}{b}")
+            axes = spatial_dims  # e.g., ['x', 'y', 'z']
+            n_axes = len(axes)
+            component_dims = []
 
-            n_components = len(expected_components)
-            # Check if the data already includes the components dimension
-            if data_shape[-1] == n_components:
-                # Data already includes components dimension
+            # For each index in tensor order, add a new dimension
+            for n in range(tensor_order):
+                dim_label = chr(ord("i") + n)  # 'i', 'j', 'k', etc.
+                dims.append(dim_label)
+                component_dims.append(dim_label)
+                coords[dim_label] = axes
+
+            # Reshape data to include component dimensions
+            expected_components_shape = (n_axes,) * tensor_order
+            n_expected_components = np.prod(expected_components_shape)
+
+            # Check if data already includes component dimensions
+            if data_shape[-tensor_order:] == expected_components_shape:
+                # Data already includes component dimensions
                 pass
-            else:
-                # Need to reshape data to add components dimension
-                data = data.reshape(data_shape + (n_components,))
+            elif data_shape[-1] == n_expected_components:
+                # Data has components flattened into one dimension
+                data = data.reshape(data_shape[:-1] + expected_components_shape)
                 data_shape = data.shape
-
-            # Add component dimension
-            if tensor_order == 1:
-                dims.append("i")
-                coords["i"] = expected_components
-            elif tensor_order == 2:
-                dims.append("ij")
-                coords["ij"] = expected_components
+            else:
+                # Need to reshape data to add component dimensions
+                data = data.reshape(data_shape + expected_components_shape)
+                data_shape = data.shape
         else:
             # Tensor order 0, no additional components
             pass
