@@ -222,12 +222,12 @@ def process_dataset(
                 n_tensor_dims=n_tensor_dims,
                 **downsample_kws,
             )
-        elif re.match(r"dimensions/time", full_name) and len(data.shape) == 1:
+        elif re.match(r"dimensions/time", full_name):
             data = downsample_field(
                 data,
                 time_varying=True,
                 spatial_filtering=False,
-                n_batch_dims=0,
+                n_batch_dims=int(attrs["sample_varying"]),
                 n_tensor_dims=0,
                 **downsample_kws,
             )
@@ -267,7 +267,6 @@ def process_dataset(
                 n_tensor_dims=0,
                 **downsample_kws,
             )
-            assert isinstance(data.dtype, np.bool_)
         else:
             # Print info about the dataset before raising an error
             first_10_elements = data.ravel()[:10]
