@@ -2,13 +2,15 @@ import glob
 import os
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Literal, Optional, Tuple
 
 import h5py as h5
 import numpy as np
 import torch
 import yaml
 from torch.utils.data import Dataset
+
+from the_well.utils.export import hdf5_to_xarray
 
 well_paths = {
     "acoustic_scattering_maze": "datasets/acoustic_scattering_maze",
@@ -808,3 +810,24 @@ class GenericWellDataset(Dataset):
 
     def __len__(self):
         return self.len
+
+    def to_xarray(self, backend: Literal["numpy", "dask"] = "dask"):
+        """
+        Export the dataset to an XArray Dataset by stacking all HDF5 files as XArray datasets
+        along a new dimension 'file'.
+
+        Parameters:
+        - backend (str): 'numpy' for eager loading, 'dask' for lazy loading.
+
+        Returns:
+        - ds (xarray.Dataset): The stacked XArray Dataset.
+        """
+        import xarray as xr
+
+        datasets = []
+        for file_path in self.files_paths:
+            ds = hdf5_to_xarray(file_path, backend=backend)
+            datasets.append(ds)
+
+        combined_ds = xr.concat(datasets, dim="file")
+        return combined_ds

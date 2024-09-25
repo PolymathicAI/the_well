@@ -274,24 +274,9 @@ def hdf5_to_xarray(hdf5_file_path: str, backend: Literal["numpy", "dask"] = "num
 
         # Create Dataset without passing coords
         ds = xr.Dataset(data_vars=data_vars, attrs=attrs)
+
+        # Ensure 'sample' dimension is always present
+        if "sample" not in ds.dims:
+            ds = ds.expand_dims("sample")
+
         return ds
-
-
-if __name__ == "__main__":
-    # Example usage
-
-    # List of file paths to process
-    file_paths = [
-        "/mnt/home/polymathic/ceph/the_well/datasets/shear_flow/data/train/shear_flow_Reynolds_1e4_Schmidt_1e-1.hdf5",
-        "/mnt/home/polymathic/ceph/the_well/datasets/helmholtz_staircase/data/train/helmholtz_staircase_omega_006.hdf5",
-        "/mnt/home/polymathic/ceph/the_well/datasets/MHD_64/data/train/MHD_Ma_0.7_Ms_0.5.hdf5",
-    ]
-
-    # Loop over the file paths, convert each HDF5 file, and print the dataset
-    for file_path in file_paths:
-        print(f"Processing file: {file_path}")
-        # Choose backend: 'numpy' for eager loading, 'dask' for lazy loading
-        ds = hdf5_to_xarray(file_path, backend="dask")
-        # ds = hdf5_to_xarray(file_path, backend='numpy')
-        print(ds)
-        print("\n" + "=" * 80 + "\n")
