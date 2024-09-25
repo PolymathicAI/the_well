@@ -269,9 +269,20 @@ def hdf5_to_xarray(f: h5py.File, backend: Literal["numpy", "dask"] = "numpy"):
 
     # Convert per-file attributes to variables with 'sample' dimension
     for attr_name, attr_value in attrs.items():
-        # Create a DataArray with 'sample' dimension
-        data = np.full(ds.sizes["sample"], attr_value)
-        da = xr.DataArray(data, dims=["sample"], name=attr_name)
-        ds[attr_name] = da
+        attr_array = np.array(attr_value)
+        if attr_array.ndim == 0:
+            # Scalar attribute
+            data = np.full(ds.sizes["sample"], attr_value)
+            da = xr.DataArray(data, dims=["sample"], name=attr_name)
+            ds[attr_name] = da
+        elif attr_array.ndim == 1:
+            # 1D array attribute
+            # Create data of shape (number of samples, attribute length)
+            data = np.tile(attr_array, (ds.sizes["sample"], 1))
+            dims = ["sample", f"{attr_name}_dim"]
+            da = xr.DataArray(data, dims=dims, name=attr_name)
+            ds[attr_name] = da
+        else:
+            print(f"Skipping attribute '{attr_name}' with shape {attr_array.shape}")
 
     return ds
