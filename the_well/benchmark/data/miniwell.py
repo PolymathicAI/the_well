@@ -222,8 +222,7 @@ def process_dataset(
                 n_tensor_dims=n_tensor_dims,
                 **downsample_kws,
             )
-        elif re.match(r"dimensions/time", full_name):
-            assert len(data.shape) == 1
+        elif re.match(r"dimensions/time", full_name) and len(data.shape) == 1:
             data = downsample_field(
                 data,
                 time_varying=True,
@@ -232,8 +231,10 @@ def process_dataset(
                 n_tensor_dims=0,
                 **downsample_kws,
             )
-        elif re.match(r"dimensions/([xyz]|phi|theta|log_r)", full_name):
-            assert len(data.shape) == 1
+        elif (
+            re.match(r"dimensions/([xyz]|phi|theta|log_r)", full_name)
+            and len(data.shape) == 1
+        ):
             data = downsample_field(
                 data,
                 time_varying=False,
@@ -242,18 +243,22 @@ def process_dataset(
                 n_tensor_dims=0,
                 **downsample_kws,
             )
-        elif re.match(
-            r"boundary_conditions/([xyz]|phi|theta|log_r)_(periodic|open|wall|wall_noslip|wall_dirichlet|open_neumann)/mask",
-            full_name,
+        elif (
+            re.match(
+                r"boundary_conditions/([xyz]|phi|theta|log_r)_(periodic|open|wall|wall_noslip|wall_dirichlet|open_neumann)/mask",
+                full_name,
+            )
+            and len(data.shape) == 1
         ):
-            assert len(data.shape) == 1
             num_elements = data.shape[0] // spatial_downsample_factor
             # We assume that the first and last elements are the only "data" in the mask
             data = np.array(
                 [data[0]] + [False] * (num_elements - 2) + [data[-1]], dtype=bool
             )
-        elif re.match(r"boundary_conditions/xy_wall/mask", full_name):
-            assert len(data.shape) == 2
+        elif (
+            re.match(r"boundary_conditions/xy_wall/mask", full_name)
+            and len(data.shape) == 2
+        ):
             data = downsample_field(
                 data,
                 time_varying=False,
