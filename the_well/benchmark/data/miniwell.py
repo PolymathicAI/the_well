@@ -41,6 +41,28 @@ def create_mini_well(
         dim // spatial_downsample_factor for dim in mini_metadata.spatial_resolution
     )
 
+    # Update n_steps_per_simulation to reflect time downsampling
+    mini_metadata.n_steps_per_simulation = [
+        steps // time_downsample_factor
+        for steps in mini_metadata.n_steps_per_simulation
+    ]
+
+    # Update sample_shapes to reflect new spatial resolution and number of fields
+    mini_metadata.sample_shapes["input_fields"] = [
+        *mini_metadata.spatial_resolution,
+        mini_metadata.n_fields,
+    ]
+    mini_metadata.sample_shapes["output_fields"] = [
+        *mini_metadata.spatial_resolution,
+        mini_metadata.n_fields,
+    ]
+
+    # Update space_grid in sample_shapes to reflect new spatial resolution and spatial dimensions
+    mini_metadata.sample_shapes["space_grid"] = [
+        *mini_metadata.spatial_resolution,
+        mini_metadata.n_spatial_dims,
+    ]
+
     total_trajectories = 0
     split_files = [f for f in dataset.files_paths if split in f]
     for file_path in tqdm(split_files, desc=f"Processing {split} files"):
@@ -81,7 +103,7 @@ def process_file(
     spatial_downsample_factor: int,
     time_downsample_factor: int,
     time_fraction: float,
-    max_trajectories: int,
+    trajectories_to_process: int,
 ):
     for key, value in src_file.attrs.items():
         dst_file.attrs[key] = value
@@ -92,6 +114,13 @@ def process_file(
             dim // spatial_downsample_factor for dim in old_resolution
         )
 
+    # Update spatial grid size if it exists
+    if "spatial_grid_size" in dst_file.attrs:
+        old_grid_size = dst_file.attrs["spatial_grid_size"]
+        dst_file.attrs["spatial_grid_size"] = tuple(
+            dim // spatial_downsample_factor for dim in old_grid_size
+        )
+
     for group_name in src_file.keys():
         process_group(
             src_file[group_name],
@@ -99,8 +128,11 @@ def process_file(
             spatial_downsample_factor,
             time_downsample_factor,
             time_fraction,
-            max_trajectories,
+            trajectories_to_process,
         )
+
+    # Update n_trajectories for this specific file
+    dst_file.attrs["n_trajectories"] = trajectories_to_process
 
 
 def process_group(
@@ -109,7 +141,8 @@ def process_group(
     spatial_downsample_factor: int,
     time_downsample_factor: int,
     time_fraction: float,
-    max_trajectories: int,
+    trajectories_to_process: int,
+    name: str = "",
 ):
     for key, value in src_group.attrs.items():
         dst_group.attrs[key] = value
@@ -122,7 +155,8 @@ def process_group(
                 spatial_downsample_factor,
                 time_downsample_factor,
                 time_fraction,
-                max_trajectories,
+                trajectories_to_process,
+                name=(name + "/" if name != "" else ""),
             )
         elif isinstance(item, h5py.Dataset):
             process_dataset(
@@ -132,7 +166,7 @@ def process_group(
                 spatial_downsample_factor,
                 time_downsample_factor,
                 time_fraction,
-                max_trajectories,
+                trajectories_to_process,
             )
 
 
@@ -143,7 +177,7 @@ def process_dataset(
     spatial_downsample_factor: int,
     time_downsample_factor: int,
     time_fraction: float,
-    max_trajectories: int,
+    trajectories_to_process: int,
 ):
     attrs = dict(src_dataset.attrs)
 
@@ -156,7 +190,7 @@ def process_dataset(
             time_length = int(len(data) * time_fraction)
             data = data[:time_length:time_downsample_factor]
         elif name in ["t0_fields", "t1_fields", "t2_fields"]:
-            data = data[:max_trajectories, ...]
+            data = data[:trajectories_to_process, ...]
             n_tensor_dims = {
                 "t0_fields": 0,  # sample dimension
                 "t1_fields": 1,  # sample and tensor component dimensions
@@ -171,8 +205,10 @@ def process_dataset(
                 time_downsample_factor=time_downsample_factor,
                 time_fraction=time_fraction,
             )
-        elif len(data.shape) > 1:
-            data = data[:max_trajectories, ...]
+        elif name in ["mask"]:
+            if "sample_varying" in attrs and attrs["sample_varying"]:
+                data = data[:trajectories_to_process, ...]
+
             if "time_varying" not in attrs:
                 warnings.warn(
                     f"Dataset {name} has no time_varying attribute. Assuming time_varying=False."
@@ -189,7 +225,7 @@ def process_dataset(
                 time_fraction=time_fraction,
             )
         else:
-            pass
+            raise NotImplementedError(f"Dataset {name} not implemented")
 
     dst_group.create_dataset(name, data=data)
 
