@@ -821,13 +821,22 @@ class GenericWellDataset(Dataset):
 
         Returns:
         - ds (xarray.Dataset): The stacked XArray Dataset.
+
+        Example:
+
+        To convert a dataset and plot the pressure for 5 different times for a single trajectory:
+
+        >>> ds = dataset.to_xarray()
+        >>> ds.pressure.isel(sample=0, time=[0, 10, 20, 30, 40]).plot(col='time', col_wrap=5)
         """
         import xarray as xr
 
         datasets = []
         total_samples = 0
-        for file_path in self.files_paths:
-            ds = hdf5_to_xarray(file_path, backend=backend)
+        for file_idx in range(len(self.files_paths)):
+            if self.files[file_idx] is None:
+                self._open_file(file_idx)
+            ds = hdf5_to_xarray(self.files[file_idx], backend=backend)
             # Ensure 'sample' dimension is always present
             if "sample" not in ds.sizes:
                 ds = ds.expand_dims("sample")
