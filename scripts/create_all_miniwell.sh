@@ -35,7 +35,7 @@ mkdir -p ./logs
 for dataset in ${datasets[@]}; do
     echo "Processing dataset: $dataset"
     nohup python ./scripts/create_miniwell.py \
-        "/mnt/ceph/users/mcranmer/the_well/mini_spatial${SPATIAL}x_time${TIME}x" \
+        "/mnt/ceph/users/mcranmer/the_well/mini_v2_spatial${SPATIAL}x_time${TIME}x" \
         --dataset $dataset \
         --max-trajectories-per-train 20 \
         --max-trajectories-per-val 5 \
