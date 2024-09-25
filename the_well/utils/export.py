@@ -69,7 +69,6 @@ def hdf5_to_xarray(hdf5_file_path: str, backend: Literal["numpy", "dask"] = "num
 
         if time_sample_varying:
             # time_data is 2D: [n_samples, n_times]
-            n_samples_in_time, n_times = time_data.shape
             coords["sample"] = sample_coords
             # Remove 'time' from coords to avoid conflicts
             if "time" in coords:
