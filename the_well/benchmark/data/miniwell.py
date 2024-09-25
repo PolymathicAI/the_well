@@ -28,23 +28,7 @@ def create_mini_well(
     split_path = os.path.join(output_path, "data", split)
     os.makedirs(split_path, exist_ok=True)
 
-    stats_path = os.path.join(output_path, "stats")
-    os.makedirs(stats_path, exist_ok=True)
-
-    # Copy normalization files (means.pkl, stds.pkl)
-    for norm_file in ["means.pkl", "stds.pkl"]:
-        src = os.path.join(dataset.normalization_path, norm_file)
-        dst = os.path.join(stats_path, norm_file)
-        if os.path.exists(src):
-            shutil.copy2(src, dst)
-
-    # Copy stats.yaml file from the correct path
-    stats_yaml_src = os.path.join(dataset.normalization_path, "stats.yaml")
-    stats_yaml_dst = os.path.join(stats_path, "stats.yaml")
-    if os.path.exists(stats_yaml_src):
-        shutil.copy2(stats_yaml_src, stats_yaml_dst)
-    else:
-        raise FileNotFoundError(f"stats.yaml not found at {stats_yaml_src}")
+    shutil.copy2(dataset.normalization_path, output_path)
 
     mini_metadata = copy.deepcopy(dataset.metadata)
     mini_metadata.spatial_resolution = tuple(
