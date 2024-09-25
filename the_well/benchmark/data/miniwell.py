@@ -231,7 +231,7 @@ def process_dataset(
             data = downsample_field(
                 data,
                 time_varying=False,
-                spatial_filtering=True,
+                spatial_filtering=False,
                 n_batch_dims=0,
                 n_tensor_dims=0,
                 **downsample_kws,
