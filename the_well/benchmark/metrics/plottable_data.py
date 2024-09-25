@@ -153,21 +153,22 @@ def plot_power_spectrum_by_field(
         ax.set_ylabel("Power spectrum")
         ax.legend()
         ax.set_title(title)
-        os.makedirs(f"{output_dir}/{metadata.dataset_name}/{title}", exist_ok=True)
+        subdir = f"{output_dir}/{metadata.dataset_name}/{title}"
+        os.makedirs(subdir, exist_ok=True)
         # Save to disk
         plt.savefig(
-            f"{output_dir}/{metadata.dataset_name}/{title}/{title}_epoch{epoch_number}.png"
+            f"{subdir}/epoch{epoch_number}.png"
         )
         np.save(
-            f"{output_dir}/{metadata.dataset_name}/{title}/epoch{epoch_number}_x.npy",
+            f"{subdir}/epoch{epoch_number}_x.npy",
             np_x_fft,
         )
         np.save(
-            f"{output_dir}/{metadata.dataset_name}/{title}/epoch{epoch_number}_y.npy",
+            f"{subdir}/epoch{epoch_number}_y.npy",
             np_y_ftt,
         )
         np.save(
-            f"{output_dir}/{metadata.dataset_name}/{title}/epoch{epoch_number}_res.npy",
+            f"{subdir}/epoch{epoch_number}_res.npy",
             np_res_ftt,
         )
         plt.close()
