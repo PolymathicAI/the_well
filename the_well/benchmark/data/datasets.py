@@ -814,7 +814,7 @@ class GenericWellDataset(Dataset):
     def to_xarray(self, backend: Literal["numpy", "dask"] = "dask"):
         """
         Export the dataset to an XArray Dataset by stacking all HDF5 files as XArray datasets
-        along a new dimension 'file'.
+        along the existing 'sample' dimension.
 
         Parameters:
         - backend (str): 'numpy' for eager loading, 'dask' for lazy loading.
@@ -825,9 +825,18 @@ class GenericWellDataset(Dataset):
         import xarray as xr
 
         datasets = []
+        total_samples = 0
         for file_path in self.files_paths:
             ds = hdf5_to_xarray(file_path, backend=backend)
+            # Ensure 'sample' dimension is always present
+            if "sample" not in ds.sizes:
+                ds = ds.expand_dims("sample")
+            # Adjust the 'sample' coordinate
+            if "sample" in ds.coords:
+                n_samples = ds.sizes["sample"]
+                ds = ds.assign_coords(sample=ds.coords["sample"] + total_samples)
+                total_samples += n_samples
             datasets.append(ds)
 
-        combined_ds = xr.concat(datasets, dim="file")
+        combined_ds = xr.concat(datasets, dim="sample")
         return combined_ds

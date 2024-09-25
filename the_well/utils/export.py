@@ -85,7 +85,6 @@ def hdf5_to_xarray(hdf5_file_path: str, backend: Literal["numpy", "dask"] = "num
             sample_varying = field_ds.attrs["sample_varying"]
             time_varying = field_ds.attrs["time_varying"]
             dim_varying = field_ds.attrs["dim_varying"]  # List of bools
-            field_name = field_ds.name.split("/")[-1]
             tensor_order = int(field_ds.parent.name[2])  # 't0_fields' => 0
 
             # Read data
@@ -162,12 +161,6 @@ def hdf5_to_xarray(hdf5_file_path: str, backend: Literal["numpy", "dask"] = "num
             else:
                 # Tensor order 0, no additional components
                 pass
-
-            # Debugging statements
-            print(f"Processing field: {field_name}")
-            print(f"Data shape after expansions: {data_shape}")
-            print(f"Dims: {dims}")
-            print(f"Total elements in data: {data.size}")
 
             # Create DataArray without coords
             data_var = xr.DataArray(data, dims=dims)
@@ -273,10 +266,17 @@ def hdf5_to_xarray(hdf5_file_path: str, backend: Literal["numpy", "dask"] = "num
                 data_vars[bc_name] = data_var
 
         # Create Dataset without passing coords
-        ds = xr.Dataset(data_vars=data_vars, attrs=attrs)
+        ds = xr.Dataset(data_vars=data_vars, attrs={})  # Clear attrs for now
 
         # Ensure 'sample' dimension is always present
-        if "sample" not in ds.dims:
+        if "sample" not in ds.sizes:
             ds = ds.expand_dims("sample")
+
+        # Convert per-file attributes to variables with 'sample' dimension
+        for attr_name, attr_value in attrs.items():
+            # Create a DataArray with 'sample' dimension
+            data = np.full(ds.sizes["sample"], attr_value)
+            da = xr.DataArray(data, dims=["sample"], name=attr_name)
+            ds[attr_name] = da
 
         return ds
