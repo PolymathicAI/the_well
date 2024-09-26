@@ -28,9 +28,10 @@ def write_dummy_data(filename: str):
     t1_field_values = np.random.rand(n_trajectories, dim_t, dim_x, dim_y, n_dim).astype(
         np.float32
     )
-    t0_constant_field_values = np.random.rand(n_trajectories, 1, dim_x, dim_y).astype(
+    t0_constant_field_values = np.random.rand(n_trajectories, dim_x, dim_y).astype(
         np.float32
     )
+    time_varying_scalar_values = np.random.rand(dim_t)
 
     # Write the data in the HDF5 file
     with h5py.File(filename, "w") as file:
@@ -62,11 +63,17 @@ def write_dummy_data(filename: str):
             group[key].attrs["sample_varying"] = False
         # Scalars
         group = file.create_group("scalars")
-        group.attrs["field_names"] = ["a", "b"]
+        group.attrs["field_names"] = ["a", "b", "time_varying_scalar"]
         for key, val in zip(["a", "b"], [param_a, param_b]):
-            group.create_dataset(key, data=np.array([val]))
+            group.create_dataset(key, data=np.array(val))
             group[key].attrs["time_varying"] = False
             group[key].attrs["sample_varying"] = False
+        ## Time varying
+        dset = group.create_dataset(
+            "time_varying_scalar", data=time_varying_scalar_values
+        )
+        dset.attrs["time_varying"] = True
+        dset.attrs["sample_varying"] = False
         # Fields
         group = file.create_group("t0_fields")
         group.attrs["field_names"] = ["constant_field"]
