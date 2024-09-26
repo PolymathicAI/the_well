@@ -1,167 +1,132 @@
 import argparse
+import traceback
 
 import h5py as h5
 import numpy as np
 
 
-def check_dimensions(f):
-    """Check that the dimensions group of the file
-    is in the correct format for the well dataset"""
-    print('Checking the formatting of "dimensions" group')
-    dims = f["dimensions"]
-    assert "time" in dims, "Group 'dimensions must contain a 'time' dataset"
+def check_dataset(
+    f: h5.File,
+    group: h5.Group,
+    key: str,
+    is_time: bool = False,
+    is_field: bool = False,
+    order: int = 0,
+):
+    assert key in group, f"{group.name} does not contain {key} dataset"
+
+    dataset = group[key]
+
+    # Attrs
+    for attr in ("sample_varying", "time_varying"):
+        if is_time and attr == "time_varying":
+            continue  # TODO: replace with check that time_varying is False
+
+        assert (
+            attr in dataset.attrs
+        ), f"dataset {key} in {group.name} does not contain '{attr}' attribute"
+        assert isinstance(
+            dataset.attrs[attr], (bool, np.bool_)
+        ), f"attribute '{attr}' in dataset {key} in {group.name} is not a boolean"
+
+    if is_field:
+        attr = "dim_varying"
+        assert (
+            attr in dataset.attrs
+        ), f"dataset {key} in {group.name} does not contain '{attr}' attribute"
+        assert isinstance(
+            dataset.attrs[attr], (list, np.ndarray)
+        ), f"attribute '{attr}' in dataset {key} in {group.name} is not a list of booleans"
+        assert (
+            len(dataset.attrs[attr]) == f.attrs["n_spatial_dims"]
+        ), f"attribute '{attr}' in dataset {key} in {group.name} is not of length 'n_spatial_dims'"
+
+    # Shape
+    current = dataset.shape[: dataset.ndim - order]
+    expected = ()
+
+    if dataset.attrs["sample_varying"]:
+        expected = (*expected, f.attrs["n_trajectories"])
+
+    if is_time or dataset.attrs["time_varying"]:
+        expected = (*expected, f["dimensions"]["time"].shape[-1])
+
+    if is_field:
+        for i, dim in enumerate(f["dimensions"].attrs["spatial_dims"]):
+            if dataset.attrs["dim_varying"][i]:
+                expected = (*expected, f["dimensions"][dim].shape[-1])
+
     assert (
-        "sample_varying" in dims["time"].attrs
-    ), "Dataset 'time' must have a 'sample_varying' attribute"
-    assert isinstance(
-        dims["time"].attrs["sample_varying"], (bool, np.bool_)
-    ), "Dataset 'time' must have a 'sample_varying' attribute of type bool"
+        current == expected
+    ), f"dataset {key} in {group.name} has shape {current}, expected {expected}"
+
+
+def check_dimensions(f: h5.File):
+    group = f["dimensions"]
+
+    check_dataset(f, group, "time", is_time=True)
+
     assert (
-        "spatial_dims" in dims.attrs
-    ), "Group 'dimensions' must contain a 'spatial_dims' attribute"
+        "spatial_dims" in group.attrs
+    ), f"{group.name} does not contain 'spatial_dims' attribute"
     assert isinstance(
-        dims.attrs["spatial_dims"], (list, np.ndarray)
-    ), "Attribute 'spatial_dims' must be a list"
-    assert isinstance(
-        dims.attrs["spatial_dims"][0], str
-    ), "Attribute 'spatial_dims' must be a list of strings"
+        group.attrs["spatial_dims"], (list, np.ndarray)
+    ), f"attribute 'spatial_dims' in {group.name} is not a list"
     assert (
-        len(dims.attrs["spatial_dims"]) == f.attrs["n_spatial_dims"]
-    ), "Mismatch between n_spatial_dims and spatial_dims"
+        len(group.attrs["spatial_dims"]) == f.attrs["n_spatial_dims"]
+    ), f"attribute 'spatial_dims' in {group.name} is not of length 'n_spatial_dims'"
+
+    for key in group.attrs["spatial_dims"]:
+        assert isinstance(
+            key, str
+        ), f"{key} in 'spatial_dims' in {group.name} is not a string"
+
+        check_dataset(f, group, key, order=1)
+
+    print(f"{group.name} passed!")
+
+
+def check_fields(f: h5.File, i: int):
+    group = f[f"t{i}_fields"]
+
     assert (
-        f.attrs["n_spatial_dims"] > 0
-    ), "Attribute 'n_spatial_dims' must be greater than 0"
-    # Check if all spatial dimensions have corresponding datasets
-    for d in dims.attrs["spatial_dims"]:
-        assert d in dims, f"Dimension {d} not found in 'dimensions' group"
-        assert (
-            "sample_varying" in dims[d].attrs
-        ), f"Dimension {d} must have a 'sample_varying' attribute"
-        assert isinstance(
-            dims[d].attrs["sample_varying"], (bool, np.bool_)
-        ), f"Dimension {d} must have a 'sample_varying' attribute of type bool"
-
-        assert (
-            "time_varying" in dims[d].attrs
-        ), f"Dimension {d} must have a 'time_varying' attribute"
-        assert isinstance(
-            dims[d].attrs["time_varying"], (bool, np.bool_)
-        ), f"Dimension {d} must have a 'time_varying' attribute of type bool"
-    print("Dimensions passed!")
-
-
-def check_fields(f, tensor_order):
-    """Check that the fields group of the file
-    is in the correct format for the well dataset"""
-    group = f"t{tensor_order}_fields"
-    print(f"Checking the formatting of {group} group!")
-    fields = f[group]
-    dimensions = f["dimensions"]
-    spatial_dims = dimensions.attrs["spatial_dims"]
-    # Check field names are set up
-    assert "field_names" in fields.attrs, "Group must contain a 'field_names' attribute"
+        "field_names" in group.attrs
+    ), f"{group.name} does not contain 'field_names' attribute"
     assert isinstance(
-        fields.attrs["field_names"], (list, np.ndarray)
-    ), "Attribute 'field_names' must be a list"
-    if len(fields.attrs["field_names"]) > 0:
+        group.attrs["field_names"], (list, np.ndarray)
+    ), f"attribute 'field_names' in {group.name} is not a list"
+
+    for key in group.attrs["field_names"]:
         assert isinstance(
-            fields.attrs["field_names"][0], str
-        ), "Attribute 'field_names' must be a list of strings"
-    # Check each field is set up
-    for field in fields.attrs["field_names"]:
-        # Check if the field is defined, then check for boolean flags sample and time varying and list of booleans dim_varying
-        dim_count = 0
-        assert field in fields, f"Field {field} named, but not found in {group} group"
-        # Sample dimension checking
-        assert (
-            "sample_varying" in fields[field].attrs
-        ), f"Dataset {field} must have a 'sample_varying' attribute"
-        assert isinstance(
-            fields[field].attrs["sample_varying"], (bool, np.bool_)
-        ), f"Dataset {field} must have a 'sample_varying' attribute of type bool"
-        if fields[field].attrs["sample_varying"]:
-            assert (
-                fields[field].shape[0] == f.attrs["n_trajectories"]
-            ), f"Sample dimension size does not match field {field} size"
-            dim_count += 1
-        # Time dimension checking
-        assert (
-            "time_varying" in fields[field].attrs
-        ), f"Dataset {field} must have a 'time_varying' attribute"
-        assert isinstance(
-            fields[field].attrs["time_varying"], (bool, np.bool_)
-        ), f"Dataset {field} must have a 'time_varying' attribute of type bool"
-        if fields[field].attrs["time_varying"]:
-            assert (
-                fields[field].shape[dim_count] == dimensions["time"].shape[-1]
-            ), f"Time dimension size does not match field {field} size"
-            dim_count += 1
-        # Space dimension checking
-        assert (
-            "dim_varying" in fields[field].attrs
-        ), f"Dataset {field} must have a 'dim_varying' attribute"
-        assert isinstance(
-            fields[field].attrs["dim_varying"], (list, np.ndarray)
-        ), f"Dataset {field} must have a 'dim_varying' attribute of type list"
-        assert (
-            len(fields[field].attrs["dim_varying"]) == len(spatial_dims)
-        ), f"Dataset {field} must have a 'dim_varying' attribute of length n_spatial_dims"
-        assert isinstance(
-            fields[field].attrs["dim_varying"][0], (bool, np.bool_)
-        ), f"Dataset {field} must have a 'dim_varying' list with bool entries"
-        for i, dim in enumerate(spatial_dims):
-            if fields[field].attrs["dim_varying"][i]:
-                print(dim, fields[field].shape[dim_count])
-                print(dimensions[dim].shape[-1])
-                print(dim_count)
-                assert (
-                    dimensions[dim].shape[-1] == fields[field].shape[dim_count]
-                ), f"Dimension {dim} size does not match field {field} size"
-                dim_count += 1
-    print(f"Fields in {group} passed!")
+            key, str
+        ), f"{key} in 'field_names' in {group.name} is not a string"
+
+        check_dataset(f, group, key, is_field=True, order=i)
+
+    print(f"{group.name} passed!")
 
 
-def check_scalars(f):
-    print('Checking the formatting of "scalars" group')
-    scalars = f["scalars"]
+def check_scalars(f: h5.File):
+    group = f["scalars"]
+
     assert (
-        "field_names" in scalars.attrs
-    ), "Group must contain a 'scalar_names' attribute"
+        "field_names" in group.attrs
+    ), f"{group.name} does not contain 'field_names' attribute"
     assert isinstance(
-        scalars.attrs["field_names"], (list, np.ndarray)
-    ), "Attribute 'scalar_names' must be a list"
-    if len(scalars.attrs["field_names"]) > 0:
+        group.attrs["field_names"], (list, np.ndarray)
+    ), f"attribute 'field_names' in {group.name} is not a list"
+
+    for key in group.attrs["field_names"]:
         assert isinstance(
-            scalars.attrs["field_names"][0], str
-        ), "Attribute 'scalar_names' must be a list of strings"
-    for field in scalars.attrs["field_names"]:
-        assert (
-            field in scalars
-        ), f"Field {field} named, but not found in 'scalars' group"
-        assert (
-            "sample_varying" in scalars[field].attrs
-        ), f"Dataset {field} must have a 'sample_varying' attribute"
-        assert isinstance(
-            scalars[field].attrs["sample_varying"], (bool, np.bool_)
-        ), f"Dataset {field} must have a 'sample_varying' attribute of type bool"
-        assert (
-            "time_varying" in scalars[field].attrs
-        ), f"Dataset {field} must have a 'time_varying' attribute"
-        assert isinstance(
-            scalars[field].attrs["time_varying"], (bool, np.bool_)
-        ), f"Dataset {field} must have a 'time_varying' attribute of type bool"
-        dim_count = (
-            scalars[field].attrs["sample_varying"]
-            + scalars[field].attrs["time_varying"]
-        )
-        assert (
-            len(scalars[field].shape) == dim_count
-        ), f"Dataset {field} must have {dim_count} dimensions"
-    print("Scalars passed!")
+            key, str
+        ), f"{key} in 'field_names' in {group.name} is not a string"
+
+        check_dataset(f, group, key, order=0)
+
+    print(f"{group.name} passed!")
 
 
-def check_boundary_conditions(f):
-    print('Checking the formatting of "boundary_conditions" group')
+def check_boundary_conditions(f):  # TODO: refactor when bc are datasets
     bcs = f["boundary_conditions"]
     dimensions = f["dimensions"]
     spatial_dims = dimensions.attrs["spatial_dims"]
@@ -199,14 +164,15 @@ def check_boundary_conditions(f):
             assert (
                 bc["mask"].shape[dim_count + i] == dimensions[dim].shape[-1]
             ), f"Dimension {dim} size does not match mask size"
-    print("Boundary conditions passed!")
+
+        print(f"{bc.name} passed!")
 
 
 def check_hdf5_format(path: str):
     """Check that the HDF5 file is in the correct format for the well dataset"""
     with h5.File(path, "r") as f:
         # Start by checking top level attributes
-        print("Checking top level attributes")
+        print(f"Checking top level attributes of {path}")
         assert "n_spatial_dims" in f.attrs, "n_spatial_dims is required root attribute"
         assert isinstance(
             int(f.attrs["n_spatial_dims"]), (int, np.integer)
@@ -226,7 +192,7 @@ def check_hdf5_format(path: str):
             assert (
                 sim_param in f.attrs
             ), "Every listed simulation parameter should be included at attribute"
-        print("Top level attributes passed!")
+        print("Checking groups")
         assert "dimensions" in f, "No dimensions group found in HDF5 file"
         check_dimensions(f)
         for i in range(3):
@@ -241,7 +207,12 @@ def check_hdf5_format(path: str):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("Check HDF5 format validity")
-    parser.add_argument("filename", type=str)
+    parser.add_argument("filenames", nargs="+", type=str)
     args = parser.parse_args()
-    filename = args.filename
-    check_hdf5_format(filename)
+
+    for filename in args.filenames:
+        try:
+            check_hdf5_format(filename)
+        except AssertionError:
+            print(traceback.format_exc())
+        print()
