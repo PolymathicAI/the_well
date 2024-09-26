@@ -3,13 +3,15 @@ import itertools
 import os
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Literal, Optional, Tuple
 
 import h5py as h5
 import numpy as np
 import torch
 import yaml
 from torch.utils.data import Dataset
+
+from the_well.utils.export import hdf5_to_xarray
 
 well_paths = {
     "acoustic_scattering_maze": "datasets/acoustic_scattering_maze",
@@ -754,3 +756,42 @@ class GenericWellDataset(Dataset):
 
     def __len__(self):
         return self.len
+
+    def to_xarray(self, backend: Literal["numpy", "dask"] = "dask"):
+        """
+        Export the dataset to an XArray Dataset by stacking all HDF5 files as XArray datasets
+        along the existing 'sample' dimension.
+
+        Parameters:
+        - backend (str): 'numpy' for eager loading, 'dask' for lazy loading.
+
+        Returns:
+        - ds (xarray.Dataset): The stacked XArray Dataset.
+
+        Example:
+
+        To convert a dataset and plot the pressure for 5 different times for a single trajectory:
+
+        >>> ds = dataset.to_xarray()
+        >>> ds.pressure.isel(sample=0, time=[0, 10, 20, 30, 40]).plot(col='time', col_wrap=5)
+        """
+        import xarray as xr
+
+        datasets = []
+        total_samples = 0
+        for file_idx in range(len(self.files_paths)):
+            if self.files[file_idx] is None:
+                self._open_file(file_idx)
+            ds = hdf5_to_xarray(self.files[file_idx], backend=backend)
+            # Ensure 'sample' dimension is always present
+            if "sample" not in ds.sizes:
+                ds = ds.expand_dims("sample")
+            # Adjust the 'sample' coordinate
+            if "sample" in ds.coords:
+                n_samples = ds.sizes["sample"]
+                ds = ds.assign_coords(sample=ds.coords["sample"] + total_samples)
+                total_samples += n_samples
+            datasets.append(ds)
+
+        combined_ds = xr.concat(datasets, dim="sample")
+        return combined_ds
