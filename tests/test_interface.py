@@ -22,7 +22,16 @@ class FakeModel(torch.nn.Module):
 class TestInterface(TestCase):
     def test_check(self):
         metadata = GenericWellMetadata(
-            "test_dataset", 2, (256, 256), 0, 0, [], 3, ["a", "b", "c"], [], 1, [10]
+            dataset_name="test_dataset",
+            n_spatial_dims=2,
+            spatial_resolution=(256, 256),
+            scalar_names=[],
+            constant_scalar_names=[],
+            field_names={0: ["a", "b", "c"]},
+            constant_field_names={},
+            boundary_condition_types=[],
+            n_simulations=1,
+            n_steps_per_simulation=[100],
         )
         interface = Interface(metadata)
         model = FakeModel(3, 3, 128)

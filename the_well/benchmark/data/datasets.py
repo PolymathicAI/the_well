@@ -1,4 +1,5 @@
 import glob
+import itertools
 import os
 from dataclasses import dataclass
 from enum import Enum
@@ -87,24 +88,14 @@ class BoundaryCondition(Enum):
     PERIODIC = 2
 
 
-def flatten_field_names(metadata=None, dict_field_names=None, include_constants=True):
-    assert (
-        metadata is not None or dict_field_names is not None
-    ), "Must provide metadata or field names"
-    if dict_field_names is None:
-        dict_field_names = metadata.field_names
-    field_names = (
-        dict_field_names.get(0, [])
-        + dict_field_names.get(1, [])
-        + dict_field_names.get(2, [])
-    )
-    # TODO: constant names could theoretically be tensor-valued as well
+def flatten_field_names(metadata, include_constants=True):
+    flat_field_names = itertools.chain(*metadata.field_names.values())
+    flat_constant_field_names = itertools.chain(*metadata.constant_field_names.values())
+
     if include_constants:
-        constant_names = (
-            metadata.constant_names if metadata.constant_names is not None else []
-        )
-        field_names += constant_names
-    return field_names
+        return [*flat_field_names, *flat_constant_field_names]
+    else:
+        return [*flat_field_names]
 
 
 @dataclass
@@ -114,21 +105,39 @@ class GenericWellMetadata:
     dataset_name: str
     n_spatial_dims: int
     spatial_resolution: Tuple[int]
-    n_constant_scalars: int
-    n_constant_fields: int
-    constant_names: List[str]
-    n_fields: int
+    scalar_names: List[str]
+    constant_scalar_names: List[str]
     field_names: Dict[int, List[str]]
+    constant_field_names: Dict[int, List[str]]
     boundary_condition_types: List[str]
     n_simulations: int
     n_steps_per_simulation: List[int]
     grid_type: str = "cartesian"
 
     @property
+    def n_scalars(self) -> int:
+        return len(self.scalar_names)
+
+    @property
+    def n_constant_scalars(self) -> int:
+        return len(self.constant_scalar_names)
+
+    @property
+    def n_fields(self) -> int:
+        return sum(map(len, self.field_names.values()))
+
+    @property
+    def n_constant_fields(self) -> int:
+        return sum(map(len, self.constant_field_names.values()))
+
+    @property
     def sample_shapes(self) -> Dict[str, List[int]]:
         return {
             "input_fields": [*self.spatial_resolution, self.n_fields],
             "output_fields": [*self.spatial_resolution, self.n_fields],
+            "constant_fields": [*self.spatial_resolution, self.n_constant_fields],
+            "input_scalars": [self.n_scalars],
+            "output_scalars": [self.n_scalars],
             "constant_scalars": [self.n_constant_scalars],
             "space_grid": [*self.spatial_resolution, self.n_spatial_dims],
         }
@@ -173,9 +182,8 @@ class GenericWellDataset(Dataset):
         Maximum stride between samples
     flatten_tensors :
         Whether to flatten tensor valued field into channels
-    cache_constants :
-        Whether to cache all values that do not vary in time or sample
-          in memory for faster access
+    cache_small :
+        Whether to cache small tensors in memory for faster access
     max_cache_size :
         Maximum numel of constant tensor to cache
     return_grid :
@@ -216,7 +224,7 @@ class GenericWellDataset(Dataset):
         dt_stride: int = 1,
         max_dt_stride: int = 1,
         flatten_tensors: bool = True,
-        cache_constants: bool = True,
+        cache_small: bool = True,
         max_cache_size: float = 1e9,
         return_grid: bool = True,
         boundary_return_type: str = "padding",
@@ -276,7 +284,7 @@ class GenericWellDataset(Dataset):
         self.return_grid = return_grid
         self.boundary_return_type = boundary_return_type
         self.full_trajectory_mode = full_trajectory_mode
-        self.cache_constants = cache_constants
+        self.cache_small = cache_small
         self.max_cache_size = max_cache_size
         self.transform = transform
         # Check the directory has hdf5 that meet our exclusion criteria
@@ -297,7 +305,7 @@ class GenericWellDataset(Dataset):
         )
         self.files_paths = sub_files
         self.files_paths.sort()
-        self.constant_cache = {}
+        self.caches = [{} for _ in self.files_paths]
         # Build multi-index
         self.metadata = self._build_metadata()
         # Override name if necessary for logging
@@ -359,80 +367,42 @@ class GenericWellDataset(Dataset):
                 # Check BCs
                 for bc in _f["boundary_conditions"].keys():
                     bcs.add(_f["boundary_conditions"][bc].attrs["bc_type"])
-                # Populate field names
+
                 if index == 0:
-                    self.num_fields_by_tensor_order = {}
-                    self.num_constant_fields_by_tensor_order = {}
-                    self.num_constants = len(_f.attrs["simulation_parameters"])
-                    t0_field_names = []
-                    for field in _f["t0_fields"].attrs["field_names"]:
-                        if (
-                            _f["t0_fields"][field].attrs["time_varying"]
-                            and _f["t0_fields"][field].attrs["sample_varying"]
-                        ):
-                            t0_field_names.append(field)
-                            self.num_fields_by_tensor_order[0] = (
-                                self.num_fields_by_tensor_order.get(0, 0) + 1
-                            )
+                    # Populate scalar names
+                    self.scalar_names = []
+                    self.constant_scalar_names = []
+
+                    for scalar in _f["scalars"].attrs["field_names"]:
+                        if _f["scalars"][scalar].attrs["time_varying"]:
+                            self.scalar_names.append(scalar)
                         else:
-                            self.constant_field_names.append(field)
-                            self.num_constant_fields_by_tensor_order[0] = (
-                                self.num_constant_fields_by_tensor_order.get(0, 0) + 1
+                            self.constant_scalar_names.append(scalar)
+
+                    # Populate field names
+                    self.field_names = {i: [] for i in range(3)}
+                    self.constant_field_names = {i: [] for i in range(3)}
+
+                    for i in range(3):
+                        ti = f"t{i}_fields"
+                        # if _f[ti][field].attrs["symmetric"]:
+                        # itertools.combinations_with_replacement
+                        ti_field_dims = [
+                            "".join(xyz)
+                            for xyz in itertools.product(
+                                _f["dimensions"].attrs["spatial_dims"],
+                                repeat=i,
                             )
-                    if t0_field_names:
-                        self.field_names.update({0: t0_field_names})
-                    t1_field_names = []
-                    for field in _f["t1_fields"].attrs["field_names"]:
-                        for dim in _f["dimensions"].attrs["spatial_dims"]:
-                            if (
-                                _f["t1_fields"][field].attrs["time_varying"]
-                                and _f["t1_fields"][field].attrs["sample_varying"]
-                            ):
-                                t1_field_names.append(f"{field}_{dim}")
-                                self.num_fields_by_tensor_order[1] = (
-                                    self.num_fields_by_tensor_order.get(1, 0) + 1
-                                )
-                            else:
-                                self.constant_field_names.append(f"{field}_{dim}")
-                                self.num_constant_fields_by_tensor_order[1] = (
-                                    self.num_constant_fields_by_tensor_order.get(1, 0)
-                                    + 1
-                                )
-                    if t1_field_names:
-                        self.field_names.update({1: t1_field_names})
-                    t2_field_names = []
-                    for field in _f["t2_fields"].attrs["field_names"]:
-                        for i, dim1 in enumerate(
-                            _f["dimensions"].attrs["spatial_dims"]
-                        ):
-                            for j, dim2 in enumerate(
-                                _f["dimensions"].attrs["spatial_dims"]
-                            ):
-                                # Commenting this out for now - need to figure out a way to
-                                # actually get performance here.
-                                # if _f['t2_fields'][field].attrs['symmetric']:
-                                #     if i > j:
-                                #         continue
-                                if (
-                                    _f["t2_fields"][field].attrs["time_varying"]
-                                    and _f["t2_fields"][field].attrs["sample_varying"]
-                                ):
-                                    t2_field_names.append(f"{field}_{dim1}{dim2}")
-                                    self.num_fields_by_tensor_order[2] = (
-                                        self.num_fields_by_tensor_order.get(2, 0) + 1
-                                    )
+                        ]
+
+                        for field in _f[ti].attrs["field_names"]:
+                            for dims in ti_field_dims:
+                                field_name = f"{field}_{dims}" if dims else field
+
+                                if _f[ti][field].attrs["time_varying"]:
+                                    self.field_names[i].append(field_name)
                                 else:
-                                    self.constant_field_names.append(
-                                        f"{field}_{dim1}{dim2}"
-                                    )
-                                    self.num_constant_fields_by_tensor_order[2] = (
-                                        self.num_constant_fields_by_tensor_order.get(
-                                            2, 0
-                                        )
-                                        + 1
-                                    )
-                    if t2_field_names:
-                        self.field_names.update({2: t2_field_names})
+                                    self.constant_field_names[i].append(field_name)
 
         # Just to make sure it doesn't put us in file -1
         self.file_index_offsets[0] = -1
@@ -441,29 +411,22 @@ class GenericWellDataset(Dataset):
         ]  # We open file references as they come
         # Dataset length is last number of samples
         self.len = self.file_index_offsets[-1]
-        self.n_spatial_dims = list(ndims)[0]  # Number of spatial dims
-        self.size_tuple = list(size_tuples)[0]  # Size of spatial dims
-        self.dataset_name = list(names)[0]  # Name of dataset
-        # Total number of fields (flattening tensor-valued fields)
-        # TODO - Clean this logic up. Just temporarily adjusting it to make it work after the change to a dictionary.
-        self.num_total_fields = len(
-            flatten_field_names(
-                dict_field_names=self.field_names, include_constants=False
-            )
-        )
-        self.num_total_constant_fields = len(self.constant_field_names)
+        self.n_spatial_dims = int(ndims.pop())  # Number of spatial dims
+        self.size_tuple = tuple(map(int, size_tuples.pop()))  # Size of spatial dims
+        self.dataset_name = names.pop()  # Name of dataset
+        # BCs
         self.num_bcs = len(bcs)  # Number of boundary condition type included in data
         self.bc_types = list(bcs)  # List of boundary condition types
+
         return GenericWellMetadata(
             dataset_name=self.dataset_name,
-            n_spatial_dims=int(self.n_spatial_dims),
+            n_spatial_dims=self.n_spatial_dims,
             grid_type=grid_type,
-            spatial_resolution=tuple([int(k) for k in self.size_tuple]),
-            n_constant_scalars=self.num_constants,
-            n_constant_fields=self.num_total_constant_fields,
-            constant_names=self.constant_field_names + list(self.constant_cache.keys()),
-            n_fields=int(self.num_total_fields),
+            spatial_resolution=self.size_tuple,
+            scalar_names=self.scalar_names,
+            constant_scalar_names=self.constant_scalar_names,
             field_names=self.field_names,
+            constant_field_names=self.constant_field_names,
             boundary_condition_types=self.bc_types,
             n_simulations=self.n_files,
             n_steps_per_simulation=self.total_file_steps,
@@ -473,10 +436,9 @@ class GenericWellDataset(Dataset):
         _file = h5.File(self.files_paths[file_ind], "r")
         self.files[file_ind] = _file
 
-    def _check_cache(self, field_name: str, field_data: Any):
-        if self.cache_constants:
-            if field_data.numel() < self.max_cache_size:
-                self.constant_cache[field_name] = field_data
+    def _check_cache(self, cache: Dict[str, Any], name: str, data: Any):
+        if self.cache_small and data.numel() < self.max_cache_size:
+            cache[name] = data
 
     def _pad_axes(
         self,
@@ -495,7 +457,7 @@ class GenericWellDataset(Dataset):
             ]
         )
         expand_dims = expand_dims + (1,) * tensor_order
-        return np.tile(field_data, expand_dims)
+        return torch.tile(field_data, expand_dims)
 
     def _postprocess_field_list(self, field_list, output_list, order, tensor_metadata):
         """Postprocesses field list to apply tensor transforms"""
@@ -508,7 +470,7 @@ class GenericWellDataset(Dataset):
             output_list.append(field_list)
         return output_list
 
-    def _reconstruct_fields(self, file, sample_idx, time_idx, n_steps, dt):
+    def _reconstruct_fields(self, file, cache, sample_idx, time_idx, n_steps, dt):
         """Reconstruct space fields starting at index sample_idx, time_idx, with
         n_steps and dt stride. Apply transformations if provided."""
         variable_fields = []
@@ -521,9 +483,9 @@ class GenericWellDataset(Dataset):
             for field_name in field_names:
                 field = file[order_fields][field_name]
                 use_dims = field.attrs["dim_varying"]
-                # If the field is constant and in the cache, use it, otherwise go through read/pad
-                if field_name in self.constant_cache:
-                    field_data = self.constant_cache[field_name]
+                # If the field is in the cache, use it, otherwise go through read/pad
+                if field_name in cache:
+                    field_data = cache[field_name]
                 else:
                     field_data = field
                     # Index is built gradually since there can be different numbers of leading fields
@@ -534,28 +496,25 @@ class GenericWellDataset(Dataset):
                         multi_index = multi_index + (
                             slice(time_idx, time_idx + n_steps * dt, dt),
                         )
-                    # If any leading fields exist, select from them
-                    if len(multi_index) > 0:
-                        field_data = torch.as_tensor(field_data[multi_index])
-                    field_data = torch.as_tensor(
-                        self._pad_axes(
-                            field_data, use_dims, time_varying=True, tensor_order=i
-                        )
+                    field_data = field_data[multi_index]
+                    field_data = torch.as_tensor(field_data)
+                    # Expand dims
+                    field_data = self._pad_axes(
+                        field_data, use_dims, time_varying=True, tensor_order=i
                     )
-
+                    # Normalize
                     if self.use_normalization:
                         if field_name in self.means:
                             field_data = field_data - self.means[field_name]
                         if field_name in self.stds:
                             field_data = field_data / self.stds[field_name]
-
+                    # If constant, try to cache
                     if (
                         not field.attrs["time_varying"]
                         and not field.attrs["sample_varying"]
                     ):
-                        self._check_cache(
-                            field_name, field_data
-                        )  # If constant and processed, cache
+                        self._check_cache(cache, field_name, field_data)
+
                 if field.attrs["time_varying"]:
                     variable_subfields.append(field_data)
                 else:
@@ -578,28 +537,25 @@ class GenericWellDataset(Dataset):
             )
 
         return tuple(
-            [
-                torch.concatenate(field_group, -1)
-                if len(field_group) > 0
-                else torch.tensor([])
-                for field_group in [
-                    variable_fields,
-                    constant_fields,
-                ]
+            torch.concatenate(field_group, -1)
+            if len(field_group) > 0
+            else torch.tensor([])
+            for field_group in [
+                variable_fields,
+                constant_fields,
             ]
         )
 
-    def _reconstruct_scalars(self, file, sample_idx, time_idx, n_steps, dt):
+    def _reconstruct_scalars(self, file, cache, sample_idx, time_idx, n_steps, dt):
         """Reconstruct scalar values (not fields) starting at index sample_idx, time_idx, with
         n_steps and dt stride."""
+        variable_scalars = []
         constant_scalars = []
-        time_varying_scalars = []
         for scalar_name in file["scalars"].attrs["field_names"]:
             scalar = file["scalars"][scalar_name]
-            # These shouldn't be large so the cache probably doesn't matter
-            # but we'll cache them anyway since they're constant.
-            if scalar_name in self.constant_cache:
-                scalar_data = self.constant_cache[scalar_name]
+
+            if scalar_name in cache:
+                scalar_data = cache[scalar_name]
             else:
                 scalar_data = scalar
                 # Build index gradually to account for different leading dims
@@ -610,52 +566,48 @@ class GenericWellDataset(Dataset):
                     multi_index = multi_index + (
                         slice(time_idx, time_idx + n_steps * dt, dt),
                     )
-                # If leading dims exist, subset based on them
-                if len(multi_index) > 0:
-                    scalar_data = torch.tensor(scalar_data[multi_index])
+                scalar_data = scalar_data[multi_index]
+                scalar_data = torch.as_tensor(scalar_data)
+                # If constant, try to cache
                 if (
                     not scalar.attrs["time_varying"]
                     and not scalar.attrs["sample_varying"]
                 ):
-                    scalar_data = torch.tensor(scalar_data[()]).unsqueeze(0)
-                    self._check_cache(scalar_name, scalar_data)
+                    self._check_cache(cache, scalar_name, scalar_data)
+
             if scalar.attrs["time_varying"]:
-                time_varying_scalars.append(scalar_data)
+                variable_scalars.append(scalar_data)
             else:
                 constant_scalars.append(scalar_data)
+
         return tuple(
-            [
-                torch.concatenate(field_group, -1)
-                if len(field_group) > 0
-                else torch.tensor([])
-                for field_group in [time_varying_scalars, constant_scalars]
-            ]
+            torch.stack(scalar_group, -1) if len(scalar_group) > 0 else torch.tensor([])
+            for scalar_group in [variable_scalars, constant_scalars]
         )
 
-    def _reconstruct_grids(self, file, sample_idx, time_idx, n_steps, dt):
+    def _reconstruct_grids(self, file, cache, sample_idx, time_idx, n_steps, dt):
         """Reconstruct grid values starting at index sample_idx, time_idx, with
         n_steps and dt stride."""
         # Time
-        if "time_grid" in self.constant_cache:
-            time_grid = self.constant_cache["time_grid"]
+        if "time_grid" in cache:
+            time_grid = cache["time_grid"]
         elif file["dimensions"]["time"].attrs["sample_varying"]:
             time_grid = torch.tensor(file["dimensions"]["time"][sample_idx, :])
-
         else:
             time_grid = torch.tensor(file["dimensions"]["time"][:])
-            self._check_cache("time_grid", time_grid)
+            self._check_cache(cache, "time_grid", time_grid)
         # We have already sampled leading index if it existed so timegrid should be 1D
         time_grid = time_grid[time_idx : time_idx + n_steps * dt : dt]
         # Nothing should depend on absolute time - might change if we add weather
         time_grid = time_grid - time_grid.min()
 
         # Space - TODO - support time-varying grids or non-tensor product grids
-        if "space_grid" in self.constant_cache:
-            space_grid = self.constant_cache["space_grid"]
+        if "space_grid" in cache:
+            space_grid = cache["space_grid"]
         else:
             space_grid = []
             sample_invariant = True
-            for i, dim in enumerate(file["dimensions"].attrs["spatial_dims"]):
+            for dim in file["dimensions"].attrs["spatial_dims"]:
                 if file["dimensions"][dim].attrs["sample_varying"]:
                     sample_invariant = False
                     coords = torch.tensor(file["dimensions"][dim][sample_idx])
@@ -664,17 +616,17 @@ class GenericWellDataset(Dataset):
                 space_grid.append(coords)
             space_grid = torch.stack(torch.meshgrid(*space_grid, indexing="ij"), -1)
             if sample_invariant:
-                self._check_cache(dim, space_grid)
+                self._check_cache(cache, "space_grid", space_grid)
         return space_grid, time_grid
 
-    def _padding_bcs(self, file, sample_idx, time_idx, n_steps, dt):
+    def _padding_bcs(self, file, cache, sample_idx, time_idx, n_steps, dt):
         """Handles BC case where BC corresponds to a specific padding type
 
         Note/TODO - currently assumes boundaries to be axis-aligned and cover the entire
         domain. This is a simplification that will need to be addressed in the future.
         """
-        if "boundary_output" in self.constant_cache:
-            boundary_output = self.constant_cache["boundary_output"]
+        if "boundary_output" in cache:
+            boundary_output = cache["boundary_output"]
         else:
             bcs = file["boundary_conditions"]
             dim_indices = {
@@ -698,10 +650,10 @@ class GenericWellDataset(Dataset):
                     boundary_output[dim_indices[dim]][1] = BoundaryCondition[
                         bc_type
                     ].value
-            self._check_cache("boundary_output", boundary_output)
+            self._check_cache(cache, "boundary_output", boundary_output)
         return boundary_output
 
-    def _reconstruct_bcs(self, file, sample_idx, time_idx, n_steps, dt):
+    def _reconstruct_bcs(self, file, cache, sample_idx, time_idx, n_steps, dt):
         """Needs work to support arbitrary BCs.
 
         Currently supports finite set of boundary condition types that describe
@@ -712,7 +664,9 @@ class GenericWellDataset(Dataset):
         #TODO generalize boundary types
         """
         if self.boundary_return_type == "padding":
-            return self._padding_bcs(file, sample_idx, time_idx, n_steps, dt)
+            return self._padding_bcs(file, cache, sample_idx, time_idx, n_steps, dt)
+        else:
+            raise NotImplementedError()
 
     def __getitem__(self, index):
         # Find specific file and local index
@@ -744,15 +698,17 @@ class GenericWellDataset(Dataset):
             dt = self.dt_stride
         # Now build the data
         output_steps = min(self.n_steps_output, self.max_rollout_steps)
-        trajectory, constant_fields = self._reconstruct_fields(
+        variable_fields, constant_fields = self._reconstruct_fields(
             self.files[file_idx],
+            self.caches[file_idx],
             sample_idx,
             time_idx,
             self.n_steps_input + output_steps,
             dt,
         )
-        time_varying_scalars, constant_scalars = self._reconstruct_scalars(
+        variable_scalars, constant_scalars = self._reconstruct_scalars(
             self.files[file_idx],
+            self.caches[file_idx],
             sample_idx,
             time_idx,
             self.n_steps_input + output_steps,
@@ -760,18 +716,12 @@ class GenericWellDataset(Dataset):
         )
 
         sample = {
-            "input_fields": trajectory[
-                : self.n_steps_input
-            ],  # Tin x H x W x D x C tensor of input trajectory
-            "output_fields": trajectory[
-                self.n_steps_input :
-            ],  # Tpred x H x W x D x C tensor of output trajectory
-            "constant_fields": constant_fields,  # H (x W x D) x (num constant) tensor.
-            "input_time_varying_scalars": time_varying_scalars[
-                : self.n_steps_input
-            ],  # Tin x C tensor with time varying scalars
-            "output_time_varying_scalars": time_varying_scalars[self.n_steps_input :],
-            "constant_scalars": constant_scalars,  # 1 x C tensor with constant values corresponding to parameters
+            "input_fields": variable_fields[: self.n_steps_input],  # Ti x H x W x C
+            "output_fields": variable_fields[self.n_steps_input :],  # To x H x W x C
+            "constant_fields": constant_fields,  # H x W x C
+            "input_scalars": variable_scalars[: self.n_steps_input],  # Ti x C
+            "output_scalars": variable_scalars[self.n_steps_input :],  # To x C
+            "constant_scalars": constant_scalars,  # C
         }
 
         # For complex BCs, might need to do this pre_normalization
@@ -779,6 +729,7 @@ class GenericWellDataset(Dataset):
         if self.boundary_return_type is not None:
             bcs = self._reconstruct_bcs(
                 self.files[file_idx],
+                self.caches[file_idx],
                 sample_idx,
                 time_idx,
                 self.n_steps_input + output_steps,
@@ -788,20 +739,15 @@ class GenericWellDataset(Dataset):
         if self.return_grid:
             space_grid, time_grid = self._reconstruct_grids(
                 self.files[file_idx],
+                self.caches[file_idx],
                 sample_idx,
                 time_idx,
                 self.n_steps_input + output_steps,
                 dt,
             )
-            sample["space_grid"] = (
-                space_grid  # H (x W x D) x (num dims) tensor with coordinate values
-            )
-            sample["input_time_grid"] = time_grid[
-                : self.n_steps_input
-            ]  # Tin x 1 tensor with time values
-            sample["output_time_grid"] = time_grid[
-                self.n_steps_input :
-            ]  # Tpred x 1 tensor with time values
+            sample["space_grid"] = space_grid  # H x W x D
+            sample["input_time_grid"] = time_grid[: self.n_steps_input]  # Ti
+            sample["output_time_grid"] = time_grid[self.n_steps_input :]  # To
 
         # Return only non-empty keys - maybe change this later
         return {k: v for k, v in sample.items() if v.numel() > 0}
