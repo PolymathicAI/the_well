@@ -2,12 +2,46 @@ import os.path
 import tempfile
 from unittest import TestCase
 
+import torch
+
 from the_well.benchmark.data.datasets import (
     GenericWellDataset,
+    GenericWellMetadata,
     maximum_stride_for_initial_index,
     raw_steps_to_possible_sample_t0s,
 )
 from the_well.utils.dummy_data import write_dummy_data
+
+
+class TestMetadata(TestCase):
+    def test_metadata(self):
+        metadata = GenericWellMetadata(
+            dataset_name="test",
+            n_spatial_dims=2,
+            spatial_resolution=(256, 256),
+            scalar_names=["whatever"],
+            constant_scalar_names=["alpha", "beta"],
+            field_names={0: ["energy"], 1: ["v_x", "v_y"]},
+            constant_field_names={2: ["t_xx", "t_xy", "t_yx", "t_yy"]},
+            boundary_condition_types=["periodic"],
+            n_simulations=1,
+            n_steps_per_simulation=[100],
+        )
+
+        self.assertEqual(metadata.n_scalars, 1)
+        self.assertEqual(metadata.n_constant_scalars, 2)
+        self.assertEqual(metadata.n_fields, 3)
+        self.assertEqual(metadata.n_constant_fields, 4)
+
+        shapes = metadata.sample_shapes
+
+        self.assertSequenceEqual(shapes["input_scalars"], [1])
+        self.assertSequenceEqual(shapes["output_scalars"], [1])
+        self.assertSequenceEqual(shapes["constant_scalars"], [2])
+
+        self.assertSequenceEqual(shapes["input_fields"], [256, 256, 3])
+        self.assertSequenceEqual(shapes["output_fields"], [256, 256, 3])
+        self.assertSequenceEqual(shapes["constant_fields"], [256, 256, 4])
 
 
 class TestDataset(TestCase):
@@ -33,12 +67,12 @@ class TestDataset(TestCase):
         )
         n_time_steps = dataset.total_file_steps[0] - 1
         data = dataset[n_time_steps]
-        data_keys = list(data.keys())
-        self.assertIn("output_fields", data_keys)
+        self.assertIn("input_fields", data)
+        self.assertIn("output_fields", data)
 
         data = dataset[len(dataset) - 1]
-        data_keys = list(data.keys())
-        self.assertIn("output_fields", data_keys)
+        self.assertIn("input_fields", data)
+        self.assertIn("output_fields", data)
 
     def test_adjust_available_steps(self):
         # ex1: total_steps_in_trajectory = 5, n_steps_input = 1, n_steps_output = 1, dt_stride = 1
@@ -81,8 +115,41 @@ class TestDataset(TestCase):
         with tempfile.TemporaryDirectory() as dir_name:
             filename = os.path.join(dir_name, "dummy_well_data.hdf5")
             write_dummy_data(filename)
-            dataset = GenericWellDataset(path=dir_name, use_normalization=False)
+            dataset = GenericWellDataset(
+                path=dir_name, use_normalization=False, return_grid=True
+            )
             # Dummy dataset should contain 2 trajectories of 9 valid samples each
             self.assertEqual(len(dataset), 2 * 9)
-            self.assertIn("input_fields", dataset[0])
-            self.assertIn("output_fields", dataset[0])
+
+            data = dataset[0]
+
+            for key in (
+                "input_fields",
+                "output_fields",
+                "constant_fields",
+                "input_scalars",
+                "output_scalars",
+                "constant_scalars",
+            ):
+                self.assertIn(key, data)
+
+            for key, shape in dataset.metadata.sample_shapes.items():
+                if "input" in key or "output" in key:
+                    self.assertSequenceEqual(data[key].shape[1:], shape)
+                else:
+                    self.assertSequenceEqual(data[key].shape, shape)
+
+            data_next = dataset[1]
+
+            for key in (
+                "input_fields",
+                "output_fields",
+                "constant_fields",
+                "input_scalars",
+                "output_scalars",
+                "constant_scalars",
+            ):
+                if "constant" in key:
+                    self.assertTrue(torch.equal(data[key], data_next[key]))
+                else:
+                    self.assertFalse(torch.equal(data[key], data_next[key]))

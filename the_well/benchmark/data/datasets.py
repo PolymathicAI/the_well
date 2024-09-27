@@ -502,7 +502,10 @@ class GenericWellDataset(Dataset):
                     field_data = torch.as_tensor(field_data)
                     # Expand dims
                     field_data = self._pad_axes(
-                        field_data, use_dims, time_varying=True, tensor_order=i
+                        field_data,
+                        use_dims,
+                        time_varying=field.attrs["time_varying"],
+                        tensor_order=i,
                     )
                     # Normalize
                     if self.use_normalization:
