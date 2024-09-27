@@ -15,7 +15,8 @@ class AbstractDataFormatter(ABC):
     def process_input(self, data: Dict) -> Tuple:
         raise NotImplementedError
 
-    def process_output(self, data: Dict, output) -> torch.tensor:
+    @abstractmethod
+    def process_output(self, output: torch.Tensor) -> torch.Tensor:
         raise NotImplementedError
 
 
@@ -26,7 +27,7 @@ class DefaultChannelsFirstFormatter(AbstractDataFormatter):
     Stacks time as individual channel.
     """
 
-    def process_input(self, data: Dict):
+    def process_input(self, data: Dict) -> Tuple:
         x = data["input_fields"]
         x = rearrange(x, "b t ... c -> b (t c) ...")
         if "constant_fields" in data:
@@ -43,7 +44,7 @@ class DefaultChannelsFirstFormatter(AbstractDataFormatter):
         # in some cases (staircase), its ok. In others, it's not.
         return (torch.nan_to_num(x),), torch.nan_to_num(y)
 
-    def process_output(self, output):
+    def process_output(self, output: torch.Tensor) -> torch.Tensor:
         return rearrange(output, "b c ... -> b 1 ... c")
 
 
@@ -54,7 +55,7 @@ class DefaultChannelsLastFormatter(AbstractDataFormatter):
     Stacks time as individual channel.
     """
 
-    def process_input(self, data: Dict):
+    def process_input(self, data: Dict) -> Tuple:
         x = data["input_fields"]
         x = rearrange(x, "b t ... c -> b ... (t c)")
         if "constant_fields" in data:
@@ -71,5 +72,5 @@ class DefaultChannelsLastFormatter(AbstractDataFormatter):
         # in some cases (staircase), its ok. In others, it's not.
         return (torch.nan_to_num(x),), torch.nan_to_num(y)
 
-    def process_output(self, output):
+    def process_output(self, output: torch.Tensor) -> torch.Tensor:
         return rearrange(output, "b ... c -> b 1 ... c")
