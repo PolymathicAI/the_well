@@ -1,9 +1,10 @@
 import copy
 import os
+import re
 import shutil
-import warnings
 
 import h5py
+import numpy as np
 from scipy.ndimage import gaussian_filter
 from tqdm import tqdm
 
@@ -27,19 +28,34 @@ def create_mini_well(
     split_path = os.path.join(output_path, "data", split)
     os.makedirs(split_path, exist_ok=True)
 
-    stats_path = os.path.join(output_path, "stats")
-    os.makedirs(stats_path, exist_ok=True)
-
-    for norm_file in ["means.pkl", "stds.pkl"]:
-        src = os.path.join(dataset.normalization_path, norm_file)
-        dst = os.path.join(stats_path, norm_file)
-        if os.path.exists(src):
-            shutil.copy2(src, dst)
+    shutil.copy2(dataset.normalization_path, output_path)
 
     mini_metadata = copy.deepcopy(dataset.metadata)
     mini_metadata.spatial_resolution = tuple(
         dim // spatial_downsample_factor for dim in mini_metadata.spatial_resolution
     )
+
+    # Update n_steps_per_simulation to reflect time downsampling
+    mini_metadata.n_steps_per_simulation = [
+        steps // time_downsample_factor
+        for steps in mini_metadata.n_steps_per_simulation
+    ]
+
+    # Update sample_shapes to reflect new spatial resolution and number of fields
+    mini_metadata.sample_shapes["input_fields"] = [
+        *mini_metadata.spatial_resolution,
+        mini_metadata.n_fields,
+    ]
+    mini_metadata.sample_shapes["output_fields"] = [
+        *mini_metadata.spatial_resolution,
+        mini_metadata.n_fields,
+    ]
+
+    # Update space_grid in sample_shapes to reflect new spatial resolution and spatial dimensions
+    mini_metadata.sample_shapes["space_grid"] = [
+        *mini_metadata.spatial_resolution,
+        mini_metadata.n_spatial_dims,
+    ]
 
     total_trajectories = 0
     split_files = [f for f in dataset.files_paths if split in f]
@@ -81,7 +97,7 @@ def process_file(
     spatial_downsample_factor: int,
     time_downsample_factor: int,
     time_fraction: float,
-    max_trajectories: int,
+    trajectories_to_process: int,
 ):
     for key, value in src_file.attrs.items():
         dst_file.attrs[key] = value
@@ -92,6 +108,13 @@ def process_file(
             dim // spatial_downsample_factor for dim in old_resolution
         )
 
+    # Update spatial grid size if it exists
+    if "spatial_grid_size" in dst_file.attrs:
+        old_grid_size = dst_file.attrs["spatial_grid_size"]
+        dst_file.attrs["spatial_grid_size"] = tuple(
+            dim // spatial_downsample_factor for dim in old_grid_size
+        )
+
     for group_name in src_file.keys():
         process_group(
             src_file[group_name],
@@ -99,8 +122,12 @@ def process_file(
             spatial_downsample_factor,
             time_downsample_factor,
             time_fraction,
-            max_trajectories,
+            trajectories_to_process,
+            full_name=group_name,
         )
+
+    # Update n_trajectories for this specific file
+    dst_file.attrs["n_trajectories"] = trajectories_to_process
 
 
 def process_group(
@@ -109,7 +136,8 @@ def process_group(
     spatial_downsample_factor: int,
     time_downsample_factor: int,
     time_fraction: float,
-    max_trajectories: int,
+    trajectories_to_process: int,
+    full_name: str,
 ):
     for key, value in src_group.attrs.items():
         dst_group.attrs[key] = value
@@ -122,17 +150,19 @@ def process_group(
                 spatial_downsample_factor,
                 time_downsample_factor,
                 time_fraction,
-                max_trajectories,
+                trajectories_to_process,
+                full_name=full_name + "/" + name,
             )
         elif isinstance(item, h5py.Dataset):
             process_dataset(
                 item,
                 dst_group,
-                name,
-                spatial_downsample_factor,
-                time_downsample_factor,
-                time_fraction,
-                max_trajectories,
+                name=name,
+                full_name=full_name + "/" + name,
+                spatial_downsample_factor=spatial_downsample_factor,
+                time_downsample_factor=time_downsample_factor,
+                time_fraction=time_fraction,
+                trajectories_to_process=trajectories_to_process,
             )
 
 
@@ -140,10 +170,11 @@ def process_dataset(
     src_dataset: h5py.Dataset,
     dst_group: h5py.Group,
     name: str,
+    full_name: str,
     spatial_downsample_factor: int,
     time_downsample_factor: int,
     time_fraction: float,
-    max_trajectories: int,
+    trajectories_to_process: int,
 ):
     attrs = dict(src_dataset.attrs)
 
@@ -152,44 +183,90 @@ def process_dataset(
     else:
         data = src_dataset[:]
 
-        if name == "time":
-            time_length = int(len(data) * time_fraction)
-            data = data[:time_length:time_downsample_factor]
-        elif name in ["t0_fields", "t1_fields", "t2_fields"]:
-            data = data[:max_trajectories, ...]
-            n_tensor_dims = {
-                "t0_fields": 0,  # sample dimension
-                "t1_fields": 1,  # sample and tensor component dimensions
-                "t2_fields": 2,  # sample and two tensor component dimensions
-            }[name]
+        downsample_kws = dict(
+            spatial_downsample_factor=spatial_downsample_factor,
+            time_downsample_factor=time_downsample_factor,
+            time_fraction=time_fraction,
+        )
+
+        if (
+            re.match(r"t[012]_fields.*", full_name)
+            or full_name == "additional_information/g_contravariant"
+        ):
+            if attrs["sample_varying"]:
+                data = data[:trajectories_to_process, ...]
+
+            if full_name.startswith("t0_fields"):
+                n_tensor_dims = 0
+            elif full_name.startswith("t1_fields"):
+                n_tensor_dims = 1
+            elif full_name.startswith("t2_fields"):
+                n_tensor_dims = 2
+            elif full_name == "additional_information/g_contravariant":
+                n_tensor_dims = 2
+            else:
+                raise ValueError(f"Unknown dataset {full_name}")
+
             data = downsample_field(
                 data,
                 time_varying=attrs["time_varying"],
                 spatial_filtering=True,
+                n_batch_dims=int(attrs["sample_varying"]),
                 n_tensor_dims=n_tensor_dims,
-                spatial_downsample_factor=spatial_downsample_factor,
-                time_downsample_factor=time_downsample_factor,
-                time_fraction=time_fraction,
+                **downsample_kws,
             )
-        elif len(data.shape) > 1:
-            data = data[:max_trajectories, ...]
-            if "time_varying" not in attrs:
-                warnings.warn(
-                    f"Dataset {name} has no time_varying attribute. Assuming time_varying=False."
-                )
+        elif re.match(r"dimensions/time", full_name):
             data = downsample_field(
                 data,
-                time_varying=(
-                    attrs["time_varying"] if "time_varying" in attrs else False
-                ),
-                spatial_filtering=False,  # No spatial filtering!
-                n_tensor_dims=0,  # Assume everything is a spatial dimension past batch and time
-                spatial_downsample_factor=spatial_downsample_factor,
-                time_downsample_factor=time_downsample_factor,
-                time_fraction=time_fraction,
+                time_varying=True,
+                spatial_filtering=False,
+                n_batch_dims=int(attrs["sample_varying"]),
+                n_tensor_dims=0,
+                **downsample_kws,
+            )
+        elif (
+            re.match(r"dimensions/([xyz]|phi|theta|log_r)", full_name)
+            and len(data.shape) == 1
+        ):
+            data = downsample_field(
+                data,
+                time_varying=False,
+                spatial_filtering=False,
+                n_batch_dims=0,
+                n_tensor_dims=0,
+                **downsample_kws,
+            )
+        elif (
+            re.match(
+                r"boundary_conditions/([xyz]|phi|theta|log_r)_(periodic|open|wall|wall_noslip|wall_dirichlet|open_neumann)/mask",
+                full_name,
+            )
+            and len(data.shape) == 1
+        ):
+            num_elements = data.shape[0] // spatial_downsample_factor
+            # We assume that the first and last elements are the only "data" in the mask
+            data = np.array(
+                [data[0]] + [False] * (num_elements - 2) + [data[-1]], dtype=bool
+            )
+        elif (
+            re.match(r"boundary_conditions/xy_wall/mask", full_name)
+            and len(data.shape) == 2
+        ):
+            data = downsample_field(
+                data,
+                time_varying=False,
+                spatial_filtering=False,
+                n_batch_dims=0,
+                n_tensor_dims=0,
+                **downsample_kws,
             )
         else:
-            pass
+            # Print info about the dataset before raising an error
+            first_10_elements = data.ravel()[:10]
+            raise NotImplementedError(
+                f"Dataset {full_name} not implemented, with shape {data.shape}, type {data.dtype}, "
+                f"attrs {attrs}, and first 10 elements {first_10_elements}"
+            )
 
     dst_group.create_dataset(name, data=data)
 
@@ -209,7 +286,7 @@ def downsample_field(
     *,
     time_varying: bool,
     spatial_filtering: bool,
-    n_batch_dims: int = 1,
+    n_batch_dims: int,
     n_tensor_dims: int,
     spatial_downsample_factor: int,
     time_downsample_factor: int,
