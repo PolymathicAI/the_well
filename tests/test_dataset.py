@@ -2,6 +2,8 @@ import os.path
 import tempfile
 from unittest import TestCase
 
+import torch
+
 from the_well.benchmark.data.datasets import (
     GenericWellDataset,
     GenericWellMetadata,
@@ -17,7 +19,7 @@ class TestMetadata(TestCase):
             dataset_name="test",
             n_spatial_dims=2,
             spatial_resolution=(256, 256),
-            scalar_names=["time"],
+            scalar_names=["whatever"],
             constant_scalar_names=["alpha", "beta"],
             field_names={0: ["energy"], 1: ["v_x", "v_y"]},
             constant_field_names={2: ["t_xx", "t_xy", "t_yx", "t_yy"]},
@@ -119,17 +121,35 @@ class TestDataset(TestCase):
             # Dummy dataset should contain 2 trajectories of 9 valid samples each
             self.assertEqual(len(dataset), 2 * 9)
 
-            for i in range(3):
-                data = dataset[i]
-                self.assertIn("input_fields", data)
-                self.assertIn("output_fields", data)
-                self.assertIn("constant_fields", data)
-                self.assertIn("input_scalars", data)
-                self.assertIn("output_scalars", data)
-                self.assertIn("constant_scalars", data)
+            data = dataset[0]
 
-                for key, shape in dataset.metadata.sample_shapes.items():
-                    if "input" in key or "output" in key:
-                        self.assertSequenceEqual(data[key].shape[1:], shape)
-                    else:
-                        self.assertSequenceEqual(data[key].shape, shape)
+            for key in (
+                "input_fields",
+                "output_fields",
+                "constant_fields",
+                "input_scalars",
+                "output_scalars",
+                "constant_scalars",
+            ):
+                self.assertIn(key, data)
+
+            for key, shape in dataset.metadata.sample_shapes.items():
+                if "input" in key or "output" in key:
+                    self.assertSequenceEqual(data[key].shape[1:], shape)
+                else:
+                    self.assertSequenceEqual(data[key].shape, shape)
+
+            data_next = dataset[1]
+
+            for key in (
+                "input_fields",
+                "output_fields",
+                "constant_fields",
+                "input_scalars",
+                "output_scalars",
+                "constant_scalars",
+            ):
+                if "constant" in key:
+                    self.assertTrue(torch.equal(data[key], data_next[key]))
+                else:
+                    self.assertFalse(torch.equal(data[key], data_next[key]))
