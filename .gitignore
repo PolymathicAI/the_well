@@ -56,6 +56,7 @@ datasets/convective_envelope_rsg/sim.mp4
 testing_before_adding/
 viz/
 venv_benchmark_well/
+wellbench/
 disbatch_benchmarking/
 disbatch_new_benchmarking/
 
