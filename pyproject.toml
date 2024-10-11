@@ -31,12 +31,15 @@ benchmark = [
     "torch_harmonics>=0.6,<0.7",
     "wandb>=0.17.9,<0.18",
 ]
-test = [
-    "isort[colors]",
+dev = [
+    "pre-commit",
     "pytest",
     "pytest-order",
     "ruff",
 ]
 
-[tool.isort]
-profile = "black"
+[tool.ruff]
+extend-include = ["*.ipynb"]
+
+[tool.ruff.lint]
+extend-select = ["I", "W"]
