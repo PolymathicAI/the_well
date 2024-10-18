@@ -51,7 +51,7 @@ with $\rho$ the density, $u$ and $v$ the $x$ and $y$ velocity components, $e$ th
 
 **Spatial domain size ($L_x$, $L_y$, $L_z$):** $L_x = 1$ and  $L_y = 1$.
 
-**Set of coefficients or non-dimensional parameters evaluated:** all combinations of $\gamma$ constant of the gas at a certain temperature: $\gamma=${1.3,1.4,1.13,1.22,1.33,1.76, 1.365,1.404,1.453,1.597} and boundary conditions: {extrap, periodic}.
+**Set of coefficients or non-dimensional parameters evaluated:** all combinations of $\gamma$ constant of the gas at a certain temperature: $\gamma=${1.13,1.22,1.3,1.33,1.365,1.4,1.404,1.453,1.597,1.76} and boundary conditions: {extrap, periodic}.
 
 **Approximate time to generate the data:** 80 hours on 160 CPU cores for all data (periodic and open BC).
 
