@@ -53,6 +53,42 @@ Each argument corresponds to a specific configuration file. In the command above
 
 You can use this command within a sbatch script to launch the training with Slurm.
 
+### Structure of the repository
+
+```.
+├── datasets
+│   ├── dataset_name
+│   │   ├── data
+│   │   │   ├── test
+│   │   │   ├── train
+│   │   │   └── valid
+│   │   ├── generation (if applicable)
+│   │   ├── README.md
+│   │   ├── stats.yaml
+│   │   ├── dataset_name.yaml
+│   │   └── visualization_dataset_name.ipynb
+├── scripts
+├── tests
+├── the_well
+│   ├── benchmark
+│   │   ├── configs
+│   │   ├── data
+│   │   ├── metrics
+│   │   ├── models
+│   │   ├── optim
+│   │   ├── trainer
+│   │   ├── train.py
+│   │   ├── train.sbatch
+│   │   ├── utils
+│   ├── benchmarking
+│   │   └── data_utils
+│   └── utils
+├── pyproject.toml
+└──  README.md
+
+
+```
+
 ## How To Contribute
 
 Contributions are welcome. To contribute please open a dedicated issue describing the problem you are facing or the feature you would like to add.
