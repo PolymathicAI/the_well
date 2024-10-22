@@ -65,13 +65,16 @@ Between $300\~R_\odot$ and $400\~R_\odot$, the initial profile is constructed wi
 
 **Set of coefficients or non-dimensional parameters evaluated:**
 
-| Simulation                                       | radius of inner boundary $R_{IB}/R_\odot$ | radius of outer boundary $R_{OB}/R_\odot$ | heat source | resolution (r × θ × $\phi$) | duration  | core mass $mc/M\odot$ | final mass $M_{\rm final}/M_\odot$ |
+| Simulation                                       | radius of inner boundary $R_{IB}/R_\odot$ | radius of outer boundary $R_{OB}/R_\odot$ | heat source | resolution (r × θ × $\phi$) | duration  | core mass $mc/M_\odot$ | final mass $M_{\rm final}/M_\odot$ |
 | ------------------------------------------------ | ----------------------------------------- | ----------------------------------------- | ----------- | --------------------------- | --------- | --------------------- | ---------------------------------- |
 | Whole simulation (to obtain the 29 trajectories) | 300                                       | 6700                                      | fixed L     | 256 × 128 × 256             | 5766 days | 10.79                 | 12.9                               |
 
 **Approximate time to generate the data:** 2 months on 80 nodes, or approximately 10 million CPU hours
 
 **Hardware used to generate the data:** 80x NASA Pleiades Skylake CPU nodes.
+
+**Additional information about the simulation:** The radial extent of the simulation domain extends from $300~{\rm R_\odot}$ at the simulation inner boundary to $6700~{\rm R_\odot}$ at the simulation outer boundary, with logarithmic cell spacing in radius. The typical radius of the photosphere (or "surface") of the star is between $\approx 800 - 1000 ~{\rm R_\odot}$, fluctuating in space and time. Convection develops only at locations inside the star, within the first hundred radial zones or so. Some material from the star occasionally reaches larger radial distances. 
+Outside of the stellar photosphere ("surface"), a density floor is set at $ \approx 10^{-16} g/cm^3$, and the material far outside the stellar photosphere generally reflects the infalling motion of gas and density floor material with very little mass, perturbed by the activity of the stellar surface. Additionally, because the temperature and density is very low, the opacities are not well-characterized in this material. So, while the RHD equations are still solved in this region of the simulation domain, one should not interpret things outside $\approx 1500 R_\odot$ as physically meaningful. 
 
 # What is interesting and challenging about the data:
 
