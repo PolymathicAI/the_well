@@ -336,7 +336,7 @@ class GenericWellDataset(Dataset):
                 # Number of steps is always last dim of time
                 steps = _f["dimensions"]["time"].shape[-1]
                 size_tuple = [
-                    _f["dimensions"][d].shape[0]
+                    _f["dimensions"][d].shape[-1]
                     for d in _f["dimensions"].attrs["spatial_dims"]
                 ]
                 ndims.add(_f.attrs["n_spatial_dims"])
