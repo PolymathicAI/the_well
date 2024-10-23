@@ -22,7 +22,7 @@ jobs:
             python-version: "3.10"
             cache: "pip"
         - name: Install the_well
-          run: pip install .[benchmark] --extra-index-url https://download.pytorch.org/whl/cpu
+          run: pip install .[benchmark,dev] --extra-index-url https://download.pytorch.org/whl/cpu
         - name: Run tests
           env:
             PYTHONPATH: ${{ github.workspace }}
