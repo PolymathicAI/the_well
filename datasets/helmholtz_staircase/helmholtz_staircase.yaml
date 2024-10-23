@@ -3,19 +3,42 @@ n_spatial_dims: 2
 spatial_resolution:
 - 1024
 - 256
-n_constant_scalars: 1
-n_constant_fields: 1
-constant_names:
-- mask
-n_fields: 2
+scalar_names: []
+constant_scalar_names:
+- omega
 field_names:
-- pressure_re
-- pressure_im
+  0:
+  - pressure_re
+  - pressure_im
+  1: []
+  2: []
+constant_field_names:
+  0:
+  - mask
+  1: []
+  2: []
 boundary_condition_types:
-- WALL
 - OPEN
-n_simulations: 16
-n_steps_per_simulation:
+- WALL
+n_files: 16
+n_trajectories_per_file:
+- 3
+- 3
+- 3
+- 3
+- 3
+- 3
+- 3
+- 3
+- 3
+- 3
+- 3
+- 3
+- 3
+- 3
+- 3
+- 3
+n_steps_per_trajectory:
 - 50
 - 50
 - 50
@@ -33,17 +56,3 @@ n_steps_per_simulation:
 - 50
 - 50
 grid_type: cartesian
-sample_shapes:
-  input_fields:
-  - 1024
-  - 256
-  - 2
-  output_fields:
-  - 1024
-  - 256
-  - 2
-  constant_scalars: 1
-  space_grid:
-  - 1024
-  - 256
-  - 2

@@ -3,19 +3,55 @@ n_spatial_dims: 2
 spatial_resolution:
 - 128
 - 256
-n_constant_scalars: 2
-n_constant_fields: 0
-constant_names: []
-n_fields: 4
+scalar_names: []
+constant_scalar_names:
+- Rayleigh
+- Schmidt
 field_names:
-- tracer
-- pressure
-- velocity_x
-- velocity_y
+  0:
+  - tracer
+  - pressure
+  1:
+  - velocity_x
+  - velocity_y
+  2: []
+constant_field_names:
+  0: []
+  1: []
+  2: []
 boundary_condition_types:
 - PERIODIC
-n_simulations: 28
-n_steps_per_simulation:
+n_files: 28
+n_trajectories_per_file:
+- 4
+- 4
+- 4
+- 4
+- 4
+- 4
+- 4
+- 4
+- 4
+- 4
+- 4
+- 4
+- 4
+- 4
+- 4
+- 4
+- 4
+- 4
+- 4
+- 4
+- 4
+- 4
+- 4
+- 4
+- 4
+- 4
+- 4
+- 4
+n_steps_per_trajectory:
 - 200
 - 200
 - 200
@@ -45,17 +81,3 @@ n_steps_per_simulation:
 - 200
 - 200
 grid_type: cartesian
-sample_shapes:
-  input_fields:
-  - 128
-  - 256
-  - 4
-  output_fields:
-  - 128
-  - 256
-  - 4
-  constant_scalars: 2
-  space_grid:
-  - 128
-  - 256
-  - 2

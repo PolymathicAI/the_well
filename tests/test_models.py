@@ -26,8 +26,9 @@ class TestFNO(TestCase):
             field_names={0: ["a", "b", "c"], 1: ["d_x", "d_y"]},
             constant_field_names={},
             boundary_condition_types=["periodic"],
-            n_simulations=1,
-            n_steps_per_simulation=[100],
+            n_files=1,
+            n_trajectories_per_file=[10],
+            n_steps_per_trajectory=[100],
         )
 
     def test_model(self):

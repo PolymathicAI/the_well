@@ -3,19 +3,37 @@ n_spatial_dims: 2
 spatial_resolution:
 - 256
 - 512
-n_constant_scalars: 0
-n_constant_fields: 0
-constant_names: []
-n_fields: 3
+scalar_names: []
+constant_scalar_names: []
 field_names:
-- height
-- velocity_theta
-- velocity_phi
+  0:
+  - height
+  1:
+  - velocity_theta
+  - velocity_phi
+  2: []
+constant_field_names:
+  0: []
+  1: []
+  2: []
 boundary_condition_types:
 - OPEN
 - PERIODIC
-n_simulations: 12
-n_steps_per_simulation:
+n_files: 12
+n_trajectories_per_file:
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+n_steps_per_trajectory:
 - 1008
 - 1008
 - 1008
@@ -29,17 +47,3 @@ n_steps_per_simulation:
 - 1008
 - 1008
 grid_type: equiangular
-sample_shapes:
-  input_fields:
-  - 256
-  - 512
-  - 3
-  output_fields:
-  - 256
-  - 512
-  - 3
-  constant_scalars: 0
-  space_grid:
-  - 256
-  - 512
-  - 2

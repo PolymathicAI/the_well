@@ -1,16 +1,20 @@
-dataset_name: turbulent_radiative_layer_3D
+dataset_name: supernova_explosion
 n_spatial_dims: 3
 spatial_resolution:
 - 128
 - 128
-- 256
+- 128
 scalar_names: []
 constant_scalar_names:
-- tcool
+- Msun
+- rho0
+- Z
+- T0
 field_names:
   0:
   - density
   - pressure
+  - temperature
   1:
   - velocity_x
   - velocity_y
@@ -22,26 +26,33 @@ constant_field_names:
   2: []
 boundary_condition_types:
 - OPEN
-- PERIODIC
-n_files: 9
+n_files: 13
 n_trajectories_per_file:
-- 1
-- 1
-- 1
-- 1
-- 1
-- 1
-- 1
-- 1
-- 1
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
 n_steps_per_trajectory:
-- 101
-- 101
-- 101
-- 101
-- 101
-- 101
-- 101
-- 101
-- 101
+- 59
+- 59
+- 59
+- 59
+- 59
+- 59
+- 59
+- 59
+- 59
+- 59
+- 59
+- 59
+- 59
 grid_type: cartesian

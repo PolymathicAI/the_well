@@ -1,31 +1,37 @@
-dataset_name: acoustic_scattering_maze
+dataset_name: gray_scott_reaction_diffusion
 n_spatial_dims: 2
 spatial_resolution:
-- 256
-- 256
+- 128
+- 128
 scalar_names: []
-constant_scalar_names: []
+constant_scalar_names:
+- F
+- k
 field_names:
   0:
-  - pressure
-  1:
-  - velocity_x
-  - velocity_y
+  - A
+  - B
+  1: []
   2: []
 constant_field_names:
-  0:
-  - density
-  - bulk_modulus
+  0: []
   1: []
   2: []
 boundary_condition_types:
-- OPEN
-- WALL
-n_files: 2
+- PERIODIC
+n_files: 6
 n_trajectories_per_file:
-- 100
-- 100
+- 20
+- 20
+- 20
+- 20
+- 20
+- 20
 n_steps_per_trajectory:
-- 202
-- 202
+- 1001
+- 1001
+- 1001
+- 1001
+- 1001
+- 1001
 grid_type: cartesian

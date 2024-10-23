@@ -17,8 +17,9 @@ class TestMetrics(TestCase):
             field_names={0: ["test"]},
             constant_field_names={},
             boundary_condition_types=["periodic"],
-            n_simulations=1,
-            n_steps_per_simulation=[100],
+            n_files=1,
+            n_trajectories_per_file=[10],
+            n_steps_per_trajectory=[100],
         )
         for metric in [
             MSE(),

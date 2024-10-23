@@ -112,8 +112,9 @@ class GenericWellMetadata:
     field_names: Dict[int, List[str]]
     constant_field_names: Dict[int, List[str]]
     boundary_condition_types: List[str]
-    n_simulations: int
-    n_steps_per_simulation: List[int]
+    n_files: int
+    n_trajectories_per_file: List[int]
+    n_steps_per_trajectory: List[int]
     grid_type: str = "cartesian"
 
     @property
@@ -317,12 +318,10 @@ class GenericWellDataset(Dataset):
     def _build_metadata(self):
         """Builds multi-file indices and checks that folder contains consistent dataset"""
         self.n_files = len(self.files_paths)
-        self.total_file_steps = []  # Number of time steps in each simulation for each file
-        self.available_file_steps = []  # Number of actual time steps in each simulation for each file
-        self.file_samples = []  # Number of simulation per file
+        self.n_trajectories_per_file = []
+        self.n_steps_per_trajectory = []
+        self.n_windows_per_trajectory = []
         self.file_index_offsets = [0]  # Used to track where each file starts
-        self.field_names = {}
-        self.constant_field_names = []
         # Things where we just care every file has same value
         size_tuples = set()
         names = set()
@@ -330,9 +329,9 @@ class GenericWellDataset(Dataset):
         bcs = set()
         for index, file in enumerate(self.files_paths):
             with h5.File(file, "r") as _f:
-                grid_type: str = _f.attrs["grid_type"]
+                grid_type = _f.attrs["grid_type"]
                 # Run sanity checks - all files should have same ndims, size_tuple, and names
-                samples: int = _f.attrs["n_trajectories"]
+                trajectories = int(_f.attrs["n_trajectories"])
                 # Number of steps is always last dim of time
                 steps = _f["dimensions"]["time"].shape[-1]
                 size_tuple = [
@@ -352,20 +351,19 @@ class GenericWellDataset(Dataset):
                 if self.full_trajectory_mode:
                     self.n_steps_output = steps - self.n_steps_input
                 # Check that the requested steps make sense
-                per_simulation_steps = raw_steps_to_possible_sample_t0s(
+                windows_per_trajectory = raw_steps_to_possible_sample_t0s(
                     steps, self.n_steps_input, self.n_steps_output, self.dt_stride
                 )
-                assert per_simulation_steps > 0, (
+                assert windows_per_trajectory > 0, (
                     f"Not enough steps in file {file}"
                     f"for {self.n_steps_input} input and {self.n_steps_output} output steps"
                 )
-                self.file_samples.append(samples)
-                self.total_file_steps.append(steps)
-                self.available_file_steps.append(per_simulation_steps)
+                self.n_trajectories_per_file.append(trajectories)
+                self.n_steps_per_trajectory.append(steps)
+                self.n_windows_per_trajectory.append(windows_per_trajectory)
                 self.file_index_offsets.append(
-                    self.file_index_offsets[-1] + samples * per_simulation_steps
+                    self.file_index_offsets[-1] + trajectories * windows_per_trajectory
                 )
-
                 # Check BCs
                 for bc in _f["boundary_conditions"].keys():
                     bcs.add(_f["boundary_conditions"][bc].attrs["bc_type"])
@@ -430,8 +428,9 @@ class GenericWellDataset(Dataset):
             field_names=self.field_names,
             constant_field_names=self.constant_field_names,
             boundary_condition_types=self.bc_types,
-            n_simulations=self.n_files,
-            n_steps_per_simulation=self.total_file_steps,
+            n_files=self.n_files,
+            n_trajectories_per_file=self.n_trajectories_per_file,
+            n_steps_per_trajectory=self.n_steps_per_trajectory,
         )
 
     def _open_file(self, file_ind: int):
@@ -678,12 +677,12 @@ class GenericWellDataset(Dataset):
         file_idx = int(
             np.searchsorted(self.file_index_offsets, index, side="right") - 1
         )  # which file we are on
-        per_simulation_steps = self.available_file_steps[file_idx]
+        windows_per_trajectory = self.n_windows_per_trajectory[file_idx]
         local_idx = index - max(
             self.file_index_offsets[file_idx], 0
         )  # First offset is -1
-        sample_idx = local_idx // per_simulation_steps
-        time_idx = local_idx % per_simulation_steps
+        sample_idx = local_idx // windows_per_trajectory
+        time_idx = local_idx % windows_per_trajectory
 
         # open hdf5 file (and cache the open object)
         if self.files[file_idx] is None:
@@ -693,7 +692,7 @@ class GenericWellDataset(Dataset):
         if self.max_dt_stride > self.dt_stride:
             effective_max_dt = maximum_stride_for_initial_index(
                 time_idx,
-                self.total_file_steps[file_idx],
+                self.n_steps_per_trajectory[file_idx],
                 self.n_steps_input,
                 self.n_steps_output,
             )

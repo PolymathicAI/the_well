@@ -3,20 +3,63 @@ n_spatial_dims: 2
 spatial_resolution:
 - 512
 - 128
-n_constant_scalars: 2
-n_constant_fields: 0
-constant_names: []
-n_fields: 4
+scalar_names: []
+constant_scalar_names:
+- Rayleigh
+- Prandtl
 field_names:
-- buoyancy
-- pressure
-- velocity_x
-- velocity_y
+  0:
+  - buoyancy
+  - pressure
+  1:
+  - velocity_x
+  - velocity_y
+  2: []
+constant_field_names:
+  0: []
+  1: []
+  2: []
 boundary_condition_types:
-- WALL
 - PERIODIC
-n_simulations: 35
-n_steps_per_simulation:
+- WALL
+n_files: 35
+n_trajectories_per_file:
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+- 5
+n_steps_per_trajectory:
 - 200
 - 200
 - 200
@@ -53,17 +96,3 @@ n_steps_per_simulation:
 - 200
 - 200
 grid_type: cartesian
-sample_shapes:
-  input_fields:
-  - 512
-  - 128
-  - 4
-  output_fields:
-  - 512
-  - 128
-  - 4
-  constant_scalars: 2
-  space_grid:
-  - 512
-  - 128
-  - 2

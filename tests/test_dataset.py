@@ -24,8 +24,9 @@ class TestMetadata(TestCase):
             field_names={0: ["energy"], 1: ["v_x", "v_y"]},
             constant_field_names={2: ["t_xx", "t_xy", "t_yx", "t_yy"]},
             boundary_condition_types=["periodic"],
-            n_simulations=1,
-            n_steps_per_simulation=[100],
+            n_files=1,
+            n_trajectories_per_file=[16],
+            n_steps_per_trajectory=[100],
         )
 
         self.assertEqual(metadata.n_scalars, 1)
@@ -65,7 +66,7 @@ class TestDataset(TestCase):
             well_dataset_name="active_matter",
             use_normalization=False,
         )
-        n_time_steps = dataset.total_file_steps[0] - 1
+        n_time_steps = dataset.n_steps_per_trajectory[0] - 1
         data = dataset[n_time_steps]
         self.assertIn("input_fields", data)
         self.assertIn("output_fields", data)

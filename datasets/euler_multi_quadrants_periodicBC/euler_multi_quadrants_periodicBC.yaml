@@ -1,22 +1,39 @@
-dataset_name: euler_quadrants
+dataset_name: euler_multi_quadrants_periodicBC
 n_spatial_dims: 2
 spatial_resolution:
 - 512
 - 512
-n_constant_scalars: 1
-n_constant_fields: 0
-constant_names: []
-n_fields: 5
+scalar_names: []
+constant_scalar_names:
+- gamma
 field_names:
-- energy
-- density
-- pressure
-- momentum_x
-- momentum_y
+  0:
+  - energy
+  - density
+  - pressure
+  1:
+  - momentum_x
+  - momentum_y
+  2: []
+constant_field_names:
+  0: []
+  1: []
+  2: []
 boundary_condition_types:
 - PERIODIC
-n_simulations: 10
-n_steps_per_simulation:
+n_files: 10
+n_trajectories_per_file:
+- 50
+- 50
+- 50
+- 50
+- 50
+- 50
+- 50
+- 50
+- 50
+- 50
+n_steps_per_trajectory:
 - 101
 - 101
 - 101
@@ -28,17 +45,3 @@ n_steps_per_simulation:
 - 101
 - 101
 grid_type: cartesian
-sample_shapes:
-  input_fields:
-  - 512
-  - 512
-  - 5
-  output_fields:
-  - 512
-  - 512
-  - 5
-  constant_scalars: 1
-  space_grid:
-  - 512
-  - 512
-  - 2

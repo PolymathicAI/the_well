@@ -4,21 +4,68 @@ spatial_resolution:
 - 64
 - 64
 - 64
-n_constant_scalars: 4
-n_constant_fields: 0
-constant_names: []
-n_fields: 6
+scalar_names: []
+constant_scalar_names:
+- Msun
+- rho0
+- Z
+- T0
 field_names:
-- density
-- pressure
-- temperature
-- velocity_x
-- velocity_y
-- velocity_z
+  0:
+  - density
+  - pressure
+  - temperature
+  1:
+  - velocity_x
+  - velocity_y
+  - velocity_z
+  2: []
+constant_field_names:
+  0: []
+  1: []
+  2: []
 boundary_condition_types:
 - OPEN
-n_simulations: 37
-n_steps_per_simulation:
+n_files: 37
+n_trajectories_per_file:
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+n_steps_per_trajectory:
 - 59
 - 59
 - 59
@@ -57,20 +104,3 @@ n_steps_per_simulation:
 - 59
 - 59
 grid_type: cartesian
-sample_shapes:
-  input_fields:
-  - 64
-  - 64
-  - 64
-  - 6
-  output_fields:
-  - 64
-  - 64
-  - 64
-  - 6
-  constant_scalars: 4
-  space_grid:
-  - 64
-  - 64
-  - 64
-  - 3
