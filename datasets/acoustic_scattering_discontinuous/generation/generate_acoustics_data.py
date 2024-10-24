@@ -59,7 +59,6 @@ def mp_wrapper(
         )
         num_samples = 2000
     cores = mp.cpu_count()
-    pool = mp.Pool(cores)
     seeds = seed.spawn(num_samples)
     with mp.Pool(cores // 2) as pool:
         pool.map(run_func, seeds)

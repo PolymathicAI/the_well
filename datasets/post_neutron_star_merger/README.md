@@ -46,13 +46,13 @@ The standard radiative transfer equation is
 Preliminary benchmarking, in VRMSE. Unet and CNextU-net results are not available as these architectures needs all dimensions of the data to be multiples of 2.
 
 
-# About the data 
+# About the data
 
 **Dimension of discretized data:** 181 time-steps of $192 \times 128 \times 66$ snapshots.
 
 **Fields available in the data:** fluid density (scalar field), fluid internal energy (scalar field), electron fraction (scalar field), temperate (scalar field), entropy (scalar field), velocity (vector field), magnetic field (vector field), contravariant tensor metric of space-time (tensor field, no time-dependency). A description of fields available in an output file can be found [here](https://github.com/lanl/nubhlight/wiki)
 
-**Number of trajectories:** 8 full simulations. 
+**Number of trajectories:** 8 full simulations.
 
 **Size of the ensemble of all simulations:** 110.1 GB.
 
@@ -133,7 +133,7 @@ Here we include, for completeness, a description of the different simulation par
 - `TEMP_unit`, temperature unit. Converts from MeV (code units) to Kelvin.
 - `T_unit`, time unit. Converts from code units to seconds.
 - `U_unit`, energy density unit. Multiplying code quantity by `U_unit` converts it into units of erg/cm^3.
-- `a`, dimensionless black hole spin. 
+- `a`, dimensionless black hole spin.
 - `cour`, dimensionless CFL factor used to set the timestep based on the grid spacing.
 - `dx`, array of grid spacing in code coordinates. (Uniform.)
 - `maxnscatt`, maximum number of scattering events per superphoton particle

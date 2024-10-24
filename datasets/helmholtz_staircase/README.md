@@ -42,7 +42,7 @@ Preliminary benchmarking, in VRMSE.
 
 # About the data
 
-**Dimension of discretized data:** $50$ time-steps of 
+**Dimension of discretized data:** $50$ time-steps of
 $1024\times256$ images.
 
 **Fields available in the data:**

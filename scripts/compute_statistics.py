@@ -1,10 +1,10 @@
 import argparse
 import math
 import os
-import yaml
 
 import h5py as h5
 import torch
+import yaml
 
 from the_well.benchmark.data.datasets import GenericWellDataset, well_paths
 

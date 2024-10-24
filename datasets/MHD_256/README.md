@@ -12,7 +12,7 @@
 
 **Code or software used to generate the data**: Fortran + MPI.
 
-**Equation**: 
+**Equation**:
 ```math
 \begin{align}
 \frac{\partial \rho}{\partial t} + \nabla \cdot (\rho \mathbf{v}) &= 0 \nonumber\\

@@ -14,4 +14,4 @@ One can create class inheriting the base `Interface` and implement the `pipe_{on
 
 ## Check
 
-The `Inteface` class provides two methods to check the model can properly ingest the data from the Well dataset: `check_one_step` and `check_rollout`. Only the first one is actually implemented. 
+The `Inteface` class provides two methods to check the model can properly ingest the data from the Well dataset: `check_one_step` and `check_rollout`. Only the first one is actually implemented.

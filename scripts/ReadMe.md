@@ -27,4 +27,3 @@ For each dataset, plot the velocity field, if it exists, at four times of the fi
 # `create_gif.py`
 
 Create a gif from a time series input. The script must be edited to first load the time series.
-
