@@ -43,3 +43,6 @@ extend-include = ["*.ipynb"]
 
 [tool.ruff.lint]
 extend-select = ["I", "W"]
+
+[tool.ruff.lint.extend-per-file-ignores]
+"datasets/**/*.py" = ["F841"]
