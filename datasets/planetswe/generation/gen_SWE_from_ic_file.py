@@ -5,10 +5,6 @@ https://dedalus-project.readthedocs.io/en/latest/pages/examples/ivp_sphere_shall
 """
 
 import os
-
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["NUMEXPR_MAX_THREADS"] = "1"
-
 import argparse
 import logging
 import multiprocessing as mp
@@ -16,6 +12,9 @@ from glob import glob
 
 import dedalus.public as d3
 import numpy as np
+
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["NUMEXPR_MAX_THREADS"] = "1"
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +56,7 @@ def run_ic_file(ic_file, output_dir):
     u = dist.VectorField(coords, name="u", bases=basis)
     h = dist.Field(name="h", bases=basis)
     # Substitutions
-    zcross = lambda A: d3.MulCosine(d3.skew(A))
+    zcross = lambda A: d3.MulCosine(d3.skew(A))  # noqa: E731
 
     # Copy ICs from hpa 500 fields
     ICs = np.load(ic_file)
