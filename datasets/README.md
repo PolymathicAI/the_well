@@ -1,6 +1,6 @@
 # Datasets
 
-Here are presented and stored the Well datasets. 
+Here are presented and stored the Well datasets.
 Each dataset is organized as followed:
 ```
 dataset_name

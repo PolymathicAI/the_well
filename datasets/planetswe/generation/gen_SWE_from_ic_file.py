@@ -4,10 +4,10 @@ Adapted from Dedalus SWE example:
 https://dedalus-project.readthedocs.io/en/latest/pages/examples/ivp_sphere_shallow_water.html
 """
 
-import os
 import argparse
 import logging
 import multiprocessing as mp
+import os
 from glob import glob
 
 import dedalus.public as d3

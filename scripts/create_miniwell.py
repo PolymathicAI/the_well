@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
 import argparse
-from the_well.benchmark.data.miniwell import create_mini_well
+
 from the_well.benchmark.data.datasets import GenericWellDataset
+from the_well.benchmark.data.miniwell import create_mini_well
 
 
 def main():

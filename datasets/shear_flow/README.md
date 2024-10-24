@@ -1,11 +1,11 @@
 
 # Periodic shear flow
 
-**One line description of the data:** 2D periodic incompressible shear flow. 
+**One line description of the data:** 2D periodic incompressible shear flow.
 
-**Longer description of the data:** 
+**Longer description of the data:**
 Shear flow are a type of fluid characterized by the continuous deformation of adjacent fluid layers sliding past each other with different velocities. This phenomenon is commonly observed in various natural and engineered systems, such as rivers, atmospheric boundary layers, and industrial processes involving fluid transport.
-The dataset explores a 2D periodic shearflow governed by incompressible Navier-Stokes equation. 
+The dataset explores a 2D periodic shearflow governed by incompressible Navier-Stokes equation.
 
 **Associated paper**: [Paper 1](https://www.sciencedirect.com/book/9780124059351/fluid-mechanics), [Paper 2](https://journals.aps.org/prfluids/abstract/10.1103/PhysRevFluids.6.100504), [Paper 3](https://journals.aps.org/prfluids/abstract/10.1103/PhysRevFluids.9.014202).
 
@@ -15,15 +15,15 @@ The dataset explores a 2D periodic shearflow governed by incompressible Navier-S
 
 **Equation**:
 
-While we solve equations in the frequency domain, the original time-domain problem is 
+While we solve equations in the frequency domain, the original time-domain problem is
 ```math
 \begin{align*}
 \frac{\partial u}{\partial t} + \nabla p - \nu \Delta u & = -u\cdot\nabla u\,,
 \\
-\frac{\partial s}{\partial t} - D \Delta s & = -u \cdot\nabla s\,, 
+\frac{\partial s}{\partial t} - D \Delta s & = -u \cdot\nabla s\,,
 \end{align*}
 ```
-where $\Delta = \nabla \cdot \nabla$ is the spatial Laplacian, $u = (u_x,u_y)$ is the (horizontal and vertical) velocity, $s$ is the tracer, and $p$ is the pressure, 
+where $\Delta = \nabla \cdot \nabla$ is the spatial Laplacian, $u = (u_x,u_y)$ is the (horizontal and vertical) velocity, $s$ is the tracer, and $p$ is the pressure,
 with the additional constraints $\int p = 0$ (pressure gauge).
 
 These PDE are parameterized by the Reynolds and Schmidt numbers through $\nu$ and $D$.
@@ -79,8 +79,8 @@ The initial condition is thus indexed by $n_\text{shear},n_\text{blobs},w$.
 # What is interesting and challenging about the data:
 
 Shear flow are non-linear phenomena arrising in fluid mechanics and turbulence.
-Predicting the behavior of the shear flow under different Reynolds and Schmidt numbers is essential for a number of applications in aerodynamics, automotive, biomedical. 
-Furthermore, such flow are unstable at large Reynolds number. 
+Predicting the behavior of the shear flow under different Reynolds and Schmidt numbers is essential for a number of applications in aerodynamics, automotive, biomedical.
+Furthermore, such flow are unstable at large Reynolds number.
 
 Please cite these associated papers if you use this data in your research:
 
@@ -96,4 +96,3 @@ Please cite these associated papers if you use this data in your research:
   publisher={APS}
 }
 ```
-

@@ -1,4 +1,4 @@
 _target_: the_well.benchmark.data.WellDataModule
-batch_size: 1 
+batch_size: 1
 well_base_path: /mnt/gpuxl/polymathic/the_well/datasets/
 well_dataset_name: post_neutron_star_merger

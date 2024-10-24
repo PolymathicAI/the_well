@@ -10,7 +10,7 @@
 
 **Code or software used to generate the data**: [Athena++](https://www.athena-astro.app/).
 
-**Equation**: 
+**Equation**:
 
 ```math
 \begin{align}
@@ -55,7 +55,7 @@ Preliminary benchmarking, in VRMSE.
 
 **Spatial domain size ($L_x$, $L_y$, $L_z$):** $x \in [-0.5, 0.5]$, $y \in [-1, 2]$ giving $L_x = 1$ and $L_y = 3$.
 
-**Set of coefficients or non-dimensional parameters evaluated:** $t_{cool} = \{0.03, 0.06, 0.1, 0.18, 0.32, 0.56, 1.00, 1.78, 3.16\}$. 
+**Set of coefficients or non-dimensional parameters evaluated:** $t_{cool} = \{0.03, 0.06, 0.1, 0.18, 0.32, 0.56, 1.00, 1.78, 3.16\}$.
 
 **Approximate time to generate the data:** 84 seconds using 48 cores for one simulation. 100 CPU hours for everything.
 

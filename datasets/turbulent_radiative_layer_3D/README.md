@@ -10,7 +10,7 @@
 
 **Code or software used to generate the data**: [Athena++](https://www.athena-astro.app/).
 
-**Equation**: 
+**Equation**:
 
 ```math
 \begin{align}

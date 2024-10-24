@@ -10,7 +10,7 @@
 
 **Code or software used to generate the data**: ASURA-FDPS (Smoothed Particle Hydrodynamics), [Github repository](https://github.com/FDPS/FDPS).
 
-**Equation**: 
+**Equation**:
 
 ```math
 \begin{align}

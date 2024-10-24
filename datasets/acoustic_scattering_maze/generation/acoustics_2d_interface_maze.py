@@ -6,8 +6,8 @@ Two-dimensional variable-coefficient acoustics
 
 Solve the variable-coefficient acoustics equations in 2D:
 
-.. math:: 
-    p_t + K(x,y) (u_x + v_y) & = 0 \\ 
+.. math::
+    p_t + K(x,y) (u_x + v_y) & = 0 \\
     u_t + p_x / \rho(x,y) & = 0 \\
     v_t + p_y / \rho(x,y) & = 0.
 

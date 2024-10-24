@@ -1,9 +1,9 @@
 # Supernova Explosion in Turbulent Interstellar medium in galaxies
 
-**One line description of the data:** 
+**One line description of the data:**
 Blastwave in dense cool gas cloud.
 
-**Longer description of the data:** 
+**Longer description of the data:**
 The simulations solve an explosion inside a compression of a monatomic ideal gas, which follows the equation of state with the specific heat ratio $\gamma=5/3$.
 The gas in these simulations mocks interstellar medium in the Milky Way Galaxy.
 At the beginning of the simulations, the thermal energy of a supernova is dumped at the center of the simulation box.

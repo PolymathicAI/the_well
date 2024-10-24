@@ -1,8 +1,10 @@
 """Permanently remove a problematic trajectory from a HDF5 file containing data formatted for the Well"""
+
 import argparse
 
 import h5py
 import numpy as np
+
 
 def overwrite_field(file: h5py.File, field, data: np.array):
     attrs = dict(field.attrs)
@@ -18,7 +20,9 @@ def remove_trajectory(filename: str, trajectory_indices: list[int]):
     with h5py.File(filename, "r+") as file:
         n_traj = file.attrs["n_trajectories"]
         if n_traj <= max(trajectory_indices):
-            raise IndexError(f"File {filename} has only {n_traj} but request to remove {trajectory_indices}")
+            raise IndexError(
+                f"File {filename} has only {n_traj} but request to remove {trajectory_indices}"
+            )
         for field_type in ["t0_fields", "t1_fields", "t2_fields"]:
             for field_name in file[field_type].keys():
                 field = file[field_type][field_name]
@@ -33,7 +37,13 @@ def remove_trajectory(filename: str, trajectory_indices: list[int]):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("Trajectory eraser")
     parser.add_argument("-f", "--filename", type=str, help="HDF5 filename")
-    parser.add_argument("-t", "--trajectories", type=int, nargs="+", help="Indices of trajectories to erase")
+    parser.add_argument(
+        "-t",
+        "--trajectories",
+        type=int,
+        nargs="+",
+        help="Indices of trajectories to erase",
+    )
     args = parser.parse_args()
     filename = args.filename
     indices = args.trajectories

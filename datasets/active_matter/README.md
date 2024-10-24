@@ -6,7 +6,7 @@
 
 **Associated paper**: [Paper](https://arxiv.org/abs/2308.06675).
 
-**Domain expert**: [Suryanarayana Maddu](https://sbalzarini-lab.org/?q=alumni/surya), Center for Computaional Biology, Flatiron Institute. 
+**Domain expert**: [Suryanarayana Maddu](https://sbalzarini-lab.org/?q=alumni/surya), Center for Computaional Biology, Flatiron Institute.
 
 **Code or software used to generate the data**: [Github repository](https://github.com/SuryanarayanaMK/Learning_closures/tree/master).
 
@@ -51,17 +51,17 @@ velocity (vector field), orientation tensor (tensor field), strain-rate tensor (
 
 **Spatial domain size ($L_x$, $L_y$, $L_z$):** $L_x=10$ and $L_y=10$.
 
-**Set of coefficients or non-dimensional parameters evaluated:** $\alpha =$ {-1,-2,-3,-4,-5}; $\beta  =$ {0.8}; 
+**Set of coefficients or non-dimensional parameters evaluated:** $\alpha =$ {-1,-2,-3,-4,-5}; $\beta  =$ {0.8};
 $\zeta =$ {1,3,5,7,9,11,13,15,17}.
 
 **Approximate time and hardware to generate the data:** 20 minutes per simulation on an A100 GPU in double precision. There is a total of 225 simulations, which is approximately 75 hours.
 
 # What is interesting and challenging about the data:
 
-**What phenomena of physical interest are catpured in the data:** How is energy being transferred between scales? How is vorticity coupled to the orientation field? Where does the transition from isotropic state to nematic state occur with the change in alignment ($\zeta$) or dipole strength ($\alpha$)? 
+**What phenomena of physical interest are catpured in the data:** How is energy being transferred between scales? How is vorticity coupled to the orientation field? Where does the transition from isotropic state to nematic state occur with the change in alignment ($\zeta$) or dipole strength ($\alpha$)?
 
 
-**How to evaluate a new simulator operating in this space:** Reproducing some summary statistics like power spectra and average scalar order parameters. Additionally, being able to accurately capture the phase transition from isotropic to nematic state. 
+**How to evaluate a new simulator operating in this space:** Reproducing some summary statistics like power spectra and average scalar order parameters. Additionally, being able to accurately capture the phase transition from isotropic to nematic state.
 
 Please cite the associated paper if you use this data in your research:
 ```
