@@ -43,9 +43,6 @@ datasets/post_neutron_star_merger/data/
 datasets/acoustic_scattering_discontinuous/gif/
 datasets/acoustic_scattering_inclusions/gif/
 datasets/acoustic_scattering_maze/gif/
-2D/
-3D/
-3D/rayleigh_taylor_instability/data/
 the_well/benchmark/scripts_to_launch/
 the_well/benchmark/write_bash_script.ipynb
 the_well/benchmark/checkpoints/
@@ -57,8 +54,7 @@ testing_before_adding/
 viz/
 venv_benchmark_well/
 wellbench/
-disbatch_benchmarking/
-disbatch_new_benchmarking/
+benchmarking_results/
 
 # Ignore logs and temporary files
 *.log
@@ -100,3 +96,5 @@ __pycache__
 # Ignore run generated output
 outputs/
 wandb/
+datasets/rt_experimental
+check_well_data_4059043.out
