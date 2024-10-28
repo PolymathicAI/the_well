@@ -173,8 +173,6 @@ class GenericWellDataset(Dataset):
         Exclude any files whose name contains at least one of these strings
     use_normalization:
         Whether to normalize data in the dataset
-    include_normalization_in_sample: bool, default=False
-        Whether to include normalization constants in the sample
     n_steps_input :
         Number of steps to include in each sample
     n_steps_output :
@@ -220,7 +218,7 @@ class GenericWellDataset(Dataset):
         well_split_name: str = "train",
         include_filters: List[str] = [],
         exclude_filters: List[str] = [],
-        use_normalization: bool = True,
+        use_normalization: bool = False,
         max_rollout_steps=100,
         n_steps_input: int = 1,
         n_steps_output: int = 1,
