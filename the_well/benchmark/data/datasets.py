@@ -3,7 +3,17 @@ import itertools
 import os
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Callable, Dict, List, Literal, Optional, Tuple
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    Tuple,
+    TypedDict,
+    cast,
+)
 
 import h5py as h5
 import numpy as np
@@ -12,6 +22,9 @@ import yaml
 from torch.utils.data import Dataset
 
 from the_well.utils.export import hdf5_to_xarray
+
+if TYPE_CHECKING:
+    from .augmentation import Augmentation
 
 well_paths = {
     "acoustic_scattering_maze": "datasets/acoustic_scattering_maze",
@@ -146,6 +159,25 @@ class GenericWellMetadata:
         }
 
 
+class TrajectoryData(TypedDict):
+    variable_fields: Dict[int, Dict[str, torch.Tensor]]
+    constant_fields: Dict[int, Dict[str, torch.Tensor]]
+    variable_scalars: Dict[str, torch.Tensor]
+    constant_scalars: Dict[str, torch.Tensor]
+    boundary_conditions: Optional[torch.Tensor]
+    space_grid: Optional[torch.Tensor]
+    time_grid: Optional[torch.Tensor]
+
+
+@dataclass
+class TrajectoryMetadata:
+    dataset: "GenericWellDataset"
+    file_idx: int
+    sample_idx: int
+    time_idx: int
+    time_stride: int
+
+
 class GenericWellDataset(Dataset):
     """
     Generic dataset for any Well data. Returns data in B x T x H [x W [x D]] x C format.
@@ -197,13 +229,10 @@ class GenericWellDataset(Dataset):
     name_override :
         Override name of dataset (used for more precise logging)
     transform :
-        Transform to apply to data. Provide this in the form
-        `f(data: torch.Tensor, **metadata) -> torch.Tensor`, where
-        `metadata` includes `order: int`, the tensor order of the field,
-        `field_names: List[str]`, the names of the fields, `field_attrs`,
-        dataset-specific metadata, as well as `dataset` which is the
-        dataset itself (from which one can get `dataset.metadata` to access
-        more detailed metadata).
+        Transform to apply to data. In the form `f(data: TrajectoryData, metadata:
+        TrajectoryMetadata) -> TrajectoryData`, where `data` contains a piece of
+        trajectory (fields, scalars, BCs, ...) and `metadata` contains additional
+        informations, including the dataset itself.
     min_std :
         Minimum standard deviation for field normalization. If a field standard
         deviation is lower than this value, it is replaced by this value.
@@ -231,7 +260,7 @@ class GenericWellDataset(Dataset):
         boundary_return_type: str = "padding",
         full_trajectory_mode: bool = False,
         name_override: Optional[str] = None,
-        transform: Optional[Callable[[torch.Tensor], torch.Tensor]] = None,
+        transform: Optional["Augmentation"] = None,
         min_std: float = 1e-4,
     ):
         super().__init__()
@@ -458,26 +487,13 @@ class GenericWellDataset(Dataset):
         expand_dims = expand_dims + (1,) * tensor_order
         return torch.tile(field_data, expand_dims)
 
-    def _postprocess_field_list(self, field_list, output_list, order, tensor_metadata):
-        """Postprocesses field list to apply tensor transforms"""
-        if len(field_list) > 0:
-            field_list = torch.stack(field_list, -(order + 1))
-            if self.transform is not None:
-                field_list = self.transform(field_list, order=order, **tensor_metadata)
-            if self.flatten_tensors:
-                field_list = field_list.flatten(-(order + 1))
-            output_list.append(field_list)
-        return output_list
-
     def _reconstruct_fields(self, file, cache, sample_idx, time_idx, n_steps, dt):
         """Reconstruct space fields starting at index sample_idx, time_idx, with
-        n_steps and dt stride. Apply transformations if provided."""
-        variable_fields = []
-        constant_fields = []
+        n_steps and dt stride."""
+        variable_fields = {0: {}, 1: {}, 2: {}}
+        constant_fields = {0: {}, 1: {}, 2: {}}
         # Iterate through field types and apply appropriate transforms to stack them
         for i, order_fields in enumerate(["t0_fields", "t1_fields", "t2_fields"]):
-            variable_subfields = []
-            constant_subfields = []
             field_names = file[order_fields].attrs["field_names"]
             for field_name in field_names:
                 field = file[order_fields][field_name]
@@ -497,13 +513,6 @@ class GenericWellDataset(Dataset):
                         )
                     field_data = field_data[multi_index]
                     field_data = torch.as_tensor(field_data)
-                    # Expand dims
-                    field_data = self._pad_axes(
-                        field_data,
-                        use_dims,
-                        time_varying=field.attrs["time_varying"],
-                        tensor_order=i,
-                    )
                     # Normalize
                     if self.use_normalization:
                         if field_name in self.means:
@@ -517,42 +526,26 @@ class GenericWellDataset(Dataset):
                     ):
                         self._check_cache(cache, field_name, field_data)
 
+                # Expand dims
+                field_data = self._pad_axes(
+                    field_data,
+                    use_dims,
+                    time_varying=field.attrs["time_varying"],
+                    tensor_order=i,
+                )
+
                 if field.attrs["time_varying"]:
-                    variable_subfields.append(field_data)
+                    variable_fields[i][field_name] = field_data
                 else:
-                    constant_subfields.append(field_data)
+                    constant_fields[i][field_name] = field_data
 
-            tensor_metadata = {
-                "dataset": self,
-                "field_names": field_names,
-                "field_attrs": {
-                    field_name: file[order_fields][field_name].attrs
-                    for field_name in file[order_fields].attrs["field_names"]
-                },
-            }
-            # Stack fields such that the last i dims are the tensor dims
-            variable_fields = self._postprocess_field_list(
-                variable_subfields, variable_fields, i, tensor_metadata
-            )
-            constant_fields = self._postprocess_field_list(
-                constant_subfields, constant_fields, i, tensor_metadata
-            )
-
-        return tuple(
-            torch.concatenate(field_group, -1)
-            if len(field_group) > 0
-            else torch.tensor([])
-            for field_group in [
-                variable_fields,
-                constant_fields,
-            ]
-        )
+        return (variable_fields, constant_fields)
 
     def _reconstruct_scalars(self, file, cache, sample_idx, time_idx, n_steps, dt):
         """Reconstruct scalar values (not fields) starting at index sample_idx, time_idx, with
         n_steps and dt stride."""
-        variable_scalars = []
-        constant_scalars = []
+        variable_scalars = {}
+        constant_scalars = {}
         for scalar_name in file["scalars"].attrs["field_names"]:
             scalar = file["scalars"][scalar_name]
 
@@ -578,14 +571,11 @@ class GenericWellDataset(Dataset):
                     self._check_cache(cache, scalar_name, scalar_data)
 
             if scalar.attrs["time_varying"]:
-                variable_scalars.append(scalar_data)
+                variable_scalars[scalar_name] = scalar_data
             else:
-                constant_scalars.append(scalar_data)
+                constant_scalars[scalar_name] = scalar_data
 
-        return tuple(
-            torch.stack(scalar_group, -1) if len(scalar_group) > 0 else torch.tensor([])
-            for scalar_group in [variable_scalars, constant_scalars]
-        )
+        return (variable_scalars, constant_scalars)
 
     def _reconstruct_grids(self, file, cache, sample_idx, time_idx, n_steps, dt):
         """Reconstruct grid values starting at index sample_idx, time_idx, with
@@ -698,9 +688,12 @@ class GenericWellDataset(Dataset):
                 dt = np.random.randint(self.dt, effective_max_dt)
         else:
             dt = self.dt_stride
-        # Now build the data
+
+        # Fetch the data
+        data = {}
+
         output_steps = min(self.n_steps_output, self.max_rollout_steps)
-        variable_fields, constant_fields = self._reconstruct_fields(
+        data["variable_fields"], data["constant_fields"] = self._reconstruct_fields(
             self.files[file_idx],
             self.caches[file_idx],
             sample_idx,
@@ -708,7 +701,7 @@ class GenericWellDataset(Dataset):
             self.n_steps_input + output_steps,
             dt,
         )
-        variable_scalars, constant_scalars = self._reconstruct_scalars(
+        data["variable_scalars"], data["constant_scalars"] = self._reconstruct_scalars(
             self.files[file_idx],
             self.caches[file_idx],
             sample_idx,
@@ -717,39 +710,81 @@ class GenericWellDataset(Dataset):
             dt,
         )
 
+        if self.boundary_return_type is not None:
+            data["boundary_conditions"] = self._reconstruct_bcs(
+                self.files[file_idx],
+                self.caches[file_idx],
+                sample_idx,
+                time_idx,
+                self.n_steps_input + output_steps,
+                dt,
+            )
+
+        if self.return_grid:
+            data["space_grid"], data["time_grid"] = self._reconstruct_grids(
+                self.files[file_idx],
+                self.caches[file_idx],
+                sample_idx,
+                time_idx,
+                self.n_steps_input + output_steps,
+                dt,
+            )
+
+        # Data transformation/augmentation
+        if self.transform is not None:
+            data = self.transform(
+                cast(TrajectoryData, data),
+                TrajectoryMetadata(
+                    dataset=self,
+                    file_idx=file_idx,
+                    sample_idx=sample_idx,
+                    time_idx=time_idx,
+                    time_stride=dt,
+                ),
+            )
+
+        # Concatenate fields and scalars
+        for key in ("variable_fields", "constant_fields"):
+            data[key] = [
+                field.unsqueeze(-1).flatten(-order - 1)
+                for order, fields in data[key].items()
+                for _, field in fields.items()
+            ]
+
+            if data[key]:
+                data[key] = torch.concatenate(data[key], dim=-1)
+            else:
+                data[key] = torch.tensor([])
+
+        for key in ("variable_scalars", "constant_scalars"):
+            data[key] = [scalar.unsqueeze(-1) for _, scalar in data[key].items()]
+
+            if data[key]:
+                data[key] = torch.concatenate(data[key], dim=-1)
+            else:
+                data[key] = torch.tensor([])
+
+        # Input/Output split
         sample = {
-            "input_fields": variable_fields[: self.n_steps_input],  # Ti x H x W x C
-            "output_fields": variable_fields[self.n_steps_input :],  # To x H x W x C
-            "constant_fields": constant_fields,  # H x W x C
-            "input_scalars": variable_scalars[: self.n_steps_input],  # Ti x C
-            "output_scalars": variable_scalars[self.n_steps_input :],  # To x C
-            "constant_scalars": constant_scalars,  # C
+            "input_fields": data["variable_fields"][
+                : self.n_steps_input
+            ],  # Ti x H x W x C
+            "output_fields": data["variable_fields"][
+                self.n_steps_input :
+            ],  # To x H x W x C
+            "constant_fields": data["constant_fields"],  # H x W x C
+            "input_scalars": data["variable_scalars"][: self.n_steps_input],  # Ti x C
+            "output_scalars": data["variable_scalars"][self.n_steps_input :],  # To x C
+            "constant_scalars": data["constant_scalars"],  # C
         }
 
-        # For complex BCs, might need to do this pre_normalization
-        # TODO Need to generalize
         if self.boundary_return_type is not None:
-            bcs = self._reconstruct_bcs(
-                self.files[file_idx],
-                self.caches[file_idx],
-                sample_idx,
-                time_idx,
-                self.n_steps_input + output_steps,
-                dt,
-            )
-            sample["boundary_conditions"] = bcs  # Currently only mask is an option
+            sample["boundary_conditions"] = data["boundary_conditions"]  # N x 2
+
         if self.return_grid:
-            space_grid, time_grid = self._reconstruct_grids(
-                self.files[file_idx],
-                self.caches[file_idx],
-                sample_idx,
-                time_idx,
-                self.n_steps_input + output_steps,
-                dt,
-            )
-            sample["space_grid"] = space_grid  # H x W x D
-            sample["input_time_grid"] = time_grid[: self.n_steps_input]  # Ti
-            sample["output_time_grid"] = time_grid[self.n_steps_input :]  # To
+            sample["space_grid"] = data["space_grid"]  # H x W x D
+            sample["input_time_grid"] = data["time_grid"][: self.n_steps_input]  # Ti
+            sample["output_time_grid"] = data["time_grid"][self.n_steps_input :]  # To
 
         # Return only non-empty keys - maybe change this later
         return {k: v for k, v in sample.items() if v.numel() > 0}

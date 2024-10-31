@@ -1,9 +1,15 @@
 import os.path
+import random
 import tempfile
 from unittest import TestCase
 
 import torch
 
+from the_well.benchmark.data.augmentation import (
+    Compose,
+    RandomAxisFlip,
+    RandomAxisPermute,
+)
 from the_well.benchmark.data.datasets import (
     GenericWellDataset,
     GenericWellMetadata,
@@ -72,6 +78,23 @@ class TestDataset(TestCase):
         self.assertIn("output_fields", data)
 
         data = dataset[len(dataset) - 1]
+        self.assertIn("input_fields", data)
+        self.assertIn("output_fields", data)
+
+    def test_augmentation(self):
+        dataset = GenericWellDataset(
+            well_base_path=".",
+            well_dataset_name="active_matter",
+            use_normalization=False,
+            transform=Compose(
+                RandomAxisFlip(),
+                RandomAxisPermute(),
+            ),
+        )
+
+        i = random.randrange(len(dataset))
+        data = dataset[i]
+
         self.assertIn("input_fields", data)
         self.assertIn("output_fields", data)
 

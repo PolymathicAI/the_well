@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Literal, Optional
 
 from torch.utils.data import DataLoader, DistributedSampler
 
+from .augmentation import Augmentation
 from .datasets import GenericWellDataset
 
 logger = logging.getLogger(__name__)
@@ -47,6 +48,7 @@ class WellDataModule(AbstractDataModule):
         world_size: int = 1,
         data_workers: int = 4,
         rank: int = 1,
+        transform: Optional[Augmentation] = None,
         dataset_kws: Optional[
             Dict[
                 Literal["train", "val", "rollout_val", "test", "rollout_test"],
@@ -80,6 +82,7 @@ class WellDataModule(AbstractDataModule):
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
             dt_stride=dt_stride,
+            transform=transform,
             **(
                 dataset_kws["train"]
                 if dataset_kws is not None and "train" in dataset_kws
