@@ -202,7 +202,7 @@ class AViT(nn.Module):
         self.drop_path = drop_path
         self.dp = np.linspace(0, drop_path, processor_blocks)
 
-        self.resolution = tuple(dset_metadata.resolution)
+        self.resolution = tuple(dset_metadata.spatial_resolution)
         # Patch size hardcoded at 16 in this implementation
         self.patch_size = 16
         # Embedding

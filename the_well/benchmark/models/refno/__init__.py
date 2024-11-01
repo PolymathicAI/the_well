@@ -134,7 +134,7 @@ class ReFNO(nn.Module):
         """
 
         """
-        self.resolution = tuple(dset_metadata.resolution)
+        self.resolution = tuple(dset_metadata.spatial_resolution)
         self.encoder = SigmaNormLinear(dim_in, hidden_dim)
         self.pos_embedding = nn.Parameter(
             torch.randn(self.resolution + (hidden_dim,)) * 0.02

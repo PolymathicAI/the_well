@@ -181,7 +181,7 @@ class AFNO(nn.Module):
         super().__init__()
         self.dim_in = dim_in
         self.dim_out = dim_out
-        self.resolution = dset_metadata.resolution
+        self.resolution = dset_metadata.spatial_resolution
         self.n_spatial_dims = dset_metadata.n_spatial_dims
         self.n_blocks = n_blocks
         self.cmlp_diagonal_blocks = cmlp_diagonal_blocks

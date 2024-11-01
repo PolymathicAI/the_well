@@ -119,7 +119,7 @@ class GenericWellMetadata:
 
     dataset_name: str
     n_spatial_dims: int
-    spatial_resolution: Tuple[int]
+    spatial_resolution: Tuple[int, ...]
     scalar_names: List[str]
     constant_scalar_names: List[str]
     field_names: Dict[int, List[str]]
