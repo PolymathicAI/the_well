@@ -1,5 +1,6 @@
 import argparse
 import traceback
+import warnings
 
 import h5py as h5
 import numpy as np
@@ -9,6 +10,7 @@ def check_dataset(
     f: h5.File,
     group: h5.Group,
     key: str,
+    is_spatial: bool = False,
     is_field: bool = False,
     is_bc: bool = False,
     order: int = 0,
@@ -39,6 +41,19 @@ def check_dataset(
         ), f"attribute '{attr}' in {dataset.name} should be of length 'n_spatial_dims'"
 
     if is_bc:
+        assert (
+            "bc_type" in dataset.attrs
+        ), f"{dataset.name} should contain 'bc_type' attribute"
+
+        bc_type = dataset.attrs["bc_type"]
+
+        assert isinstance(
+            bc_type, str
+        ), f"attribute 'bc_type' in {dataset.name} should be a string"
+
+        if bc_type.lower() not in dataset.name:
+            warnings.warn(f"{dataset.name} is not named after 'bc_type' ({bc_type})")
+
         for attr in ("associated_fields", "associated_dims"):
             assert (
                 attr in dataset.attrs
@@ -46,6 +61,21 @@ def check_dataset(
             assert isinstance(
                 dataset.attrs[attr], (list, np.ndarray)
             ), f"attribute '{attr}' in {dataset.name} should be a list of strings"
+
+        associated_dims = dataset.attrs["associated_dims"]
+
+        for dim in associated_dims:
+            assert isinstance(
+                dim, str
+            ), f"{dim} in 'associated_dims' in {dataset.name} should be a string"
+            assert (
+                dim in f["dimensions"].attrs["spatial_dims"]
+            ), f"{dim} in 'associated_dims' in {dataset.name} should be in 'spatial_dims'"
+
+            if dim not in dataset.name:
+                warnings.warn(
+                    f"{dataset.name} is not named after 'associated_dims' ({associated_dims})"
+                )
 
         assert "mask" in dataset, f"{dataset.name} should contain 'mask' dataset"
 
@@ -63,15 +93,20 @@ def check_dataset(
             if dataset.attrs["dim_varying"][i]:
                 expected = (*expected, f["dimensions"][dim].shape[-1])
 
+        for _ in range(order):
+            expected = (*expected, f.attrs["n_spatial_dims"])
+
     if is_bc:
         for i, dim in enumerate(f["dimensions"].attrs["spatial_dims"]):
             if dim in dataset.attrs["associated_dims"]:
                 expected = (*expected, f["dimensions"][dim].shape[-1])
 
-    if is_bc:
-        current = dataset["mask"].shape[: dataset["mask"].ndim - order]
+    if is_spatial:
+        current = dataset.shape[:-1]
+    elif is_bc:
+        current = dataset["mask"].shape
     else:
-        current = dataset.shape[: dataset.ndim - order]
+        current = dataset.shape
 
     assert (
         current == expected
@@ -82,7 +117,7 @@ def check_dimensions(f: h5.File):
     assert "dimensions" in f, "'dimensions' should be a root group"
     group = f["dimensions"]
 
-    check_dataset(f, group, "time", order=0)
+    check_dataset(f, group, "time")
 
     assert (
         "spatial_dims" in group.attrs
@@ -99,7 +134,7 @@ def check_dimensions(f: h5.File):
             key, str
         ), f"{key} in 'spatial_dims' in {group.name} should be a string"
 
-        check_dataset(f, group, key, order=1)  # order = 1 is an abuse, but it works
+        check_dataset(f, group, key, is_spatial=True)
 
     print(f"{group.name} passed!")
 
@@ -141,7 +176,7 @@ def check_scalars(f: h5.File):
             key, str
         ), f"{key} in 'field_names' in {group.name} should be a string"
 
-        check_dataset(f, group, key, order=0)
+        check_dataset(f, group, key)
 
     print(f"{group.name} passed!")
 
@@ -151,7 +186,7 @@ def check_boundary_conditions(f):
     group = f["boundary_conditions"]
 
     for key in group:
-        check_dataset(f, group, key, is_bc=True, order=0)
+        check_dataset(f, group, key, is_bc=True)
 
     print(f"{group.name} passed!")
 
