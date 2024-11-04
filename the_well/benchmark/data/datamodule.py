@@ -44,7 +44,8 @@ class WellDataModule(AbstractDataModule):
         max_rollout_steps: int = 100,
         n_steps_input: int = 1,
         n_steps_output: int = 1,
-        dt_stride: int = 1,
+        min_dt_stride: int = 1,
+        max_dt_stride: int = 1,
         world_size: int = 1,
         data_workers: int = 4,
         rank: int = 1,
@@ -66,9 +67,31 @@ class WellDataModule(AbstractDataModule):
             Name of the well dataset to use.
         batch_size:
             Size of the batches yielded by the dataloaders
-
-        ...
-
+        include_filters:
+            Only file names containing any of these strings will be included.
+        exclude_filters:
+            File names containing any of these strings will be excluded.
+        use_normalization:
+            Whether to use normalization on the data. Currently only supports mean/std.
+        max_rollout_steps:
+            Maximum number of steps to use for the rollout dataset. Mostly for memory reasons.
+        n_steps_input:
+            Number of steps to use as input.
+        n_steps_output:
+            Number of steps to use as output.
+        min_dt_stride:
+            Minimum stride in time to use for the dataset.
+        max_dt_stride:
+            Maximum stride in time to use for the dataset. If this is greater than min, randomly choose between them.
+                Note that this is unused for validation/test which uses "min_dt_stride" for both the min and max.
+        world_size:
+            Number of GPUs in use for distributed training.
+        data_workers:
+            Number of workers to use for data loading.
+        rank:
+            Rank of the current process in distributed training.
+        transform:
+            Augmentation to apply to the data. If None, no augmentation is applied.
         dataset_kws:
             Additional keyword arguments to pass to each dataset, as a dict of dicts.
         """
@@ -81,7 +104,8 @@ class WellDataModule(AbstractDataModule):
             use_normalization=use_normalization,
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
-            dt_stride=dt_stride,
+            min_dt_stride=min_dt_stride,
+            max_dt_stride=max_dt_stride,
             transform=transform,
             **(
                 dataset_kws["train"]
@@ -98,7 +122,8 @@ class WellDataModule(AbstractDataModule):
             use_normalization=use_normalization,
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
-            dt_stride=dt_stride,
+            min_dt_stride=min_dt_stride,
+            max_dt_stride=min_dt_stride,
             **(
                 dataset_kws["val"]
                 if dataset_kws is not None and "val" in dataset_kws
@@ -116,7 +141,8 @@ class WellDataModule(AbstractDataModule):
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
             full_trajectory_mode=True,
-            dt_stride=dt_stride,
+            min_dt_stride=min_dt_stride,
+            max_dt_stride=min_dt_stride,
             **(
                 dataset_kws["rollout_val"]
                 if dataset_kws is not None and "rollout_val" in dataset_kws
@@ -131,7 +157,8 @@ class WellDataModule(AbstractDataModule):
             exclude_filters=exclude_filters,
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
-            dt_stride=dt_stride,
+            min_dt_stride=min_dt_stride,
+            max_dt_stride=min_dt_stride,
             **(
                 dataset_kws["test"]
                 if dataset_kws is not None and "test" in dataset_kws
@@ -148,7 +175,8 @@ class WellDataModule(AbstractDataModule):
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
             full_trajectory_mode=True,
-            dt_stride=dt_stride,
+            min_dt_stride=min_dt_stride,
+            max_dt_stride=min_dt_stride,
             **(
                 dataset_kws["rollout_test"]
                 if dataset_kws is not None and "rollout_test" in dataset_kws
