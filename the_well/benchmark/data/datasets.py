@@ -690,8 +690,6 @@ class GenericWellDataset(Dataset):
             if effective_max_dt > self.min_dt_stride:
                 dt = np.random.randint(self.min_dt_stride, effective_max_dt)
             
-        print("The DT for this sample is!", dt)
-
         # Fetch the data
         data = {}
 
