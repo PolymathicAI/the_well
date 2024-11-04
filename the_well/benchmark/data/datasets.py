@@ -209,7 +209,7 @@ class GenericWellDataset(Dataset):
         Number of steps to include in each sample
     n_steps_output :
         Number of steps to include in y
-    dt_stride :
+    min_dt_stride :
         Minimum stride between samples
     max_dt_stride :
         Maximum stride between samples
@@ -251,7 +251,7 @@ class GenericWellDataset(Dataset):
         max_rollout_steps=100,
         n_steps_input: int = 1,
         n_steps_output: int = 1,
-        dt_stride: int = 1,
+        min_dt_stride: int = 1,
         max_dt_stride: int = 1,
         flatten_tensors: bool = True,
         cache_small: bool = True,
@@ -308,7 +308,7 @@ class GenericWellDataset(Dataset):
         self.max_rollout_steps = max_rollout_steps
         self.n_steps_input = n_steps_input
         self.n_steps_output = n_steps_output  # Gets overridden by full trajectory mode
-        self.dt_stride = dt_stride
+        self.min_dt_stride = min_dt_stride
         self.max_dt_stride = max_dt_stride
         self.flatten_tensors = flatten_tensors
         self.return_grid = return_grid
@@ -376,14 +376,15 @@ class GenericWellDataset(Dataset):
                 ), "Multiple resolutions found in specified path"
                 # TODO - this probably bugs out if steps vary between files
                 if self.full_trajectory_mode:
-                    self.n_steps_output = steps - self.n_steps_input
+                    self.n_steps_output = (steps//self.min_dt_stride) - self.n_steps_input
                 # Check that the requested steps make sense
                 windows_per_trajectory = raw_steps_to_possible_sample_t0s(
-                    steps, self.n_steps_input, self.n_steps_output, self.dt_stride
+                    steps, self.n_steps_input, self.n_steps_output, self.min_dt_stride
                 )
                 assert windows_per_trajectory > 0, (
-                    f"Not enough steps in file {file}"
-                    f"for {self.n_steps_input} input and {self.n_steps_output} output steps"
+                    f"{steps} steps is not enough steps for file {file}"
+                    f" to allow {self.n_steps_input} input and {self.n_steps_output} output steps"
+                    f" with a minimum stride of {self.min_dt_stride}"
                 )
                 self.n_trajectories_per_file.append(trajectories)
                 self.n_steps_per_trajectory.append(steps)
@@ -677,17 +678,17 @@ class GenericWellDataset(Dataset):
             self._open_file(file_idx)
 
         # If we gave a stride range, decide the largest size we can use given the sample location
-        if self.max_dt_stride > self.dt_stride:
+        if self.max_dt_stride > self.min_dt_stride:
             effective_max_dt = maximum_stride_for_initial_index(
                 time_idx,
                 self.n_steps_per_trajectory[file_idx],
                 self.n_steps_input,
                 self.n_steps_output,
             )
-            if effective_max_dt > self.dt:
-                dt = np.random.randint(self.dt, effective_max_dt)
+            if effective_max_dt > self.min_dt_stride:
+                dt = np.random.randint(self.min_dt_stride, effective_max_dt)
         else:
-            dt = self.dt_stride
+            dt = self.min_dt_stride
 
         # Fetch the data
         data = {}
