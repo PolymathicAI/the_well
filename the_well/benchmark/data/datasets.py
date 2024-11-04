@@ -690,8 +690,8 @@ class GenericWellDataset(Dataset):
             )
             effective_max_dt = min(effective_max_dt, self.max_dt_stride)
             if effective_max_dt > self.min_dt_stride:
-                dt = np.random.randint(self.min_dt_stride, effective_max_dt)
-
+                # Randint is non-inclusive on the upper bound
+                dt = np.random.randint(self.min_dt_stride, effective_max_dt + 1)
         # Fetch the data
         data = {}
 
