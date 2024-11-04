@@ -376,7 +376,9 @@ class GenericWellDataset(Dataset):
                 ), "Multiple resolutions found in specified path"
                 # TODO - this probably bugs out if steps vary between files
                 if self.full_trajectory_mode:
-                    self.n_steps_output = (steps//self.min_dt_stride) - self.n_steps_input
+                    self.n_steps_output = (
+                        steps // self.min_dt_stride
+                    ) - self.n_steps_input
                 # Check that the requested steps make sense
                 windows_per_trajectory = raw_steps_to_possible_sample_t0s(
                     steps, self.n_steps_input, self.n_steps_output, self.min_dt_stride
@@ -689,7 +691,7 @@ class GenericWellDataset(Dataset):
             effective_max_dt = min(effective_max_dt, self.max_dt_stride)
             if effective_max_dt > self.min_dt_stride:
                 dt = np.random.randint(self.min_dt_stride, effective_max_dt)
-            
+
         # Fetch the data
         data = {}
 
