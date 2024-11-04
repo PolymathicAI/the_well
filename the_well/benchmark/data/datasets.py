@@ -678,6 +678,7 @@ class GenericWellDataset(Dataset):
             self._open_file(file_idx)
 
         # If we gave a stride range, decide the largest size we can use given the sample location
+        dt = self.min_dt_stride
         if self.max_dt_stride > self.min_dt_stride:
             effective_max_dt = maximum_stride_for_initial_index(
                 time_idx,
@@ -685,10 +686,11 @@ class GenericWellDataset(Dataset):
                 self.n_steps_input,
                 self.n_steps_output,
             )
+            effective_max_dt = min(effective_max_dt, self.max_dt_stride)
             if effective_max_dt > self.min_dt_stride:
                 dt = np.random.randint(self.min_dt_stride, effective_max_dt)
-        else:
-            dt = self.min_dt_stride
+            
+        print("The DT for this sample is!", dt)
 
         # Fetch the data
         data = {}
