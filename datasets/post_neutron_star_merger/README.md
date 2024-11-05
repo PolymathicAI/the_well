@@ -34,7 +34,8 @@ The standard radiative transfer equation is
 \end{equation}
 ```
 
-![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/post_neutron_star_merger/gif/Ye_good_normalized.gif)
+<p align="center"> <img src="https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/post_neutron_star_merger/gif/Ye_good_normalized.gif" width="50%"></p>
+
 
 
 
