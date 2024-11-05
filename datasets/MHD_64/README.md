@@ -1,5 +1,7 @@
 # Magnetohydrodynamics (MHD) compressible turbulence
 
+**NOTE:** This dataset is available in two different resolutions $256^3$ for `MHD_256` and $64^3$ for `MHD_64`. The data was first generated at $256^3$ and then downsampled to $64^3$ after anti-aliasing with an ideal low-pass filter. The data is available in both resolutions.
+
 **One line description of the data:** This is an MHD fluid flows in the compressible limit (subsonic, supersonic, sub-Alfvenic, super-Alfvenic).
 
 **Longer description of the data:** An essential component of the solar wind, galaxy formation, and of interstellar medium (ISM) dynamics is magnetohydrodynamic (MHD) turbulence. This dataset consists of isothermal MHD simulations without self-gravity (such as found in the diffuse ISM) initially generated with resolution $256^3$ and then downsampled to $64^3$ after anti-aliasing with an ideal low-pass filter. This dataset is the downsampled version.
@@ -24,13 +26,13 @@ where $\rho$ is the density, $\mathbf{v}$ is the velocity, $\mathbf{B}$ is the m
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| `MHD_64`  | 0.351 | 0.314 |0.270|$\mathbf{0.211}$|
+| `MHD_64`  | 0.3605 | 3561 |0.1798|$\mathbf{0.1633}$|
 
-Preliminary benchmarking, in VRMSE.
+Table: VRMSE metrics on test sets (lower is better). Best results are shown in bold. VRMSE is scaled such that predicting the mean value of the target field results in a score of 1.
 
 # About the data
 
-**Dimension of discretized data:** 100 timesteps of $64\times 64\times 64$ cubes.
+**Dimension of discretized data:** 100 timesteps of 64 $\times$ 64 $\times$ 64 cubes.
 
 **Fields available in the data:** Density (scalar field), velocity (vector field), magnetic field (vector field).
 
@@ -52,9 +54,7 @@ Preliminary benchmarking, in VRMSE.
 
 **Set of coefficients or non-dimensional parameters evaluated:** all combinations of $\mathcal{M}_s=${0.5, 0.7, 1.5, 2.0 7.0} and $\mathcal{M}_A =${0.7, 2.0}.
 
-**Approximate time to generate the data:** Downsampled from MHD_256 after applying ideal low-pass filter.
-
-**Hardware used to generate the data**: Downsampled from MHD_256 after applying ideal low-pass filter.
+**Approximate time and hardware used to generate the data:** Downsampled from `MHD_256` after applying ideal low-pass filter.
 
 # What is interesting and challenging about the data:
 

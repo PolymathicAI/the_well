@@ -6,9 +6,9 @@ acoustic scattering from a nonperiodic source by a periodic surface, relevant fo
 **Longer description of the data:**  Accurate solution of PDEs near infinite, periodic boundaries poses a numerical challenge due these surfaces serving as waveguides, allowing modes to propagate for long distances from the source. This property makes numerical truncation of the (infinite) solution domain unfeasible, as it would induce large artificial reflections and therefore errors. Periodization (reducing the computational domain to one unit cell) is only possible if the incident wave is also
 periodic, such as plane waves, but not for nonperiodic sources, e.g. a point source. Computing a high-order accurate scattering solution from a point source, however, would be of scientific interest as it models applications such as remote sensing, diffraction from gratings, antennae, or acoustic/photonic metamaterials. We use a combination of the Floquet—Bloch transform (also known as array scanning method) and boundary integral equation methods to alleviate these challenges and recover the scattered solution as an integral over a family of quasiperiodic solutions parameterized by their on-surface wavenumber. The advantage of this approach is that each of the quasiperiodic solutions may be computed quickly by periodization, and accurately via high-order quadrature.
 
-**Associated paper**: [Paper](https://arxiv.org/abs/2310.12486),
+**Associated paper**: [Paper](https://arxiv.org/abs/2310.12486).
 
-**Domain expert**: [Fruzsina Julia Agocs](https://fruzsinaagocs.github.io/), Center for Computational Mathematics, Flatiron Institute.
+**Domain expert**: [Fruzsina Julia Agocs](https://fruzsinaagocs.github.io/), Center for Computational Mathematics, Flatiron Institute \& University of Colorado, Boulder.
 
 **Code or software used to generate the data**: [Github repository](https://www.github.com/fruzsinaagocs/bies).
 
@@ -30,20 +30,18 @@ u_n &= 0 \quad \text{on } \partial \Omega,
 ```
 with outwards radiation conditions as described in [1]. The region $\Omega$ lies above a corrugated boundary $\partial \Omega$, extending with spatial period $d$ in the $x_1$ direction, and is unbounded in the positive $x_2$ direction. The current example is a right-angled staircase whose unit cell consists of two equal-length line segments at $\pi/2$ angle to each other.
 
-<div style="transform: rotate(90deg);">
-  <img src="https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/helmholtz_staircase/gif/pressure_re_normalized.gif" alt="Rotated GIF">
-</div>
+![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/helmholtz_staircase/gif/pressure_normalized.gif)
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| `helmholtz_staircase`  |0.00555 |$\mathbf{0.00205}$ | 0.0825 | 0.00520|
+| `helmholtz_staircase`  |$\textbf{0.00046}$ | 0.00346 | 0.01931 | 0.02758|
 
-Preliminary benchmarking, in VRMSE.
+Table: VRMSE metrics on test sets (lower is better). Best results are shown in bold. VRMSE is scaled such that predicting the mean value of the target field results in a score of 1.
 
 # About the data
 
-**Dimension of discretized data:** $50$ time-steps of
-$1024\times256$ images.
+**Dimension of discretized data:** 50 time-steps of
+1024 $\times$ 256 images.
 
 **Fields available in the data:**
 real and imaginary part of accoustic pressure (scalar field), the staircase mask (scalar field, stationary).

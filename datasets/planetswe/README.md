@@ -8,7 +8,7 @@
 
 **Domain expert**: [Michael McCabe](https://mikemccabe210.github.io/), Polymathic AI.
 
-**Code or software used to generate the data**: [Dedalus](https://dedalus-project.readthedocs.io/en/latest/), adapted from [example](https://dedalus-project.readthedocs.io/en/latest/pages/examples/ivp_sphere_shallow_water.html).
+**Code or software used to generate the data**: [Dedalus](https://dedalus-project.readthedocs.io/en/latest/), adapted from [this example](https://dedalus-project.readthedocs.io/en/latest/pages/examples/ivp_sphere_shallow_water.html).
 
 **Equation**:
 
@@ -44,8 +44,9 @@ Visualization:
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| `planetswe`  | 0.0800| 0.0768 |0.930| $\mathbf{0.0624}$|
+| `planetswe`  | 0.1727| $\mathbf{0.0853}$ | 0.3620 | 0.3724|
 
+Table: VRMSE metrics on test sets (lower is better). Best results are shown in bold. VRMSE is scaled such that predicting the mean value of the target field results in a score of 1.
 
 # About the data
 
@@ -69,7 +70,7 @@ Visualization:
 
 **Total time range ($t_{min}$ to $t_{max}$):** $t_{min} = 0$, $t_{max} = 3024$.
 
-**Spatial domain size ($L_x$, $L_y$, $L_z$):** $\phi \in [0, 2 \pi]$, $\theta \in [0, \pi]$.
+**Spatial domain size:** $\phi \in [0, 2 \pi]$, $\theta \in [0, \pi]$.
 
 **Set of coefficients or non-dimensional parameters evaluated:** $\nu$ normalized to mode 224.
 

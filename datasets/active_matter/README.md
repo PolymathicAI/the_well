@@ -1,4 +1,4 @@
-# Active fluid simulations
+# Active matter simulations
 
 **One line description of the data:**  Modeling and simulation of biological active matter.
 
@@ -17,9 +17,9 @@
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| `active_matter`  | $\mathbf{0.982}$  | 143 |2.77|1.09|
+| `active_matter`  | 0.3691  | 0.3598 |0.2489|$\mathbf{0.1034}$|
 
-Preliminary benchmarking, in VRMSE.
+Table: VRMSE metrics on test sets (lower is better). Best results are shown in bold. VRMSE is scaled such that predicting the mean value of the target field results in a score of 1.
 
 
 
@@ -27,7 +27,7 @@ Preliminary benchmarking, in VRMSE.
 
 # About the data
 
-**Dimension of discretized data:** $81$ time-steps of $256\times256$ images per trajectory.
+**Dimension of discretized data:** 81 time-steps of 256 $\times$ 256 images per trajectory.
 
 **Fields available in the data:** concentration (scalar field),
 velocity (vector field), orientation tensor (tensor field), strain-rate tensor (tensor field).
@@ -49,7 +49,7 @@ velocity (vector field), orientation tensor (tensor field), strain-rate tensor (
 
 **Total time range ($t_{min}$ to $t_{max}$):** $0$ to $20$ seconds.
 
-**Spatial domain size ($L_x$, $L_y$, $L_z$):** $L_x=10$ and $L_y=10$.
+**Spatial domain size ($L_x$, $L_y$):** $L_x=10$ and $L_y=10$.
 
 **Set of coefficients or non-dimensional parameters evaluated:** $\alpha =$ {-1,-2,-3,-4,-5}; $\beta  =$ {0.8};
 $\zeta =$ {1,3,5,7,9,11,13,15,17}.

@@ -26,9 +26,9 @@ with $\rho$ the density, $\vec{v}$ the 2D velocity, $P$ the pressure, $E$ the to
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| `turbulent_radiative_layer_2D`  | 0.967| 1.01 |0.576| 0.575|
+| `turbulent_radiative_layer_2D`  | 0.5001| 0.5016 |0.2418| $\mathbf{0.1956}$|
 
-Preliminary benchmarking, in VRMSE.
+Table: VRMSE metrics on test sets (lower is better). Best results are shown in bold. VRMSE is scaled such that predicting the mean value of the target field results in a score of 1.
 
 
 # About the data

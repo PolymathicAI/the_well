@@ -27,7 +27,7 @@ where $\rho$ is the density, $\mathbf{v}$ is the velocity, $\mathbf{B}$ is the m
 
 # About the data
 
-**Dimension of discretized data:** 100 timesteps of $256\times 256\times256$ cubes.
+**Dimension of discretized data:** 100 timesteps of 256 $\times$ 256 $\times$ 256 cubes.
 
 **Fields available in the data:** Density (scalar field), velocity (vector field), magnetic field (vector field).
 

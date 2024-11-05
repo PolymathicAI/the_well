@@ -6,7 +6,7 @@
 
 **Domain expert**: [Michael McCabe](https://mikemccabe210.github.io/), Polymathic AI.
 
-**Code or software used to generate the data**: Clawpack,  adapted from [this code](http://www.clawpack.org/gallery/pyclaw/gallery/acoustics_2d_interface.html).
+**Code or software used to generate the data**: Clawpack,  adapted from [this example.](http://www.clawpack.org/gallery/pyclaw/gallery/acoustics_2d_interface.html)
 
 **Equation**:
 
@@ -29,11 +29,13 @@ Traversal can be seen:
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| `acoustic_scattering_maze`  | 1.00 | 1.00| 1.00| $\mathbf{0.173}$|
+| `acoustic_scattering_maze`  | 0.5062 | 0.5057| 0.0351| $\mathbf{0.0153}$|
+
+Table: VRMSE metrics on test sets (lower is better). Best results are shown in bold. VRMSE is scaled such that predicting the mean value of the target field results in a score of 1.
 
 # About the data
 
-**Dimension of discretized data:** $201$ steps of $256\times256$ images.
+**Dimension of discretized data:** 201 steps of 256 $\times$ 256 images.
 
 **Fields available in the data:** pressure (scalar field), material density (constant scalar field), material speed of sound (constant scalar field), velocity field (vector field).
 
@@ -51,13 +53,15 @@ Traversal can be seen:
 
 **Data are stored separated by ($\Delta t$):** 2/201.
 
-**Total time range ($t_{min}$ to $t_{max}$):** [0,4.].
+**Total time range ($t_{min}$ to $t_{max}$):** [0, 4.].
 
-**Spatial domain size ($L_x$, $L_y$, $L_z$):** [-1, 1] x [-1, 1].
+**Spatial domain size ($L_x$, $L_y$):** [-1, 1] x [-1, 1].
 
-**Set of coefficients or non-dimensional parameters evaluated:** $K$ is fixed at 4.0.
+**Set of coefficients or non-dimensional parameters evaluated:** 
 
-$\rho$ is the primary coefficient here. We generated a maze with initial width between 6 and 16 pixels and upsample it via nearest neighbor resampling to create a 256 x 256 maze. The walls are set to $\rho=10^6$ while paths are set to  $\rho=3$.
+- $K$ is fixed at 4.0.
+
+- $\rho$ is the primary coefficient here. We generated a maze with initial width between 6 and 16 pixels and upsample it via nearest neighbor resampling to create a 256 x 256 maze. The walls are set to $\rho=10^6$ while paths are set to  $\rho=3$.
 
 **Approximate time to generate the data:** ~20 minutes per simulation.
 

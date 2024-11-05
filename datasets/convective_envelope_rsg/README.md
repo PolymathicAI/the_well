@@ -32,17 +32,17 @@ where
 - $I$ = frequency integrated intensity, which is a function of time, spatial coordinate, and photon propagation direction $\mathbf{n}$.
 - $\mathbf{n}$ = photon propagation direction.
 
-![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/convective_envelope_rsg/gif/density_unnormalized.gif)
+![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/convective_envelope_rsg/gif/density_normalized.gif)
 
 |          Dataset          | FNO  |      TFNO       | Unet | CNextU-net |
 | :-----------------------: | :--: | :-------------: | :--: | :--------: |
-| `convective_envelope_rsg` | 1.08 | $\mathbf{1.06}$ | 1.15 |    1.07    |
+| `convective_envelope_rsg` | $\mathbf{0.0269}$ | 0.0283 | 0.0555 | 0.0799 |
 
-Preliminary benchmarking, in VRMSE.
+Table: VRMSE metrics on test sets (lower is better). Best results are shown in bold. VRMSE is scaled such that predicting the mean value of the target field results in a score of 1.
 
 # About the data
 
-**Dimension of discretized data:** $100$ time-steps of $256\times 128 \times 256$ images per trajectory.
+**Dimension of discretized data:** 100 time-steps of 256 $\times$ 128 $\times$ 256 images per trajectory.
 
 **Fields available in the data:** energy (scalar field), density (scalar field), pressure (scalar field), velocity (vector field).
 
@@ -69,7 +69,7 @@ Between $300\~R_\odot$ and $400\~R_\odot$, the initial profile is constructed wi
 | ------------------------------------------------ | ----------------------------------------- | ----------------------------------------- | ----------- | --------------------------- | --------- | --------------------- | ---------------------------------- |
 | Whole simulation (to obtain the 29 trajectories) | 300                                       | 6700                                      | fixed L     | 256 × 128 × 256             | 5766 days | 10.79                 | 12.9                               |
 
-**Approximate time to generate the data:** 2 months on 80 nodes, or approximately 10 million CPU hours
+**Approximate time to generate the data:** 2 months on 80 nodes, or approximately 10 million CPU hours.
 
 **Hardware used to generate the data:** 80x NASA Pleiades Skylake CPU nodes.
 

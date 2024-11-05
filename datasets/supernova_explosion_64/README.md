@@ -1,11 +1,11 @@
-# Supernova Explosion in Turbulent Interstellar medium in galaxies
+# Supernova Explosion in a Turbulent Interstellar Medium in Galaxies
 
 **One line description of the data:**
-Blastwave in dense cool gas cloud.
+Blastwave in a dense cool gas cloud.
 
 **Longer description of the data:**
 The simulations solve an explosion inside a compression of a monatomic ideal gas, which follows the equation of state with the specific heat ratio $\gamma=5/3$.
-The gas in these simulations mocks interstellar medium in the Milky Way Galaxy.
+The gas in these simulations mocks the interstellar medium in the Milky Way Galaxy.
 At the beginning of the simulations, the thermal energy of a supernova is dumped at the center of the simulation box.
 The hot ($\sim 10^7$ K) gas is immediately accelerated and makes the blastwave.
 Because velocities of the hot gas become supersonic, much fine resolution and small timestep are required to resolve the dynamics.
@@ -15,7 +15,7 @@ The physical quantities are also distributed in seven orders of magnitude, which
 
 **Domain expert**: [Keiya Hirashima](https://kyafuk.github.io/utokyo-hirashima/index.html), University of Tokyo & CCA, Flatiron Institute.
 
-**Code or software used to generate the data**: ASURA-FDPS (Smoothed Particle Hydrodynamics), [Github repository](https://github.com/FDPS/FDPS)
+**Code or software used to generate the data**: ASURA-FDPS (Smoothed Particle Hydrodynamics), [Github repository](https://github.com/FDPS/FDPS).
 
 **Equation**:
 
@@ -34,13 +34,13 @@ where $P$, $\rho$, and $u$ are the pressure. $r$ is the position, $a_{\rm visc}$
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| `supernova_explosion_64`  | 1.01 | 1.01 |1.06|$\mathbf{0.968}$|
+| `supernova_explosion_64`  | 0.3783 | 0.3785 |$\mathbf{0.3063}$|0.3181|
 
-Preliminary benchmarking, in VRMSE.
+Table: VRMSE metrics on test sets (lower is better). Best results are shown in bold. VRMSE is scaled such that predicting the mean value of the target field results in a score of 1.
 
 # About the data
 
-**Dimension of discretized data** $59$ time-steps of  $64\times 64\times 64$ cubes.
+**Dimension of discretized data** 59 time-steps of  64 $\times$ 64 $\times$ 64 cubes.
 
 **Fields available in the data:**
 Pressure (scalar field), density (scalar field), temperature(scalar field), velocity (tensor field).
@@ -51,11 +51,11 @@ Pressure (scalar field), density (scalar field), temperature(scalar field), velo
 
 **Grid type:** uniform, cartesian coordinates.
 
-**Initial conditions:** $820$ random seeds generated using https://github.com/amusecode/amuse/blob/main/src/amuse/ext/molecular_cloud.py (Virialized isothermal gas sphere with turbulence following the velocity spectrum $E(k) \propto k^{-2}$, which is Burgers turbulence ([Burgers 1948](https://www.sciencedirect.com/science/article/abs/pii/S0065215608701005) and [Kupilas+2021](https://doi.org/10.1093/mnras/staa3889) for reference).
+**Initial conditions:** $820$ random seeds generated using https://github.com/amusecode/amuse/blob/main/src/amuse/ext/molecular_cloud.py (Virialized isothermal gas sphere with turbulence following the velocity spectrum $E(k) \propto k^{-2}$, which is Burgers turbulence ([Burgers 1948](https://www.sciencedirect.com/science/article/abs/pii/S0065215608701005) and [Kupilas+2021](https://doi.org/10.1093/mnras/staa3889) for reference)).
 
 **Boundary conditions:** open.
 
-**Data are stored separated by ($\Delta t$):** $100$ ~ $10,000$ years (variable timesteps).
+**Data are stored separated by ($\Delta t$):** $100$ ~ $10\,000$ years (variable timesteps).
 
 **Total time range ($t_{min}$ to $t_{max}$):** $0$ yr to $0.2$ Myr.
 
@@ -66,7 +66,7 @@ Pressure (scalar field), density (scalar field), temperature(scalar field), velo
 **Approximate time to generate the data (CPU hours):**
 | 1M $_\odot$ | 0.1 M $\odot$ |
 |:----------:|:----------:|
-| $300$ | $3500$ |
+| $300$ | $3\,500$ |
 
 **Hardware used to generate the data and precision used for generating the data:** up to 1040 CPU cores per run.
 

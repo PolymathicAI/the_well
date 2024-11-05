@@ -22,16 +22,16 @@ Re(\partial_t \mathbf{u^*} + (\mathbf{u^*}\cdot\nabla)\mathbf{u^*} ) + \nabla p^
 \end{align}
 ```
 
-where $\mathbf{u^\*} = (u^\*,v^\*)$ is the streamwise and wall-normal velocity components, $p^\*$ is the pressure, $\mathbf{C^\*}$ is the positive definite conformation tensor which represents the ensemble average of the produce of the end-to-end vector of the polymer molecules. In 2D, 4 components of the tensor are solved: $c\_{xx}^{\*}, c^{\*}\_{yy}, c^{\*}\_{zz}, c^{\*}\_{xy}$. $\mathbf{T}(\mathbf{C^{\*}})$ is the polymer stress tensor given by the FENE-P model.
+where $\mathbf{u^*} = (u^*,v^*)$ is the streamwise and wall-normal velocity components, $p^*$ is the pressure, $\mathbf{C^*}$ is the positive definite conformation tensor which represents the ensemble average of the produce of the end-to-end vector of the polymer molecules. In 2D, 4 components of the tensor are solved: $c_{xx}^{*}, c^{*}_{yy}, c^{*}_{zz}, c^{*}_{xy}$. $\mathbf{T}(\mathbf{C^{*}})$ is the polymer stress tensor given by the FENE-P model.
 
 
-![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability/gif/pressure_normalized.gif)
+![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability/gif/czz_normalized.gif)
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| `viscoelastic_instability` | 48.2 | 216 | 11.69 | $\mathbf{4.38}$ |
+| `viscoelastic_instability` | 0.7212 | 0.7102 | 0.4185 | $\mathbf{0.2499}$ |
 
-Preliminary benchmark, in VRMSE.
+Table: VRMSE metrics on test sets (lower is better). Best results are shown in bold. VRMSE is scaled such that predicting the mean value of the target field results in a score of 1.
 
 # About the data
 
@@ -44,7 +44,7 @@ Preliminary benchmark, in VRMSE.
 - Transition to chaos between EIT and Laminar: 43 snapshots with 20 timesteps of 512x512 images.
 - Transition to non-chaotic state between EIT and Laminar: 49 snapshots with 20 timesteps of 512x512 images.
 
-**Fields available in the data:** pressure (scalar field), velocity (vector field), positive conformation tensor ( $c\_{xx}^{\*}, c^{\*}\_{yy},, c^{\*}\_{xy}$ are in tensor fields, $c^{\*}\_{zz}$ in scalar fields).
+**Fields available in the data:** pressure (scalar field), velocity (vector field), positive conformation tensor ( $c_{xx}^{*}, c^{*}_{yy},, c^{*}_{xy}$ are in tensor fields, $c^{*}_{zz}$ in scalar fields).
 
 **Number of trajectories:** 260 trajectories.
 
@@ -58,7 +58,7 @@ Preliminary benchmark, in VRMSE.
 - EIT: laminar state + blowing and suction at the walls.
 - CAR: SAR + blowing and suction at the walls.
 
-**Boundary conditions:** no slip conditions for the velocity ( $(u^\*,v^\*)=(0,0)$ ) at the wall and $\epsilon=0$ at the wall for the equation for $\mathbf{C^*}$.
+**Boundary conditions:** no slip conditions for the velocity $(u^*,v^*)=(0,0)$ at the wall and $\epsilon=0$ at the wall for the equation for $\mathbf{C^*}$.
 
 **Simulation time-step:** various in the different states, but typically $\sim 10^{-4}$.
 

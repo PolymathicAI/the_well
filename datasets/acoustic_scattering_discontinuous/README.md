@@ -6,7 +6,7 @@
 
 **Domain expert**: [Michael McCabe](https://mikemccabe210.github.io/), Polymathic AI.
 
-**Code or software used to generate the data**: Clawpack, adapted from: http://www.clawpack.org/gallery/pyclaw/gallery/acoustics_2d_interface.html
+**Code or software used to generate the data**: Clawpack, adapted from [this example.](http://www.clawpack.org/gallery/pyclaw/gallery/acoustics_2d_interface.html)
 
 **Equation**:
 
@@ -26,7 +26,7 @@ Example material densities can be seen below:
 
 # About the data
 
-**Dimension of discretized data:** $101$ steps of $256\times 256$ images.
+**Dimension of discretized data:** 101 steps of 256 $\times$ 256 images.
 
 **Fields available in the data:** pressure (scalar field), material density (constant scalar field), material speed of sound (constant scalar field), velocity field (vector field).
 
@@ -46,17 +46,17 @@ Example material densities can be seen below:
 
 **Total time range ($t_{min}$ to $t_{max}$):** [0, 2]
 
-**Spatial domain size ($L_x$, $L_y$, $L_z$):** [-1, 1] x [-1, 1]
+**Spatial domain size ($L_x$, $L_y$):** [-1, 1] x [-1, 1]
 
 **Set of coefficients or non-dimensional parameters evaluated:**
 
-$K$ is fixed at 4.0.
+- $K$ is fixed at 4.0.
 
-$\rho$ is the primary coefficient here. Each side is generated with one of the following distributions:
-- Gaussian Bump - Peak density samples from $\sim\mathcal U(1, 7)$ and $\sigma \sim\mathcal U(.1, 5)$ with the center of the bump uniformly sampled from the extent of the subdomain.
-- Linear gradient - Four corners sampled with $\rho \sim \mathcal U(1, 7)$. Inner density is bilinearly interpolated.
-- Constant - Constant $\rho \sim\mathcal U(1, 7)$
-- Smoothed Gaussian Noise - Constant background sampled $\rho \sim\mathcal U(1, 7)$ with IID standard normal noise applied. This is then smoothed by a Gaussian filter of varying sigma $\sigma \sim\mathcal U(5, 10)$
+- $\rho$ is the primary coefficient here. Each side is generated with one of the following distributions:
+  - Gaussian Bump - Peak density samples from $\sim\mathcal U(1, 7)$ and $\sigma \sim\mathcal U(.1, 5)$ with the center of the bump uniformly sampled from the extent of the subdomain.
+  - Linear gradient - Four corners sampled with $\rho \sim \mathcal U(1, 7)$. Inner density is bilinearly interpolated.
+  - Constant - Constant $\rho \sim\mathcal U(1, 7)$.
+  - Smoothed Gaussian Noise - Constant background sampled $\rho \sim\mathcal U(1, 7)$ with IID standard normal noise applied. This is then smoothed by a Gaussian filter of varying sigma $\sigma \sim\mathcal U(5, 10)$.
 
 **Approximate time to generate the data:** ~15 minutes per simulation.
 

@@ -23,15 +23,15 @@ The dimensionless parameters describing the behavior are: $f$ the rate at which 
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| `gray_scott_reaction_diffusion` | 0.178  | 0.177 | 0.322|$\mathbf{0.0512}$|
+| `gray_scott_reaction_diffusion` | $\mathbf{0.1365}$  | 0.3633 | 0.2252|$\mathbf{0.1761}$|
 
-Preliminary benchmarking, in VRMSE.
+Table: VRMSE metrics on test sets (lower is better). Best results are shown in bold. VRMSE is scaled such that predicting the mean value of the target field results in a score of 1.
 
 # About the data
 
-**Dimension of discretized data:** 1001 time-steps of $128\times 128$ images.
+**Dimension of discretized data:** 1001 time-steps of 128 $\times$ 128 images.
 
-**Fields available in the data:** Two chemical species $A$ and $B$.
+**Fields available in the data:** The concentration of two chemical species $A$ and $B$.
 
 **Number of trajectories:** 6 sets of parameters, 200 initial conditions per set = 1200.
 
@@ -49,7 +49,7 @@ Preliminary benchmarking, in VRMSE.
 
 **Total time range ($t_{min}$ to $t_{max}$):** $t_{min} =0$, $t_{max} = 10,000$.
 
-**Spatial domain size ($L_x$, $L_y$, $L_z$):** $x,y\in[-1,1]$.
+**Spatial domain size ($L_x$, $L_y$):** $[-1,1]\times[-1,1]$.
 
 **Set of coefficients or non-dimensional parameters evaluated:** All simulations used $\delta_u = 2.10^{-5}$ and $\delta_v = 1.10^{-5}$.
 "Gliders": $f = 0.014, k = 0.054$. "Bubbles": $f = 0.098, k =0.057$. "Maze": $f= 0.029, k = 0.057$. "Worms": $f= 0.058, k = 0.065$. "Spirals": $f=0.018, k = 0.051$. "Spots": $f= 0.03, k=0.062$.

@@ -25,7 +25,9 @@ with $\rho$ the density, $u$ and $v$ the $x$ and $y$ velocity components, $e$ th
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| `euler_multi-quadrants_periodicBC`  | 2.22  | 2.19 |$\mathbf{1.98}$ |2.26|
+| `euler_multi-quadrants_periodicBC`  | 0.4081  | 0.4163 |0.1834 |$\mathbf{0.1531}$|
+
+Table: VRMSE metrics on test sets (lower is better). Best results are shown in bold. VRMSE is scaled such that predicting the mean value of the target field results in a score of 1.
 
 # About the data
 
@@ -49,7 +51,7 @@ with $\rho$ the density, $u$ and $v$ the $x$ and $y$ velocity components, $e$ th
 
 **Total time range ($t_{min}$ to $t_{max}$):** $t_{min} = 0$, $t_{max}=1.5s$.
 
-**Spatial domain size ($L_x$, $L_y$, $L_z$):** $L_x = 1$ and  $L_y = 1$.
+**Spatial domain size ($L_x$, $L_y$):** $L_x = 1$ and  $L_y = 1$.
 
 **Set of coefficients or non-dimensional parameters evaluated:** all combinations of $\gamma$ constant of the gas at a certain temperature: $\gamma=${1.13,1.22,1.3,1.33,1.365,1.4,1.404,1.453,1.597,1.76} and boundary conditions: {extrap, periodic}.
 

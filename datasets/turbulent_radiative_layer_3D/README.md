@@ -26,13 +26,13 @@ with $\rho$ the density, $\vec{v}$ the 3D velocity, $P$ the pressure, $E$ the to
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| `turbulent_radiative_layer_3D`  | 103 |98.0| 61.5 |73.0|
+| `turbulent_radiative_layer_3D`  | 0.5278 |0.5187| 0.3728 |$\mathbf{0.3667}$|
 
-Preliminary benchmarking, in VRMSE.
+Table: VRMSE metrics on test sets (lower is better). Best results are shown in bold. VRMSE is scaled such that predicting the mean value of the target field results in a score of 1.
 
 # About the data
 
-**Dimension of discretized data:** $101$ timesteps of $256\times128\times128$ cubes.
+**Dimension of discretized data:** 101 timesteps of 256 $\times$ 128 $\times$ 128 cubes.
 
 **Fields available in the data:** Density (scalar field), pressure (scalar field), velocity (vector field).
 
@@ -52,11 +52,11 @@ Preliminary benchmarking, in VRMSE.
 
 **Total time range ($t_{min}$ to $t_{max}$):** $t_{min} = 0$, $t_{max} = 266.172178$.
 
-**Spatial domain size ($L_x$, $L_y$, $L_z$):** $x,y\in\[-0.5,0.5\]$, $z\in\[-1,1\]$.
+**Spatial domain size ($L_x$, $L_y$, $L_z$):** $x,y\in[-0.5,0.5]$, $z\in[-1,1]$.
 
 **Set of coefficients or non-dimensional parameters evaluated:** $t_{cool} = \{0.03, 0.06, 0.1, 0.18, 0.32, 0.56, 1.00, 1.78, 3.16\}$.
 
-**Approximate time to generate the data:** $34,560$ CPU hours for all simulations.
+**Approximate time to generate the data:** $34\,560$ CPU hours for all simulations.
 
 **Hardware used to generate the data:** each simulation was generated on a 128 core "Rome" node.
 
