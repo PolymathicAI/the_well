@@ -358,7 +358,7 @@ class GenericWellDataset(Dataset):
         names = set()
         ndims = set()
         bcs = set()
-        lowest_steps = 1e9 # Note - we should never have 1e9 steps
+        lowest_steps = 1e9  # Note - we should never have 1e9 steps
         for index, file in enumerate(self.files_paths):
             with h5.File(file, "r") as _f:
                 grid_type = _f.attrs["grid_type"]
