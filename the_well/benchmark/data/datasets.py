@@ -386,10 +386,12 @@ class GenericWellDataset(Dataset):
                     self.n_steps_output = (
                         lowest_steps // self.min_dt_stride
                     ) - self.n_steps_input
-                # Check that the requested steps make sense
-                windows_per_trajectory = raw_steps_to_possible_sample_t0s(
-                    steps, self.n_steps_input, self.n_steps_output, self.min_dt_stride
-                )
+                    windows_per_trajectory = 1
+                else:
+                    # Check that the requested steps make sense
+                    windows_per_trajectory = raw_steps_to_possible_sample_t0s(
+                        steps, self.n_steps_input, self.n_steps_output, self.min_dt_stride
+                    )
                 assert windows_per_trajectory > 0, (
                     f"{steps} steps is not enough steps for file {file}"
                     f" to allow {self.n_steps_input} input and {self.n_steps_output} output steps"
