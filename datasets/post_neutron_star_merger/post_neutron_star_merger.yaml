@@ -27,11 +27,9 @@ constant_field_names:
   1: []
   2: []
 boundary_condition_types:
-- OPEN
 - PERIODIC
-n_files: 1
-n_trajectories_per_file:
-- 1
-n_steps_per_trajectory:
+- OPEN
+n_simulations: 1
+n_steps_per_simulation:
 - 181
 grid_type: spherical

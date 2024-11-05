@@ -26,46 +26,8 @@ constant_field_names:
   2: []
 boundary_condition_types:
 - OPEN
-n_files: 37
-n_trajectories_per_file:
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-- 2
-n_steps_per_trajectory:
+n_simulations: 37
+n_steps_per_simulation:
 - 59
 - 59
 - 59

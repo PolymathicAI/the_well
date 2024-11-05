@@ -15,19 +15,14 @@ field_names:
 constant_field_names:
   0:
   - density
-  - bulk_modulus
+  - speed_of_sound
   1: []
   2: []
 boundary_condition_types:
 - OPEN
 - WALL
-n_files: 4
-n_trajectories_per_file:
-- 100
-- 100
-- 100
-- 100
-n_steps_per_trajectory:
+n_simulations: 4
+n_steps_per_simulation:
 - 102
 - 102
 - 102

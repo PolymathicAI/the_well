@@ -22,14 +22,8 @@ constant_field_names:
 boundary_condition_types:
 - PERIODIC
 - WALL
-n_files: 5
-n_trajectories_per_file:
-- 2
-- 2
-- 2
-- 2
-- 2
-n_steps_per_trajectory:
+n_simulations: 5
+n_steps_per_simulation:
 - 119
 - 119
 - 119
