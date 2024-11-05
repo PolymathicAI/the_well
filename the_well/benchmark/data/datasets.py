@@ -317,6 +317,10 @@ class GenericWellDataset(Dataset):
         self.cache_small = cache_small
         self.max_cache_size = max_cache_size
         self.transform = transform
+        if self.min_dt_stride < self.max_dt_stride and self.full_trajectory_mode:
+            raise ValueError(
+                "Full trajectory mode not supported with variable stride lengths"
+            )
         # Check the directory has hdf5 that meet our exclusion criteria
         sub_files = glob.glob(self.data_path + "/*.h5") + glob.glob(
             self.data_path + "/*.hdf5"
@@ -354,6 +358,7 @@ class GenericWellDataset(Dataset):
         names = set()
         ndims = set()
         bcs = set()
+        lowest_steps = 1e9 # Note - we should never have 1e9 steps
         for index, file in enumerate(self.files_paths):
             with h5.File(file, "r") as _f:
                 grid_type = _f.attrs["grid_type"]
@@ -374,10 +379,12 @@ class GenericWellDataset(Dataset):
                 assert (
                     len(size_tuples) == 1
                 ), "Multiple resolutions found in specified path"
-                # TODO - this probably bugs out if steps vary between files
+                # Use the smallest amount of steps in a trajectory in full trajectory mode to avoid shape mismatches
+                # TODO - See if we can move this to the end, though it doesn't really matter.
                 if self.full_trajectory_mode:
+                    lowest_steps = min(lowest_steps, steps)
                     self.n_steps_output = (
-                        steps // self.min_dt_stride
+                        lowest_steps // self.min_dt_stride
                     ) - self.n_steps_input
                 # Check that the requested steps make sense
                 windows_per_trajectory = raw_steps_to_possible_sample_t0s(
