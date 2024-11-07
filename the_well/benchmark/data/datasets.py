@@ -379,19 +379,13 @@ class GenericWellDataset(Dataset):
                 assert (
                     len(size_tuples) == 1
                 ), "Multiple resolutions found in specified path"
-                # Use the smallest amount of steps in a trajectory in full trajectory mode to avoid shape mismatches
-                # TODO - See if we can move this to the end, though it doesn't really matter.
-                if self.full_trajectory_mode:
-                    lowest_steps = min(lowest_steps, steps)
-                    self.n_steps_output = (
-                        lowest_steps // self.min_dt_stride
-                    ) - self.n_steps_input
-                    windows_per_trajectory = 1
-                else:
-                    # Check that the requested steps make sense
-                    windows_per_trajectory = raw_steps_to_possible_sample_t0s(
-                        steps, self.n_steps_input, self.n_steps_output, self.min_dt_stride
-                    )
+
+                # Track lowest amount of steps in case we need to use full_trajectory_mode
+                lowest_steps = min(lowest_steps, steps)
+
+                windows_per_trajectory = raw_steps_to_possible_sample_t0s(
+                    steps, self.n_steps_input, self.n_steps_output, self.min_dt_stride
+                )
                 assert windows_per_trajectory > 0, (
                     f"{steps} steps is not enough steps for file {file}"
                     f" to allow {self.n_steps_input} input and {self.n_steps_output} output steps"
@@ -442,6 +436,19 @@ class GenericWellDataset(Dataset):
                                     self.field_names[i].append(field_name)
                                 else:
                                     self.constant_field_names[i].append(field_name)
+        # Full trajectory mode overrides the above and just sets each sample to "full"
+        # trajectory where full = min(lowest_steps_per_file, max_rollout_steps)
+        if self.full_trajectory_mode:
+            self.n_steps_output = (
+                lowest_steps // self.min_dt_stride
+            ) - self.n_steps_input
+            assert self.n_steps_output > 0, (
+                f"Full trajectory mode not supported for dataset {names[0]} with {lowest_steps} minimum steps"
+                f" and a minimum stride of {self.min_dt_stride} and {self.n_steps_input} input steps"
+            )
+            self.n_windows_per_trajectory = [1] * self.n_files
+            self.n_steps_per_trajectory = [lowest_steps] * self.n_files
+            self.file_index_offsets = np.cumsum([0] + self.n_trajectories_per_file)
 
         # Just to make sure it doesn't put us in file -1
         self.file_index_offsets[0] = -1
@@ -683,7 +690,6 @@ class GenericWellDataset(Dataset):
         )  # First offset is -1
         sample_idx = local_idx // windows_per_trajectory
         time_idx = local_idx % windows_per_trajectory
-
         # open hdf5 file (and cache the open object)
         if self.files[file_idx] is None:
             self._open_file(file_idx)
