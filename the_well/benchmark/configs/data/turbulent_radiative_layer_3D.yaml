@@ -3,3 +3,5 @@ batch_size: 1
 well_base_path: /mnt/gpuxl/polymathic/the_well/datasets/
 well_dataset_name: turbulent_radiative_layer_3D
 use_normalization: True
+min_dt_stride: 1
+max_dt_stride: 1

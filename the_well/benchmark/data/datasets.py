@@ -209,7 +209,7 @@ class GenericWellDataset(Dataset):
         Number of steps to include in each sample
     n_steps_output :
         Number of steps to include in y
-    dt_stride :
+    min_dt_stride :
         Minimum stride between samples
     max_dt_stride :
         Maximum stride between samples
@@ -251,7 +251,7 @@ class GenericWellDataset(Dataset):
         max_rollout_steps=100,
         n_steps_input: int = 1,
         n_steps_output: int = 1,
-        dt_stride: int = 1,
+        min_dt_stride: int = 1,
         max_dt_stride: int = 1,
         flatten_tensors: bool = True,
         cache_small: bool = True,
@@ -308,7 +308,7 @@ class GenericWellDataset(Dataset):
         self.max_rollout_steps = max_rollout_steps
         self.n_steps_input = n_steps_input
         self.n_steps_output = n_steps_output  # Gets overridden by full trajectory mode
-        self.dt_stride = dt_stride
+        self.min_dt_stride = min_dt_stride
         self.max_dt_stride = max_dt_stride
         self.flatten_tensors = flatten_tensors
         self.return_grid = return_grid
@@ -317,6 +317,10 @@ class GenericWellDataset(Dataset):
         self.cache_small = cache_small
         self.max_cache_size = max_cache_size
         self.transform = transform
+        if self.min_dt_stride < self.max_dt_stride and self.full_trajectory_mode:
+            raise ValueError(
+                "Full trajectory mode not supported with variable stride lengths"
+            )
         # Check the directory has hdf5 that meet our exclusion criteria
         sub_files = glob.glob(self.data_path + "/*.h5") + glob.glob(
             self.data_path + "/*.hdf5"
@@ -354,6 +358,7 @@ class GenericWellDataset(Dataset):
         names = set()
         ndims = set()
         bcs = set()
+        lowest_steps = 1e9  # Note - we should never have 1e9 steps
         for index, file in enumerate(self.files_paths):
             with h5.File(file, "r") as _f:
                 grid_type = _f.attrs["grid_type"]
@@ -374,16 +379,17 @@ class GenericWellDataset(Dataset):
                 assert (
                     len(size_tuples) == 1
                 ), "Multiple resolutions found in specified path"
-                # TODO - this probably bugs out if steps vary between files
-                if self.full_trajectory_mode:
-                    self.n_steps_output = steps - self.n_steps_input
-                # Check that the requested steps make sense
+
+                # Track lowest amount of steps in case we need to use full_trajectory_mode
+                lowest_steps = min(lowest_steps, steps)
+
                 windows_per_trajectory = raw_steps_to_possible_sample_t0s(
-                    steps, self.n_steps_input, self.n_steps_output, self.dt_stride
+                    steps, self.n_steps_input, self.n_steps_output, self.min_dt_stride
                 )
                 assert windows_per_trajectory > 0, (
-                    f"Not enough steps in file {file}"
-                    f"for {self.n_steps_input} input and {self.n_steps_output} output steps"
+                    f"{steps} steps is not enough steps for file {file}"
+                    f" to allow {self.n_steps_input} input and {self.n_steps_output} output steps"
+                    f" with a minimum stride of {self.min_dt_stride}"
                 )
                 self.n_trajectories_per_file.append(trajectories)
                 self.n_steps_per_trajectory.append(steps)
@@ -430,6 +436,19 @@ class GenericWellDataset(Dataset):
                                     self.field_names[i].append(field_name)
                                 else:
                                     self.constant_field_names[i].append(field_name)
+        # Full trajectory mode overrides the above and just sets each sample to "full"
+        # trajectory where full = min(lowest_steps_per_file, max_rollout_steps)
+        if self.full_trajectory_mode:
+            self.n_steps_output = (
+                lowest_steps // self.min_dt_stride
+            ) - self.n_steps_input
+            assert self.n_steps_output > 0, (
+                f"Full trajectory mode not supported for dataset {names[0]} with {lowest_steps} minimum steps"
+                f" and a minimum stride of {self.min_dt_stride} and {self.n_steps_input} input steps"
+            )
+            self.n_windows_per_trajectory = [1] * self.n_files
+            self.n_steps_per_trajectory = [lowest_steps] * self.n_files
+            self.file_index_offsets = np.cumsum([0] + self.n_trajectories_per_file)
 
         # Just to make sure it doesn't put us in file -1
         self.file_index_offsets[0] = -1
@@ -671,24 +690,23 @@ class GenericWellDataset(Dataset):
         )  # First offset is -1
         sample_idx = local_idx // windows_per_trajectory
         time_idx = local_idx % windows_per_trajectory
-
         # open hdf5 file (and cache the open object)
         if self.files[file_idx] is None:
             self._open_file(file_idx)
 
         # If we gave a stride range, decide the largest size we can use given the sample location
-        if self.max_dt_stride > self.dt_stride:
+        dt = self.min_dt_stride
+        if self.max_dt_stride > self.min_dt_stride:
             effective_max_dt = maximum_stride_for_initial_index(
                 time_idx,
                 self.n_steps_per_trajectory[file_idx],
                 self.n_steps_input,
                 self.n_steps_output,
             )
-            if effective_max_dt > self.dt:
-                dt = np.random.randint(self.dt, effective_max_dt)
-        else:
-            dt = self.dt_stride
-
+            effective_max_dt = min(effective_max_dt, self.max_dt_stride)
+            if effective_max_dt > self.min_dt_stride:
+                # Randint is non-inclusive on the upper bound
+                dt = np.random.randint(self.min_dt_stride, effective_max_dt + 1)
         # Fetch the data
         data = {}
 
