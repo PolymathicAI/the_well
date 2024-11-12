@@ -6,7 +6,7 @@ import torch
 def preprocess_batch(
     batch: Dict[str, torch.Tensor],
 ) -> Tuple[Dict[str, torch.Tensor], torch.Tensor]:
-    """Given a batch provided by a Dataloader iterating over a GenericWellDataset,
+    """Given a batch provided by a Dataloader iterating over a WellDataset,
     split the batch as such to provide input and output to the model.
 
     """

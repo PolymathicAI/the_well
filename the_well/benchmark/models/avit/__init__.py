@@ -9,7 +9,7 @@ import torch.nn.functional as F
 from einops import rearrange
 from timm.layers import DropPath
 
-from the_well.benchmark.data.datasets import GenericWellMetadata
+from the_well.data.datasets import WellMetadata
 
 
 class hMLP_stem(nn.Module):
@@ -191,7 +191,7 @@ class AViT(nn.Module):
         self,
         dim_in: int,
         dim_out: int,
-        dset_metadata: GenericWellMetadata,
+        dset_metadata: WellMetadata,
         hidden_dim: int = 768,
         num_heads: int = 12,
         processor_blocks: int = 8,

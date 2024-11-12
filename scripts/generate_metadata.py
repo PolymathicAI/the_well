@@ -4,12 +4,12 @@ import os.path
 from omegaconf import OmegaConf
 from tqdm import tqdm
 
-from the_well.benchmark.data.datasets import GenericWellDataset, well_paths
+from the_well.data.datasets import WellDataset, well_paths
 
 
 def generate_metadata(dataset_dir: str, output_dir: str):
     for dataset_name in tqdm(well_paths.keys()):
-        dataset = GenericWellDataset(
+        dataset = WellDataset(
             well_base_path=dataset_dir,
             well_dataset_name=dataset_name,
             n_steps_input=1,

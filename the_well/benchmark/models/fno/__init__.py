@@ -5,7 +5,7 @@ import torch.nn as nn
 from neuralop.models import FNO as neuralop_FNO
 from torch.utils.checkpoint import checkpoint
 
-from the_well.benchmark.data.datasets import GenericWellMetadata
+from the_well.data.datasets import WellMetadata
 
 
 class NeuralOpsCheckpointWrapper(neuralop_FNO):
@@ -67,7 +67,7 @@ class FNO(nn.Module):
         self,
         dim_in: int,
         dim_out: int,
-        dset_metadata: GenericWellMetadata,
+        dset_metadata: WellMetadata,
         modes1: int,
         modes2: int,
         modes3: int = 16,

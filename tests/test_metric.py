@@ -2,13 +2,13 @@ from unittest import TestCase
 
 import torch
 
-from the_well.benchmark.data.datasets import GenericWellMetadata
 from the_well.benchmark.metrics.spatial import MSE, NMSE, NRMSE, RMSE
+from the_well.data.datasets import WellMetadata
 
 
 class TestMetrics(TestCase):
     def test_distance_to_itself(self):
-        meta = GenericWellMetadata(
+        meta = WellMetadata(
             dataset_name="test",
             n_spatial_dims=1,
             spatial_resolution=(128,),

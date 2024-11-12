@@ -6,13 +6,13 @@ import h5py as h5
 import torch
 import yaml
 
-from the_well.benchmark.data.datasets import GenericWellDataset, well_paths
+from the_well.data.datasets import WellDataset, well_paths
 
 
 def compute_statistics(train_path: str, stats_path: str):
     assert not os.path.isfile(stats_path), f"{stats_path} already exists."
 
-    ds = GenericWellDataset(train_path, use_normalization=False)
+    ds = WellDataset(train_path, use_normalization=False)
 
     counts = {}
     means = {}

@@ -10,7 +10,7 @@ import tqdm
 import wandb
 from torch.utils.data import DataLoader
 
-from the_well.benchmark.data.datasets import flatten_field_names
+from the_well.data.datasets import flatten_field_names
 
 from ..data.data_formatter import (
     DefaultChannelsFirstFormatter,

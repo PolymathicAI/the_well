@@ -1,2 +1,2 @@
-_target_: the_well.benchmark.data.augmentation.RandomAxisPermute
+_target_: the_well.data.augmentation.RandomAxisPermute
 p: 1.0

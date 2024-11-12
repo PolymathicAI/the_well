@@ -8,11 +8,11 @@ import numpy as np
 from scipy.ndimage import gaussian_filter
 from tqdm import tqdm
 
-from .datasets import GenericWellDataset
+from .datasets import WellDataset
 
 
 def create_mini_well(
-    dataset: GenericWellDataset,
+    dataset: WellDataset,
     output_base_path: str,
     spatial_downsample_factor: int = 4,
     time_downsample_factor: int = 2,

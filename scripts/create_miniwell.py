@@ -2,8 +2,8 @@
 
 import argparse
 
-from the_well.benchmark.data.datasets import GenericWellDataset
-from the_well.benchmark.data.miniwell import create_mini_well
+from the_well.data.datasets import WellDataset
+from the_well.data.miniwell import create_mini_well
 
 
 def main():
@@ -73,7 +73,7 @@ def main():
         ],
     ):
         # Load the dataset
-        dataset = GenericWellDataset(
+        dataset = WellDataset(
             well_base_path=args.dataset_path,
             well_dataset_name=args.dataset,
             well_split_name=split,

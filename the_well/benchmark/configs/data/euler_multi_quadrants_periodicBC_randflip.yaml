@@ -1,7 +1,7 @@
 defaults:
   - transform: random_axis_flip
 
-_target_: the_well.benchmark.data.WellDataModule
+_target_: the_well.data.WellDataModule
 batch_size: 24
 well_base_path: /mnt/gpuxl/polymathic/the_well/datasets/
 well_dataset_name: euler_multi_quadrants_periodicBC

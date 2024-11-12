@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
 
-from the_well.benchmark.data.datasets import well_paths
+from the_well.data.datasets import well_paths
 
 
 def plot_velocity(dataset_dir: str, output_dir: str):

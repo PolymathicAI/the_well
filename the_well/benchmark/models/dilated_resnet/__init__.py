@@ -7,7 +7,7 @@ Thanks to Kim Stachenfeld for providing the TF version of the code.
 
 import torch.nn as nn
 
-from the_well.benchmark.data.datasets import GenericWellMetadata
+from the_well.data.datasets import WellMetadata
 
 
 class DilatedBlock(nn.Module):
@@ -61,7 +61,7 @@ class DilatedResNet(nn.Module):
         self,
         dim_in: int,
         dim_out: int,
-        dset_metadata: GenericWellMetadata,
+        dset_metadata: WellMetadata,
         kernel_size: int = 3,
         blocks: int = 4,
         levels_per_block: int = 4,

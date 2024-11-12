@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Literal, Optional
 from torch.utils.data import DataLoader, DistributedSampler
 
 from .augmentation import Augmentation
-from .datasets import GenericWellDataset
+from .datasets import WellDataset
 
 logger = logging.getLogger(__name__)
 
@@ -33,34 +33,9 @@ class AbstractDataModule(ABC):
 
 
 class WellDataModule(AbstractDataModule):
-    def __init__(
-        self,
-        well_base_path: str,
-        well_dataset_name: str,
-        batch_size: int,
-        include_filters: List[str] = [],
-        exclude_filters: List[str] = [],
-        use_normalization: bool = False,
-        max_rollout_steps: int = 100,
-        n_steps_input: int = 1,
-        n_steps_output: int = 1,
-        min_dt_stride: int = 1,
-        max_dt_stride: int = 1,
-        world_size: int = 1,
-        data_workers: int = 4,
-        rank: int = 1,
-        transform: Optional[Augmentation] = None,
-        dataset_kws: Optional[
-            Dict[
-                Literal["train", "val", "rollout_val", "test", "rollout_test"],
-                Dict[str, Any],
-            ]
-        ] = None,
-    ):
-        """Data module class to yield batches of samples.
+    """Data module class to yield batches of samples.
 
-        Parameters
-        ----------
+    Parameters:
         well_base_path:
             Path to the data folder containing the splits (train, validation, and test).
         well_dataset_name:
@@ -94,8 +69,33 @@ class WellDataModule(AbstractDataModule):
             Augmentation to apply to the data. If None, no augmentation is applied.
         dataset_kws:
             Additional keyword arguments to pass to each dataset, as a dict of dicts.
-        """
-        self.train_dataset = GenericWellDataset(
+    """
+
+    def __init__(
+        self,
+        well_base_path: str,
+        well_dataset_name: str,
+        batch_size: int,
+        include_filters: List[str] = [],
+        exclude_filters: List[str] = [],
+        use_normalization: bool = False,
+        max_rollout_steps: int = 100,
+        n_steps_input: int = 1,
+        n_steps_output: int = 1,
+        min_dt_stride: int = 1,
+        max_dt_stride: int = 1,
+        world_size: int = 1,
+        data_workers: int = 4,
+        rank: int = 1,
+        transform: Optional[Augmentation] = None,
+        dataset_kws: Optional[
+            Dict[
+                Literal["train", "val", "rollout_val", "test", "rollout_test"],
+                Dict[str, Any],
+            ]
+        ] = None,
+    ):
+        self.train_dataset = WellDataset(
             well_base_path=well_base_path,
             well_dataset_name=well_dataset_name,
             well_split_name="train",
@@ -113,7 +113,7 @@ class WellDataModule(AbstractDataModule):
                 else {}
             ),
         )
-        self.val_dataset = GenericWellDataset(
+        self.val_dataset = WellDataset(
             well_base_path=well_base_path,
             well_dataset_name=well_dataset_name,
             well_split_name="valid",
@@ -130,7 +130,7 @@ class WellDataModule(AbstractDataModule):
                 else {}
             ),
         )
-        self.rollout_val_dataset = GenericWellDataset(
+        self.rollout_val_dataset = WellDataset(
             well_base_path=well_base_path,
             well_dataset_name=well_dataset_name,
             well_split_name="valid",
@@ -149,7 +149,7 @@ class WellDataModule(AbstractDataModule):
                 else {}
             ),
         )
-        self.test_dataset = GenericWellDataset(
+        self.test_dataset = WellDataset(
             well_base_path=well_base_path,
             well_dataset_name=well_dataset_name,
             well_split_name="test",
@@ -165,7 +165,7 @@ class WellDataModule(AbstractDataModule):
                 else {}
             ),
         )
-        self.rollout_test_dataset = GenericWellDataset(
+        self.rollout_test_dataset = WellDataset(
             well_base_path=well_base_path,
             well_dataset_name=well_dataset_name,
             well_split_name="test",
@@ -193,6 +193,11 @@ class WellDataModule(AbstractDataModule):
         return self.world_size > 1
 
     def train_dataloader(self) -> DataLoader:
+        """Generate a dataloader for training data.
+
+        Returns:
+            A dataloader
+        """
         sampler = None
         if self.is_distributed:
             sampler = DistributedSampler(
@@ -218,6 +223,11 @@ class WellDataModule(AbstractDataModule):
         )
 
     def val_dataloader(self) -> DataLoader:
+        """Generate a dataloader for validation data.
+
+        Returns:
+            A dataloader
+        """
         sampler = None
         if self.is_distributed:
             sampler = DistributedSampler(
@@ -242,6 +252,11 @@ class WellDataModule(AbstractDataModule):
         )
 
     def rollout_val_dataloader(self) -> DataLoader:
+        """Generate a dataloader for rollout validation data.
+
+        Returns:
+            A dataloader
+        """
         sampler = None
         if self.is_distributed:
             sampler = DistributedSampler(
@@ -266,6 +281,11 @@ class WellDataModule(AbstractDataModule):
         )
 
     def test_dataloader(self) -> DataLoader:
+        """Generate a dataloader for test data.
+
+        Returns:
+            A dataloader
+        """
         sampler = None
         if self.is_distributed:
             sampler = DistributedSampler(
@@ -289,6 +309,11 @@ class WellDataModule(AbstractDataModule):
         )
 
     def rollout_test_dataloader(self) -> DataLoader:
+        """Generate a dataloader for rollout test data.
+
+        Returns:
+            A dataloader
+        """
         sampler = None
         if self.is_distributed:
             sampler = DistributedSampler(
