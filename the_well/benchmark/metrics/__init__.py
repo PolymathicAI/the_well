@@ -7,7 +7,6 @@ from .plottable_data import (
 from .spatial import MSE, NMSE, NRMSE, RMSE, VMSE, VRMSE, LInfinity
 from .spectral import binned_spectral_mse
 
-# I hate that the linter is forcing an all function...
 __all__ = [
     "NRMSE",
     "RMSE",
@@ -17,7 +16,7 @@ __all__ = [
     "VMSE",
     "VRMSE",
     "binned_spectral_mse",
-]  # I hate this
+]
 
 long_time_metrics = ["VRMSE", "RMSE", "binned_spectral_mse"]
 validation_metric_suite = [RMSE(), NRMSE(), LInfinity(), VRMSE(), binned_spectral_mse()]

@@ -2,45 +2,37 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-from the_well.benchmark.data.datasets import GenericWellMetadata
 from the_well.benchmark.metrics.common import Metric
+from the_well.data.datasets import WellMetadata
 
 
-def fftn(x: torch.Tensor, meta: GenericWellMetadata):
+def fftn(x: torch.Tensor, meta: WellMetadata):
     """
     Compute the N-dimensional FFT of input tensor x. Wrapper around torch.fft.fftn.
 
-    Parameters
-    ----------
-    x : torch.Tensor
-        Input tensor.
-    meta : GenericWellMetadata
-        Metadata for the dataset.
+    Parameters:
+        x: Input tensor.
+        meta: Metadata for the dataset.
 
-    Returns
-    -------
-    torch.Tensor
-        N-dimensional FFT of x.
+    Returns:
+        torch.Tensor:
+            N-dimensional FFT of x.
     """
     spatial_dims = tuple(range(-meta.n_spatial_dims - 1, -1))
     return torch.fft.fftn(x, dim=spatial_dims)
 
 
-def ifftn(x: torch.Tensor, meta: GenericWellMetadata):
+def ifftn(x: torch.Tensor, meta: WellMetadata):
     """
     Compute the N-dimensional inverse FFT of input tensor x. Wrapper around torch.fft.ifftn.
 
-    Parameters
-    ----------
-    x : torch.Tensor
-        Input tensor.
-    meta : GenericWellMetadata
-        Metadata for the dataset.
+    Parameters:
+        x: Input tensor.
+        meta: Metadata for the dataset.
 
-    Returns
-    -------
-    torch.Tensor
-        N-dimensional inverse FFT of x.
+    Returns:
+        torch.Tensor:
+            N-dimensional inverse FFT of x.
     """
     spatial_dims = tuple(range(-meta.n_spatial_dims - 1, -1))
     return torch.fft.ifftn(x, dim=spatial_dims)
@@ -48,7 +40,7 @@ def ifftn(x: torch.Tensor, meta: GenericWellMetadata):
 
 def power_spectrum(
     x: torch.Tensor,
-    meta: GenericWellMetadata,
+    meta: WellMetadata,
     bins: torch.Tensor = None,
     fourier_input: bool = False,
     sample_spacing: float = 1.0,
@@ -57,29 +49,22 @@ def power_spectrum(
     """
     Compute the isotropic power spectrum of input tensor x.
 
-    Parameters
-    ----------
-    x : torch.Tensor
-        Input tensor.
-    bins : torch.Tensor, optional
-        Array of bin edges. If None, we use a default binning. The default is None.
-    fourier_input : bool, optional
-        If True, x is assumed to be the Fourier transform of the input data. The default is False.
-    sample_spacing : float, optional
-        Sample spacing. The default is 1.0.
-    return_counts : bool, optional
-        Return counts per bin. The default is False.
+    Parameters:
+        x: Input tensor.
+        bins: Array of bin edges. If None, we use a default binning. The default is None.
+        fourier_input: If True, x is assumed to be the Fourier transform of the input data. The default is False.
+        sample_spacing: Sample spacing. The default is 1.0.
+        return_counts: Return counts per bin. The default is False.
 
-    Returns
-    -------
-    bins : torch.Tensor
-        Array of bin edges.
-    ps_mean : torch.Tensor
-        Power spectrum (estimated as a mean over bins).
-    ps_std : torch.Tensor
-        Standard deviation of the power spectrum (estimated as a standard deviation over bins).
-    counts : torch.Tensor, optional
-        Counts per bin if return_counts=True.
+    Returns:
+        bins: torch.Tensor
+            Array of bin edges.
+        ps_mean: torch.Tensor
+            Power spectrum (estimated as a mean over bins).
+        ps_std: torch.Tensor
+            Standard deviation of the power spectrum (estimated as a standard deviation over bins).
+        counts: torch.Tensor, optional
+            Counts per bin if return_counts=True.
     """
     spatial_dims = tuple(range(-meta.n_spatial_dims - 1, -1))
     spatial_shape = tuple(x.shape[dim] for dim in spatial_dims)
@@ -140,7 +125,7 @@ class binned_spectral_mse(Metric):
     def eval(
         x: torch.Tensor,
         y: torch.Tensor,
-        meta: GenericWellMetadata,
+        meta: WellMetadata,
         bins: torch.Tensor = None,
         fourier_input: bool = False,
     ) -> torch.Tensor:
@@ -152,23 +137,18 @@ class binned_spectral_mse(Metric):
 
         Note that, MSE(x, y) should match the sum over frequency bins of the spectral MSE.
 
-        Parameters
-        ----------
-        x : torch.Tensor | np.ndarray
-            Input tensor.
-        y : torch.Tensor | np.ndarray
-            Target tensor.
-        meta : GenericWellMetadata
-            Metadata for the dataset.
-        bins : torch.Tensor, optional
-            Tensor of bin edges. If None, we use a default binning that is a set of three (approximately) logspaced from 0 to pi. The default is None.
-        fourier_input : bool, optional
-            If True, x and y are assumed to be the Fourier transform of the input data. The default is False.
+        Parameters:
+            x: Input tensor.
+            y: Target tensor.
+            meta: Metadata for the dataset.
+            bins:
+                Tensor of bin edges. If None, we use a default binning that is a set of three (approximately) logspaced from 0 to pi. The default is None.
+            fourier_input:
+                If True, x and y are assumed to be the Fourier transform of the input data. The default is False.
 
-        Returns
-        -------
-        torch.Tensor
-            Power spectrum mean squared error between x and y.
+        Returns:
+            torch.Tensor:
+                Power spectrum mean squared error between x and y.
         """
         spatial_dims = tuple(range(-meta.n_spatial_dims - 1, -1))
         spatial_shape = tuple(x.shape[dim] for dim in spatial_dims)
