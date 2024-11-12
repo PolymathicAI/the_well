@@ -157,7 +157,7 @@ class VMSE(Metric):
         torch.Tensor
             Variance mean squared error between x and y.
         """
-        NMSE.eval(x, y, meta, norm_mode="std")
+        return NMSE.eval(x, y, meta, norm_mode="std")
 
 
 class VRMSE(Metric):
