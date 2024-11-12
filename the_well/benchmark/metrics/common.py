@@ -7,8 +7,7 @@ class Metric(nn.Module):
     """
     Decorator for metrics that standardizes the input arguments and checks the dimensions of the input tensors.
 
-    Parameters:
-
+    Args:
         f: function
             Metric function that takes in the following arguments:
             x: torch.Tensor | np.ndarray

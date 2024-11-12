@@ -25,18 +25,16 @@ class NeuralOpsCheckpointWrapper(neuralop_FNO):
         else:
             return layer(*inputs, **kwargs)
 
-    def forward(self, x, output_shape=None, **kwargs):
+    def forward(self, x: torch.Tensor, output_shape=None, **kwargs):
         """TFNO's forward pass
 
-        Parameters
-        ----------
-        x : tensor
-            input tensor
-        output_shape : {tuple, tuple list, None}, default is None
-            Gives the option of specifying the exact output shape for odd shaped inputs.
-            * If None, don't specify an output shape
-            * If tuple, specifies the output-shape of the **last** FNO Block
-            * If tuple list, specifies the exact output-shape of each FNO Block
+        Args:
+            x: Input tensor
+            output_shape: {tuple, tuple list, None}, default is None
+                Gives the option of specifying the exact output shape for odd shaped inputs.
+                * If None, don't specify an output shape
+                * If tuple, specifies the output-shape of the **last** FNO Block
+                * If tuple list, specifies the exact output-shape of each FNO Block
         """
 
         if output_shape is None:

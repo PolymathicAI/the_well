@@ -8,9 +8,9 @@ def hdf5_to_xarray(f: h5py.File, backend: Literal["numpy", "dask"] = "numpy"):
     """
     Convert an HDF5 file to an XArray Dataset, using either NumPy or Dask arrays.
 
-    Parameters:
-    - hdf5_file_path (str): Path to the HDF5 file.
-    - backend (str): 'numpy' for eager loading, 'dask' for lazy loading.
+    Args:
+        f: HDF5 file.
+        backend (str): 'numpy' for eager loading, 'dask' for lazy loading.
 
     Returns:
     - ds (xarray.Dataset): The resulting XArray Dataset.

@@ -15,14 +15,13 @@ class MSE(Metric):
         """
         Mean Squared Error
 
-        Parameters:
-        x: Input tensor.
-        y: Target tensor.
-        meta: Metadata for the dataset.
+        Args:
+            x: Input tensor.
+            y: Target tensor.
+            meta: Metadata for the dataset.
 
         Returns:
-            torch.Tensor:
-                Mean squared error between x and y.
+            Mean squared error between x and y.
         """
         n_spatial_dims = tuple(range(-meta.n_spatial_dims - 1, -1))
         return torch.mean((x - y) ** 2, dim=n_spatial_dims)
@@ -40,7 +39,7 @@ class NMSE(Metric):
         """
         Normalized Mean Squared Error
 
-        Parameters:
+        Args:
             x: Input tensor.
             y: Target tensor.
             meta: Metadata for the dataset.
@@ -49,8 +48,7 @@ class NMSE(Metric):
                 Mode for computing the normalization factor. Can be 'norm' or 'std'. Default is 'norm'.
 
         Returns:
-            torch.Tensor:
-                Normalized mean squared error between x and y.
+            Normalized mean squared error between x and y.
         """
         n_spatial_dims = tuple(range(-meta.n_spatial_dims - 1, -1))
         if norm_mode == "norm":
@@ -72,7 +70,7 @@ class RMSE(Metric):
         """
         Root Mean Squared Error
 
-        Parameters:
+        Args:
             x: torch.Tensor | np.ndarray
                 Input tensor.
             y: torch.Tensor | np.ndarray
@@ -81,8 +79,7 @@ class RMSE(Metric):
                 Metadata for the dataset.
 
         Returns:
-            torch.Tensor:
-                Root mean squared error between x and y.
+            Root mean squared error between x and y.
         """
         return torch.sqrt(MSE.eval(x, y, meta))
 
@@ -99,7 +96,7 @@ class NRMSE(Metric):
         """
         Normalized Root Mean Squared Error
 
-        Parameters:
+        Args:
             x: Input tensor.
             y: Target tensor.
             meta: Metadata for the dataset.
@@ -107,8 +104,7 @@ class NRMSE(Metric):
             norm_mode : Mode for computing the normalization factor. Can be 'norm' or 'std'. Default is 'norm'.
 
         Returns:
-            torch.Tensor:
-                Normalized root mean squared error between x and y.
+            Normalized root mean squared error between x and y.
 
         """
         return torch.sqrt(NMSE.eval(x, y, meta, eps=eps, norm_mode=norm_mode))
@@ -124,14 +120,13 @@ class VMSE(Metric):
         """
         Variance Scaled Mean Squared Error
 
-        Parameters:
+        Args:
             x: Input tensor.
             y: Target tensor.
             meta: Metadata for the dataset.
 
         Returns:
-            torch.Tensor:
-                Variance mean squared error between x and y.
+            Variance mean squared error between x and y.
         """
         NMSE.eval(x, y, meta, norm_mode="std")
 
@@ -146,14 +141,13 @@ class VRMSE(Metric):
         """
         Root Variance Scaled Mean Squared Error
 
-        Parameters:
+        Args:
             x: Input tensor.
             y: Target tensor.
             meta: Metadata for the dataset.
 
         Returns:
-            torch.Tensor:
-                Root variance mean squared error between x and y.
+            Root variance mean squared error between x and y.
         """
         return NRMSE.eval(x, y, meta, norm_mode="std")
 
@@ -168,14 +162,13 @@ class LInfinity(Metric):
         """
         L-Infinity Norm
 
-        Parameters:
+        Args:
             x: Input tensor.
             y: Target tensor.
             meta: Metadata for the dataset.
 
         Returns:
-            torch.Tensor:
-                L-Infinity norm between x and y.
+            L-Infinity norm between x and y.
         """
         spatial_dims = tuple(range(-meta.n_spatial_dims - 1, -1))
         return torch.max(

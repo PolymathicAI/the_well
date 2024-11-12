@@ -813,7 +813,7 @@ class WellDataset(Dataset):
         """Export the dataset to an Xarray Dataset by stacking all HDF5 files as Xarray datasets
         along the existing 'sample' dimension.
 
-        Parameters:
+        Args:
             backend: 'numpy' for eager loading, 'dask' for lazy loading.
 
         Returns:

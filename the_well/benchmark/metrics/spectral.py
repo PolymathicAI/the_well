@@ -10,7 +10,7 @@ def fftn(x: torch.Tensor, meta: WellMetadata):
     """
     Compute the N-dimensional FFT of input tensor x. Wrapper around torch.fft.fftn.
 
-    Parameters:
+    Args:
         x: Input tensor.
         meta: Metadata for the dataset.
 
@@ -26,7 +26,7 @@ def ifftn(x: torch.Tensor, meta: WellMetadata):
     """
     Compute the N-dimensional inverse FFT of input tensor x. Wrapper around torch.fft.ifftn.
 
-    Parameters:
+    Args:
         x: Input tensor.
         meta: Metadata for the dataset.
 
@@ -49,7 +49,7 @@ def power_spectrum(
     """
     Compute the isotropic power spectrum of input tensor x.
 
-    Parameters:
+    Args:
         x: Input tensor.
         bins: Array of bin edges. If None, we use a default binning. The default is None.
         fourier_input: If True, x is assumed to be the Fourier transform of the input data. The default is False.
@@ -137,7 +137,7 @@ class binned_spectral_mse(Metric):
 
         Note that, MSE(x, y) should match the sum over frequency bins of the spectral MSE.
 
-        Parameters:
+        Args:
             x: Input tensor.
             y: Target tensor.
             meta: Metadata for the dataset.

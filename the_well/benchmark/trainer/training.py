@@ -65,47 +65,46 @@ class Trainer:
         """
         Class in charge of the training loop. It performs train, validation and test.
 
-        Parameters
-        ----------
-        checkpoint_folder:
-            Path to folder used for storing checkpoints.
-        artifact_folder:
-            Path to folder used for storing artifacts.
-        viz_folder:
-            Path to folder used for storing visualizations.
-        model:
-            The Pytorch model to train
-        datamodule:
-            A datamodule that provides dataloaders for each split (train, valid, and test)
-        optimizer:
-            A Pytorch optimizer to perform the backprop (e.g. Adam)
-        loss_fn:
-            A loss function that evaluates the model predictions to be used for training
-        epochs:
-            Number of epochs to train the model.
-            One epoch correspond to a full loop over the datamodule's training dataloader
-        checkpoint_frequency:
-            The frequency in terms of number of epochs to save the model checkpoint
-        val_frequency:
-            The frequency in terms of number of epochs to perform the validation
-        rollout_val_frequency:
-            The frequency in terms of number of epochs to perform the rollout validation
-        max_rollout_steps:
-            The maximum number of timesteps to rollout the model
-        num_time_intervals:
-            The number of time intervals to split the loss over
-        lr_scheduler:
-            A Pytorch learning rate scheduler to update the learning rate during training
-        device:
-            A Pytorch device (e.g. "cuda" or "cpu")
-        is_distributed:
-            A boolean flag to trigger DDP training
-        enable_amp:
-            A boolean flag to enable automatic mixed precision training
-        amp_type:
-            The type of automatic mixed precision to use. Can be "float16" or "bfloat16"
-        checkpoint_path:
-            The path to the model checkpoint to load. If empty, the model is trained from scratch.
+        Args:
+            checkpoint_folder:
+                Path to folder used for storing checkpoints.
+            artifact_folder:
+                Path to folder used for storing artifacts.
+            viz_folder:
+                Path to folder used for storing visualizations.
+            model:
+                The Pytorch model to train
+            datamodule:
+                A datamodule that provides dataloaders for each split (train, valid, and test)
+            optimizer:
+                A Pytorch optimizer to perform the backprop (e.g. Adam)
+            loss_fn:
+                A loss function that evaluates the model predictions to be used for training
+            epochs:
+                Number of epochs to train the model.
+                One epoch correspond to a full loop over the datamodule's training dataloader
+            checkpoint_frequency:
+                The frequency in terms of number of epochs to save the model checkpoint
+            val_frequency:
+                The frequency in terms of number of epochs to perform the validation
+            rollout_val_frequency:
+                The frequency in terms of number of epochs to perform the rollout validation
+            max_rollout_steps:
+                The maximum number of timesteps to rollout the model
+            num_time_intervals:
+                The number of time intervals to split the loss over
+            lr_scheduler:
+                A Pytorch learning rate scheduler to update the learning rate during training
+            device:
+                A Pytorch device (e.g. "cuda" or "cpu")
+            is_distributed:
+                A boolean flag to trigger DDP training
+            enable_amp:
+                A boolean flag to enable automatic mixed precision training
+            amp_type:
+                The type of automatic mixed precision to use. Can be "float16" or "bfloat16"
+            checkpoint_path:
+                The path to the model checkpoint to load. If empty, the model is trained from scratch.
         """
         self.starting_epoch = 1  # Gets overridden on resume
         self.checkpoint_folder = checkpoint_folder

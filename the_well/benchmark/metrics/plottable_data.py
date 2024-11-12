@@ -21,7 +21,7 @@ def field_histograms(
     Compute histograms of the field values for tensors
     x and y and package them as dictionary for logging.
 
-    Parameters:
+    Args:
         x: Predicted tensor
         y: Target tensor
         metadata: Metadata object associated with dset
@@ -103,13 +103,12 @@ def plot_power_spectrum_by_field(
     """
     Plot the power spectrum of the input tensor x and y.
 
-    Parameters
-    ----------
-    x : Predicted tensor
-    y : Target tensor
-    metadata : Metadata object associated with dset
-    output_dir : Directory to save the plots
-    epoch_number : Current epoch number
+    Args:
+        x: Predicted tensor
+        y: Target tensor
+        metadata: Metadata object associated with dset
+        output_dir: Directory to save the plots
+        epoch_number: Current epoch number
     """
     if isinstance(x, np.ndarray):
         x = torch.from_numpy(x)
@@ -181,12 +180,11 @@ def plot_all_time_metrics(
 ):
     """Plot loss over time for all time metrics.
 
-    Parameters
-    ----------
-    time_logs : Dict of time metrics
-    metadata : Metadata object associated with dset
-    output_dir : Directory to save the plots
-    epoch_number : Current epoch number
+    Args:
+        time_logs: Dict of time metrics
+        metadata: Metadata object associated with dset
+        output_dir: Directory to save the plots
+        epoch_number: Current epoch number
     """
     os.makedirs(
         f"{output_dir}/{metadata.dataset_name}/rollout_losses/epoch_{epoch_number}",

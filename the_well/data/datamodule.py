@@ -35,7 +35,7 @@ class AbstractDataModule(ABC):
 class WellDataModule(AbstractDataModule):
     """Data module class to yield batches of samples.
 
-    Parameters:
+    Args:
         well_base_path:
             Path to the data folder containing the splits (train, validation, and test).
         well_dataset_name:
