@@ -186,7 +186,7 @@ class WellDataset(Dataset):
 
     Takes in path to directory of HDF5 files to construct dset.
 
-    Arguments:
+    Args:
         path:
             Path to directory of HDF5 files, one of path or well_base_path+well_dataset_name
             must be specified
