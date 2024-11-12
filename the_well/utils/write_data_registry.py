@@ -1,14 +1,18 @@
 import json
 import os
+from typing import Dict, List
 
 
-def generate_file_lists(root_dirs):
+def generate_file_lists(root_dirs: List[str]) -> Dict[str, List[str]]:
     """
     Generates lists of all files under each specified root directory.
     Returns a dictionary where each key is a root directory and the value is a list of file paths.
 
-    :param root_dirs: List of directories to index.
-    :return: Dictionary of file lists indexed by directory.
+    Args:
+        root_dirs: List of directories to index.
+
+    Returns:
+        A dictionary of file lists indexed by directory.
     """
     base_url = "https://users.flatironinstitute.org/~polymathic/data/the_well/"
     all_files = {}
@@ -31,12 +35,13 @@ def generate_file_lists(root_dirs):
     return all_files
 
 
-def write_to_json(data, output_file):
+def write_to_json(data: Dict, output_file: str):
     """
     Writes the given data to a JSON file.
 
-    :param data: Data to write (dictionary format).
-    :param output_file: Path to the output JSON file.
+    Args:
+        data: Data to write (dictionary format).
+        output_file: Path to the output JSON file.
     """
     with open(output_file, "w") as f:
         json.dump(data, f, indent=4)

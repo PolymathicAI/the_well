@@ -817,7 +817,7 @@ class WellDataset(Dataset):
             backend: 'numpy' for eager loading, 'dask' for lazy loading.
 
         Returns:
-            ds: xarray.Dataset
+            xarray.Dataset:
                 The stacked Xarray Dataset.
 
         Examples:

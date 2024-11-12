@@ -13,7 +13,7 @@ def hdf5_to_xarray(f: h5py.File, backend: Literal["numpy", "dask"] = "numpy"):
         backend (str): 'numpy' for eager loading, 'dask' for lazy loading.
 
     Returns:
-    - ds (xarray.Dataset): The resulting XArray Dataset.
+        xarray.Dataset: The resulting XArray Dataset.
     """
     if backend not in {"numpy", "dask"}:
         raise ValueError("Unsupported backend: {}".format(backend))
