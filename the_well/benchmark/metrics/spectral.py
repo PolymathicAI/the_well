@@ -1,3 +1,5 @@
+from typing import Optional, Tuple
+
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -6,7 +8,7 @@ from the_well.benchmark.metrics.common import Metric
 from the_well.data.datasets import WellMetadata
 
 
-def fftn(x: torch.Tensor, meta: WellMetadata):
+def fftn(x: torch.Tensor, meta: WellMetadata) -> torch.Tensor:
     """
     Compute the N-dimensional FFT of input tensor x. Wrapper around torch.fft.fftn.
 
@@ -15,14 +17,13 @@ def fftn(x: torch.Tensor, meta: WellMetadata):
         meta: Metadata for the dataset.
 
     Returns:
-        torch.Tensor:
-            N-dimensional FFT of x.
+        N-dimensional FFT of x.
     """
     spatial_dims = tuple(range(-meta.n_spatial_dims - 1, -1))
     return torch.fft.fftn(x, dim=spatial_dims)
 
 
-def ifftn(x: torch.Tensor, meta: WellMetadata):
+def ifftn(x: torch.Tensor, meta: WellMetadata) -> torch.Tensor:
     """
     Compute the N-dimensional inverse FFT of input tensor x. Wrapper around torch.fft.ifftn.
 
@@ -31,8 +32,7 @@ def ifftn(x: torch.Tensor, meta: WellMetadata):
         meta: Metadata for the dataset.
 
     Returns:
-        torch.Tensor:
-            N-dimensional inverse FFT of x.
+        N-dimensional inverse FFT of x.
     """
     spatial_dims = tuple(range(-meta.n_spatial_dims - 1, -1))
     return torch.fft.ifftn(x, dim=spatial_dims)
@@ -45,7 +45,7 @@ def power_spectrum(
     fourier_input: bool = False,
     sample_spacing: float = 1.0,
     return_counts: bool = False,
-) -> tuple:
+) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, Optional[torch.Tensor]]:
     """
     Compute the isotropic power spectrum of input tensor x.
 
@@ -57,14 +57,10 @@ def power_spectrum(
         return_counts: Return counts per bin. The default is False.
 
     Returns:
-        bins: torch.Tensor
-            Array of bin edges.
-        ps_mean: torch.Tensor
-            Power spectrum (estimated as a mean over bins).
-        ps_std: torch.Tensor
-            Standard deviation of the power spectrum (estimated as a standard deviation over bins).
-        counts: torch.Tensor, optional
-            Counts per bin if return_counts=True.
+        A four tuple (bins, ps_mean, ps_std, counts) containing the array of bin edges,
+        the power spectrum (estimated as a mean over bins),
+        the standard deviation of the power spectrum (estimated as a standard deviation over bins),
+        and the counts per bin if return_counts=True.
     """
     spatial_dims = tuple(range(-meta.n_spatial_dims - 1, -1))
     spatial_shape = tuple(x.shape[dim] for dim in spatial_dims)
@@ -147,8 +143,7 @@ class binned_spectral_mse(Metric):
                 If True, x and y are assumed to be the Fourier transform of the input data. The default is False.
 
         Returns:
-            torch.Tensor:
-                Power spectrum mean squared error between x and y.
+            The power spectrum mean squared error between x and y.
         """
         spatial_dims = tuple(range(-meta.n_spatial_dims - 1, -1))
         spatial_shape = tuple(x.shape[dim] for dim in spatial_dims)
