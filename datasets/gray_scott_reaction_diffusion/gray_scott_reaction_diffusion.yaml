@@ -19,8 +19,15 @@ constant_field_names:
   2: []
 boundary_condition_types:
 - PERIODIC
-n_simulations: 6
-n_steps_per_simulation:
+n_files: 6
+n_trajectories_per_file:
+- 20
+- 20
+- 20
+- 20
+- 20
+- 20
+n_steps_per_trajectory:
 - 1001
 - 1001
 - 1001

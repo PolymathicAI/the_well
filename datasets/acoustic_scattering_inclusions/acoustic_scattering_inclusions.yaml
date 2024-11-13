@@ -21,8 +21,13 @@ constant_field_names:
 boundary_condition_types:
 - OPEN
 - WALL
-n_simulations: 4
-n_steps_per_simulation:
+n_files: 4
+n_trajectories_per_file:
+- 100
+- 100
+- 100
+- 100
+n_steps_per_trajectory:
 - 102
 - 102
 - 102
