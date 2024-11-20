@@ -9,6 +9,7 @@ from the_well.data.augmentation import (
     Compose,
     RandomAxisFlip,
     RandomAxisPermute,
+    RandomAxisRoll,
 )
 from the_well.data.datasets import (
     WellDataset,
@@ -89,6 +90,7 @@ class TestDataset(TestCase):
             transform=Compose(
                 RandomAxisFlip(),
                 RandomAxisPermute(),
+                RandomAxisRoll(),
             ),
         )
 

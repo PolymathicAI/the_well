@@ -1,11 +1,11 @@
 """Data augmentation and transformations."""
 
 from abc import ABC, abstractmethod
-from typing import Tuple
+from typing import Dict, Tuple
 
 import torch
 
-from .datasets import TrajectoryData, TrajectoryMetadata
+from .datasets import BoundaryCondition, TrajectoryData, TrajectoryMetadata
 
 
 class Augmentation(ABC):
@@ -215,6 +215,74 @@ class RandomAxisPermute(Augmentation):
                 data["space_grid"],
                 source=src,
                 destination=dst,
+            )
+
+        return data
+
+
+class RandomAxisRoll(Augmentation):
+    """Rolls the periodic spatial axes randomly.
+
+    Parameters
+    ----------
+    p :
+        The probability of axes to be rolled.
+    """
+
+    def __init__(self, p: float = 1.0):
+        self.p = p
+
+    def __call__(
+        self, data: TrajectoryData, metadata: TrajectoryMetadata
+    ) -> TrajectoryData:
+        shape = metadata.dataset.metadata.spatial_resolution
+
+        bc = data["boundary_conditions"]
+
+        periodic = torch.all(bc == BoundaryCondition.PERIODIC.value, dim=-1)
+        periodic = periodic.nonzero().flatten().tolist()
+
+        if torch.rand(()) < self.p:
+            delta = {i: torch.randint(shape[i], size=()).item() for i in periodic}
+        else:
+            delta = {}
+
+        return self.roll(data, delta)
+
+    @staticmethod
+    def roll(
+        data: TrajectoryData,
+        delta: Dict[int, int],
+    ) -> TrajectoryData:
+        axes = tuple(delta.keys())
+        shifts = tuple(delta.values())
+
+        if len(axes) == 0:
+            return data
+
+        for key in ("variable_fields", "constant_fields"):
+            for _, fields in data[key].items():
+                for name, field in fields.items():
+                    if "variable" in key:
+                        field = torch.roll(
+                            field,
+                            shifts=shifts,
+                            dims=tuple(i + 1 for i in axes),
+                        )
+                    else:
+                        field = torch.roll(
+                            field,
+                            shifts=shifts,
+                            dims=axes,
+                        )
+
+                    fields[name] = field
+
+        if "space_grid" in data:
+            data["space_grid"] = torch.roll(
+                data["space_grid"],
+                shifts=shifts,
+                dims=axes,
             )
 
         return data
