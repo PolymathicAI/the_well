@@ -16,7 +16,7 @@ from einops import rearrange
 from timm.models.layers import DropPath
 from torch.utils.checkpoint import checkpoint
 
-from the_well.benchmark.data.datasets import GenericWellMetadata
+from the_well.data.datasets import WellMetadata
 
 conv_modules = {1: nn.Conv1d, 2: nn.Conv2d, 3: nn.Conv3d}
 conv_transpose_modules = {
@@ -205,7 +205,7 @@ class UNetConvNext(nn.Module):
         self,
         dim_in: int,
         dim_out: int,
-        dset_metadata: GenericWellMetadata,
+        dset_metadata: WellMetadata,
         stages: int = 4,
         blocks_per_stage: int = 1,
         blocks_at_neck: int = 1,

@@ -4,11 +4,11 @@ from typing import Dict, Tuple
 import torch
 from einops import rearrange
 
-from .datasets import GenericWellMetadata
+from .datasets import WellMetadata
 
 
 class AbstractDataFormatter(ABC):
-    def __init__(self, metadata: GenericWellMetadata):
+    def __init__(self, metadata: WellMetadata):
         self.metadata = metadata
 
     @abstractmethod

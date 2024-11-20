@@ -1,4 +1,4 @@
-_target_: the_well.benchmark.data.WellDataModule
+_target_: the_well.data.WellDataModule
 batch_size: 64
 well_base_path: /mnt/gpuxl/polymathic/the_well/datasets/
 well_dataset_name: acoustic_scattering_maze

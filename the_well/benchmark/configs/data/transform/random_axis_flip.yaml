@@ -1,2 +1,2 @@
-_target_: the_well.benchmark.data.augmentation.RandomAxisFlip
+_target_: the_well.data.augmentation.RandomAxisFlip
 p: 0.5

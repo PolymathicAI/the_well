@@ -5,8 +5,8 @@ import sys
 import tempfile
 import unittest
 
-from the_well.benchmark.data.datasets import GenericWellDataset
-from the_well.benchmark.data.miniwell import create_mini_well
+from the_well.data.datasets import WellDataset
+from the_well.data.miniwell import create_mini_well
 
 WELL_BASE_PATH = os.environ.get("WELL_BASE_PATH")
 CHECK_THEWELL_DATA_SCRIPT = os.path.join(
@@ -25,7 +25,7 @@ class TestMiniWell(unittest.TestCase):
         try:
             # Load original datasets and create mini versions
             for dataset_name in datasets_to_test:
-                original_dataset = GenericWellDataset(
+                original_dataset = WellDataset(
                     well_base_path=WELL_BASE_PATH,
                     well_dataset_name=dataset_name,
                     # Other options don't matter; we just use
@@ -44,7 +44,7 @@ class TestMiniWell(unittest.TestCase):
                     )
 
                 # Load mini dataset
-                mini_dataset = GenericWellDataset(
+                mini_dataset = WellDataset(
                     well_base_path=temp_dir,
                     well_dataset_name=dataset_name,
                     well_split_name="train",

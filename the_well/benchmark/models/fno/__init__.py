@@ -5,7 +5,7 @@ import torch.nn as nn
 from neuralop.models import FNO as neuralop_FNO
 from torch.utils.checkpoint import checkpoint
 
-from the_well.benchmark.data.datasets import GenericWellMetadata
+from the_well.data.datasets import WellMetadata
 
 
 class NeuralOpsCheckpointWrapper(neuralop_FNO):
@@ -25,18 +25,16 @@ class NeuralOpsCheckpointWrapper(neuralop_FNO):
         else:
             return layer(*inputs, **kwargs)
 
-    def forward(self, x, output_shape=None, **kwargs):
+    def forward(self, x: torch.Tensor, output_shape=None, **kwargs):
         """TFNO's forward pass
 
-        Parameters
-        ----------
-        x : tensor
-            input tensor
-        output_shape : {tuple, tuple list, None}, default is None
-            Gives the option of specifying the exact output shape for odd shaped inputs.
-            * If None, don't specify an output shape
-            * If tuple, specifies the output-shape of the **last** FNO Block
-            * If tuple list, specifies the exact output-shape of each FNO Block
+        Args:
+            x: Input tensor
+            output_shape: {tuple, tuple list, None}, default is None
+                Gives the option of specifying the exact output shape for odd shaped inputs.
+                * If None, don't specify an output shape
+                * If tuple, specifies the output-shape of the **last** FNO Block
+                * If tuple list, specifies the exact output-shape of each FNO Block
         """
 
         if output_shape is None:
@@ -67,7 +65,7 @@ class FNO(nn.Module):
         self,
         dim_in: int,
         dim_out: int,
-        dset_metadata: GenericWellMetadata,
+        dset_metadata: WellMetadata,
         modes1: int,
         modes2: int,
         modes3: int = 16,

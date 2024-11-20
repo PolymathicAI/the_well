@@ -3,7 +3,7 @@ from unittest import TestCase
 
 import torch
 
-from the_well.benchmark.data.augmentation import (
+from the_well.data.augmentation import (
     RandomAxisFlip,
     RandomAxisPermute,
 )

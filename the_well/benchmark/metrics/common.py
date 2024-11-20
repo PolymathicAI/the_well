@@ -6,18 +6,18 @@ import torch.nn as nn
 class Metric(nn.Module):
     """
     Decorator for metrics that standardizes the input arguments and checks the dimensions of the input tensors.
-    Parameters
-    ----------
-    f : function
-        Metric function that takes in the following arguments:
-        x : torch.Tensor | np.ndarray
-            Input tensor.
-        y : torch.Tensor | np.ndarray
-            Target tensor.
-        meta : GenericWellMetadata
-            Metadata for the dataset.
-        **kwargs : dict
-            Additional arguments for the metric.
+
+    Args:
+        f: function
+            Metric function that takes in the following arguments:
+            x: torch.Tensor | np.ndarray
+                Input tensor.
+            y: torch.Tensor | np.ndarray
+                Target tensor.
+            meta: WellMetadata
+                Metadata for the dataset.
+            **kwargs : dict
+                Additional arguments for the metric.
     """
 
     def forward(self, *args, **kwargs):

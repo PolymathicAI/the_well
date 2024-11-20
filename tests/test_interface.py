@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import torch
 
-from the_well.benchmark.data.datasets import GenericWellMetadata
+from the_well.data.datasets import WellMetadata
 from the_well.utils.interface import Interface
 
 
@@ -21,7 +21,7 @@ class FakeModel(torch.nn.Module):
 
 class TestInterface(TestCase):
     def test_check(self):
-        metadata = GenericWellMetadata(
+        metadata = WellMetadata(
             dataset_name="test_dataset",
             n_spatial_dims=2,
             spatial_resolution=(256, 256),

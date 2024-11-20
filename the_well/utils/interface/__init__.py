@@ -1,15 +1,15 @@
 import torch
 from omegaconf import OmegaConf
 
-from the_well.benchmark.data.datasets import GenericWellDataset, GenericWellMetadata
+from the_well.data.datasets import WellDataset, WellMetadata
 
 
 class Interface:
-    def __init__(self, metadata: GenericWellMetadata):
+    def __init__(self, metadata: WellMetadata):
         self.dataset_metadata = metadata
 
     @classmethod
-    def from_dataset(cls, dataset: GenericWellDataset):
+    def from_dataset(cls, dataset: WellDataset):
         return cls(dataset.metadata)
 
     @classmethod
@@ -18,7 +18,7 @@ class Interface:
         metadata_dict = {
             key: val for key, val in dict(conf).items() if key != "sample_shapes"
         }
-        metadata = GenericWellMetadata(metadata_dict)
+        metadata = WellMetadata(metadata_dict)
         return cls(metadata)
 
     def pipe_one_step_input(self, data):

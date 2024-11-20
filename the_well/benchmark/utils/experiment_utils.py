@@ -51,12 +51,11 @@ def configure_experiment(
 
 
 
-    Parameters
-    ----------
-    experiment_folder:
-        Path to base folder used for experiment
-    logger:
-        Logger object to print messages to console
+    Args:
+        experiment_folder:
+            Path to base folder used for experiment
+        logger:
+            Logger object to print messages to console
     """
     # Sort out default names and folders
     experiment_name = get_experiment_name(cfg)

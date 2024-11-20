@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from the_well.benchmark.data.datasets import GenericWellMetadata
+from the_well.data.datasets import WellMetadata
 
 from ..common import SN_MLP, SigmaNormLinear
 
@@ -125,7 +125,7 @@ class ReFNO(nn.Module):
         self,
         dim_in: int,
         dim_out: int,
-        dset_metadata: GenericWellMetadata,
+        dset_metadata: WellMetadata,
         hidden_dim: int = 64,
         blocks: int = 4,
         ratio: float = 1.0,

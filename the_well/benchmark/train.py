@@ -10,10 +10,10 @@ from omegaconf import DictConfig, OmegaConf
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torchinfo import summary
 
-from the_well.benchmark.data import WellDataModule
 from the_well.benchmark.trainer import Trainer
 from the_well.benchmark.trainer.utils import set_master_config
 from the_well.benchmark.utils.experiment_utils import configure_experiment
+from the_well.data import WellDataModule
 
 logger = logging.getLogger("the_well")
 logger.setLevel(level=logging.DEBUG)

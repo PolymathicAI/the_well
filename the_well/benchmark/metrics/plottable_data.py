@@ -5,13 +5,13 @@ import numpy as np
 import torch
 from matplotlib.animation import FuncAnimation
 
-from the_well.benchmark.data.datasets import GenericWellMetadata, flatten_field_names
+from the_well.data.datasets import WellMetadata, flatten_field_names
 
 
 def field_histograms(
     x: torch.Tensor | np.ndarray,
     y: torch.Tensor | np.ndarray,
-    meta: GenericWellMetadata,
+    meta: WellMetadata,
     output_dir: str,
     epoch_number: int = 0,
     bins: int = 100,
@@ -21,16 +21,16 @@ def field_histograms(
     Compute histograms of the field values for tensors
     x and y and package them as dictionary for logging.
 
-    Parameters
-    ----------
-    x : Predicted tensor
-    y : Target tensor
-    metadata : Metadata object associated with dset
-    output_dir : Directory to save the plots
-    epoch_number : Current epoch number
-    bins : Number of bins for the histogram. Default is 100.
-    log_scale : Whether to plot the histogram on a log scale. Default is False.
-    title : Title for the plot. Default is None.
+    Args:
+        x: Predicted tensor
+        y: Target tensor
+        metadata: Metadata object associated with dset
+        output_dir: Directory to save the plots
+        epoch_number: Current epoch number
+        bins: Number of bins for the histogram. Default is 100.
+        log_scale: Whether to plot the histogram on a log scale. Default is False.
+        title: Title for the plot. Default is None.
+
     """
     if isinstance(x, np.ndarray):
         x = torch.from_numpy(x)
@@ -96,20 +96,19 @@ def build_1d_power_spectrum(x, spatial_dims):
 def plot_power_spectrum_by_field(
     x: torch.Tensor | np.ndarray,
     y: torch.Tensor | np.ndarray,
-    metadata: GenericWellMetadata,
+    metadata: WellMetadata,
     output_dir: str,
     epoch_number: int = 0,
 ):
     """
     Plot the power spectrum of the input tensor x and y.
 
-    Parameters
-    ----------
-    x : Predicted tensor
-    y : Target tensor
-    metadata : Metadata object associated with dset
-    output_dir : Directory to save the plots
-    epoch_number : Current epoch number
+    Args:
+        x: Predicted tensor
+        y: Target tensor
+        metadata: Metadata object associated with dset
+        output_dir: Directory to save the plots
+        epoch_number: Current epoch number
     """
     if isinstance(x, np.ndarray):
         x = torch.from_numpy(x)
@@ -175,18 +174,17 @@ def plot_power_spectrum_by_field(
 
 def plot_all_time_metrics(
     time_logs: dict,
-    metadata: GenericWellMetadata,
+    metadata: WellMetadata,
     output_dir: str,
     epoch_number: int = 0,
 ):
     """Plot loss over time for all time metrics.
 
-    Parameters
-    ----------
-    time_logs : Dict of time metrics
-    metadata : Metadata object associated with dset
-    output_dir : Directory to save the plots
-    epoch_number : Current epoch number
+    Args:
+        time_logs: Dict of time metrics
+        metadata: Metadata object associated with dset
+        output_dir: Directory to save the plots
+        epoch_number: Current epoch number
     """
     os.makedirs(
         f"{output_dir}/{metadata.dataset_name}/rollout_losses/epoch_{epoch_number}",
@@ -205,7 +203,7 @@ def plot_all_time_metrics(
 def make_video(
     predicted_images: torch.Tensor,
     true_images: torch.Tensor,
-    metadata: GenericWellMetadata,
+    metadata: WellMetadata,
     output_dir: str,
     epoch_number: int = 0,
 ):

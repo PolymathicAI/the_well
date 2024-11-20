@@ -114,7 +114,7 @@ def flatten_field_names(metadata, include_constants=True):
 
 
 @dataclass
-class GenericWellMetadata:
+class WellMetadata:
     """Dataclass to store metadata for each dataset."""
 
     dataset_name: str
@@ -171,14 +171,14 @@ class TrajectoryData(TypedDict):
 
 @dataclass
 class TrajectoryMetadata:
-    dataset: "GenericWellDataset"
+    dataset: "WellDataset"
     file_idx: int
     sample_idx: int
     time_idx: int
     time_stride: int
 
 
-class GenericWellDataset(Dataset):
+class WellDataset(Dataset):
     """
     Generic dataset for any Well data. Returns data in B x T x H [x W [x D]] x C format.
 
@@ -186,56 +186,55 @@ class GenericWellDataset(Dataset):
 
     Takes in path to directory of HDF5 files to construct dset.
 
-    Parameters
-    ----------
-    path :
-        Path to directory of HDF5 files, one of path or well_base_path+well_dataset_name
-          must be specified
-    normalization_path:
-        Path to normalization constants - assumed to be in same format as constructed data.
-    well_base_path :
-        Path to well dataset directory, only used with dataset_name
-    well_dataset_name :
-        Name of well dataset to load - overrides path if specified
-    well_split_name :
-        Name of split to load - options are 'train', 'valid', 'test'
-    include_filters :
-        Only include files whose name contains at least one of these strings
-    exclude_filters :
-        Exclude any files whose name contains at least one of these strings
-    use_normalization:
-        Whether to normalize data in the dataset
-    n_steps_input :
-        Number of steps to include in each sample
-    n_steps_output :
-        Number of steps to include in y
-    min_dt_stride :
-        Minimum stride between samples
-    max_dt_stride :
-        Maximum stride between samples
-    flatten_tensors :
-        Whether to flatten tensor valued field into channels
-    cache_small :
-        Whether to cache small tensors in memory for faster access
-    max_cache_size :
-        Maximum numel of constant tensor to cache
-    return_grid :
-        Whether to return grid coordinates
-    boundary_return_type : options=['padding', 'mask', 'exact', 'none']
-        How to return boundary conditions. Currently only padding supported.
-    full_trajectory_mode :
-        Overrides to return full trajectory starting from t0 instead of samples
-            for long run validation.
-    name_override :
-        Override name of dataset (used for more precise logging)
-    transform :
-        Transform to apply to data. In the form `f(data: TrajectoryData, metadata:
-        TrajectoryMetadata) -> TrajectoryData`, where `data` contains a piece of
-        trajectory (fields, scalars, BCs, ...) and `metadata` contains additional
-        informations, including the dataset itself.
-    min_std :
-        Minimum standard deviation for field normalization. If a field standard
-        deviation is lower than this value, it is replaced by this value.
+    Args:
+        path:
+            Path to directory of HDF5 files, one of path or well_base_path+well_dataset_name
+            must be specified
+        normalization_path:
+            Path to normalization constants - assumed to be in same format as constructed data.
+        well_base_path:
+            Path to well dataset directory, only used with dataset_name
+        well_dataset_name:
+            Name of well dataset to load - overrides path if specified
+        well_split_name:
+            Name of split to load - options are 'train', 'valid', 'test'
+        include_filters:
+            Only include files whose name contains at least one of these strings
+        exclude_filters:
+            Exclude any files whose name contains at least one of these strings
+        use_normalization:
+            Whether to normalize data in the dataset
+        n_steps_input:
+            Number of steps to include in each sample
+        n_steps_output:
+            Number of steps to include in y
+        min_dt_stride:
+            Minimum stride between samples
+        max_dt_stride:
+            Maximum stride between samples
+        flatten_tensors:
+            Whether to flatten tensor valued field into channels
+        cache_small:
+            Whether to cache small tensors in memory for faster access
+        max_cache_size:
+            Maximum numel of constant tensor to cache
+        return_grid:
+            Whether to return grid coordinates
+        boundary_return_type: options=['padding', 'mask', 'exact', 'none']
+            How to return boundary conditions. Currently only padding supported.
+        full_trajectory_mode:
+            Overrides to return full trajectory starting from t0 instead of samples
+                for long run validation.
+        name_override:
+            Override name of dataset (used for more precise logging)
+        transform:
+            Transform to apply to data. In the form `f(data: TrajectoryData, metadata:
+            TrajectoryMetadata) -> TrajectoryData`, where `data` contains a piece of
+            trajectory (fields, scalars, BCs, ...) and `metadata` contains additional
+            informations, including the dataset itself.
+        min_std:
+            Minimum standard deviation for field normalization. If a field standard
+            deviation is lower than this value, it is replaced by this value.
     """
 
     def __init__(
@@ -464,7 +463,7 @@ class GenericWellDataset(Dataset):
         self.num_bcs = len(bcs)  # Number of boundary condition type included in data
         self.bc_types = list(bcs)  # List of boundary condition types
 
-        return GenericWellMetadata(
+        return WellMetadata(
             dataset_name=self.dataset_name,
             n_spatial_dims=self.n_spatial_dims,
             grid_type=grid_type,
@@ -811,23 +810,22 @@ class GenericWellDataset(Dataset):
         return self.len
 
     def to_xarray(self, backend: Literal["numpy", "dask"] = "dask"):
-        """
-        Export the dataset to an XArray Dataset by stacking all HDF5 files as XArray datasets
+        """Export the dataset to an Xarray Dataset by stacking all HDF5 files as Xarray datasets
         along the existing 'sample' dimension.
 
-        Parameters:
-        - backend (str): 'numpy' for eager loading, 'dask' for lazy loading.
+        Args:
+            backend: 'numpy' for eager loading, 'dask' for lazy loading.
 
         Returns:
-        - ds (xarray.Dataset): The stacked XArray Dataset.
+            xarray.Dataset:
+                The stacked Xarray Dataset.
 
-        Example:
-
-        To convert a dataset and plot the pressure for 5 different times for a single trajectory:
-
-        >>> ds = dataset.to_xarray()
-        >>> ds.pressure.isel(sample=0, time=[0, 10, 20, 30, 40]).plot(col='time', col_wrap=5)
+        Examples:
+            To convert a dataset and plot the pressure for 5 different times for a single trajectory:
+            >>> ds = dataset.to_xarray()
+            >>> ds.pressure.isel(sample=0, time=[0, 10, 20, 30, 40]).plot(col='time', col_wrap=5)
         """
+
         import xarray as xr
 
         datasets = []

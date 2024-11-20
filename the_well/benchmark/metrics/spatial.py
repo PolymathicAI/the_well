@@ -1,8 +1,8 @@
 import numpy as np
 import torch
 
-from the_well.benchmark.data.datasets import GenericWellMetadata
 from the_well.benchmark.metrics.common import Metric
+from the_well.data.datasets import WellMetadata
 
 
 class MSE(Metric):
@@ -10,23 +10,17 @@ class MSE(Metric):
     def eval(
         x: torch.Tensor | np.ndarray,
         y: torch.Tensor | np.ndarray,
-        meta: GenericWellMetadata,
+        meta: WellMetadata,
     ) -> torch.Tensor:
         """
         Mean Squared Error
 
-        Parameters
-        ----------
-        x : torch.Tensor | np.ndarray
-            Input tensor.
-        y : torch.Tensor | np.ndarray
-            Target tensor.
-        meta : GenericWellMetadata
-            Metadata for the dataset.
+        Args:
+            x: Input tensor.
+            y: Target tensor.
+            meta: Metadata for the dataset.
 
-        Returns
-        -------
-        torch.Tensor
+        Returns:
             Mean squared error between x and y.
         """
         n_spatial_dims = tuple(range(-meta.n_spatial_dims - 1, -1))
@@ -38,29 +32,22 @@ class NMSE(Metric):
     def eval(
         x: torch.Tensor | np.ndarray,
         y: torch.Tensor | np.ndarray,
-        meta: GenericWellMetadata,
+        meta: WellMetadata,
         eps: float = 1e-7,
         norm_mode: str = "norm",
     ) -> torch.Tensor:
         """
         Normalized Mean Squared Error
 
-        Parameters
-        ----------
-        x : torch.Tensor | np.ndarray
-            Input tensor.
-        y : torch.Tensor | np.ndarray
-            Target tensor.
-        meta : GenericWellMetadata
-            Metadata for the dataset.
-        eps : float
-            Small value to avoid division by zero. Default is 1e-7.
-        norm_mode : str
-            Mode for computing the normalization factor. Can be 'norm' or 'std'. Default is 'norm'.
+        Args:
+            x: Input tensor.
+            y: Target tensor.
+            meta: Metadata for the dataset.
+            eps: Small value to avoid division by zero. Default is 1e-7.
+            norm_mode:
+                Mode for computing the normalization factor. Can be 'norm' or 'std'. Default is 'norm'.
 
-        Returns
-        -------
-        torch.Tensor
+        Returns:
             Normalized mean squared error between x and y.
         """
         n_spatial_dims = tuple(range(-meta.n_spatial_dims - 1, -1))
@@ -78,23 +65,20 @@ class RMSE(Metric):
     def eval(
         x: torch.Tensor | np.ndarray,
         y: torch.Tensor | np.ndarray,
-        meta: GenericWellMetadata,
+        meta: WellMetadata,
     ) -> torch.Tensor:
         """
         Root Mean Squared Error
 
-        Parameters
-        ----------
-        x : torch.Tensor | np.ndarray
-            Input tensor.
-        y : torch.Tensor | np.ndarray
-            Target tensor.
-        meta : GenericWellMetadata
-            Metadata for the dataset.
+        Args:
+            x: torch.Tensor | np.ndarray
+                Input tensor.
+            y: torch.Tensor | np.ndarray
+                Target tensor.
+            meta: WellMetadata
+                Metadata for the dataset.
 
-        Returns
-        -------
-        torch.Tensor
+        Returns:
             Root mean squared error between x and y.
         """
         return torch.sqrt(MSE.eval(x, y, meta))
@@ -105,30 +89,23 @@ class NRMSE(Metric):
     def eval(
         x: torch.Tensor | np.ndarray,
         y: torch.Tensor | np.ndarray,
-        meta: GenericWellMetadata,
+        meta: WellMetadata,
         eps: float = 1e-7,
         norm_mode: str = "norm",
     ) -> torch.Tensor:
         """
         Normalized Root Mean Squared Error
 
-        Parameters
-        ----------
-        x : torch.Tensor | np.ndarray
-            Input tensor.
-        y : torch.Tensor | np.ndarray
-            Target tensor.
-        meta : GenericWellMetadata
-            Metadata for the dataset.
-        eps : float
-            Small value to avoid division by zero. Default is 1e-7.
-        norm_mode : str
-            Mode for computing the normalization factor. Can be 'norm' or 'std'. Default is 'norm'.
+        Args:
+            x: Input tensor.
+            y: Target tensor.
+            meta: Metadata for the dataset.
+            eps: Small value to avoid division by zero. Default is 1e-7.
+            norm_mode : Mode for computing the normalization factor. Can be 'norm' or 'std'. Default is 'norm'.
 
-        Returns
-        -------
-        torch.Tensor
+        Returns:
             Normalized root mean squared error between x and y.
+
         """
         return torch.sqrt(NMSE.eval(x, y, meta, eps=eps, norm_mode=norm_mode))
 
@@ -138,23 +115,17 @@ class VMSE(Metric):
     def eval(
         x: torch.Tensor | np.ndarray,
         y: torch.Tensor | np.ndarray,
-        meta: GenericWellMetadata,
+        meta: WellMetadata,
     ) -> torch.Tensor:
         """
         Variance Scaled Mean Squared Error
 
-        Parameters
-        ----------
-        x : torch.Tensor | np.ndarray
-            Input tensor.
-        y : torch.Tensor | np.ndarray
-            Target tensor.
-        meta : GenericWellMetadata
-            Metadata for the dataset.
+        Args:
+            x: Input tensor.
+            y: Target tensor.
+            meta: Metadata for the dataset.
 
-        Returns
-        -------
-        torch.Tensor
+        Returns:
             Variance mean squared error between x and y.
         """
         return NMSE.eval(x, y, meta, norm_mode="std")
@@ -165,23 +136,17 @@ class VRMSE(Metric):
     def eval(
         x: torch.Tensor | np.ndarray,
         y: torch.Tensor | np.ndarray,
-        meta: GenericWellMetadata,
+        meta: WellMetadata,
     ) -> torch.Tensor:
         """
         Root Variance Scaled Mean Squared Error
 
-        Parameters
-        ----------
-        x : torch.Tensor | np.ndarray
-            Input tensor.
-        y : torch.Tensor | np.ndarray
-            Target tensor.
-        meta : GenericWellMetadata
-            Metadata for the dataset.
+        Args:
+            x: Input tensor.
+            y: Target tensor.
+            meta: Metadata for the dataset.
 
-        Returns
-        -------
-        torch.Tensor
+        Returns:
             Root variance mean squared error between x and y.
         """
         return NRMSE.eval(x, y, meta, norm_mode="std")
@@ -192,23 +157,17 @@ class LInfinity(Metric):
     def eval(
         x: torch.Tensor | np.ndarray,
         y: torch.Tensor | np.ndarray,
-        meta: GenericWellMetadata,
+        meta: WellMetadata,
     ) -> torch.Tensor:
         """
         L-Infinity Norm
 
-        Parameters
-        ----------
-        x : torch.Tensor | np.ndarray
-            Input tensor.
-        y : torch.Tensor | np.ndarray
-            Target tensor.
-        meta : GenericWellMetadata
-            Metadata for the dataset.
+        Args:
+            x: Input tensor.
+            y: Target tensor.
+            meta: Metadata for the dataset.
 
-        Returns
-        -------
-        torch.Tensor
+        Returns:
             L-Infinity norm between x and y.
         """
         spatial_dims = tuple(range(-meta.n_spatial_dims - 1, -1))

@@ -24,10 +24,11 @@ def get_first_host(hostlist: str) -> str:
     """
     Get the first host from SLURM's nodelist.
     Example: Nodelist="Node[1-5],Node7" -> First node: "Node1"
+
     Args:
-        hostlist(str): the compact nodelist as given by SLURM
+        The compact nodelist as given by SLURM
     Returns:
-        (str): the first node to host the master process
+        The first node to host the master process
     """
     from re import findall, split, sub
 

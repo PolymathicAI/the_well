@@ -1,7 +1,7 @@
-_target_: the_well.benchmark.data.WellDataModule
+_target_: the_well.data.WellDataModule
 batch_size: 256
 well_base_path: /mnt/gpuxl/polymathic/the_well/datasets/
-well_dataset_name: pattern_formation
+well_dataset_name: gray_scott_reaction_diffusion
 use_normalization: True
 min_dt_stride: 1
 max_dt_stride: 1

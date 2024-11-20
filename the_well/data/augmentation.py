@@ -21,37 +21,36 @@ class Augmentation(ABC):
         self, data: TrajectoryData, metadata: TrajectoryMetadata
     ) -> TrajectoryData:
         """
-        Parameters
-        ----------
-        data :
-            The input dictionary representing a piece of trajectory. The data dictionary
-            always contains the 'variable_fields', 'constant_fields', 'variable_scalars'
-            and 'constant_scalars' entries. 'variable_*' means that the content varies
-            in time, while 'constant_*' means that the content is constant throughout
-            the trajectory.
 
-            - 'variable_fields' and 'constant_fields' entries are dictionaries whose
-              entries are themselves name-field dictionaries split by tensor-order. The
-              shape of a time-varying scalar field (0th-order) in a system with 2
-              spatial dimensions would be (T, D_x, D_y), while a time-constant vector
-              field (1st-order) would have a shape (D_x, D_y, 2).
+        Args:
+            data:
+                The input dictionary representing a piece of trajectory. The data dictionary
+                always contains the 'variable_fields', 'constant_fields', 'variable_scalars'
+                and 'constant_scalars' entries. 'variable_*' means that the content varies
+                in time, while 'constant_*' means that the content is constant throughout
+                the trajectory.
 
-            - 'variable_scalars' and 'constant_scalars' entries are name-scalar
-              dictionaries. The shape of a time-varying scalar would be (T), while a
-              time-constant scalar would have shape ().
+                - 'variable_fields' and 'constant_fields' entries are dictionaries whose
+                entries are themselves name-field dictionaries split by tensor-order. The
+                shape of a time-varying scalar field (0th-order) in a system with 2
+                spatial dimensions would be (T, D_x, D_y), while a time-constant vector
+                field (1st-order) would have a shape (D_x, D_y, 2).
 
-            Additionally, the input dictionary can contain 'boundary_conditions',
-            'space_grid' and 'time_grid' entries.
+                - 'variable_scalars' and 'constant_scalars' entries are name-scalar
+                dictionaries. The shape of a time-varying scalar would be (T), while a
+                time-constant scalar would have shape ().
 
-        metadata :
-            Additional informations regarding the piece of trajectory, such as the file,
-            sample and time indices ('file_idx', 'sample_idx', 'time_idx'), the time
-            stride ('time_stride') and the dataset itself ('dataset').
+                Additionally, the input dictionary can contain 'boundary_conditions',
+                'space_grid' and 'time_grid' entries.
 
-        Returns
-        -------
-        The updated data dictionary. The dictionary can be updated in-place, but its
-        structure should remain the same.
+            metadata:
+                Additional informations regarding the piece of trajectory, such as the file,
+                sample and time indices ('file_idx', 'sample_idx', 'time_idx'), the time
+                stride ('time_stride') and the dataset itself ('dataset').
+
+        Returns:
+            The updated data dictionary. The dictionary can be updated in-place, but its
+            structure should remain the same.
         """
         pass
 
@@ -76,10 +75,9 @@ class Compose(Augmentation):
 class RandomAxisFlip(Augmentation):
     """Flips the spatial axes randomly.
 
-    Parameters
-    ----------
-    p :
-        The probability of each axis to be flipped.
+    Args:
+        p:
+            The probability of each axis to be flipped.
     """
 
     def __init__(self, p: float = 0.5):
@@ -151,10 +149,9 @@ class RandomAxisFlip(Augmentation):
 class RandomAxisPermute(Augmentation):
     """Permutes the spatial axes randomly.
 
-    Parameters
-    ----------
-    p :
-        The probability of axes to be permuted.
+    Args:
+        p:
+            The probability of axes to be permuted.
     """
 
     def __init__(self, p: float = 1.0):

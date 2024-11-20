@@ -5,14 +5,14 @@ from unittest import TestCase
 
 import torch
 
-from the_well.benchmark.data.augmentation import (
+from the_well.data.augmentation import (
     Compose,
     RandomAxisFlip,
     RandomAxisPermute,
 )
-from the_well.benchmark.data.datasets import (
-    GenericWellDataset,
-    GenericWellMetadata,
+from the_well.data.datasets import (
+    WellDataset,
+    WellMetadata,
     maximum_stride_for_initial_index,
     raw_steps_to_possible_sample_t0s,
 )
@@ -21,7 +21,7 @@ from the_well.utils.dummy_data import write_dummy_data
 
 class TestMetadata(TestCase):
     def test_metadata(self):
-        metadata = GenericWellMetadata(
+        metadata = WellMetadata(
             dataset_name="test",
             n_spatial_dims=2,
             spatial_resolution=(256, 256),
@@ -53,7 +53,7 @@ class TestMetadata(TestCase):
 
 class TestDataset(TestCase):
     def test_local_dataset(self):
-        dataset = GenericWellDataset(
+        dataset = WellDataset(
             well_base_path=".",
             well_dataset_name="active_matter",
             use_normalization=False,
@@ -61,13 +61,13 @@ class TestDataset(TestCase):
         self.assertTrue(len(dataset))
 
     def test_absolute_path_dataset(self):
-        dataset = GenericWellDataset(
+        dataset = WellDataset(
             path="datasets/active_matter/data/train", use_normalization=False
         )
         self.assertTrue(len(dataset))
 
     def test_last_time_step(self):
-        dataset = GenericWellDataset(
+        dataset = WellDataset(
             well_base_path=".",
             well_dataset_name="active_matter",
             use_normalization=False,
@@ -82,7 +82,7 @@ class TestDataset(TestCase):
         self.assertIn("output_fields", data)
 
     def test_augmentation(self):
-        dataset = GenericWellDataset(
+        dataset = WellDataset(
             well_base_path=".",
             well_dataset_name="active_matter",
             use_normalization=False,
@@ -139,7 +139,7 @@ class TestDataset(TestCase):
         with tempfile.TemporaryDirectory() as dir_name:
             filename = os.path.join(dir_name, "dummy_well_data.hdf5")
             write_dummy_data(filename)
-            dataset = GenericWellDataset(
+            dataset = WellDataset(
                 path=dir_name, use_normalization=False, return_grid=True
             )
             # Dummy dataset should contain 2 trajectories of 9 valid samples each
