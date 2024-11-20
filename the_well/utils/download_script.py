@@ -2,12 +2,13 @@ import argparse
 import json
 import os
 import signal
+import subprocess
 import sys
 from typing import Optional
 
 
 def signal_handler(sig, frame):
-    print("You pressed Ctrl+C!")
+    print("\nYou pressed Ctrl+C!")
     sys.exit(0)
 
 
@@ -66,8 +67,17 @@ def download_files(
                     print("creating directory")
             filename = os.path.basename(url)
             print(f"Downloading {filename} to {target_directory}")
-            os.system(
-                f"curl --retry 5  --create-dirs -o {os.path.join(target_directory, filename)} {url}"
+
+            subprocess.run(
+                [
+                    "curl",
+                    "--retry",
+                    "5",
+                    "--create-dirs",
+                    "-o",
+                    os.path.join(target_directory, filename),
+                    url,
+                ]
             )
 
 
@@ -79,7 +89,7 @@ def main():
     parser.add_argument(
         "--json_file",
         type=str,
-        default="data_registry.json",
+        default=os.path.join(os.path.dirname(__file__), "data_registry.json"),
         help="Path to the JSON file with file URLs.",
     )
     parser.add_argument(
