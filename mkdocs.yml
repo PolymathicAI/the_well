@@ -1,0 +1,90 @@
+site_name: The Well
+theme:
+  name: material
+  palette:
+    scheme: the_well
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - search.suggest  # Enables search suggestion
+    - navigation.instant
+    - navigation.instant.prefetch
+    - toc.follow
+    - content.code.copy
+  logo: assets/images/the_well_color_icon.svg
+  favicon: assets/images/the_well_color_icon.svg
+
+nav:
+  - Home: index.md
+  - Getting Started: getting_started.md
+  - Tutorial:
+    - Interface: tutorials/dataset.ipynb
+  - Reference: reference.md
+  - Benchmarks: benchmarks.md
+  - Datasets:
+    - Overview: datasets_overview.md
+    - acoustic_scattering_discontinuous: datasets/acoustic_scattering_discontinuous.md
+    - acoustic_scattering_inclusions: datasets/acoustic_scattering_inclusions.md
+    - acoustic_scattering_maze: datasets/acoustic_scattering_maze.md
+    - active_matter: datasets/active_matter.md
+    - convective_envelope_rsg: datasets/convective_envelope_rsg.md
+    - euler_multi_quadrants_openBC: datasets/euler_multi_quadrants_openBC.md
+    - euler_multi_quadrants_periodicBC: datasets/euler_multi_quadrants_periodicBC.md
+    - gray_scott_reaction_diffusion: datasets/gray_scott_reaction_diffusion.md
+    - helmholtz_staircase: datasets/helmholtz_staircase.md
+    - MHD_64: datasets/MHD_64.md
+    - MHD_256: datasets/MHD_256.md
+    - planetswe: datasets/planetswe.md
+    - post_neutron_star_merger: datasets/post_neutron_star_merger.md
+    - rayleigh_benard: datasets/rayleigh_benard.md
+    - rayleigh_taylor_instability: datasets/rayleigh_taylor_instability.md
+    - shear_flow: datasets/shear_flow.md
+    - supernova_explosion_64: datasets/supernova_explosion_64.md
+    - supernova_explosion_128: datasets/supernova_explosion_128.md
+    - turbulence_gravity_cooling: datasets/turbulence_gravity_cooling.md
+    - turbulent_radiative_layer_2D: datasets/turbulent_radiative_layer_2D.md
+    - turbulent_radiative_layer_3D: datasets/turbulent_radiative_layer_3D.md
+    - viscoelastic_instability: datasets/viscoelastic_instability.md
+  - Contact: reference_contact.md
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/PolymathicAI/the_well
+    - icon: fontawesome/brands/x-twitter
+      link: https://twitter.com/PolymathicAI
+    - icon: fontawesome/solid/at
+      link: https://polymathic-ai.org/
+    - icon: simple/arxiv
+      link: https://arxiv.org/abs/2109.13594 #To modify!!
+copyright: Copyright &copy; 2024 Polymathic AI
+repo_url: https://github.com/PolymathicAI/the_well
+repo_name: the_well
+
+extra_css:
+  - css/extra.css
+  - https://unpkg.com/katex@0/dist/katex.min.css
+
+extra_javascript:
+  - javascript/katex.js
+  - https://unpkg.com/katex@0/dist/katex.min.js
+  - https://unpkg.com/katex@0/dist/contrib/auto-render.min.js
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.highlight
+  - pymdownx.superfences
+
+plugins:
+  - search
+  - mkdocs-jupyter
+  - mkdocstrings:
+      handlers:
+        python:
+          paths:
+            the_well/
+          options:
+            docstring_style: google

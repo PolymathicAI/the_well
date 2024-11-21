@@ -16,32 +16,37 @@ Rayleigh-Bénard convection involves fluid dynamics and thermodynamics, seen in 
 **Equation**:
 
 While we solve equations in the frequency domain, the original time-domain problem is
-```math
+
+$$
 \begin{align*}
 \frac{\partial b}{\partial t} - \kappa\,\Delta b & = -u\nabla b\,,
 \\
 \frac{\partial u}{\partial t} - \nu\,\Delta u + \nabla p - b \vec{e}_z & = -u \nabla u\,,
 \end{align*}
-```
+$$
+
 where $\Delta = \nabla \cdot \nabla$ is the spatial Laplacian, $b$ is the buoyancy, $u = (u_x,u_y)$ the (horizontal and vertical) velocity, and $p$ is the pressure, $\vec{e}_z$ is the unit vector in the vertical direction, with the additional constraints $\int p = 0$ (pressure gauge).
 
 The boundary conditions vertically are as follows:
-```math
+
+$$
 \begin{align*}
 b(z=0) = Lz ~~~,~~~ b(z=Lz) = 0
 \\
 u(z=0) = u(z=Lz) = 0
 \end{align*}
-```
+$$
 
 These PDE are parameterized by the Rayleigh and Prandtl numbers through $\kappa$ and $\nu$.
-```math
+
+$$
 \begin{align*}
 \text{(thermal diffusivity)} ~~~~~~~ \kappa & = \big(\text{Rayleigh} * \text{Prandtl}\big)^{-\frac12}
 \\
 \text{(viscosity)} ~~~~~~~ \nu & = \bigg(\frac{\text{Rayleigh}}{\text{Prandtl}}\bigg)^{-\frac12}.
 \end{align*}
-```
+$$
+
 ![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard/gif/buoyancy_good_normalized.gif)
 <!-- <div style="transform: rotate(90deg);">
   <img src="https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard/gif/buoyancy_normalized.gif" alt="Rotated GIF">

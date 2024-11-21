@@ -13,13 +13,15 @@
 **Code or software used to generate the data**: Fortran + MPI.
 
 **Equation**:
-```math
+
+$$
 \begin{align}
 \frac{\partial \rho}{\partial t} + \nabla \cdot (\rho \mathbf{v}) &= 0 \nonumber\\
 \frac{\partial \rho \mathbf{v}}{\partial t} + \nabla \cdot (\rho \mathbf{v} \mathbf{v} - \mathbf{B} \mathbf{B}) + \nabla p &= 0 \nonumber\\
 \frac{\partial \mathbf{B}}{\partial t} - \nabla \times (\mathbf{v} \times \mathbf{B}) &= 0 \nonumber\\
 \end{align}
-```
+$$
+
 where $\rho$ is the density, $\mathbf{v}$ is the velocity, $\mathbf{B}$ is the magnetic field, $\mathbf{I}$ the identity matrix and $p$ is the gas pressure.
 
 ![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/MHD_256/gif/density_normalized.gif)

@@ -1,0 +1,18 @@
+[data-md-color-scheme="the_well"] {
+    --md-primary-fg-color:        #f9f8f4;
+    --md-primary-bg-color: #2c3e50;
+    --md-accent-fg-color: #CA0E4C;
+    --md-default-fg-color: #2c3e50;
+    --md-typeset-a-color: #CA0E4C;
+    --md-typeset-color: #2c3e50;
+    --md-text-font: "Lato,Arial,sans-serif";
+}
+
+body {
+    font-family: "Lato",Arial,sans-serif;
+}
+
+p {
+    line-height: 1.5;
+    text-align: justify;
+}

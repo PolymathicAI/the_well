@@ -16,24 +16,27 @@ The dataset explores a 2D periodic shearflow governed by incompressible Navier-S
 **Equation**:
 
 While we solve equations in the frequency domain, the original time-domain problem is
-```math
+
+$$
 \begin{align*}
 \frac{\partial u}{\partial t} + \nabla p - \nu \Delta u & = -u\cdot\nabla u\,,
 \\
 \frac{\partial s}{\partial t} - D \Delta s & = -u \cdot\nabla s\,,
 \end{align*}
-```
+$$
+
 where $\Delta = \nabla \cdot \nabla$ is the spatial Laplacian, $u = (u_x,u_y)$ is the (horizontal and vertical) velocity, $s$ is the tracer, and $p$ is the pressure,
 with the additional constraints $\int p = 0$ (pressure gauge).
 
-These PDE are parameterized by the Reynolds and Schmidt numbers through $\nu$ and $D$.
-```math
+$$DE are parameterized by the Reynolds and Schmidt numbers through $\nu$ and $D$.
+
+$$
 \begin{align*}
 \text{(viscosity)} ~~~~~~~ \nu & = 1 \, / \, \text{Reynolds}
 \\
 \text{(diffusivity)} ~~~~~~~ D & = \nu \, / \, \text{Schmidt}
 \end{align*}
-```
+$$
 
 ![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/shear_flow/gif/tracer_normalized.gif)
 

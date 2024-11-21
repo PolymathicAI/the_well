@@ -12,12 +12,13 @@
 
 **Equation**:
 
-```math
+$$
 \begin{align}
 \frac{ \partial \vec{u}}{\partial t} &= - \vec{u} \cdot \nabla u - g \nabla h - \nu \nabla^4 \vec{u} - 2\Omega \times \vec{u} \\
 \frac{ \partial h }{\partial t} &= -H \nabla \cdot \vec{u} - \nabla \cdot (h\vec{u}) - \nu \nabla^4h + F
 \end{align}
-```
+$$
+
 with $h$ the deviation of pressure surface height from the mean, $H$ the mean height, $\vec{u}$ the 2D velocity, $\Omega$ the Coriolis parameter, and F the forcing which is defined:
 
 ```python
@@ -40,7 +41,7 @@ def season_day_forcing(phi, theta, t, h_f0):
 
 Visualization:
 
-![Gif](gif/planetswe.gif)
+![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/planetswe/gif/planetswe.gif)
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|

@@ -14,7 +14,7 @@
 
 The fluid sector consists of the following system of equations.
 
-```math
+$$
 \begin{align}
   \partial_t \left(\sqrt{g}\rho_0 u^t\right) + \partial_i\left(\sqrt{g}\rho_0u^i\right)
   &= 0\\
@@ -25,14 +25,15 @@ The fluid sector consists of the following system of equations.
   \partial_t\left(\sqrt{g}\rho_0 Y_e u^t\right) + \partial_i\left(\sqrt{g}\rho_0Y_eu^i\right)
   &= \sqrt{g} G_{\text{ye}}\\
 \end{align}
-```
+$$
 
 The standard radiative transfer equation is
-```math
+
+$$
 \begin{equation}
     \frac{D}{d\lambda}\left(\frac{h^3\mathcal{I}_{\nu,f}}{\varepsilon^3}\right) = \left(\frac{h^2\eta_{\nu,f}}{\varepsilon^2}\right) - \left(\frac{\varepsilon \chi_{\nu,f}}{h}\right) \left(\frac{h^3\mathcal{I}_{\nu,f}}{\varepsilon^3}\right),
 \end{equation}
-```
+$$
 
 <p align="center"> <img src="https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/post_neutron_star_merger/gif/Ye_good_normalized.gif" width="50%"></p>
 

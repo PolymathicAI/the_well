@@ -11,20 +11,23 @@
 **Code or software used to generate the data**: [TurMix3D](https://theses.hal.science/tel-00669707/document).
 
 **Equation**:The flow is governed by equations for continuity, momentum and incompressibility in the case of miscible fluids with common molecular diffusivity:
-```math
+
+$$
 \begin{align}
     \partial_t\rho + \nabla\cdot(\rho \vec{u}) &= 0,\\
     \partial_t(\rho \vec{u})+\nabla\cdot(\rho \vec{u} \vec{u}) &= -\nabla p + \nabla\cdot\vec{\tau}+\rho \vec{g},\\
      \nabla\cdot\vec{u} &= -\kappa\nabla\cdot\left(\frac{\nabla\rho}{\rho}\right).
 \end{align}
-```
+$$
 
 Here, $\rho$ is density, $\vec{u}$ is velocity, $p$ is pressure, $\vec{g}$ is gravity, $\kappa$ is the coefficient of molecular diffusivity and $\vec{\tau}$ is the deviatoric stress tensor
-```math
+
+$$
 \begin{equation}
     \vec{\tau}= \rho\nu\left(\nabla\vec{u}+\left(\nabla\vec{u}\right)^T-\frac{2}{3}\left(\nabla\cdot\vec{u} \right)\vec{I}\right),
 \end{equation}
-```
+$$
+
 where $\nu$ is the kinematic viscosity and $\vec{I}$ is the identity matrix.
 
 
@@ -49,7 +52,11 @@ Table: VRMSE metrics on test sets (lower is better). Best results are shown in b
 **Grid type:** uniform grid, cartesian coordinates.
 
 **Initial conditions:** Initial conditions have been set by imposing a log—normal profile for the shape of energy spectrum in wavenumber space, such that:
-$$A(k) = \frac{1}{k\sigma\sqrt{2\pi}} \exp\Big(-\frac{(\ln (k) - \mu)^2}{2\sigma^2}\Big) \quad\textrm{with}\quad k = \sqrt{k^2_x+k^2_y}$$
+
+$$
+A(k) = \frac{1}{k\sigma\sqrt{2\pi}} \exp\Big(-\frac{(\ln (k) - \mu)^2}{2\sigma^2}\Big) \quad\textrm{with}\quad k = \sqrt{k^2_x+k^2_y}
+$$
+
 where $\mu$ is the mean and $\sigma$ is the standard deviation of the profile. Furthermore, we have imposed a random phase to the corresponding complex Fourier component (i.e. a random value for the argument of the complex Fourier component) between zero and a varied maximum ($\phi_{max}$), finally after Fourier transforming to physical space the mean of the resulting profile is normalized to $3.10^5$ to ensure comparable power.
 
 

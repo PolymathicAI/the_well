@@ -38,6 +38,12 @@ dev = [
     "pytest-order",
     "ruff",
 ]
+docs = [
+    "mkdocs==1.6.1",
+    "mkdocs-jupyter==0.25.1",
+    "mkdocs-material==9.5.45",
+    "mkdocstrings-python==1.12.2",
+]
 
 [tool.ruff]
 extend-exclude = ["*.ipynb"]

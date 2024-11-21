@@ -13,12 +13,14 @@
 **Code or software used to generate the data**: [Clawpack (AMRClaw)](http://www.clawpack.org/).
 
 **Equation**: Euler equations for a compressible gas:
-```math
+
+$$
 \begin{align}
 U_t + F(U)_x + G(U)_y &= 0 \nonumber\\
 \textrm{where} \quad U = \begin{bmatrix} \rho \nonumber\\ \rho u \\ \rho v \\ e \end{bmatrix}, \quad F(U) = \begin{bmatrix} \rho u \\ \rho u^2 + p \\ \rho u v \\ u(e + p) \end{bmatrix},& \quad G(U) = \begin{bmatrix} \rho v \\ \rho u v \\ \rho v^2 + p \\ v(e + p) \end{bmatrix}, \quad \\ e = \frac{p}{(\gamma - 1)} + \frac{\rho (u^2 + v^2)}{2}&, \quad p = A\rho^{\gamma}. \nonumber
 \end{align}
-```
+$$
+
 with $\rho$ the density, $u$ and $v$ the $x$ and $y$ velocity components, $e$ the energy, $p$ the pressure, $\gamma$ the gas constant, and $A>0$ is a function of entropy.
 
 ![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/euler_multi_quadrants_openBC/gif/density_normalized.gif)
