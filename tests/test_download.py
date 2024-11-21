@@ -4,11 +4,7 @@ from unittest import TestCase
 
 import pytest
 
-from the_well.utils.download_script import download_files
-
-JSON_DATASET_FILES = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "../the_well/utils/data_registry.json")
-)
+from the_well.utils.download_script import DATA_REGISTRY, download_files
 
 
 @pytest.mark.order(1)
@@ -20,7 +16,7 @@ class TestDownload(TestCase):
         self.assertTrue(os.path.isdir(ACTIVE_MATTTER_DIR))
         self.assertFalse(os.path.isdir(ACTIVE_MATTTER_DATA_DIR))
         download_files(
-            json_file=JSON_DATASET_FILES,
+            json_file=DATA_REGISTRY,
             dataset_name="active_matter",
             output_path=".",
             sample_only=True,

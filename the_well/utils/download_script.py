@@ -6,6 +6,8 @@ import subprocess
 import sys
 from typing import Optional
 
+DATA_REGISTRY: str = os.path.join(os.path.dirname(__file__), "data_registry.json")
+
 
 def signal_handler(sig, frame):
     print("\nYou pressed Ctrl+C!")
@@ -13,9 +15,9 @@ def signal_handler(sig, frame):
 
 
 def download_files(
-    json_file,
+    json_file: str,
+    output_path: str,
     dataset_name: Optional[str] = None,
-    output_path: Optional[str] = None,
     sample_only: bool = False,
 ):
     """
@@ -24,9 +26,6 @@ def download_files(
     :param json_file: Path to the JSON file containing file URLs.
     :param dataset_name: Name of the dataset to download. If None, downloads all datasets.
     """
-    # Set default output path
-    if not output_path:
-        output_path = os.path.join(os.path.dirname(__file__), "../../")
     # Load the JSON file with dataset information
     with open(json_file, "r") as file:
         datasets = json.load(file)
@@ -98,13 +97,20 @@ def main():
         help="Name of the dataset to download. If omitted, all datasets will be downloaded.",
     )
     parser.add_argument(
-        "--output_dir", type=str, help="Path to where to store the datasets."
+        "--output_dir",
+        type=str,
+        default=os.path.abspath("."),
+        help="Path where to store the datasets.",
     )
 
     args = parser.parse_args()
 
     # Call download_files based on the parsed arguments
-    download_files(args.json_file, args.dataset, args.output_dir)
+    download_files(
+        json_file=args.json_file,
+        output_path=args.output_dir,
+        dataset_name=args.dataset,
+    )
 
 
 if __name__ == "__main__":
