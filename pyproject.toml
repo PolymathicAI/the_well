@@ -18,7 +18,7 @@ dependencies = [
 ]
 
 [project.scripts]
-the-well-download = "the_well.utils.download_script:main"
+the-well-download = "the_well.utils.download:main"
 
 [project.optional-dependencies]
 benchmark = [
