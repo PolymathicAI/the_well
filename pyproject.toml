@@ -5,6 +5,9 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 include = ["the_well*"]
 
+[tool.setuptools.package-data]
+the_well = ["utils/registry.yaml"]
+
 [project]
 name = "the_well"
 requires-python = ">=3.10"
