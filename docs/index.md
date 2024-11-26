@@ -86,23 +86,10 @@ The Well datasets range between 6.9GB and 5.1TB of data each, for a total of 15T
 Once `the_well` is installed, you can use the `the-well-download` command to download any dataset of The Well.
 
 ```
-the-well-download --base-path path/to/base --dataset active_matter --split train --parallel
+the-well-download --base-path path/to/base --dataset active_matter --split train
 ```
 
-Under the hood, `the-well-download` calls functions in `the_well` package. The following Python code is equivalent to the previous command.
-
-```python
-from the_well.utils.download import well_download
-
-well_download(
-    base_path="path/to/base",
-    dataset="active_matter",
-    split="train",
-    parallel=True,
-)
-```
-
-If the `dataset` and `split` arguments are omitted, all datasets and splits will be downloaded. This could take a while!
+If `--dataset` and `--split` are omitted, all datasets and splits will be downloaded. This could take a while!
 
 ### Streaming from Hugging Face
 

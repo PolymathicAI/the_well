@@ -1,19 +1,12 @@
 import argparse
 import glob
 import os
-import signal
 import subprocess
-import sys
 from typing import Optional
 
 import yaml
 
 WELL_REGISTRY: str = os.path.join(os.path.dirname(__file__), "registry.yaml")
-
-
-def signal_handler(sig, frame):
-    print("\nUh-oh, you pressed ctrl+c! No worries, restarting the download will resume where you left off.")  # fmt: off
-    sys.exit(signal.SIGINT)
 
 
 def create_url_registry(
@@ -115,6 +108,10 @@ def well_download(
     path = os.path.join(os.path.abspath(os.path.expanduser(base_path)), "datasets")
 
     for dataset in datasets:
+        assert (
+            dataset in registry
+        ), f"unknown dataset '{dataset}', expected one of {list(registry.keys())}"
+
         for split in splits:
             path = os.path.join(base_path, f"datasets/{dataset}/data/{split}")
 
@@ -138,13 +135,12 @@ def well_download(
             for file, url in zip(files, urls):
                 command.extend(["-o", file, url])
 
-            # catch ctrl+c interrupt to display uh-oh message
-            # reset handler afterwards for interactive sessions
             try:
-                signal.signal(signal.SIGINT, signal_handler)
                 subprocess.run(command)
-            finally:
-                signal.signal(signal.SIGINT, signal.SIG_DFL)
+            except KeyboardInterrupt:
+                raise KeyboardInterrupt(
+                    "Uh-oh, you pressed ctrl+c! No worries, restarting the download will resume where you left off."
+                ) from None
 
 
 def main():
@@ -187,7 +183,11 @@ def main():
 
     args = parser.parse_args()
 
-    well_download(**vars(args))
+    try:
+        well_download(**vars(args))
+    except KeyboardInterrupt as e:
+        print()
+        print(e)
 
 
 if __name__ == "__main__":
