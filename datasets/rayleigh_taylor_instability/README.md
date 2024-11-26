@@ -13,19 +13,17 @@
 **Equation**:The flow is governed by equations for continuity, momentum and incompressibility in the case of miscible fluids with common molecular diffusivity:
 
 $$
-\begin{align}
+\begin{align*}
     \partial_t\rho + \nabla\cdot(\rho \vec{u}) &= 0,\\
     \partial_t(\rho \vec{u})+\nabla\cdot(\rho \vec{u} \vec{u}) &= -\nabla p + \nabla\cdot\vec{\tau}+\rho \vec{g},\\
      \nabla\cdot\vec{u} &= -\kappa\nabla\cdot\left(\frac{\nabla\rho}{\rho}\right).
-\end{align}
+\end{align*}
 $$
 
 Here, $\rho$ is density, $\vec{u}$ is velocity, $p$ is pressure, $\vec{g}$ is gravity, $\kappa$ is the coefficient of molecular diffusivity and $\vec{\tau}$ is the deviatoric stress tensor
 
 $$
-\begin{equation}
-    \vec{\tau}= \rho\nu\left(\nabla\vec{u}+\left(\nabla\vec{u}\right)^T-\frac{2}{3}\left(\nabla\cdot\vec{u} \right)\vec{I}\right),
-\end{equation}
+  \vec{\tau}= \rho\nu\left(\nabla\vec{u}+\left(\nabla\vec{u}\right)^T-\frac{2}{3}\left(\nabla\cdot\vec{u} \right)\vec{I}\right),
 $$
 
 where $\nu$ is the kinematic viscosity and $\vec{I}$ is the identity matrix.
@@ -39,7 +37,7 @@ where $\nu$ is the kinematic viscosity and $\vec{I}$ is the identity matrix.
 
 Table: VRMSE metrics on test sets (lower is better). Best results are shown in bold. VRMSE is scaled such that predicting the mean value of the target field results in a score of 1.
 
-# About the data
+## About the data
 
 **Dimension of discretized data:** 60 time-steps of 128 $\times$ 128 $\times$ 128 cubes.
 
@@ -76,7 +74,7 @@ where $\mu$ is the mean and $\sigma$ is the standard deviation of the profile. F
 
 **Hardware used to generate the data:** 128 CPU core on the Ocre supercomputer at CEA, Bruyères-le-Châtel, France.
 
-# What is interesting and challenging about the data:
+## What is interesting and challenging about the data:
 
 **What phenomena of physical interest are catpured in the data:** In this dataset, there are three key aspects of physical interest. Firstly, impact of coherence on otherwise random initial conditions. Secondly, the effect of the shape of the initial energy spectrum on the structure of the flow. Finally, the transition from the Boussinesq to the non-Boussinesq regime where the mixing width transitions from symmetric to asymmetric growth.
 

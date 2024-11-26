@@ -11,6 +11,7 @@ repos:
     - id: check-merge-conflict
     - id: check-toml
     - id: check-yaml
+      args: [--unsafe]
     - id: end-of-file-fixer
     - id: mixed-line-ending
       args: [--fix=lf]

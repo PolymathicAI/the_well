@@ -15,10 +15,10 @@
 **Equation**: Euler equations for a compressible gas:
 
 $$
-\begin{align}
-U_t + F(U)_x + G(U)_y &= 0 \nonumber\\
-\textrm{where} \quad U = \begin{bmatrix} \rho \nonumber\\ \rho u \\ \rho v \\ e \end{bmatrix}, \quad F(U) = \begin{bmatrix} \rho u \\ \rho u^2 + p \\ \rho u v \\ u(e + p) \end{bmatrix},& \quad G(U) = \begin{bmatrix} \rho v \\ \rho u v \\ \rho v^2 + p \\ v(e + p) \end{bmatrix}, \quad \\ e = \frac{p}{(\gamma - 1)} + \frac{\rho (u^2 + v^2)}{2}&, \quad p = A\rho^{\gamma}. \nonumber
-\end{align}
+\begin{align*}
+U_t + F(U)_x + G(U)_y &= 0 \\
+\textrm{where} \quad U = \begin{bmatrix} \rho \\ \rho u \\ \rho v \\ e \end{bmatrix}, \quad F(U) = \begin{bmatrix} \rho u \\ \rho u^2 + p \\ \rho u v \\ u(e + p) \end{bmatrix},& \quad G(U) = \begin{bmatrix} \rho v \\ \rho u v \\ \rho v^2 + p \\ v(e + p) \end{bmatrix}, \quad \\ e = \frac{p}{(\gamma - 1)} + \frac{\rho (u^2 + v^2)}{2}&, \quad p = A\rho^{\gamma}.
+\end{align*}
 $$
 
 with $\rho$ the density, $u$ and $v$ the $x$ and $y$ velocity components, $e$ the energy, $p$ the pressure, $\gamma$ the gas constant, and $A>0$ is a function of entropy.
@@ -26,7 +26,7 @@ with $\rho$ the density, $u$ and $v$ the $x$ and $y$ velocity components, $e$ th
 ![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/euler_multi_quadrants_periodicBC/gif/density_normalized.gif)
 
 
-# About the data
+## About the data
 
 **Dimension of discretized data:** 100 timesteps of 512x512 images.
 
@@ -56,7 +56,7 @@ with $\rho$ the density, $u$ and $v$ the $x$ and $y$ velocity components, $e$ th
 
 **Hardware used to generate the data and precision used for generating the data:** Icelake nodes, double precision.
 
-# What is interesting and challenging about the data:
+## What is interesting and challenging about the data:
 
 **What phenomena of physical interest are catpured in the data:** capture the shock formations and interactions. Multiscale shocks.
 

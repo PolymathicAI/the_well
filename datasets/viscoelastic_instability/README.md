@@ -13,13 +13,13 @@
 **Equation**:
 
 $$
-\begin{align}
+\begin{align*}
 Re(\partial_t \mathbf{u^*} + (\mathbf{u^*}\cdot\nabla)\mathbf{u^*} ) + \nabla p^* &= \beta \Delta \mathbf{u^*} + (1-\beta)\nabla\cdot \mathbf{T}(\mathbf{C^*}),\\
 \partial_t \mathbf{C^*} + (\mathbf{u^*}\cdot\nabla)\mathbf{C^*} +\mathbf{T}(\mathbf{C^*}) &= \mathbf{C^*}\cdot\nabla \mathbf{u^*} + (\nabla \mathbf{u^*})^T \cdot \mathbf{C^*} + \epsilon \Delta \mathbf{C^*}, \\
 \nabla \mathbf{u^*} &= 0,\\
 \textrm{with} \quad \mathbf{T}(\mathbf{C^*}) &= \frac{1}{\text{Wi}}(f(\textrm{tr}(\mathbf{C^*}))\mathbf{C^*} - \mathbf{I}),\\
 \textrm{and} \quad f(s) &:= \left(1- \frac{s-3}{L^2_{max}}\right)^{-1}.
-\end{align}
+\end{align*}
 $$
 
 where $\mathbf{u^*} = (u^*,v^*)$ is the streamwise and wall-normal velocity components, $p^*$ is the pressure, $\mathbf{C^*}$ is the positive definite conformation tensor which represents the ensemble average of the produce of the end-to-end vector of the polymer molecules. In 2D, 4 components of the tensor are solved: $c_{xx}^{*}, c^{*}_{yy}, c^{*}_{zz}, c^{*}_{xy}$. $\mathbf{T}(\mathbf{C^{*}})$ is the polymer stress tensor given by the FENE-P model.
@@ -33,7 +33,7 @@ where $\mathbf{u^*} = (u^*,v^*)$ is the streamwise and wall-normal velocity comp
 
 Table: VRMSE metrics on test sets (lower is better). Best results are shown in bold. VRMSE is scaled such that predicting the mean value of the target field results in a score of 1.
 
-# About the data
+## About the data
 
 **Dimension of discretized data:**
 - EIT: 34 trajectories with 60 timesteps, 512x512 images (chaotic solution).
@@ -74,7 +74,7 @@ Table: VRMSE metrics on test sets (lower is better). Best results are shown in b
 
 **Hardware used to generate the data:** typically 32 or 64 cores.
 
-# What is interesting and challenging about the data:
+## What is interesting and challenging about the data:
 
 **What phenomena of physical interest are catpured in the data:** The phenomena of interest in the data is: (i) chaotic dynamics in viscoelastic flows in EIT and CAR. Also note that they are separate states. (ii) multistability for the same set of parameters, the flow has four different behaviours depending on the initial conditions.
 

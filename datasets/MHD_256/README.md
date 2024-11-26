@@ -15,11 +15,11 @@
 **Equation**:
 
 $$
-\begin{align}
-\frac{\partial \rho}{\partial t} + \nabla \cdot (\rho \mathbf{v}) &= 0 \nonumber\\
-\frac{\partial \rho \mathbf{v}}{\partial t} + \nabla \cdot (\rho \mathbf{v} \mathbf{v} - \mathbf{B} \mathbf{B}) + \nabla p &= 0 \nonumber\\
-\frac{\partial \mathbf{B}}{\partial t} - \nabla \times (\mathbf{v} \times \mathbf{B}) &= 0 \nonumber\\
-\end{align}
+\begin{align*}
+\frac{\partial \rho}{\partial t} + \nabla \cdot (\rho \mathbf{v}) &= 0 \\
+\frac{\partial \rho \mathbf{v}}{\partial t} + \nabla \cdot (\rho \mathbf{v} \mathbf{v} - \mathbf{B} \mathbf{B}) + \nabla p &= 0 \\
+\frac{\partial \mathbf{B}}{\partial t} - \nabla \times (\mathbf{v} \times \mathbf{B}) &= 0
+\end{align*}
 $$
 
 where $\rho$ is the density, $\mathbf{v}$ is the velocity, $\mathbf{B}$ is the magnetic field, $\mathbf{I}$ the identity matrix and $p$ is the gas pressure.
@@ -27,7 +27,7 @@ where $\rho$ is the density, $\mathbf{v}$ is the velocity, $\mathbf{B}$ is the m
 ![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/MHD_256/gif/density_normalized.gif)
 
 
-# About the data
+## About the data
 
 **Dimension of discretized data:** 100 timesteps of 256 $\times$ 256 $\times$ 256 cubes.
 
@@ -55,7 +55,7 @@ where $\rho$ is the density, $\mathbf{v}$ is the velocity, $\mathbf{B}$ is the m
 
 **Hardware used to generate the data**: 64 cores.
 
-# What is interesting and challenging about the data:
+## What is interesting and challenging about the data:
 
 **What phenomena of physical interest are catpured in the data:** MHD fluid flows in the compressible limit (sub and super sonic, sub and super Alfvenic).
 

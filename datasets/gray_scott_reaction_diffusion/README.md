@@ -13,9 +13,9 @@
 **Equation describing the data**
 
 $$
-\begin{align}
-\frac{\partial A}{\partial t} &= \delta_A\Delta A - AB^2 + f(1-A) \nonumber \\\frac{\partial B}{\partial t} &= \delta_B\Delta B - AB^2 - (f+k)B \nonumber
-\end{align}
+\begin{align*}
+\frac{\partial A}{\partial t} &= \delta_A\Delta A - AB^2 + f(1-A) \\ \frac{\partial B}{\partial t} &= \delta_B\Delta B - AB^2 - (f+k)B
+\end{align*}
 $$
 
 The dimensionless parameters describing the behavior are: $f$ the rate at which $A$ is replenished (feed rate), $k$ the rate at which $B$ is removed from the system, and  $\delta_A, \delta_B$ the diffusion coefficients of both species.
@@ -29,7 +29,7 @@ The dimensionless parameters describing the behavior are: $f$ the rate at which 
 
 Table: VRMSE metrics on test sets (lower is better). Best results are shown in bold. VRMSE is scaled such that predicting the mean value of the target field results in a score of 1.
 
-# About the data
+## About the data
 
 **Dimension of discretized data:** 1001 time-steps of 128 $\times$ 128 images.
 
@@ -60,7 +60,7 @@ Table: VRMSE metrics on test sets (lower is better). Best results are shown in b
 
 **Hardware used to generate the data:** 40 CPU cores.
 
-# What is interesting and challenging about the data:
+## What is interesting and challenging about the data:
 
 **What phenomena of physical interest are catpured in the data:** Pattern formation: by sweeping the two parameters $f$ and $k$, a multitude of steady and dynamic patterns can form from random initial conditions.
 

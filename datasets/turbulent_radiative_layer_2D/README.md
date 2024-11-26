@@ -13,12 +13,12 @@
 **Equation**:
 
 $$
-\begin{align}
+\begin{align*}
 \frac{ \partial \rho}{\partial t} + \nabla \cdot \left( \rho \vec{v} \right) &= 0 \\
 \frac{ \partial \rho \vec{v} }{\partial t} + \nabla \cdot \left( \rho \vec{v}\vec{v} + P \right) &= 0 \\
 \frac{ \partial E }{\partial t} + \nabla \cdot \left( (E + P) \vec{v} \right) &= - \frac{E}{t_{\rm cool}} \\
 E = P / (\gamma -1) \, \, \gamma &= 5/3
-\end{align}
+\end{align*}
 $$
 
 with $\rho$ the density, $\vec{v}$ the 2D velocity, $P$ the pressure, $E$ the total energy, and $t_{\rm cool}$ the cooling time.
@@ -32,7 +32,7 @@ with $\rho$ the density, $\vec{v}$ the 2D velocity, $P$ the pressure, $E$ the to
 Table: VRMSE metrics on test sets (lower is better). Best results are shown in bold. VRMSE is scaled such that predicting the mean value of the target field results in a score of 1.
 
 
-# About the data
+## About the data
 
 **Dimension of discretized data:** 101 timesteps of 384x128 images.
 
@@ -62,7 +62,7 @@ Table: VRMSE metrics on test sets (lower is better). Best results are shown in b
 
 **Hardware used to generate the data:** 48 CPU cores.
 
-# What is interesting and challenging about the data:
+## What is interesting and challenging about the data:
 
 **What phenomena of physical interest are catpured in the data:**
 -	The mass flux from hot to cold phase.

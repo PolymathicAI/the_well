@@ -27,10 +27,10 @@ $$ U_n(t, \mathbf{x}) = \mathbf{n} \cdot \nabla U = 0, \quad t \in \mathbb{R}, \
 Upon taking the temporal Fourier transform, we get the inhomogeneous Helmholtz Neumann boundary value problem
 
 $$
-\begin{align}
+\begin{align*}
 -(\Delta + \omega^2)u &= \delta_{\mathbf{x}_0}, \quad \text{in } \Omega,\\
 u_n &= 0 \quad \text{on } \partial \Omega,
-\end{align}
+\end{align*}
 $$
 
 with outwards radiation conditions as described in [1]. The region $\Omega$ lies above a corrugated boundary $\partial \Omega$, extending with spatial period $d$ in the $x_1$ direction, and is unbounded in the positive $x_2$ direction. The current example is a right-angled staircase whose unit cell consists of two equal-length line segments at $\pi/2$ angle to each other.
@@ -43,7 +43,7 @@ with outwards radiation conditions as described in [1]. The region $\Omega$ lies
 
 Table: VRMSE metrics on test sets (lower is better). Best results are shown in bold. VRMSE is scaled such that predicting the mean value of the target field results in a score of 1.
 
-# About the data
+## About the data
 
 **Dimension of discretized data:** 50 time-steps of
 1024 $\times$ 256 images.
@@ -80,7 +80,7 @@ analytic).
 
 **Hardware used to generate the data:** 64 CPU cores.
 
-# What is interesting and challenging about the data:
+## What is interesting and challenging about the data:
 
 **What phenomena of physical interest are captured in the data:** The simulations capture the existence of trapped acoustic waves – modes that are guided along the corrugated surface. They also show that the on-surface wavenumber of trapped modes is different than the frequency of the incident radiation, i.e. they capture the trapped modes’ dispersion relation.
 

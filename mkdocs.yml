@@ -4,23 +4,22 @@ theme:
   palette:
     scheme: the_well
   features:
+    - content.code.copy
     - navigation.tabs
     - navigation.tabs.sticky
-    - search.suggest  # Enables search suggestion
     - navigation.instant
     - navigation.instant.prefetch
+    - search.suggest
     - toc.follow
-    - content.code.copy
   logo: assets/images/the_well_color_icon.svg
   favicon: assets/images/the_well_color_icon.svg
+  icon:
+    repo: fontawesome/brands/github
 
 nav:
   - Home: index.md
-  - Getting Started: getting_started.md
   - Tutorial:
     - Interface: tutorials/dataset.ipynb
-  - Reference: reference.md
-  - Benchmarks: benchmarks.md
   - Datasets:
     - Overview: datasets_overview.md
     - acoustic_scattering_discontinuous: datasets/acoustic_scattering_discontinuous.md
@@ -45,24 +44,26 @@ nav:
     - turbulent_radiative_layer_2D: datasets/turbulent_radiative_layer_2D.md
     - turbulent_radiative_layer_3D: datasets/turbulent_radiative_layer_3D.md
     - viscoelastic_instability: datasets/viscoelastic_instability.md
-  - Contact: reference_contact.md
+  - Data Format: data_format.md
+  - API: api.md
+  - Benchmarks: benchmarks.md
 extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/PolymathicAI/the_well
-    - icon: fontawesome/brands/x-twitter
-      link: https://twitter.com/PolymathicAI
+    - icon: fontawesome/solid/file-lines
+      link: https://openreview.net/pdf?id=00Sx577BT3
     - icon: fontawesome/solid/at
       link: https://polymathic-ai.org/
-    - icon: simple/arxiv
-      link: https://arxiv.org/abs/2109.13594 #To modify!!
+    - icon: fontawesome/brands/x-twitter
+      link: https://twitter.com/PolymathicAI
 copyright: Copyright &copy; 2024 Polymathic AI
 repo_url: https://github.com/PolymathicAI/the_well
 repo_name: the_well
 
 extra_css:
-  - css/extra.css
   - https://unpkg.com/katex@0/dist/katex.min.css
+  - css/extra.css
 
 extra_javascript:
   - javascript/katex.js
@@ -77,6 +78,9 @@ markdown_extensions:
       generic: true
   - pymdownx.highlight
   - pymdownx.superfences
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
 plugins:
   - search

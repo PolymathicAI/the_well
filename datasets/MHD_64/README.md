@@ -15,11 +15,11 @@
 **Equation**:
 
 $$
-\begin{align}
-\frac{\partial \rho}{\partial t} + \nabla \cdot (\rho \mathbf{v}) &= 0 \nonumber\\
-\frac{\partial \rho \mathbf{v}}{\partial t} + \nabla \cdot (\rho \mathbf{v} \mathbf{v} - \mathbf{B} \mathbf{B}) + \nabla p &= 0 \nonumber\\
-\frac{\partial \mathbf{B}}{\partial t} - \nabla \times (\mathbf{v} \times \mathbf{B}) &= 0 \nonumber\\
-\end{align}
+\begin{align*}
+\frac{\partial \rho}{\partial t} + \nabla \cdot (\rho \mathbf{v}) &= 0 \\
+\frac{\partial \rho \mathbf{v}}{\partial t} + \nabla \cdot (\rho \mathbf{v} \mathbf{v} - \mathbf{B} \mathbf{B}) + \nabla p &= 0 \\
+\frac{\partial \mathbf{B}}{\partial t} - \nabla \times (\mathbf{v} \times \mathbf{B}) &= 0
+\end{align*}
 $$
 
 where $\rho$ is the density, $\mathbf{v}$ is the velocity, $\mathbf{B}$ is the magnetic field, $\mathbf{I}$ the identity matrix and $p$ is the gas pressure.
@@ -32,7 +32,7 @@ where $\rho$ is the density, $\mathbf{v}$ is the velocity, $\mathbf{B}$ is the m
 
 Table: VRMSE metrics on test sets (lower is better). Best results are shown in bold. VRMSE is scaled such that predicting the mean value of the target field results in a score of 1.
 
-# About the data
+## About the data
 
 **Dimension of discretized data:** 100 timesteps of 64 $\times$ 64 $\times$ 64 cubes.
 
@@ -58,7 +58,7 @@ Table: VRMSE metrics on test sets (lower is better). Best results are shown in b
 
 **Approximate time and hardware used to generate the data:** Downsampled from `MHD_256` after applying ideal low-pass filter.
 
-# What is interesting and challenging about the data:
+## What is interesting and challenging about the data:
 
 **What phenomena of physical interest are catpured in the data:** MHD fluid flows in the compressible limit (sub and super sonic, sub and super Alfvenic).
 

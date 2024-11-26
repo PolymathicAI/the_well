@@ -11,11 +11,11 @@
 **Equation**:
 
 $$
-\begin{align}
+\begin{align*}
 \frac{ \partial p}{\partial t} + K(x, y) \left( \frac{\partial u}{\partial x} + \frac{\partial v}{\partial y} \right) &= 0 \\
 \frac{ \partial u  }{\partial t} + \frac{1}{\rho(x, y)} \frac{\partial p}{\partial x} &= 0 \\
 \frac{ \partial v  }{\partial t} + \frac{1}{\rho(x, y)} \frac{\partial p}{\partial v} &= 0
-\end{align}
+\end{align*}
 $$
 
 with $\rho$ the material density, $u, v$ the velocity in the $x, y$ directions respectively, $p$ the pressure, and $K$ the bulk modulus.
@@ -24,7 +24,7 @@ Example material densities can be seen below:
 
 ![image](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_discontinuous/gif/discontinuous_density.png)
 
-# About the data
+## About the data
 
 **Dimension of discretized data:** 101 steps of 256 $\times$ 256 images.
 
@@ -62,7 +62,7 @@ Example material densities can be seen below:
 
 **Hardware used to generate the data and precision used for generating the data:** 64 Intel Icelake cores per simulation. Generated in double precision.
 
-# What is interesting and challenging about the data:
+## What is interesting and challenging about the data:
 Wave propogation through discontinuous media. Most existing machine learning datasets for computational physics are highly smooth and the acoustic challenges presented here offer challenging discontinuous scenarios that approximate complicated geometry through the variable density.
 
 Please cite the associated paper if you use this data in your research:

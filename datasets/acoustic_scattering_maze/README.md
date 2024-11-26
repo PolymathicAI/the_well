@@ -11,11 +11,11 @@
 **Equation**:
 
 $$
-\begin{align}
+\begin{align*}
 \frac{ \partial p}{\partial t} + K(x, y) \left( \frac{\partial u}{\partial x} + \frac{\partial v}{\partial y} \right) &= 0 \\
 \frac{ \partial u  }{\partial t} + \frac{1}{\rho(x, y)} \frac{\partial p}{\partial x} &= 0 \\
 \frac{ \partial v  }{\partial t} + \frac{1}{\rho(x, y)} \frac{\partial p}{\partial y} &= 0
-\end{align}
+\end{align*}
 $$
 
 with $\rho$ the material density, $u, v$ the velocity in the $x, y$ directions respectively, $p$ the pressure, and $K$ the bulk modulus.
@@ -34,7 +34,7 @@ Traversal can be seen:
 
 Table: VRMSE metrics on test sets (lower is better). Best results are shown in bold. VRMSE is scaled such that predicting the mean value of the target field results in a score of 1.
 
-# About the data
+## About the data
 
 **Dimension of discretized data:** 201 steps of 256 $\times$ 256 images.
 
@@ -68,7 +68,7 @@ Table: VRMSE metrics on test sets (lower is better). Best results are shown in b
 
 **Hardware used to generate the data and precision used for generating the data:** 64 Intel Icelake cores per simulation. Generated in double precision.
 
-# What is interesting and challenging about the data:
+## What is interesting and challenging about the data:
 
 This is an example of simple dynamics in complicated geometry. The sharp discontinuities can be a significant problem for machine learning models, yet they are a common feature in many real-world physics. While visually the walls appear to stop the signal, it is actually simply the case that the speed of sound is much much lower inside the walls leading to partial reflection/absorbtion at the interfaces.
 

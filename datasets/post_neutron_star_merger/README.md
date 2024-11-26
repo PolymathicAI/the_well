@@ -15,7 +15,7 @@
 The fluid sector consists of the following system of equations.
 
 $$
-\begin{align}
+\begin{align*}
   \partial_t \left(\sqrt{g}\rho_0 u^t\right) + \partial_i\left(\sqrt{g}\rho_0u^i\right)
   &= 0\\
   \partial_t\left[\sqrt{g} \left(T^t_{\ \nu} + \rho_0u^t \delta^t_\nu\right)\right]
@@ -23,16 +23,14 @@ $$
   &= \sqrt{g} \left(T^\kappa_{\ \lambda} \Gamma^\lambda_{\nu\kappa} + G_\nu\right)\,\,\,\, \forall \nu = 0,1,\ldots,4\\
   \partial_t \left(\sqrt{g} B^i\right) + \partial_j \left[\sqrt{g}\left(b^ju^i - b^i u^j\right)\right] &= 0\\
   \partial_t\left(\sqrt{g}\rho_0 Y_e u^t\right) + \partial_i\left(\sqrt{g}\rho_0Y_eu^i\right)
-  &= \sqrt{g} G_{\text{ye}}\\
-\end{align}
+  &= \sqrt{g} G_{\text{ye}}
+\end{align*}
 $$
 
 The standard radiative transfer equation is
 
 $$
-\begin{equation}
-    \frac{D}{d\lambda}\left(\frac{h^3\mathcal{I}_{\nu,f}}{\varepsilon^3}\right) = \left(\frac{h^2\eta_{\nu,f}}{\varepsilon^2}\right) - \left(\frac{\varepsilon \chi_{\nu,f}}{h}\right) \left(\frac{h^3\mathcal{I}_{\nu,f}}{\varepsilon^3}\right),
-\end{equation}
+  \frac{D}{d\lambda}\left(\frac{h^3\mathcal{I}_{\nu,f}}{\varepsilon^3}\right) = \left(\frac{h^2\eta_{\nu,f}}{\varepsilon^2}\right) - \left(\frac{\varepsilon \chi_{\nu,f}}{h}\right) \left(\frac{h^3\mathcal{I}_{\nu,f}}{\varepsilon^3}\right)
 $$
 
 <p align="center"> <img src="https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/post_neutron_star_merger/gif/Ye_good_normalized.gif" width="50%"></p>
@@ -47,7 +45,7 @@ $$
 Table: VRMSE metrics on test sets (lower is better). Best results are shown in bold. VRMSE is scaled such that predicting the mean value of the target field results in a score of 1. Unet and CNextU-net results are not available as these architectures require all the dimensions of the data to be multiples of 2.
 
 
-# About the data
+## About the data
 
 **Dimension of discretized data:** 181 time-steps of 192 $\times$ 128 $\times$ 66 snapshots.
 
@@ -145,7 +143,7 @@ Here we include, for completeness, a description of the different simulation par
 - `tf`, final simulation time.
 - `variables` list of names of primitive state vector.
 
-# What is interesting and challenging about the data:
+## What is interesting and challenging about the data:
 **What phenomena of physical interest are catpured in the data:** The 2017 detection of the in-spiral and merger of two neutron stars
 was a landmark discovery in astrophysics. Through a wealth of
 multi-messenger data, we now know that the merger of these

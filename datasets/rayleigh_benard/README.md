@@ -59,7 +59,7 @@ $$
 
 Table: VRMSE metrics on test sets (lower is better). Best results are shown in bold. VRMSE is scaled such that predicting the mean value of the target field results in a score of 1.
 
-# About the data
+## About the data
 
 **Dimension of discretized data:** 200 timesteps of
 512 $\times$ 128 images.
@@ -89,7 +89,7 @@ The other fields $u$ and $p$ are initialized to $0$.
 
 **Hardware used to generate the data and precision used for generating the data:** 12 nodes of 64 CPU cores with 8 processes per node, in single precision.
 
-# What is interesting and challenging about the data:
+## What is interesting and challenging about the data:
 
 Rayleigh-Bénard convection datasets offer valuable insights into fluid dynamics under thermal gradients, revealing phenomena like turbulent eddies and convection cells.
 The position of such cells are highly sensitive to small variations in the initial conditions.

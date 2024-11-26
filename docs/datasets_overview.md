@@ -1,11 +1,10 @@
-
 # Overview of the Dataset Collection
 
-The Well is composed of 16 datasets totaling 15TB of data with individual datasets ranging from 6.7GB to 4.9TB.
+The Well is composed of 16 datasets totaling 15TB of data with individual datasets ranging from 6.9GB to 5.1TB.
 The data is provided on uniform grids and sampled at constant time intervals.
-Data and associated metadata are stored in self-documenting `HDF5` files. All datasets use a shared data specification described in the supplementary materials and a PyTorch interface is provided.
+Data and associated metadata are stored in self-documenting `HDF5` and metadata `dataset_name.yaml` files. All datasets use a shared data specification described in [api.md#data-format].
 These files include all available state variables or spatially varying coefficients associated with a given set of dynamics in `numpy` arrays of shape `(n_traj, n_steps, coord1, coord2, (coord3))` in single precision `fp32`.
-We distinguish between scalar, vector, and tensor-valued fields due to their different transformation properties.
+We distinguish between scalar (`t0_fields`), vector (`t1_fields`), and tensor-valued fields (`t2_fields`) due to their different transformation properties.
 Each file is randomly split into training/testing/validation sets with a respective split of 0.8/0.1/0.1 * `n_traj`.
 Details of individual datasets are given in the following table:
 

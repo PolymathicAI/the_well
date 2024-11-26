@@ -25,7 +25,7 @@ Table: VRMSE metrics on test sets (lower is better). Best results are shown in b
 
 
 
-# About the data
+## About the data
 
 **Dimension of discretized data:** 81 time-steps of 256 $\times$ 256 images per trajectory.
 
@@ -56,7 +56,7 @@ $\zeta =$ {1,3,5,7,9,11,13,15,17}.
 
 **Approximate time and hardware to generate the data:** 20 minutes per simulation on an A100 GPU in double precision. There is a total of 225 simulations, which is approximately 75 hours.
 
-# What is interesting and challenging about the data:
+## What is interesting and challenging about the data:
 
 **What phenomena of physical interest are catpured in the data:** How is energy being transferred between scales? How is vorticity coupled to the orientation field? Where does the transition from isotropic state to nematic state occur with the change in alignment ($\zeta$) or dipole strength ($\alpha$)?
 

@@ -1,4 +1,3 @@
-
 # Periodic shear flow
 
 **One line description of the data:** 2D periodic incompressible shear flow.
@@ -46,7 +45,7 @@ $$
 
 Table: VRMSE metrics on test sets (lower is better). Best results are shown in bold. VRMSE is scaled such that predicting the mean value of the target field results in a score of 1.
 
-# About the data
+## About the data
 
 **Dimension of discretized data:** 200 time-steps of 128 $\times$ 256 images.
 
@@ -78,7 +77,7 @@ The initial condition is thus indexed by $n_\text{shear},n_\text{blobs},w$.
 
 **Hardware used to generate the data and precision used for generating the data:** 7 nodes of 64 CPU cores each with 32 tasks running in parallel on each node, in single precision.
 
-# What is interesting and challenging about the data:
+## What is interesting and challenging about the data:
 
 Shear flow are non-linear phenomena arrising in fluid mechanics and turbulence.
 Predicting the behavior of the shear flow under different Reynolds and Schmidt numbers is essential for a number of applications in aerodynamics, automotive, biomedical.

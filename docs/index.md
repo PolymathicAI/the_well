@@ -1,28 +1,158 @@
-# The Well: a collection of 15TB datasets of physics numerical simulations
+<div align="center">
+    <img src="/assets/images/the_well_color.svg" width="60%"/>
+</div>
 
-<figure class="video_container">
-  <video allowfullscreen="true" autoplay loop>
-    <source src="/assets/videos/background.mp4" type="video/mp4">
-  </video>
+<br>
+
+# The Well: a 15TB Collection of Physics Simulations
+
+Welcome to the Well, a large-scale collection of machine learning datasets containing numerical simulations of a wide variety of spatiotemporal physical systems. The Well draws from domain scientists and numerical software developers to provide 15TB of data across 16 datasets covering diverse domains such as biological systems, fluid dynamics, acoustic scattering, as well as magneto-hydrodynamic simulations of extra-galactic fluids or supernova explosions. These datasets can be used individually or as part of a broader benchmark suite for accelerating research in machine learning and computational sciences.
+
+<figure>
+    <video allowfullscreen="true" autoplay loop>
+        <source src="/assets/videos/background.mp4" type="video/mp4">
+    </video>
 </figure>
 
-## Dip into the Well
+## Tap into the Well
 
-``` py
-from the_well.benchmark.data import WellDataModule
+Once the Well package installed and the data downloaded you can use them in your training pipeline.
 
-# The following line may take a couple of minutes to instantiate the datamodule
-datamodule = WellDataModule(
-    "hf://datasets/polymathic-ai/",  # Access data from HF hub
-    "active_matter",  # Dataset name
+```python
+from the_well.data import WellDataset
+from torch.utils.data import Dataloader
+
+trainset = WellDataset(
+    well_base_path="path/to/base",
+    well_dataset_name="name_of_the_dataset",
+    well_split_name="train"
 )
-train_dataloader = datamodule.train_dataloader()
+train_loader = Dataloader(trainset)
 
-for batch in dataloader:
-    # Process training batch
+for batch in train_loader:
     ...
 ```
 
-## Introduction
+For more information regarding the interface, please refer to the [API](/api) and the [tutorials](/tutorials/dataset).
 
-The Well is a large-scale collection of machine learning datasets containing numerical simulations of a wide variety of spatiotemporal physical systems. The Well draws from domain scientists and numerical software developers to provide 15TB of data across 16 datasets covering diverse domains such as biological systems, fluid dynamics, acoustic scattering, as well as magneto-hydrodynamic simulations of extra-galactic fluids or supernova explosions. These datasets can be used individually or as part of a broader benchmark suite.
+### Installation
+
+If you plan to use The Well datasets to train or evaluate deep learning models, we recommend to use a machine with enough computing resources.
+We also recommend creating a new Python (>=3.10) environment to install the Well. For instance, with [venv](https://docs.python.org/3/library/venv.html):
+
+```
+python -m venv path/to/env
+source path/to/env/activate/bin
+```
+
+#### From PyPI
+
+The Well package can be installed directly from PyPI.
+
+```
+pip install the_well
+```
+
+#### From source
+
+It can also be installed from source. For this, clone the [repository](https://github.com/PolymathicAI/the_well) and install the package with its dependencies.
+
+```
+git clone https://github.com/PolymathicAI/the_well
+cd the_well
+pip install .
+```
+
+Depending on your acceleration hardware, you can specify `--extra-index-url` to install the relevant PyTorch version. For example, use
+
+```
+pip install . --extra-index-url https://download.pytorch.org/whl/cu121
+```
+
+to install the dependencies built for CUDA 12.1.
+
+#### Benchmark dependencies
+
+If you want to run the benchmarks, you should install additional dependencies.
+
+```
+pip install the_well[benchmark]
+```
+
+### Downloading the data
+
+The Well datasets range between 6.9GB and 5.1TB of data each, for a total of 15TB for the full collection. Ensure that your system has enough free disk space to accomodate the datasets you wish to download.
+
+Once `the_well` is installed, you can use the `the-well-download` command to download any dataset of The Well.
+
+```
+the-well-download --base-path path/to/base --dataset active_matter --split train --parallel
+```
+
+Under the hood, `the-well-download` calls functions in `the_well` package. The following Python code is equivalent to the previous command.
+
+```python
+from the_well.utils.download import well_download
+
+well_download(
+    base_path="path/to/base",
+    dataset="active_matter",
+    split="train",
+    parallel=True,
+)
+```
+
+If the `dataset` and `split` arguments are omitted, all datasets and splits will be downloaded. This could take a while!
+
+### Streaming from Hugging Face
+
+Most of the Well datasets are also hosted on [Hugging Face](https://huggingface.co/polymathic-ai). Data can be streamed directly from the hub using the following code.
+
+```python
+from the_well.data import WellDataset
+from torch.utils.data import Dataloader
+
+# The following line may take a couple of minutes to instantiate the datamodule
+trainset = WellDataset(
+    well_base_path="hf://datasets/polymathic-ai/",  # access from HF hub
+    well_base_name="active_matter",
+    well_split_name="train",
+)
+train_loader = Dataloader(trainset)
+
+for batch in train_loader:
+    ...
+```
+
+For better performance in large training, we advise [downloading the data locally](#downloading-the-data) instead of streaming it over the network.
+
+## Citation
+
+This project has been led by the <a href="https://polymathic-ai.org/">Polymathic AI</a> organization, in collaboration with researchers from the Flatiron Institute, University of Colorado Boulder, University of Cambridge, New York University, Rutgers University, Cornell University, University of Tokyo, Los Alamos Natioinal Laboratory, University of Califronia, Berkeley, Princeton University, CEA DAM, and University of Liège.
+
+If you find this project useful for your research, please consider citing
+
+```
+@inproceedings{ohana2024thewell,
+  title={The Well: a Large-Scale Collection of Diverse Physics Simulations for Machine Learning},
+  author={Ruben Ohana and Michael McCabe and Lucas Thibaut Meyer and Rudy Morel and Fruzsina Julia Agocs and Miguel Beneitez and Marsha Berger and Blakesley Burkhart and Stuart B. Dalziel and Drummond Buschman Fielding and Daniel Fortunato and Jared A. Goldberg and Keiya Hirashima and Yan-Fei Jiang and Rich Kerswell and Suryanarayana Maddu and Jonah M. Miller and Payel Mukhopadhyay and Stefan S. Nixon and Jeff Shen and Romain Watteaux and Bruno R{\'e}galdo-Saint Blancard and Fran{\c{c}}ois Rozet and Liam Holden Parker and Miles Cranmer and Shirley Ho},
+  booktitle={The Thirty-eight Conference on Neural Information Processing Systems Datasets and Benchmarks Track},
+  year={2024},
+  url={https://openreview.net/forum?id=00Sx577BT3}
+}
+```
+
+## Contact
+
+For questions regarding this project, please contact [Ruben Ohana](https://rubenohana.github.io/) and [Michael McCabe](https://mikemccabe210.github.io/) at $\small\texttt{\{rohana,mmcabe\}@flatironinstitute.org}$.
+
+## Bug reports and feature requests
+
+To report a bug (in the data or the code), request a feature or simply ask a question, you can [open an issue](https://github.com/PolymathicAI/the_well/issues) on the [repository](https://github.com/PolymathicAI/the_well).
+
+## Useful links
+
+- :fontawesome-brands-github: The Well repository on [GitHub](https://github.com/PolymathicAI/the_well)
+- :simple-arxiv: More information about the Well in the [NeurIPS paper](https://openreview.net/pdf?id=00Sx577BT3)
+- :fontawesome-solid-at: More about our work on the [Polymathic AI website](https://polymathic-ai.org/)
+- :hugging: Datasets of the Well are available on [Hugging Face](https://huggingface.co/polymathic-ai)

@@ -13,10 +13,10 @@
 **Equation**:
 
 $$
-\begin{align}
+\begin{align*}
 \frac{ \partial \vec{u}}{\partial t} &= - \vec{u} \cdot \nabla u - g \nabla h - \nu \nabla^4 \vec{u} - 2\Omega \times \vec{u} \\
 \frac{ \partial h }{\partial t} &= -H \nabla \cdot \vec{u} - \nabla \cdot (h\vec{u}) - \nu \nabla^4h + F
-\end{align}
+\end{align*}
 $$
 
 with $h$ the deviation of pressure surface height from the mean, $H$ the mean height, $\vec{u}$ the 2D velocity, $\Omega$ the Coriolis parameter, and F the forcing which is defined:
@@ -49,7 +49,7 @@ Visualization:
 
 Table: VRMSE metrics on test sets (lower is better). Best results are shown in bold. VRMSE is scaled such that predicting the mean value of the target field results in a score of 1.
 
-# About the data
+## About the data
 
 **Dimension of discretized data:** 3024 timesteps of 256x512 images with "day" defined as 24 steps and "year" defined as 1008 in model time.
 
@@ -79,7 +79,7 @@ Table: VRMSE metrics on test sets (lower is better). Best results are shown in b
 
 **Hardware used to generate the data:** 64 Icelake CPU cores.
 
-# What is interesting and challenging about the data:
+## What is interesting and challenging about the data:
 
 Spherical geometry and planet-like topography and forcing make for a proxy for real-world atmospheric dynamics where true dynamics are known. The dataset has annual and daily periodicity forcing models to either process a sufficient context length to learn these patterns or to be explicitly time aware. Furthermore, the system becomes stable making this a good system for exploring long run stability of models.
 
