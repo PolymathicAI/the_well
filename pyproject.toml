@@ -50,7 +50,10 @@ docs = [
 ]
 
 [tool.ruff]
-extend-exclude = ["*.ipynb"]
+extend-include = ["*.ipynb"]
+
+[tool.ruff.format]
+exclude = ["*.ipynb"]
 
 [tool.ruff.lint]
 extend-select = ["I", "W"]
