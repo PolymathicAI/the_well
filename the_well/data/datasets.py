@@ -1,4 +1,3 @@
-import glob
 import itertools
 import os
 from dataclasses import dataclass
@@ -15,12 +14,14 @@ from typing import (
     cast,
 )
 
+import fsspec
 import h5py as h5
 import numpy as np
 import torch
 import yaml
 from torch.utils.data import Dataset
 
+from the_well.data.utils import IO_PARAMS
 from the_well.utils.export import hdf5_to_xarray
 
 if TYPE_CHECKING:
@@ -235,6 +236,8 @@ class WellDataset(Dataset):
         min_std:
             Minimum standard deviation for field normalization. If a field standard
             deviation is lower than this value, it is replaced by this value.
+        storage_options :
+            Option for the ffspec storage.
     """
 
     def __init__(
@@ -261,19 +264,17 @@ class WellDataset(Dataset):
         name_override: Optional[str] = None,
         transform: Optional["Augmentation"] = None,
         min_std: float = 1e-4,
+        storage_options: Optional[Dict] = None,
     ):
         super().__init__()
         assert path is not None or (
             well_base_path is not None and well_dataset_name is not None
         ), "Must specify path or well_base_path and well_dataset_name"
         if path is not None:
-            path = os.path.abspath(path)
             self.data_path = path
-            self.normalization_path = os.path.abspath(
-                os.path.join(path, normalization_path)
-            )
+            self.normalization_path = os.path.join(path, normalization_path)
+
         else:
-            well_base_path = os.path.abspath(well_base_path)
             self.data_path = os.path.join(
                 well_base_path, well_paths[well_dataset_name], "data", well_split_name
             )
@@ -281,8 +282,10 @@ class WellDataset(Dataset):
                 well_base_path, well_paths[well_dataset_name], "stats.yaml"
             )
 
+        self.fs, _ = fsspec.url_to_fs(self.data_path, **(storage_options or {}))
+
         if use_normalization:
-            with open(self.normalization_path, mode="r") as f:
+            with self.fs.open(self.normalization_path, mode="r") as f:
                 stats = yaml.safe_load(f)
 
             self.means = {
@@ -321,7 +324,7 @@ class WellDataset(Dataset):
                 "Full trajectory mode not supported with variable stride lengths"
             )
         # Check the directory has hdf5 that meet our exclusion criteria
-        sub_files = glob.glob(self.data_path + "/*.h5") + glob.glob(
+        sub_files = self.fs.glob(self.data_path + "/*.h5") + self.fs.glob(
             self.data_path + "/*.hdf5"
         )
         # Check filters - only use file if include_filters are present and exclude_filters are not
@@ -359,7 +362,10 @@ class WellDataset(Dataset):
         bcs = set()
         lowest_steps = 1e9  # Note - we should never have 1e9 steps
         for index, file in enumerate(self.files_paths):
-            with h5.File(file, "r") as _f:
+            with (
+                self.fs.open(file, "rb", **IO_PARAMS["fsspec_params"]) as f,
+                h5.File(f, "r", **IO_PARAMS["h5py_params"]) as _f,
+            ):
                 grid_type = _f.attrs["grid_type"]
                 # Run sanity checks - all files should have same ndims, size_tuple, and names
                 trajectories = int(_f.attrs["n_trajectories"])
@@ -451,7 +457,7 @@ class WellDataset(Dataset):
 
         # Just to make sure it doesn't put us in file -1
         self.file_index_offsets[0] = -1
-        self.files = [
+        self.files: List[h5.File | None] = [
             None for _ in self.files_paths
         ]  # We open file references as they come
         # Dataset length is last number of samples
@@ -479,7 +485,13 @@ class WellDataset(Dataset):
         )
 
     def _open_file(self, file_ind: int):
-        _file = h5.File(self.files_paths[file_ind], "r")
+        _file = h5.File(
+            self.fs.open(
+                self.files_paths[file_ind], "rb", **IO_PARAMS["fsspec_params"]
+            ),
+            "r",
+            **IO_PARAMS["h5py_params"],
+        )
         self.files[file_ind] = _file
 
     def _check_cache(self, cache: Dict[str, Any], name: str, data: Any):

@@ -42,6 +42,7 @@ class WellDataModule(AbstractDataModule):
             Name of the well dataset to use.
         batch_size:
             Size of the batches yielded by the dataloaders
+        ---
         include_filters:
             Only file names containing any of these strings will be included.
         exclude_filters:
@@ -69,6 +70,8 @@ class WellDataModule(AbstractDataModule):
             Augmentation to apply to the data. If None, no augmentation is applied.
         dataset_kws:
             Additional keyword arguments to pass to each dataset, as a dict of dicts.
+        storage_kwargs:
+            Storage options passed to fsspec for accessing the raw data.
     """
 
     def __init__(
@@ -94,6 +97,7 @@ class WellDataModule(AbstractDataModule):
                 Dict[str, Any],
             ]
         ] = None,
+        storage_kwargs: Optional[Dict] = None,
     ):
         self.train_dataset = WellDataset(
             well_base_path=well_base_path,
@@ -104,6 +108,7 @@ class WellDataModule(AbstractDataModule):
             use_normalization=use_normalization,
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
+            storage_options=storage_kwargs,
             min_dt_stride=min_dt_stride,
             max_dt_stride=max_dt_stride,
             transform=transform,
@@ -122,6 +127,7 @@ class WellDataModule(AbstractDataModule):
             use_normalization=use_normalization,
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
+            storage_options=storage_kwargs,
             min_dt_stride=min_dt_stride,
             max_dt_stride=min_dt_stride,
             **(
@@ -141,6 +147,7 @@ class WellDataModule(AbstractDataModule):
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
             full_trajectory_mode=True,
+            storage_options=storage_kwargs,
             min_dt_stride=min_dt_stride,
             max_dt_stride=min_dt_stride,
             **(
@@ -157,6 +164,7 @@ class WellDataModule(AbstractDataModule):
             exclude_filters=exclude_filters,
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
+            storage_options=storage_kwargs,
             min_dt_stride=min_dt_stride,
             max_dt_stride=min_dt_stride,
             **(
@@ -175,6 +183,7 @@ class WellDataModule(AbstractDataModule):
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
             full_trajectory_mode=True,
+            storage_options=storage_kwargs,
             min_dt_stride=min_dt_stride,
             max_dt_stride=min_dt_stride,
             **(
