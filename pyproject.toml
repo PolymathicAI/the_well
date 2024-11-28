@@ -10,16 +10,45 @@ the_well = ["utils/registry.yaml"]
 
 [project]
 name = "the_well"
-requires-python = ">=3.10"
-version = "0.0.1"
+dynamic = ["version"]
+description = "A large-scale collection of machine learning datasets of various spatiotemporal physical systems"
+license = { file = "LICENSE" }
 readme = "README.md"
-dependencies = [
-    "einops>=0.8,<0.9",
-    "h5py>=3.9.0,<4",
-    "numpy>=1.20,<3",
-    "pyyaml>=6.0",
-    "torch>=2.1,<3",
+authors = [
+    {name="Miles Cranmer"},
+    {name="Michael McCabe"},
+    {name="Lucas Meyer"},
+    {name="Rudy Morel"},
+    {name="Ruben Ohana"},
+    {name="Bruno Régaldo-Saint Blancard"},
+    {name="François Rozet"},
 ]
+requires-python = ">=3.10"
+dependencies = [
+    "einops>=0.8",
+    "h5py>=3.9.0",
+    "numpy>=1.20",
+    "pyyaml>=6.0",
+    "torch>=2.1",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+
+[project.urls]
+documentation = "https://the-well.polymathic-ai.org"
+organization = "https://polymathic-ai.org/"
+source = "https://github.com/PolymathicAI/the_well"
+tracker = "https://github.com/PolymathicAI/the_well/issues"
+
 
 [project.scripts]
 the-well-download = "the_well.utils.download:main"
@@ -48,6 +77,9 @@ docs = [
     "mkdocs-material==9.5.45",
     "mkdocstrings-python==1.12.2",
 ]
+
+[tool.setuptools.dynamic]
+version = {attr = "the_well.__version__"}
 
 [tool.ruff]
 extend-include = ["*.ipynb"]

@@ -1,100 +1,149 @@
-![The Well logo](assets/the_well_logo.png)
-# Tap into the Well
+<div align="center">
+    <img src="https://raw.githubusercontent.com/PolymathicAI/the_well/master/docs/assets/images/the_well_color.svg" width="60%"/>
+</div>
 
-The Well is a large-scale collection of machine learning datasets containing numerical simulations of a wide variety of spatiotemporal physical systems. The Well draws from domain scientists and numerical software developers to provide 15TB of data across 16 datasets covering diverse domains such as biological systems, fluid dynamics, acoustic scattering, as well as magneto-hydrodynamic simulations of extra-galactic fluids or supernova explosions. These datasets can be used individually or as part of a broader benchmark suite.
+<br>
 
-## Getting Started
+# The Well: 15TB of Physics Simulations
 
-This repository contains the code to **download the datasets** that compose the Well and to **run a benchmark** on each dataset.
+Welcome to the Well, a large-scale collection of machine learning datasets containing numerical simulations of a wide variety of spatiotemporal physical systems. The Well draws from domain scientists and numerical software developers to provide 15TB of data across 16 datasets covering diverse domains such as biological systems, fluid dynamics, acoustic scattering, as well as magneto-hydrodynamic simulations of extra-galactic fluids or supernova explosions. These datasets can be used individually or as part of a broader benchmark suite for accelerating research in machine learning and computational sciences.
+
+## Tap into the Well
+
+Once the Well package installed and the data downloaded you can use them in your training pipeline.
+
+```python
+from the_well.data import WellDataset
+from torch.utils.data import DataLoader
+
+trainset = WellDataset(
+    well_base_path="path/to/base",
+    well_dataset_name="name_of_the_dataset",
+    well_split_name="train"
+)
+train_loader = DataLoader(trainset)
+
+for batch in train_loader:
+    ...
+```
+
+For more information regarding the interface, please refer to the [API](https://github.com/PolymathicAI/the_well/tree/master/docs/api.md) and the [tutorials](https://github.com/PolymathicAI/the_well/blob/master/docs/tutorials/dataset.ipynb).
 
 ### Installation
 
-The package is not yet distributed on PyPi. To install the Well, you must first clone the repository.
+If you plan to use The Well datasets to train or evaluate deep learning models, we recommend to use a machine with enough computing resources.
+We also recommend creating a new Python (>=3.10) environment to install the Well. For instance, with [venv](https://docs.python.org/3/library/venv.html):
 
-```bash
-git clone git@github.com:PolymathicAI/the_well.git
-cd the_well
+```
+python -m venv path/to/env
+source path/to/env/activate/bin
 ```
 
-Then you must install the package manually. If you are interested only in downloading the data, you can install a version of the package that has limited dependencies.
+#### From PyPI
 
-```bash
+The Well package can be installed directly from PyPI.
+
+```
+pip install the_well
+```
+
+#### From Source
+
+It can also be installed from source. For this, clone the [repository](https://github.com/PolymathicAI/the_well) and install the package with its dependencies.
+
+```
+git clone https://github.com/PolymathicAI/the_well
+cd the_well
 pip install .
 ```
 
-Otherwise, if you want to run the benchmark, you must install the full package with extended dependencies.
+Depending on your acceleration hardware, you can specify `--extra-index-url` to install the relevant PyTorch version. For example, use
 
-```bash
-pip install ".[benchmark]"
+```
+pip install . --extra-index-url https://download.pytorch.org/whl/cu121
 ```
 
-### Data Download
+to install the dependencies built for CUDA 12.1.
 
-Once installed, you can use the `the-well-download` executable to download any dataset of the Well. By default, the dataset will be downloaded in the corresponding subfolder of`datasets` as provided with this repository. However, it is possible to override the download location with the `--output_dir` option.
+#### Benchmark Dependencies
 
-For instance, run the following to download only samples of the `active_matter` dataset.
+If you want to run the benchmarks, you should install additional dependencies.
 
-```bash
-the-well-download --dataset active_matter --sample-only
+```
+pip install the_well[benchmark]
 ```
 
-### Benchmark
+### Downloading the Data
 
-The repository allows benchmarking surrogate models on the different datasets that compose the Well. Some state-of-the-art models are already implemented in [`models`](the_well/benchmark/models/), while [dataset classes](the_well/benchmark/data/) handle the raw data of the Well.
-The benchmark relies on [a training script](the_well/benchmark/train.py) that uses [hydra](https://hydra.cc/) to instantiate various instances (e.g. dataset, model, optimizer) from [configuration files](the_well/benchmark/configs/).
+The Well datasets range between 6.9GB and 5.1TB of data each, for a total of 15TB for the full collection. Ensure that your system has enough free disk space to accomodate the datasets you wish to download.
 
-For instance, to run the training script of default FNO architecture on the active matter dataset, launch the following:
+Once `the_well` is installed, you can use the `the-well-download` command to download any dataset of The Well.
+
+```
+the-well-download --base-path path/to/base --dataset active_matter --split train
+```
+
+If `--dataset` and `--split` are omitted, all datasets and splits will be downloaded. This could take a while!
+
+### Streaming from Hugging Face
+
+Most of the Well datasets are also hosted on [Hugging Face](https://huggingface.co/polymathic-ai). Data can be streamed directly from the hub using the following code.
+
+```python
+from the_well.data import WellDataset
+from torch.utils.data import DataLoader
+
+# The following line may take a couple of minutes to instantiate the datamodule
+trainset = WellDataset(
+    well_base_path="hf://datasets/polymathic-ai/",  # access from HF hub
+    well_dataset_name="active_matter",
+    well_split_name="train",
+)
+train_loader = DataLoader(trainset)
+
+for batch in train_loader:
+    ...
+```
+
+For better performance in large training, we advise [downloading the data locally](#downloading-the-data) instead of streaming it over the network.
+
+## Benchmark
+
+The repository allows benchmarking surrogate models on the different datasets that compose the Well. Some state-of-the-art models are already implemented in [`models`](https://github.com/PolymathicAI/the_well/tree/master/the_well/benchmark/models), while [dataset classes](https://github.com/PolymathicAI/the_well/tree/master/the_well/data) handle the raw data of the Well.
+The benchmark relies on [a training script](https://github.com/PolymathicAI/the_well/blob/master/the_well/benchmark/train.py) that uses [hydra](https://hydra.cc/) to instantiate various classes (e.g. dataset, model, optimizer) from [configuration files](https://github.com/PolymathicAI/the_well/tree/master/the_well/benchmark/configs).
+
+For instance, to run the training script of default FNO architecture on the active matter dataset, launch the following commands:
 
 ```bash
+cd the_well/benchmark
 python train.py experiment=fno server=local data=active_matter
 ```
 
-Each argument corresponds to a specific configuration file. In the command above `server=local` indicates the training script to use [`local.yaml`](the_well/benchmark/configs/server/local.yaml), which just declares the relative path to the data. The configuration can be overridden directly or edited with new YAML files. Please refer to [hydra documentation](https://hydra.cc/) for editing configuration.
+Each argument corresponds to a specific configuration file. In the command above `server=local` indicates the training script to use [`local.yaml`](https://github.com/PolymathicAI/the_well/tree/master/the_well/benchmark/configs/server/local.yaml), which just declares the relative path to the data. The configuration can be overridden directly or edited with new YAML files. Please refer to [hydra documentation](https://hydra.cc/) for editing configuration.
 
 You can use this command within a sbatch script to launch the training with Slurm.
 
-### Structure of the repository
+## Citation
 
-```.
-├── datasets
-│   ├── dataset_name
-│   │   ├── data
-│   │   │   ├── test
-│   │   │   ├── train
-│   │   │   └── valid
-│   │   ├── generation (if applicable)
-│   │   ├── README.md
-│   │   ├── stats.yaml
-│   │   ├── dataset_name.yaml
-│   │   └── visualization_dataset_name.ipynb
-├── scripts
-├── tests
-├── the_well
-│   ├── benchmark
-│   │   ├── configs
-│   │   ├── data
-│   │   ├── metrics
-│   │   ├── models
-│   │   ├── optim
-│   │   ├── trainer
-│   │   ├── train.py
-│   │   ├── train.sbatch
-│   │   ├── utils
-│   ├── benchmarking
-│   │   └── data_utils
-│   └── utils
-├── pyproject.toml
-└──  README.md
+This project has been led by the <a href="https://polymathic-ai.org/">Polymathic AI</a> organization, in collaboration with researchers from the Flatiron Institute, University of Colorado Boulder, University of Cambridge, New York University, Rutgers University, Cornell University, University of Tokyo, Los Alamos Natioinal Laboratory, University of Califronia, Berkeley, Princeton University, CEA DAM, and University of Liège.
 
+If you find this project useful for your research, please consider citing
 
 ```
+@inproceedings{ohana2024thewell,
+  title={The Well: a Large-Scale Collection of Diverse Physics Simulations for Machine Learning},
+  author={Ruben Ohana and Michael McCabe and Lucas Thibaut Meyer and Rudy Morel and Fruzsina Julia Agocs and Miguel Beneitez and Marsha Berger and Blakesley Burkhart and Stuart B. Dalziel and Drummond Buschman Fielding and Daniel Fortunato and Jared A. Goldberg and Keiya Hirashima and Yan-Fei Jiang and Rich Kerswell and Suryanarayana Maddu and Jonah M. Miller and Payel Mukhopadhyay and Stefan S. Nixon and Jeff Shen and Romain Watteaux and Bruno R{\'e}galdo-Saint Blancard and Fran{\c{c}}ois Rozet and Liam Holden Parker and Miles Cranmer and Shirley Ho},
+  booktitle={The Thirty-eight Conference on Neural Information Processing Systems Datasets and Benchmarks Track},
+  year={2024},
+  url={https://openreview.net/forum?id=00Sx577BT3}
+}
+```
 
-## How To Contribute
+## Contact
 
-Contributions are welcome. To contribute please open a dedicated issue describing the problem you are facing or the feature you would like to add.
+For questions regarding this project, please contact [Ruben Ohana](https://rubenohana.github.io/) and [Michael McCabe](https://mikemccabe210.github.io/) at $\small\texttt{\{rohana,mmcabe\}@flatironinstitute.org}$.
 
-### Code Style
 
-The code should follow the standard [PEP8 Style Guide for Python Code](https://peps.python.org/pep-0008/). This is enforced by using the [ruff](https://docs.astral.sh/ruff/) code linter and formatter.
+## Bug Reports and Feature Requests
 
-To help with maintaining compliance with the format, we provide a `pre-commit` hook that automatically runs `ruff` on the modified code. To install and learn more about `pre-commit`, please refer to [the official documentation](https://pre-commit.com/).
+To report a bug (in the data or the code), request a feature or simply ask a question, you can [open an issue](https://github.com/PolymathicAI/the_well/issues) on the [repository](https://github.com/PolymathicAI/the_well).

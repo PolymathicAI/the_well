@@ -1,16 +1,16 @@
 <div align="center">
-    <img src="/assets/images/the_well_color.svg" width="60%"/>
+    <img src="assets/images/the_well_color.svg" width="60%"/>
 </div>
 
 <br>
 
-# The Well: a 15TB Collection of Physics Simulations
+# The Well: 15TB of Physics Simulations
 
 Welcome to the Well, a large-scale collection of machine learning datasets containing numerical simulations of a wide variety of spatiotemporal physical systems. The Well draws from domain scientists and numerical software developers to provide 15TB of data across 16 datasets covering diverse domains such as biological systems, fluid dynamics, acoustic scattering, as well as magneto-hydrodynamic simulations of extra-galactic fluids or supernova explosions. These datasets can be used individually or as part of a broader benchmark suite for accelerating research in machine learning and computational sciences.
 
 <figure>
     <video allowfullscreen="true" autoplay loop>
-        <source src="/assets/videos/background.mp4" type="video/mp4">
+        <source src="assets/videos/background.mp4" type="video/mp4">
     </video>
 </figure>
 
@@ -20,14 +20,14 @@ Once the Well package installed and the data downloaded you can use them in your
 
 ```python
 from the_well.data import WellDataset
-from torch.utils.data import Dataloader
+from torch.utils.data import DataLoader
 
 trainset = WellDataset(
     well_base_path="path/to/base",
     well_dataset_name="name_of_the_dataset",
     well_split_name="train"
 )
-train_loader = Dataloader(trainset)
+train_loader = DataLoader(trainset)
 
 for batch in train_loader:
     ...
@@ -53,7 +53,7 @@ The Well package can be installed directly from PyPI.
 pip install the_well
 ```
 
-#### From source
+#### From Source
 
 It can also be installed from source. For this, clone the [repository](https://github.com/PolymathicAI/the_well) and install the package with its dependencies.
 
@@ -71,7 +71,7 @@ pip install . --extra-index-url https://download.pytorch.org/whl/cu121
 
 to install the dependencies built for CUDA 12.1.
 
-#### Benchmark dependencies
+#### Benchmark Dependencies
 
 If you want to run the benchmarks, you should install additional dependencies.
 
@@ -79,7 +79,7 @@ If you want to run the benchmarks, you should install additional dependencies.
 pip install the_well[benchmark]
 ```
 
-### Downloading the data
+### Downloading the Data
 
 The Well datasets range between 6.9GB and 5.1TB of data each, for a total of 15TB for the full collection. Ensure that your system has enough free disk space to accomodate the datasets you wish to download.
 
@@ -97,21 +97,37 @@ Most of the Well datasets are also hosted on [Hugging Face](https://huggingface.
 
 ```python
 from the_well.data import WellDataset
-from torch.utils.data import Dataloader
+from torch.utils.data import DataLoader
 
 # The following line may take a couple of minutes to instantiate the datamodule
 trainset = WellDataset(
     well_base_path="hf://datasets/polymathic-ai/",  # access from HF hub
-    well_base_name="active_matter",
+    well_dataset_name="active_matter",
     well_split_name="train",
 )
-train_loader = Dataloader(trainset)
+train_loader = DataLoader(trainset)
 
 for batch in train_loader:
     ...
 ```
 
 For better performance in large training, we advise [downloading the data locally](#downloading-the-data) instead of streaming it over the network.
+
+## Benchmark
+
+The repository allows benchmarking surrogate models on the different datasets that compose the Well. Some state-of-the-art models are already implemented in [`models`](https://github.com/PolymathicAI/the_well/tree/master/the_well/benchmark/models), while [dataset classes](https://github.com/PolymathicAI/the_well/tree/master/the_well/data) handle the raw data of the Well.
+The benchmark relies on [a training script](https://github.com/PolymathicAI/the_well/tree/master/the_well/benchmark/train.py) that uses [hydra](https://hydra.cc/) to instantiate various classes (e.g. dataset, model, optimizer) from [configuration files](https://github.com/PolymathicAI/the_well/tree/master/the_well/benchmark/configs).
+
+For instance, to run the training script of default FNO architecture on the active matter dataset, launch the following commands:
+
+```bash
+cd the_well/benchmark
+python train.py experiment=fno server=local data=active_matter
+```
+
+Each argument corresponds to a specific configuration file. In the command above `server=local` indicates the training script to use [`local.yaml`](https://github.com/PolymathicAI/the_well/tree/master/the_well/benchmark/configs/server/local.yaml), which just declares the relative path to the data. The configuration can be overridden directly or edited with new YAML files. Please refer to [hydra documentation](https://hydra.cc/) for editing configuration.
+
+You can use this command within a sbatch script to launch the training with Slurm.
 
 ## Citation
 
@@ -133,11 +149,11 @@ If you find this project useful for your research, please consider citing
 
 For questions regarding this project, please contact [Ruben Ohana](https://rubenohana.github.io/) and [Michael McCabe](https://mikemccabe210.github.io/) at $\small\texttt{\{rohana,mmcabe\}@flatironinstitute.org}$.
 
-## Bug reports and feature requests
+## Bug Reports and Feature Requests
 
 To report a bug (in the data or the code), request a feature or simply ask a question, you can [open an issue](https://github.com/PolymathicAI/the_well/issues) on the [repository](https://github.com/PolymathicAI/the_well).
 
-## Useful links
+## Useful Links
 
 - :fontawesome-brands-github: The Well repository on [GitHub](https://github.com/PolymathicAI/the_well)
 - :simple-arxiv: More information about the Well in the [NeurIPS paper](https://openreview.net/pdf?id=00Sx577BT3)

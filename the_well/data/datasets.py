@@ -858,3 +858,6 @@ class WellDataset(Dataset):
 
         combined_ds = xr.concat(datasets, dim="sample")
         return combined_ds
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__}: {self.data_path}>"

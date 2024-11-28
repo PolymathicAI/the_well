@@ -192,6 +192,8 @@ class WellDataModule(AbstractDataModule):
                 else {}
             ),
         )
+        self.well_base_path = well_base_path
+        self.well_dataset_name = well_dataset_name
         self.batch_size = batch_size
         self.world_size = world_size
         self.data_workers = data_workers
@@ -344,3 +346,6 @@ class WellDataModule(AbstractDataModule):
             drop_last=True,
             sampler=sampler,
         )
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__}: {self.well_dataset_name} on {self.well_base_path}>"
