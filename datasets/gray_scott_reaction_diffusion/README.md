@@ -65,3 +65,112 @@ Table: VRMSE metrics on test sets (lower is better). Best results are shown in b
 **What phenomena of physical interest are catpured in the data:** Pattern formation: by sweeping the two parameters $f$ and $k$, a multitude of steady and dynamic patterns can form from random initial conditions.
 
 **How to evaluate a new simulator operating in this space:** It would be impressive if a simulator—trained only on some of the patterns produced by a subset of the $(f, k)$ parameter space—could perform well on an unseen set of parameter values $(f, k)$ that produce fundamentally different patterns. Stability for steady-state patterns over long rollout times would also be impressive.
+
+
+**Warning:** Due to the nature of the problem and the possibility to reach an equilibrium for certain values of the kill and feed parameters, a constant stationary behavior can be reached. Here are the trajectories for which a stationary behavior was identified for specy $A$ as well as the corresponding time at which it was reached:
+- Validation set:
+    - $f=0.014, k=0.054$ :
+        - Trajectory 7, time = 123
+        - Trajectory 8, time = 125
+        - Trajectory 10, time = 123
+        - Trajectory 11, time = 125
+        - Trajectory 12, time = 121
+        - Trajectory 14, time = 121
+        - Trajectory 15, time = 129
+        - Trajectory 16, time = 124
+        - Trajectory 17, time = 122
+        - Trajectory 18, time = 121
+        - Trajectory 19, time = 155
+    - $f=0.018, k=0.051$ :
+        - Trajectory 14, time = 109
+
+- Training set:
+    - $f=0.014,k=0.054$ :
+        - Trajectory 81, time = 126
+        - Trajectory 82, time = 126
+        - Trajectory 83, time = 123
+        - Trajectory 85, time = 123
+        - Trajectory 86, time = 124
+        - Trajectory 87, time = 127
+        - Trajectory 88, time = 121
+        - Trajectory 90, time = 123
+        - Trajectory 91, time = 121
+        - Trajectory 92, time = 126
+        - Trajectory 93, time = 121
+        - Trajectory 94, time = 126
+        - Trajectory 95, time = 125
+        - Trajectory 96, time = 123
+        - Trajectory 97, time = 126
+        - Trajectory 98, time = 121
+        - Trajectory 99, time = 125
+        - Trajectory 100, time = 126
+        - Trajectory 101, time = 125
+        - Trajectory 102, time = 159
+        - Trajectory 103, time = 129
+        - Trajectory 105, time = 125
+        - Trajectory 107, time = 122
+        - Trajectory 108, time = 126
+        - Trajectory 110, time = 127
+        - Trajectory 111, time = 122
+        - Trajectory 112, time = 121
+        - Trajectory 113, time = 122
+        - Trajectory 114, time = 126
+        - Trajectory 115, time = 126
+        - Trajectory 116, time = 126
+        - Trajectory 117, time = 122
+        - Trajectory 118, time = 123
+        - Trajectory 119, time = 123
+        - Trajectory 120, time = 125
+        - Trajectory 121, time = 126
+        - Trajectory 122, time = 121
+        - Trajectory 123, time = 122
+        - Trajectory 125, time = 125
+        - Trajectory 126, time = 127
+        - Trajectory 127, time = 125
+        - Trajectory 129, time = 125
+        - Trajectory 130, time = 122
+        - Trajectory 131, time = 125
+        - Trajectory 132, time = 131
+        - Trajectory 133, time = 126
+        - Trajectory 134, time = 159
+        - Trajectory 135, time = 121
+        - Trajectory 136, time = 126
+        - Trajectory 137, time = 125
+        - Trajectory 138, time = 126
+        - Trajectory 139, time = 123
+        - Trajectory 140, time = 128
+        - Trajectory 141, time = 126
+        - Trajectory 142, time = 123
+        - Trajectory 144, time = 122
+        - Trajectory 145, time = 125
+        - Trajectory 146, time = 123
+        - Trajectory 147, time = 126
+        - Trajectory 148, time = 121
+        - Trajectory 149, time = 122
+        - Trajectory 150, time = 125
+        - Trajectory 151, time = 126
+        - Trajectory 152, time = 152
+        - Trajectory 153, time = 127
+        - Trajectory 154, time = 122
+        - Trajectory 155, time = 124
+        - Trajectory 156, time = 122
+        - Trajectory 158, time = 126
+        - Trajectory 159, time = 121
+    - $f=0.018,k=0.051$:
+        - Trajectory 97, time = 109
+        - Trajectory 134, time = 107
+        - Trajectory 147, time = 109
+        - Trajectory 153, time = 112
+
+- Test set:
+    - $f=0.014,k=0.054$:
+        - Trajectory 12, time = 127
+        - Trajectory 13, time = 125
+        - Trajectory 14, time = 123
+        - Trajectory 15, time = 126
+        - Trajectory 16, time = 126
+        - Trajectory 17, time = 123
+        - Trajectory 18, time = 128
+        - Trajectory 19, time = 125
+    - $f=0.018,k=0.051$:
+        - Trajectory 11, time = 113

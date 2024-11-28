@@ -19,9 +19,9 @@ While we solve equations in the frequency domain, the original time-domain probl
 
 $$
 \begin{align*}
-\frac{\partial b}{\partial t} - \kappa\,\Delta b & = -u\nabla b\,,
+\frac{\partial b}{\partial t} - \kappa \Delta b & = -u\nabla b,
 \\
-\frac{\partial u}{\partial t} - \nu\,\Delta u + \nabla p - b \vec{e}_z & = -u \nabla u\,,
+\frac{\partial u}{\partial t} - \nu \Delta u + \nabla p - b \vec{e}_z & = -u \nabla u,
 \end{align*}
 $$
 

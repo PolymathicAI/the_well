@@ -27,13 +27,13 @@ $$
 where $\Delta = \nabla \cdot \nabla$ is the spatial Laplacian, $u = (u_x,u_y)$ is the (horizontal and vertical) velocity, $s$ is the tracer, and $p$ is the pressure,
 with the additional constraints $\int p = 0$ (pressure gauge).
 
-$$DE are parameterized by the Reynolds and Schmidt numbers through $\nu$ and $D$.
+These PDEs are parameterized by the Reynolds and Schmidt numbers through $\nu$ and $D$.
 
 $$
 \begin{align*}
-\text{(viscosity)} ~~~~~~~ \nu & = 1 \, / \, \text{Reynolds}
+\text{(viscosity)} ~~~~~~~ \nu & = 1 / \text{Reynolds}
 \\
-\text{(diffusivity)} ~~~~~~~ D & = \nu \, / \, \text{Schmidt}
+\text{(diffusivity)} ~~~~~~~ D & = \nu / \text{Schmidt}
 \end{align*}
 $$
 
@@ -70,7 +70,7 @@ The initial condition is thus indexed by $n_\text{shear},n_\text{blobs},w$.
 
 **Spatial domain size:** $0\leq x \leq 1$ horizontally, and $-1 \leq y \leq 1$ vertically.
 
-**Set of coefficients or non-dimensional parameters evaluated:** $\text{Reynolds}\in\{1e4, 5e4, 1e5, 5e5\}, \text{Schmidt}\in\{0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0\}$. For initial conditions $n_\text{shear}\in[2,4]$, $n_\text{blobs}\in\{2,3,4,5\}$, $w\in\{0.25, 0.5, 1.0, 2.0, 4.0\}$.
+**Set of coefficients or non-dimensional parameters evaluated:** $\text{Reynolds}\in[1e4, 5e4, 1e5, 5e5], \text{Schmidt}\in[0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0]$. For initial conditions $n_\text{shear}\in[2,4]$, $n_\text{blobs}\in[2,3,4,5]$, $w\in[0.25, 0.5, 1.0, 2.0, 4.0]$.
 
 
 **Approximate time to generate the data:** per input parameter: $\sim 1500s$, total: $\sim 5$ hours.
