@@ -200,6 +200,23 @@ def plot_all_time_metrics(
     return dict()  # Keeping to avoid breaking downstream code
 
 
+def add_colorbar(im, aspect=20, pad_fraction=0.5, **kwargs):
+    """Add a vertical color bar to an image plot.
+
+    Taken from user Matthias at:
+    https://stackoverflow.com/questions/18195758/set-matplotlib-colorbar-size-to-match-graph
+    """
+    from mpl_toolkits import axes_grid1
+
+    divider = axes_grid1.make_axes_locatable(im.axes)
+    width = axes_grid1.axes_size.AxesY(im.axes, aspect=1.0 / aspect)
+    pad = axes_grid1.axes_size.Fraction(pad_fraction, width)
+    current_ax = plt.gca()
+    cax = divider.append_axes("right", size=width, pad=pad)
+    plt.sca(current_ax)
+    return im.axes.figure.colorbar(im, cax=cax, **kwargs)
+
+
 def make_video(
     predicted_images: torch.Tensor,
     true_images: torch.Tensor,
@@ -218,6 +235,19 @@ def make_video(
         # Slice the data along the middle of the last axis
         true_images = true_images[..., true_images.shape[-1] // 2, :]
         predicted_images = predicted_images[..., predicted_images.shape[-1] // 2, :]
+
+    # TODO - Eventually just add the grid info to the metadata. This is currently very fragile
+    # and probably wrong for external data.
+    grid_type = metadata.grid_type
+    if grid_type == "cartesian":
+        coords = ["x", "y", "z"][:ndims]
+    elif "spher" in grid_type and ndims == 2:
+        coords = ["theta", "phi"]
+    elif "spher" in grid_type and ndims == 3:
+        coords = ["r" "theta", "phi"]
+    else:
+        # Just default to x, y, z since throwing an error here is going to be annoying
+        coords = ["x", "y", "z"][:ndims]
     # Calculate the error
     error_images = (true_images - predicted_images).abs()
 
@@ -236,8 +266,17 @@ def make_video(
         vmins.append(np.nanpercentile(true_images[..., i].flatten(), 1))
         emaxes.append(np.nanpercentile(error_images[..., i].flatten(), 99.99))
         emins.append(np.nanpercentile(error_images[..., i].flatten(), 0.01))
-
-    fig, axes = plt.subplots(3, len(field_names), figsize=(4.5 * len(field_names), 10))
+    h, w = metadata.spatial_resolution[:2]
+    fig, axes = plt.subplots(
+        3,
+        len(field_names),
+        layout="constrained",
+        # Scale chosen empirically based on what looked good in our 2D data
+        figsize=(3 + 4.5 * len(field_names) * min(1, w / h), 2 + 8 * min(1, h / w)),
+        sharex=True,
+        sharey=True,
+    )
+    fig.get_layout_engine().set(w_pad=0.02, h_pad=0, hspace=0.01, wspace=0.15)
     if len(field_names) == 1:
         axes = axes[:, np.newaxis]
     suptitle = plt.suptitle(f"{dset_name} - Rollout Comparison")
@@ -247,26 +286,34 @@ def make_video(
     for j, field_name in enumerate(field_names):
         axes[0, j].set_title(field_name)
         im = axes[0, j].imshow(
-            true_images[0, ..., j], cmap="viridis", vmax=vmaxes[j], vmin=vmins[j]
+            true_images[0, ..., j],
+            cmap="viridis",
+            vmax=vmaxes[j],
+            vmin=vmins[j],
+            origin="lower",
         )
-        fig.colorbar(
-            im, ax=axes[0, j], orientation="vertical", fraction=0.046, pad=0.04
-        )
+        add_colorbar(im)
         ims.append(im)
         im = axes[1, j].imshow(
-            predicted_images[0, ..., j], cmap="viridis", vmax=vmaxes[j], vmin=vmins[j]
+            predicted_images[0, ..., j],
+            cmap="viridis",
+            vmax=vmaxes[j],
+            vmin=vmins[j],
+            origin="lower",
         )
-        fig.colorbar(
-            im, ax=axes[1, j], orientation="vertical", fraction=0.046, pad=0.04
-        )
-
+        add_colorbar(im)
         ims.append(im)
         im = axes[2, j].imshow(
-            error_images[0, ..., j], cmap="viridis", vmax=emaxes[j], vmin=emins[j]
+            error_images[0, ..., j],
+            cmap="viridis",
+            vmax=emaxes[j],
+            vmin=emins[j],
+            origin="lower",
         )
-        fig.colorbar(
-            im, ax=axes[2, j], orientation="vertical", fraction=0.046, pad=0.04
-        )
+        add_colorbar(im)
+        # axes[0, j].set_xlabel(coords[1])
+        # axes[1, j].set_xlabel(coords[1])
+        axes[2, j].set_xlabel(coords[1])
 
         ims.append(im)
 
@@ -275,12 +322,10 @@ def make_video(
             plt.setp(axes[i, j].get_yticklabels(), visible=False)
             axes[i, j].tick_params(axis="both", which="both", length=0)
 
-    axes[0, 0].set_ylabel("True State")
-    axes[1, 0].set_ylabel("Predicted State")
-    axes[2, 0].set_ylabel("Error")
-    plt.tight_layout()
+    axes[0, 0].set_ylabel(f"True State\n{coords[0]}")
+    axes[1, 0].set_ylabel(f"Predicted State\n{coords[0]}")
+    axes[2, 0].set_ylabel(f"Error\n{coords[0]}")
 
-    # Add a colorbar for each row
     # # Update function for the animation
     def update(frame):
         for i, array in enumerate([true_images, predicted_images, error_images]):

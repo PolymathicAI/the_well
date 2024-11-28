@@ -54,6 +54,7 @@ class Trainer:
         rollout_val_frequency: int,
         max_rollout_steps: int,
         short_validation_length: int,
+        make_rollout_videos: bool,
         num_time_intervals: int,
         lr_scheduler: Optional[torch.optim.lr_scheduler._LRScheduler] = None,
         device=torch.device("cuda"),
@@ -91,6 +92,10 @@ class Trainer:
                 The frequency in terms of number of epochs to perform the rollout validation
             max_rollout_steps:
                 The maximum number of timesteps to rollout the model
+            short_validation_length:
+                The number of batches to use for quick intermediate validation during training
+            make_rollout_videos:
+                A boolean flag to trigger the creation of videos during long rollout validation
             num_time_intervals:
                 The number of time intervals to split the loss over
             lr_scheduler:
@@ -123,6 +128,7 @@ class Trainer:
         self.rollout_val_frequency = rollout_val_frequency
         self.max_rollout_steps = max_rollout_steps
         self.short_validation_length = short_validation_length
+        self.make_rollout_videos = make_rollout_videos
         self.num_time_intervals = num_time_intervals
         self.enable_amp = enable_amp
         self.amp_type = torch.bfloat16 if amp_type == "bfloat16" else torch.float16
@@ -295,8 +301,11 @@ class Trainer:
         if y_ref.shape[1] > 1:
             # Only plot if we have more than one timestep, but then track loss over timesteps
             plot_all_time_metrics(time_logs, self.dset_metadata, self.viz_folder, epoch)
-            # Make_video expects T x H [x W x D] C data so select out the batch dim
-            make_video(y_pred[0], y_ref[0], self.dset_metadata, self.viz_folder, epoch)
+            if self.make_rollout_videos:
+                # Make_video expects T x H [x W x D] C data so select out the batch dim
+                make_video(
+                    y_pred[0], y_ref[0], self.dset_metadata, self.viz_folder, epoch
+                )
 
         if self.is_distributed:
             for k, v in loss_dict.items():
