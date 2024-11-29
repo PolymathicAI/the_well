@@ -6,7 +6,7 @@ dynamics in numpy arrays of shape (`n_traj`, `n_steps`, `coord1`, `coord2`, `(co
 single precision fp32. We distinguish between scalar, vector, and tensor-valued fields due to their different
 transformation properties.
 
-The specification is described below with example entries for a hypothetical 2D ($D=2$) simulation with dimension B x T x H x W. Note that this uses HDF5 Groups, Datasets, and attributes (denoted by "@"):
+The specification is described below with example entries for a hypothetical 2D ($D=2$) simulation with dimension B x T x W x H. Note that this uses HDF5 Groups, Datasets, and attributes (denoted by "@"):
 
 ```python
 root: Group
@@ -53,11 +53,11 @@ root: Group
   t0_fields: Group
     # field_names should list all datasets in this category
     @field_names: list[str] = ['FieldA', 'FieldB', 'FieldC', ...]
-    -FieldA: Dataset = float32(BxTxHxW)
+    -FieldA: Dataset = float32(BxTxWxH)
       @dim_varying = [ True  True]
       @sample_varying = True
       @time_varying = True
-    -FieldB: Dataset = float32(TxHxW)
+    -FieldB: Dataset = float32(TxWxH)
       @dim_varying = [ True  True]
       @sample_varying = True
       @time_varying = False
@@ -69,7 +69,7 @@ root: Group
 
   -t1_fields: Group
     @field_names = ['VFieldA', ...]
-    -VFieldA: Dataset = float32(BxTxHxWxD)
+    -VFieldA: Dataset = float32(BxTxWxHxD)
       @dim_varying = [ True  True]
       @sample_varying = True
       @time_varying = True
@@ -77,7 +77,7 @@ root: Group
 
   -t2_fields: Group
     @field_names: list[str] = ['TFieldA', ...]
-    - TFieldA: Dataset = float32(BxTxHxWxD^2)
+    - TFieldA: Dataset = float32(BxTxWxHxD^2)
       @antisymmetric = False
       @dim_varying = [ True  True]
       @sample_varying = True
