@@ -1,8 +1,8 @@
 dataset_name: shear_flow
 n_spatial_dims: 2
 spatial_resolution:
-- 128
 - 256
+- 512
 scalar_names: []
 constant_scalar_names:
 - Rayleigh

@@ -41,7 +41,7 @@ $$
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| `shear_flow`  | 0.1567 | $\mathbf{0.1348}$ |0.5910|0.2037|
+| `shear_flow`  | 1.189 | 1.472 | 3.447 | $\mathbf{0.8080}$ |
 
 Table: VRMSE metrics on test sets (lower is better). Best results are shown in bold. VRMSE is scaled such that predicting the mean value of the target field results in a score of 1.
 
@@ -53,7 +53,7 @@ Table: VRMSE metrics on test sets (lower is better). Best results are shown in b
 
 **Number of simulations:** 1120 (28 PDE parameters $\times$ 40 initial conditions).
 
-**Size of the ensemble of all simulations:** 114.7 GB.
+**Size of the ensemble of all simulations:** 547 GB.
 
 **Grid type:** uniform, cartesian coordinates.
 
@@ -73,9 +73,9 @@ The initial condition is thus indexed by $n_\text{shear},n_\text{blobs},w$.
 **Set of coefficients or non-dimensional parameters evaluated:** $\text{Reynolds}\in[1e4, 5e4, 1e5, 5e5], \text{Schmidt}\in[0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0]$. For initial conditions $n_\text{shear}\in[2,4]$, $n_\text{blobs}\in[2,3,4,5]$, $w\in[0.25, 0.5, 1.0, 2.0, 4.0]$.
 
 
-**Approximate time to generate the data:** per input parameter: $\sim 1500s$, total: $\sim 5$ hours.
+**Approximate time to generate the data:** per input parameter: $\sim 5h$, total: $\sim 25$ hours.
 
-**Hardware used to generate the data and precision used for generating the data:** 7 nodes of 64 CPU cores each with 32 tasks running in parallel on each node, in single precision.
+**Hardware used to generate the data and precision used for generating the data:** 512 nodes of 96 CPU cores each with 96 tasks running in parallel on each node, in single precision.
 
 ## What is interesting and challenging about the data:
 

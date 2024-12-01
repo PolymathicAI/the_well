@@ -68,7 +68,7 @@ Table: VRMSE metrics on test sets (lower is better). Best results are shown in b
 
 **Number of simulations:** 1750 (35 PDE parameters $\times$ 50 initial conditions).
 
-**Size of the ensemble of all simulations:** 358.4 GB.
+**Size of the ensemble of all simulations:** 342 GB.
 
 **Grid type:** uniform, cartesian coordinates.
 
