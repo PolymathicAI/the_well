@@ -6,7 +6,7 @@ import h5py as h5
 import torch
 import yaml
 
-from the_well.data.datasets import WellDataset, well_paths
+from the_well.data.datasets import WELL_DATASETS, WellDataset
 
 
 def compute_statistics(train_path: str, stats_path: str):
@@ -80,8 +80,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     data_dir = args.the_well_dir
 
-    for dataset_path in well_paths.values():
+    for dataset in WELL_DATASETS:
         compute_statistics(
-            train_path=os.path.join(data_dir, dataset_path, "data/train"),
-            stats_path=os.path.join(data_dir, dataset_path, "stats.yaml"),
+            train_path=os.path.join(data_dir, dataset, "data/train"),
+            stats_path=os.path.join(data_dir, dataset, "stats.yaml"),
         )

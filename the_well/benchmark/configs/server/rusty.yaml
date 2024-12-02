@@ -1,4 +1,4 @@
 # @package _global_
 data:
-  well_base_path: "/mnt/home/polymathic/ceph/the_well/"
+  well_base_path: "/mnt/home/polymathic/ceph/the_well/datasets/"
 experiment_dir: "experiments/"

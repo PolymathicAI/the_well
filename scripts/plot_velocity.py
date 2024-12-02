@@ -7,11 +7,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
 
-from the_well.data.datasets import well_paths
+from the_well.data.datasets import WELL_DATASETS
 
 
 def plot_velocity(dataset_dir: str, output_dir: str):
-    for dataset_name in tqdm(well_paths.keys()):
+    for dataset_name in tqdm(WELL_DATASETS):
         dataset_path = os.path.join(
             dataset_dir, dataset_name, "data", "valid", "*.hdf5"
         )

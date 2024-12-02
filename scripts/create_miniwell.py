@@ -21,8 +21,8 @@ def main():
     parser.add_argument(
         "--dataset-path",
         type=str,
-        default="/mnt/ceph/users/polymathic/the_well/",
-        help="Path to the dataset. Default is /mnt/ceph/users/polymathic/the_well/",
+        default="/mnt/ceph/users/polymathic/the_well/datasets",
+        help="Path to the dataset.",
     )
     parser.add_argument(
         "--spatial-downsample-factor",

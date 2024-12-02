@@ -6,7 +6,7 @@ from typing import List
 import h5py
 import numpy as np
 
-from the_well.data.datasets import well_paths
+from the_well.data.datasets import WELL_DATASETS
 
 
 def check_bc(bc: str) -> str:
@@ -300,17 +300,15 @@ if __name__ == "__main__":
         "--datasets",
         type=str,
         nargs="+",
-        default=list(well_paths.keys()),
-        choices=list(well_paths.keys()),
+        default=WELL_DATASETS,
+        choices=WELL_DATASETS,
         help="Name of the dataset to check",
     )
     args = parser.parse_args()
     data_dir = args.dir
     nproc = args.nproc
     datasets_to_check = args.datasets
-    data_register = [
-        os.path.join(data_dir, well_paths[dataset]) for dataset in datasets_to_check
-    ]
+    data_register = [os.path.join(data_dir, dataset) for dataset in datasets_to_check]
     files = list(list_files(data_register))
     print(f"{len(files)} to check.")
     with mp.Pool(nproc) as pool:

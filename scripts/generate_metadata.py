@@ -4,11 +4,11 @@ import os.path
 from omegaconf import OmegaConf
 from tqdm import tqdm
 
-from the_well.data.datasets import WellDataset, well_paths
+from the_well.data.datasets import WELL_DATASETS, WellDataset
 
 
 def generate_metadata(dataset_dir: str, output_dir: str):
-    for dataset_name in tqdm(well_paths.keys()):
+    for dataset_name in tqdm(WELL_DATASETS):
         dataset = WellDataset(
             well_base_path=dataset_dir,
             well_dataset_name=dataset_name,

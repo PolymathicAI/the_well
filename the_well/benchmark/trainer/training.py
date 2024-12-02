@@ -10,20 +10,19 @@ import tqdm
 import wandb
 from torch.utils.data import DataLoader
 
-from the_well.data.datasets import flatten_field_names
-
-from ..data.data_formatter import (
-    DefaultChannelsFirstFormatter,
-    DefaultChannelsLastFormatter,
-)
-from ..data.datamodule import AbstractDataModule
-from ..metrics import (
+from the_well.benchmark.metrics import (
     long_time_metrics,
     make_video,
     plot_all_time_metrics,
     validation_metric_suite,
     validation_plots,
 )
+from the_well.data.data_formatter import (
+    DefaultChannelsFirstFormatter,
+    DefaultChannelsLastFormatter,
+)
+from the_well.data.datamodule import AbstractDataModule
+from the_well.data.datasets import flatten_field_names
 
 logger = logging.getLogger(__name__)
 

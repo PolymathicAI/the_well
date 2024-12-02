@@ -55,7 +55,7 @@ class TestMetadata(TestCase):
 class TestDataset(TestCase):
     def test_local_dataset(self):
         dataset = WellDataset(
-            well_base_path=".",
+            well_base_path="datasets",
             well_dataset_name="active_matter",
             use_normalization=False,
         )
@@ -69,7 +69,7 @@ class TestDataset(TestCase):
 
     def test_last_time_step(self):
         dataset = WellDataset(
-            well_base_path=".",
+            well_base_path="datasets",
             well_dataset_name="active_matter",
             use_normalization=False,
         )
@@ -84,7 +84,7 @@ class TestDataset(TestCase):
 
     def test_augmentation(self):
         dataset = WellDataset(
-            well_base_path=".",
+            well_base_path="datasets",
             well_dataset_name="active_matter",
             use_normalization=False,
             transform=Compose(

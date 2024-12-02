@@ -1,3 +1,4 @@
 # @package _global_
 data:
   well_base_path: "/mnt/gpuxl/polymathic/the_well/datasets/"
+experiment_dir: "experiments/"

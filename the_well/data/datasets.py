@@ -27,31 +27,31 @@ from the_well.utils.export import hdf5_to_xarray
 if TYPE_CHECKING:
     from .augmentation import Augmentation
 
-well_paths = {
-    "acoustic_scattering_maze": "datasets/acoustic_scattering_maze",
-    "acoustic_scattering_inclusions": "datasets/acoustic_scattering_inclusions",
-    "acoustic_scattering_discontinuous": "datasets/acoustic_scattering_discontinuous",
-    "active_matter": "datasets/active_matter",
-    "convective_envelope_rsg": "datasets/convective_envelope_rsg",
-    "euler_multi_quadrants_openBC": "datasets/euler_multi_quadrants_openBC",
-    "euler_multi_quadrants_periodicBC": "datasets/euler_multi_quadrants_periodicBC",
-    "helmholtz_staircase": "datasets/helmholtz_staircase",
-    "MHD_256": "datasets/MHD_256",
-    "MHD_64": "datasets/MHD_64",
-    "gray_scott_reaction_diffusion": "datasets/gray_scott_reaction_diffusion",
-    "planetswe": "datasets/planetswe",
-    "post_neutron_star_merger": "datasets/post_neutron_star_merger",
-    "rayleigh_benard": "datasets/rayleigh_benard",
-    "rayleigh_taylor_instability": "datasets/rayleigh_taylor_instability",
-    "shear_flow": "datasets/shear_flow",
-    "supernova_explosion_64": "datasets/supernova_explosion_64",
-    "supernova_explosion_128": "datasets/supernova_explosion_128",
-    "turbulence_gravity_cooling": "datasets/turbulence_gravity_cooling",
-    "turbulent_radiative_layer_2D": "datasets/turbulent_radiative_layer_2D",
-    "turbulent_radiative_layer_3D": "datasets/turbulent_radiative_layer_3D",
-    "viscoelastic_instability": "datasets/viscoelastic_instability",
-    "dummy": "datasets/dummy_placeholder",
-}
+WELL_DATASETS = [
+    "acoustic_scattering_maze",
+    "acoustic_scattering_inclusions",
+    "acoustic_scattering_discontinuous",
+    "active_matter",
+    "convective_envelope_rsg",
+    "euler_multi_quadrants_openBC",
+    "euler_multi_quadrants_periodicBC",
+    "helmholtz_staircase",
+    "MHD_256",
+    "MHD_64",
+    "gray_scott_reaction_diffusion",
+    "planetswe",
+    "post_neutron_star_merger",
+    "rayleigh_benard",
+    "rayleigh_taylor_instability",
+    "shear_flow",
+    "supernova_explosion_64",
+    "supernova_explosion_128",
+    "turbulence_gravity_cooling",
+    "turbulent_radiative_layer_2D",
+    "turbulent_radiative_layer_3D",
+    "viscoelastic_instability",
+    "dummy",
+]
 
 
 def raw_steps_to_possible_sample_t0s(
@@ -275,11 +275,14 @@ class WellDataset(Dataset):
             self.normalization_path = os.path.join(path, normalization_path)
 
         else:
+            assert (
+                well_dataset_name in WELL_DATASETS
+            ), f"Dataset name {well_dataset_name} not in the expected list {WELL_DATASETS}."
             self.data_path = os.path.join(
-                well_base_path, well_paths[well_dataset_name], "data", well_split_name
+                well_base_path, well_dataset_name, "data", well_split_name
             )
             self.normalization_path = os.path.join(
-                well_base_path, well_paths[well_dataset_name], "stats.yaml"
+                well_base_path, well_dataset_name, "stats.yaml"
             )
 
         self.fs, _ = fsspec.url_to_fs(self.data_path, **(storage_options or {}))

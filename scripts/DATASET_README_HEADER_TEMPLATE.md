@@ -20,7 +20,7 @@ task_ids:
 2. Use the `WellDataModule` to retrieve data as follows:
 
 ```python
-from the_well.benchmark.data import WellDataModule
+from the_well.data import WellDataModule
 
 # The following line may take a couple of minutes to instantiate the datamodule
 datamodule = WellDataModule(
