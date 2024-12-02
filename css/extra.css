@@ -1,0 +1,28 @@
+[data-md-color-scheme="the_well"] {
+    --md-primary-fg-color: #f9f9f9;
+    --md-primary-bg-color: #2c3e50;
+    --md-primary-fg-color--dark: #f9f9f9;
+    --md-accent-fg-color: #ca0e4c;
+    --md-default-fg-color: #2c3e50;
+    --md-default-fg-color--light: #2c3e50;
+    --md-typeset-a-color: #ca0e4c;
+    --md-typeset-color: #2c3e50;
+    --md-text-font: "Lato", Arial, sans-serif;
+}
+
+.md-search__form {
+    background-color:#0000000f;
+}
+
+.md-search__input::placeholder {
+    color: #2c3e50a0;
+    opacity: 1; /* Firefox */
+}
+
+body {
+    font-family: "Lato", Arial, sans-serif;
+}
+
+p {
+    text-align: justify;
+}
