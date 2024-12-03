@@ -182,7 +182,7 @@ st.set_page_config(
 )
 st.image("assets/the_well_logo.png")
 st.markdown("""
-    [The Well](https://openreview.net/pdf?id=00Sx577BT3) is a collection of 15TB datasets of physics simulations.
+    [The Well](https://arxiv.org/abs/2412.00568) is a collection of 15TB datasets of physics simulations.
 
     This space allows you to tap into the Well by visualizing different datasets hosted on the [Hugging Face Hub](https://huggingface.co/polymathic-ai).
     - Select a dataset

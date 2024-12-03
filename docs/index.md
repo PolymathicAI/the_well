@@ -156,6 +156,6 @@ To report a bug (in the data or the code), request a feature or simply ask a que
 ## Useful Links
 
 - :fontawesome-brands-github: The Well repository on [GitHub](https://github.com/PolymathicAI/the_well)
-- :simple-arxiv: More information about the Well in the [NeurIPS paper](https://openreview.net/pdf?id=00Sx577BT3)
+- :simple-arxiv: More information about the Well in the [NeurIPS paper](https://arxiv.org/abs/2412.00568)
 - :fontawesome-solid-at: More about our work on the [Polymathic AI website](https://polymathic-ai.org/)
 - :hugging: Datasets of the Well are available on [Hugging Face](https://huggingface.co/polymathic-ai)
