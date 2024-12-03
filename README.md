@@ -9,6 +9,7 @@
 ![Test Workflow](https://github.com/PolymathicAI/the_well/actions/workflows/tests.yaml/badge.svg)
 [![PyPI](https://img.shields.io/pypi/v/the_well)](https://pypi.org/project/the-well/)
 [![Docs](https://img.shields.io/badge/docs-latest---?color=25005a&labelColor=grey)](https://polymathic-ai.org/the_well/)
+[![arXiv](https://img.shields.io/badge/arXiv-2412.00568---?logo=arXiv&labelColor=b31b1b&color=grey)](https://arxiv.org/abs/2412.00568)
 [![NeurIPS](https://img.shields.io/badge/NeurIPS-2024---?logo=https%3A%2F%2Fneurips.cc%2Fstatic%2Fcore%2Fimg%2FNeurIPS-logo.svg&labelColor=68448B&color=b3b3b3)](https://openreview.net/forum?id=00Sx577BT3)
 
 </div>
