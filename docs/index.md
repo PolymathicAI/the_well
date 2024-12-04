@@ -147,7 +147,7 @@ If you find this project useful for your research, please consider citing
 
 ## Contact
 
-For questions regarding this project, please contact [Ruben Ohana](https://rubenohana.github.io/) and [Michael McCabe](https://mikemccabe210.github.io/) at $\small\texttt{\{rohana,mmcabe\}@flatironinstitute.org}$.
+For questions regarding this project, please contact [Ruben Ohana](https://rubenohana.github.io/) and [Michael McCabe](https://mikemccabe210.github.io/) at $\small\texttt{\{rohana,mmccabe\}@flatironinstitute.org}$.
 
 ## Bug Reports and Feature Requests
 
