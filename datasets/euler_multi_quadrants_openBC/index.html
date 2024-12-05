@@ -1183,11 +1183,25 @@
 <p><strong>Domain experts</strong>: <a href="https://cs.nyu.edu/~berger/">Marsha Berger</a>(Flatiron Institute &amp; NYU), <a href="https://rubenohana.github.io/">Ruben Ohana</a> (CCM, Flatiron Institute &amp; Polymathic AI), <a href="https://mikemccabe210.github.io/">Michael McCabe</a> (Polymathic AI).</p>
 <p><strong>Code or software used to generate the data</strong>: <a href="http://www.clawpack.org/">Clawpack (AMRClaw)</a>.</p>
 <p><strong>Equation</strong>: Euler equations for a compressible gas:</p>
-<div class="highlight"><pre><span></span><code>\begin{align}
-U_t + F(U)_x + G(U)_y &amp;= 0 \nonumber\\
-\textrm{where} \quad U = \begin{bmatrix} \rho \nonumber\\ \rho u \\ \rho v \\ e \end{bmatrix}, \quad F(U) = \begin{bmatrix} \rho u \\ \rho u^2 + p \\ \rho u v \\ u(e + p) \end{bmatrix},&amp; \quad G(U) = \begin{bmatrix} \rho v \\ \rho u v \\ \rho v^2 + p \\ v(e + p) \end{bmatrix}, \quad \\ e = \frac{p}{(\gamma - 1)} + \frac{\rho (u^2 + v^2)}{2}&amp;, \quad p = A\rho^{\gamma}. \nonumber
-\end{align}
-</code></pre></div>
+<div class="arithmatex">\[
+\begin{align*}
+U_t + F(U)_x + G(U)_y &amp;= 0 \\
+\textrm{where} \quad U = \begin{bmatrix}
+\rho \\
+\rho u \\
+\rho v \\
+e \end{bmatrix}, \quad F(U) = \begin{bmatrix}
+\rho u \\
+\rho u^2 + p \\
+\rho u v \\
+u(e + p) \end{bmatrix},&amp; \quad G(U) = \begin{bmatrix}
+\rho v \\
+\rho u v \\
+\rho v^2 + p \\
+v(e + p) \end{bmatrix}, \quad \\
+e = \frac{p}{(\gamma - 1)} + \frac{\rho (u^2 + v^2)}{2}&amp;, \quad p = A\rho^{\gamma}.
+\end{align*}
+\]</div>
 <p>with <span class="arithmatex">\(\rho\)</span> the density, <span class="arithmatex">\(u\)</span> and <span class="arithmatex">\(v\)</span> the <span class="arithmatex">\(x\)</span> and <span class="arithmatex">\(y\)</span> velocity components, <span class="arithmatex">\(e\)</span> the energy, <span class="arithmatex">\(p\)</span> the pressure, <span class="arithmatex">\(\gamma\)</span> the gas constant, and <span class="arithmatex">\(A&gt;0\)</span> is a function of entropy.</p>
 <p><img alt="Gif" src="https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/euler_multi_quadrants_openBC/gif/density_normalized.gif" /></p>
 <table>

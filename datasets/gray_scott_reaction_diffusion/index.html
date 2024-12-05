@@ -1182,10 +1182,12 @@
 <p><strong>Domain expert</strong>: <a href="https://danfortunato.com/">Daniel Fortunato</a>, CCM and CCB, Flatiron Institute.</p>
 <p><strong>Code or software used to generate the data</strong>: <a href="https://github.com/danfortunato/spectral-gray-scott">Github repository</a> (MATLAB R2023a, using the stiff PDE integrator implemented in Chebfun. The Fourier spectral method is used in space (with nonlinear terms evaluated pseudospectrally), and the exponential time-differencing fourth-order Runge-Kutta scheme (ETDRK4) is used in time.)</p>
 <p><strong>Equation describing the data</strong></p>
-<div class="highlight"><pre><span></span><code>\begin{align*}
-\frac{\partial A}{\partial t} &amp;= \delta_A\Delta A - AB^2 + f(1-A) \\ \frac{\partial B}{\partial t} &amp;= \delta_B\Delta B - AB^2 - (f+k)B
+<div class="arithmatex">\[
+\begin{align*}
+\frac{\partial A}{\partial t} &amp;= \delta_A\Delta A - AB^2 + f(1-A) \\
+\frac{\partial B}{\partial t} &amp;= \delta_B\Delta B - AB^2 - (f+k)B
 \end{align*}
-</code></pre></div>
+\]</div>
 <p>The dimensionless parameters describing the behavior are: <span class="arithmatex">\(f\)</span> the rate at which <span class="arithmatex">\(A\)</span> is replenished (feed rate), <span class="arithmatex">\(k\)</span> the rate at which <span class="arithmatex">\(B\)</span> is removed from the system, and  <span class="arithmatex">\(\delta_A, \delta_B\)</span> the diffusion coefficients of both species.</p>
 <p><img alt="Gif" src="https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/gray_scott_reaction_diffusion/gif/concentration_A_normalized.gif" /></p>
 <table>

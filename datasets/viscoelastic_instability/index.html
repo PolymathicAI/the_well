@@ -1182,15 +1182,20 @@
 <p><strong>Domain experts</strong>: <a href="https://beneitez.github.io/">Miguel Beneitez</a> and <a href="https://www.damtp.cam.ac.uk/user/rrk26/">Richard Kerswell</a>, DAMTP, University of Cambridge, UK.</p>
 <p><strong>Code or software used to generate the data</strong>: <a href="https://dedalus-project.readthedocs.io/en/latest/index.html">Dedalus</a>.</p>
 <p><strong>Equation</strong>:</p>
-<div class="highlight"><pre><span></span><code>\begin{align*}
-Re(\partial_t \mathbf{u^*} + (\mathbf{u^*}\cdot\nabla)\mathbf{u^*} ) + \nabla p^* &amp;= \beta \Delta \mathbf{u^*} + (1-\beta)\nabla\cdot \mathbf{T}(\mathbf{C^*}),\\
-\partial_t \mathbf{C^*} + (\mathbf{u^*}\cdot\nabla)\mathbf{C^*} +\mathbf{T}(\mathbf{C^*}) &amp;= \mathbf{C^*}\cdot\nabla \mathbf{u^*} + (\nabla \mathbf{u^*})^T \cdot \mathbf{C^*} + \epsilon \Delta \mathbf{C^*}, \\
-\nabla \mathbf{u^*} &amp;= 0,\\
-\textrm{with} \quad \mathbf{T}(\mathbf{C^*}) &amp;= \frac{1}{\text{Wi}}(f(\textrm{tr}(\mathbf{C^*}))\mathbf{C^*} - \mathbf{I}),\\
+<div class="arithmatex">\[
+\begin{align*}
+Re(\partial_t \mathbf{u^\ast} + (\mathbf{u^\ast}\cdot\nabla)\mathbf{u^\ast} ) + \nabla p^\ast &amp;= \beta \Delta \mathbf{u^\ast} + (1-\beta)\nabla\cdot \mathbf{T}(\mathbf{C^\ast}),\\
+\partial_t \mathbf{C^\ast} + (\mathbf{u^\ast}\cdot\nabla)\mathbf{C^\ast} +\mathbf{T}(\mathbf{C^\ast}) &amp;= \mathbf{C^\ast}\cdot\nabla \mathbf{u^\ast} + (\nabla \mathbf{u^\ast})^T \cdot \mathbf{C^\ast} + \epsilon \Delta \mathbf{C^\ast}, \\
+\nabla \mathbf{u^\ast} &amp;= 0,
+\end{align*}
+\]</div>
+<div class="arithmatex">\[
+\begin{align*}
+\textrm{with} \quad \mathbf{T}(\mathbf{C^\ast}) &amp;= \frac{1}{\text{Wi}}(f(\textrm{tr}(\mathbf{C^\ast}))\mathbf{C^\ast} - \mathbf{I}),\\
 \textrm{and} \quad f(s) &amp;:= \left(1- \frac{s-3}{L^2_{max}}\right)^{-1}.
 \end{align*}
-</code></pre></div>
-<p>where <span class="arithmatex">\(\mathbf{u^*} = (u^*,v^*)\)</span> is the streamwise and wall-normal velocity components, <span class="arithmatex">\(p^*\)</span> is the pressure, <span class="arithmatex">\(\mathbf{C^*}\)</span> is the positive definite conformation tensor which represents the ensemble average of the produce of the end-to-end vector of the polymer molecules. In 2D, 4 components of the tensor are solved: <span class="arithmatex">\(c_{xx}^{*}, c^{*}_{yy}, c^{*}_{zz}, c^{*}_{xy}\)</span>. <span class="arithmatex">\(\mathbf{T}(\mathbf{C^{*}})\)</span> is the polymer stress tensor given by the FENE-P model.</p>
+\]</div>
+<p>where <span class="arithmatex">\(\mathbf{u^\ast} = (u^\ast,v^\ast)\)</span> is the streamwise and wall-normal velocity components, <span class="arithmatex">\(p^\ast\)</span> is the pressure, <span class="arithmatex">\(\mathbf{C^\ast}\)</span> is the positive definite conformation tensor which represents the ensemble average of the produce of the end-to-end vector of the polymer molecules. In 2D, 4 components of the tensor are solved: <span class="arithmatex">\(c_{xx}^\ast, c_{yy}^\ast, c_{zz}^\ast, c_{xy}^\ast\)</span>. <span class="arithmatex">\(\mathbf{T}(\mathbf{C^\ast})\)</span> is the polymer stress tensor given by the FENE-P model.</p>
 <p><img alt="Gif" src="https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability/gif/czz_normalized.gif" /></p>
 <table>
 <thead>
@@ -1222,7 +1227,7 @@ Re(\partial_t \mathbf{u^*} + (\mathbf{u^*}\cdot\nabla)\mathbf{u^*} ) + \nabla p^
 - Transition to non-chaotic state between EIT and SAR: 38 snapshots with 20 timesteps of 512x512 images.
 - Transition to chaos between EIT and Laminar: 43 snapshots with 20 timesteps of 512x512 images.
 - Transition to non-chaotic state between EIT and Laminar: 49 snapshots with 20 timesteps of 512x512 images.</p>
-<p><strong>Fields available in the data:</strong> pressure (scalar field), velocity (vector field), positive conformation tensor ( <span class="arithmatex">\(c_{xx}^{*}, c^{*}_{yy},, c^{*}_{xy}\)</span> are in tensor fields, <span class="arithmatex">\(c^{*}_{zz}\)</span> in scalar fields).</p>
+<p><strong>Fields available in the data:</strong> pressure (scalar field), velocity (vector field), positive conformation tensor ( <span class="arithmatex">\(c_{xx}^\ast, c_{yy}^\ast, c_{xy}^\ast\)</span> are in tensor fields, <span class="arithmatex">\(c_{zz}^\ast\)</span> in scalar fields).</p>
 <p><strong>Number of trajectories:</strong> 260 trajectories.</p>
 <p><strong>Estimated size of the ensemble of all simulations:</strong> 66 GB.</p>
 <p><strong>Grid type:</strong> uniform cartesian coordinates.</p>
@@ -1231,7 +1236,7 @@ Re(\partial_t \mathbf{u^*} + (\mathbf{u^*}\cdot\nabla)\mathbf{u^*} ) + \nabla p^
 - SAR: continuation of the solution obtained through a linear instability at a different parameter set using time-stepping.
 - EIT: laminar state + blowing and suction at the walls.
 - CAR: SAR + blowing and suction at the walls.</p>
-<p><strong>Boundary conditions:</strong> no slip conditions for the velocity <span class="arithmatex">\((u^*,v^*)=(0,0)\)</span> at the wall and <span class="arithmatex">\(\epsilon=0\)</span> at the wall for the equation for <span class="arithmatex">\(\mathbf{C^*}\)</span>.</p>
+<p><strong>Boundary conditions:</strong> no slip conditions for the velocity <span class="arithmatex">\((u^\ast,v^\ast)=(0,0)\)</span> at the wall and <span class="arithmatex">\(\epsilon=0\)</span> at the wall for the equation for <span class="arithmatex">\(\mathbf{C^\ast}\)</span>.</p>
 <p><strong>Simulation time-step:</strong> various in the different states, but typically <span class="arithmatex">\(\sim 10^{-4}\)</span>.</p>
 <p><strong>Data are stored separated by (<span class="arithmatex">\(\Delta t\)</span>):</strong> various at different states, but typically 1.</p>
 <p><strong>Total time range (<span class="arithmatex">\(t_{min}\)</span> to <span class="arithmatex">\(t_{max}\)</span>):</strong> depends on the simulation.</p>
