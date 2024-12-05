@@ -12,7 +12,7 @@ WELL_REGISTRY: str = os.path.join(os.path.dirname(__file__), "registry.yaml")
 def create_url_registry(
     registry_path: str = WELL_REGISTRY,
     base_path: str = "/mnt/ceph/users/polymathic/the_well",
-    base_url: str = "https://users.flatironinstitute.org/~polymathic/data/the_well",
+    base_url: str = "https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well",
 ):
     """Create The Well URL registry.
 
