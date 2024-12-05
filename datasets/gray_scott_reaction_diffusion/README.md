@@ -12,11 +12,12 @@
 
 **Equation describing the data**
 
-```math
+$$
 \begin{align*}
-\frac{\partial A}{\partial t} &= \delta_A\Delta A - AB^2 + f(1-A) \\ \frac{\partial B}{\partial t} &= \delta_B\Delta B - AB^2 - (f+k)B
+\frac{\partial A}{\partial t} &= \delta_A\Delta A - AB^2 + f(1-A) \\
+\frac{\partial B}{\partial t} &= \delta_B\Delta B - AB^2 - (f+k)B
 \end{align*}
-```
+$$
 
 The dimensionless parameters describing the behavior are: $f$ the rate at which $A$ is replenished (feed rate), $k$ the rate at which $B$ is removed from the system, and  $\delta_A, \delta_B$ the diffusion coefficients of both species.
 

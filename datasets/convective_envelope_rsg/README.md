@@ -12,14 +12,19 @@
 
 **Equations**
 
-```math
+$$
 \begin{align*}
 \frac{\partial\rho}{\partial t}+\mathbf{\nabla}\cdot(\rho\mathbf{v})&=0\\
-\frac{\partial(\rho\mathbf{v})}{\partial t}+\mathbf{\nabla}\cdot({\rho\mathbf{v}\mathbf{v}+{{\sf P_{\rm gas}}}}) &=-\mathbf{G}_r-\rho\mathbf{\nabla}\Phi \\
-\frac{\partial{E}}{\partial t}+\mathbf{\nabla}\cdot\left[(E+ P_{\rm gas})\mathbf{v}\right] &= -c G^0_r -\rho\mathbf{v}\cdot\mathbf{\nabla}\Phi\\
+\frac{\partial(\rho\mathbf{v})}{\partial t}+\mathbf{\nabla}\cdot({\rho\mathbf{v}\mathbf{v}+{{\sf P_{\rm gas}}}}) &=-\mathbf{G}_r-\rho\mathbf{\nabla}\Phi
+\end{align*}
+$$
+
+$$
+\begin{align*}
+\frac{\partial{E}}{\partial t}+\mathbf{\nabla}\cdot\left[(E+ P_{\rm gas})\mathbf{v}\right] &= -c G^0_r -\rho\mathbf{v}\cdot\mathbf{\nabla}\Phi \\
 \frac{\partial I}{\partial t}+c\mathbf{n}\cdot\mathbf{\nabla} I &= S(I,\mathbf{n})
 \end{align*}
-```
+$$
 
 where
 
