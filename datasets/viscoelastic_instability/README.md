@@ -12,17 +12,22 @@
 
 **Equation**:
 
-```math
+$$
 \begin{align*}
-Re(\partial_t \mathbf{u^*} + (\mathbf{u^*}\cdot\nabla)\mathbf{u^*} ) + \nabla p^* &= \beta \Delta \mathbf{u^*} + (1-\beta)\nabla\cdot \mathbf{T}(\mathbf{C^*}),\\
-\partial_t \mathbf{C^*} + (\mathbf{u^*}\cdot\nabla)\mathbf{C^*} +\mathbf{T}(\mathbf{C^*}) &= \mathbf{C^*}\cdot\nabla \mathbf{u^*} + (\nabla \mathbf{u^*})^T \cdot \mathbf{C^*} + \epsilon \Delta \mathbf{C^*}, \\
-\nabla \mathbf{u^*} &= 0,\\
-\textrm{with} \quad \mathbf{T}(\mathbf{C^*}) &= \frac{1}{\text{Wi}}(f(\textrm{tr}(\mathbf{C^*}))\mathbf{C^*} - \mathbf{I}),\\
+Re(\partial_t \mathbf{u^\ast} + (\mathbf{u^\ast}\cdot\nabla)\mathbf{u^\ast} ) + \nabla p^\ast &= \beta \Delta \mathbf{u^\ast} + (1-\beta)\nabla\cdot \mathbf{T}(\mathbf{C^\ast}),\\
+\partial_t \mathbf{C^\ast} + (\mathbf{u^\ast}\cdot\nabla)\mathbf{C^\ast} +\mathbf{T}(\mathbf{C^\ast}) &= \mathbf{C^\ast}\cdot\nabla \mathbf{u^\ast} + (\nabla \mathbf{u^\ast})^T \cdot \mathbf{C^\ast} + \epsilon \Delta \mathbf{C^\ast}, \\
+\nabla \mathbf{u^\ast} &= 0,
+\end{align*}
+$$
+
+$$
+\begin{align*}
+\textrm{with} \quad \mathbf{T}(\mathbf{C^\ast}) &= \frac{1}{\text{Wi}}(f(\textrm{tr}(\mathbf{C^\ast}))\mathbf{C^\ast} - \mathbf{I}),\\
 \textrm{and} \quad f(s) &:= \left(1- \frac{s-3}{L^2_{max}}\right)^{-1}.
 \end{align*}
-```
+$$
 
-where $\mathbf{u^*} = (u^*,v^*)$ is the streamwise and wall-normal velocity components, $p^*$ is the pressure, $\mathbf{C^*}$ is the positive definite conformation tensor which represents the ensemble average of the produce of the end-to-end vector of the polymer molecules. In 2D, 4 components of the tensor are solved: $c_{xx}^{*}, c^{*}_{yy}, c^{*}_{zz}, c^{*}_{xy}$. $\mathbf{T}(\mathbf{C^{*}})$ is the polymer stress tensor given by the FENE-P model.
+where $\mathbf{u^\ast} = (u^\ast,v^\ast)$ is the streamwise and wall-normal velocity components, $p^\ast$ is the pressure, $\mathbf{C^\ast}$ is the positive definite conformation tensor which represents the ensemble average of the produce of the end-to-end vector of the polymer molecules. In 2D, 4 components of the tensor are solved: $c_{xx}^\ast, c_{yy}^\ast, c_{zz}^\ast, c_{xy}^\ast$. $\mathbf{T}(\mathbf{C^\ast})$ is the polymer stress tensor given by the FENE-P model.
 
 
 ![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability/gif/czz_normalized.gif)
@@ -44,7 +49,7 @@ Table: VRMSE metrics on test sets (lower is better). Best results are shown in b
 - Transition to chaos between EIT and Laminar: 43 snapshots with 20 timesteps of 512x512 images.
 - Transition to non-chaotic state between EIT and Laminar: 49 snapshots with 20 timesteps of 512x512 images.
 
-**Fields available in the data:** pressure (scalar field), velocity (vector field), positive conformation tensor ( $c_{xx}^{*}, c^{*}_{yy},, c^{*}_{xy}$ are in tensor fields, $c^{*}_{zz}$ in scalar fields).
+**Fields available in the data:** pressure (scalar field), velocity (vector field), positive conformation tensor ( $c_{xx}^\ast, c_{yy}^\ast, c_{xy}^\ast$ are in tensor fields, $c_{zz}^\ast$ in scalar fields).
 
 **Number of trajectories:** 260 trajectories.
 
@@ -58,7 +63,7 @@ Table: VRMSE metrics on test sets (lower is better). Best results are shown in b
 - EIT: laminar state + blowing and suction at the walls.
 - CAR: SAR + blowing and suction at the walls.
 
-**Boundary conditions:** no slip conditions for the velocity $(u^*,v^*)=(0,0)$ at the wall and $\epsilon=0$ at the wall for the equation for $\mathbf{C^*}$.
+**Boundary conditions:** no slip conditions for the velocity $(u^\ast,v^\ast)=(0,0)$ at the wall and $\epsilon=0$ at the wall for the equation for $\mathbf{C^\ast}$.
 
 **Simulation time-step:** various in the different states, but typically $\sim 10^{-4}$.
 

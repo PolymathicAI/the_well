@@ -14,24 +14,25 @@
 
 The fluid sector consists of the following system of equations.
 
-```math
+$$
 \begin{align*}
-  \partial_t \left(\sqrt{g}\rho_0 u^t\right) + \partial_i\left(\sqrt{g}\rho_0u^i\right)
-  &= 0\\
-  \partial_t\left[\sqrt{g} \left(T^t_{\ \nu} + \rho_0u^t \delta^t_\nu\right)\right]
-  + \partial_i\left[\sqrt{g}\left(T^i_{\ \nu} + \rho_0 u^i \delta^t_\nu\right)\right]
-  &= \sqrt{g} \left(T^\kappa_{\ \lambda} \Gamma^\lambda_{\nu\kappa} + G_\nu\right)\,\,\,\, \forall \nu = 0,1,\ldots,4\\
-  \partial_t \left(\sqrt{g} B^i\right) + \partial_j \left[\sqrt{g}\left(b^ju^i - b^i u^j\right)\right] &= 0\\
-  \partial_t\left(\sqrt{g}\rho_0 Y_e u^t\right) + \partial_i\left(\sqrt{g}\rho_0Y_eu^i\right)
-  &= \sqrt{g} G_{\text{ye}}
+  \partial_t \left(\sqrt{g}\rho_0 u^t\right) + \partial_i\left(\sqrt{g}\rho_0u^i\right) &= 0 \\
+  \partial_t\left[\sqrt{g} \left(T^t_{\ \nu} + \rho_0u^t \delta^t_\nu\right)\right] + \partial_i\left[\sqrt{g}\left(T^i_{\ \nu} + \rho_0 u^i \delta^t_\nu\right)\right] &= \sqrt{g} \left(T^\kappa_{\ \lambda} \Gamma^\lambda_{\nu\kappa} + G_\nu\right)\,\,\,\, \forall \nu = 0,1,\ldots,4
 \end{align*}
-```
+$$
+
+$$
+\begin{align*}
+  \partial_t \left(\sqrt{g} B^i\right) + \partial_j \left[\sqrt{g}\left(b^ju^i - b^i u^j\right)\right] &= 0 \\
+  \partial_t\left(\sqrt{g}\rho_0 Y_e u^t\right) + \partial_i\left(\sqrt{g}\rho_0Y_eu^i\right) &= \sqrt{g} G_{\text{ye}}
+\end{align*}
+$$
 
 The standard radiative transfer equation is
 
-```math
-  \frac{D}{d\lambda}\left(\frac{h^3\mathcal{I}_{\nu,f}}{\varepsilon^3}\right) = \left(\frac{h^2\eta_{\nu,f}}{\varepsilon^2}\right) - \left(\frac{\varepsilon \chi_{\nu,f}}{h}\right) \left(\frac{h^3\mathcal{I}_{\nu,f}}{\varepsilon^3}\right)
-```
+$$
+\frac{D}{d\lambda}\left(\frac{h^3\mathcal{I}_{\nu,f}}{\varepsilon^3}\right) = \left(\frac{h^2\eta _{\nu,f}}{\varepsilon^2}\right) - \left(\frac{\varepsilon \chi _{\nu,f}}{h}\right) \left(\frac{h^3\mathcal{I} _{\nu,f}}{\varepsilon^3}\right)
+$$
 
 <p align="center"> <img src="https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/post_neutron_star_merger/gif/Ye_good_normalized.gif" width="50%"></p>
 
