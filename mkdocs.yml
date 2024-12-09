@@ -48,12 +48,13 @@ nav:
   - Data Visualization: "https://huggingface.co/spaces/polymathic-ai/TheWell"
   - API: api.md
   - Benchmarks: benchmarks.md
+  - FAQ: "https://github.com/PolymathicAI/the_well/discussions/categories/q-a?discussions_q=category%3AQ%26A+"
 extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/PolymathicAI/the_well
-    - icon: fontawesome/solid/file-lines
-      link: https://openreview.net/pdf?id=00Sx577BT3
+    - icon: simple/arxiv
+      link: https://arxiv.org/abs/2412.00568
     - icon: fontawesome/solid/at
       link: https://polymathic-ai.org/
     - icon: fontawesome/brands/x-twitter

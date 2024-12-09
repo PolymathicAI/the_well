@@ -4,7 +4,18 @@
 
 <br>
 
+<div align="center">
+
+![Test Workflow](https://github.com/PolymathicAI/the_well/actions/workflows/tests.yaml/badge.svg)
+[![PyPI](https://img.shields.io/pypi/v/the_well)](https://pypi.org/project/the-well/)
+[![Docs](https://img.shields.io/badge/docs-latest---?color=25005a&labelColor=grey)](https://polymathic-ai.org/the_well/)
+[![arXiv](https://img.shields.io/badge/arXiv-2412.00568---?logo=arXiv&labelColor=b31b1b&color=grey)](https://arxiv.org/abs/2412.00568)
+[![NeurIPS](https://img.shields.io/badge/NeurIPS-2024---?logo=https%3A%2F%2Fneurips.cc%2Fstatic%2Fcore%2Fimg%2FNeurIPS-logo.svg&labelColor=68448B&color=b3b3b3)](https://openreview.net/forum?id=00Sx577BT3)
+
+</div>
+
 # The Well: 15TB of Physics Simulations
+
 
 Welcome to the Well, a large-scale collection of machine learning datasets containing numerical simulations of a wide variety of spatiotemporal physical systems. The Well draws from domain scientists and numerical software developers to provide 15TB of data across 16 datasets covering diverse domains such as biological systems, fluid dynamics, acoustic scattering, as well as magneto-hydrodynamic simulations of extra-galactic fluids or supernova explosions. These datasets can be used individually or as part of a broader benchmark suite for accelerating research in machine learning and computational sciences.
 
@@ -125,7 +136,7 @@ You can use this command within a sbatch script to launch the training with Slur
 
 ## Citation
 
-This project has been led by the <a href="https://polymathic-ai.org/">Polymathic AI</a> organization, in collaboration with researchers from the Flatiron Institute, University of Colorado Boulder, University of Cambridge, New York University, Rutgers University, Cornell University, University of Tokyo, Los Alamos Natioinal Laboratory, University of Califronia, Berkeley, Princeton University, CEA DAM, and University of Liège.
+This project has been led by the <a href="https://polymathic-ai.org/">Polymathic AI</a> organization, in collaboration with researchers from the Flatiron Institute, University of Colorado Boulder, University of Cambridge, New York University, Rutgers University, Cornell University, University of Tokyo, Los Alamos Natioinal Laboratory, University of California, Berkeley, Princeton University, CEA DAM, and University of Liège.
 
 If you find this project useful for your research, please consider citing
 
@@ -141,8 +152,7 @@ If you find this project useful for your research, please consider citing
 
 ## Contact
 
-For questions regarding this project, please contact [Ruben Ohana](https://rubenohana.github.io/) and [Michael McCabe](https://mikemccabe210.github.io/) at $\small\texttt{\{rohana,mmcabe\}@flatironinstitute.org}$.
-
+For questions regarding this project, please contact [Ruben Ohana](https://rubenohana.github.io/) and [Michael McCabe](https://mikemccabe210.github.io/) at {rohana,mmccabe}@flatironinstitute.org.
 
 ## Bug Reports and Feature Requests
 

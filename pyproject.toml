@@ -44,7 +44,7 @@ classifiers = [
 ]
 
 [project.urls]
-documentation = "https://the-well.polymathic-ai.org"
+documentation = "https://polymathic-ai.org/the_well"
 organization = "https://polymathic-ai.org/"
 source = "https://github.com/PolymathicAI/the_well"
 tracker = "https://github.com/PolymathicAI/the_well/issues"

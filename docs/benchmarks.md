@@ -20,7 +20,7 @@ We emphasize that these settings are not selected to explore peak performance of
 | `post_neutron_star_merger`       | 0.3866  | **0.3793** | -     | -               |
 | `rayleigh_benard`                | 0.8395  | **0.6566** | 1.4860 | 0.6699         |
 | `rayleigh_taylor_instability` (At = 0.25) | >10     | >10     | >10     | >10     |
-| `shear_flow`                     | 0.1567  | **0.1348** | 0.5910 | 0.2037         |
+| `shear_flow`                     |  1.189  | 1.472   | 3.447   |  **0.8080**      |
 | `supernova_explosion_64`         | 0.3783  | 0.3785  | **0.3063** | 0.3181        |
 | `turbulence_gravity_cooling`     | 0.2429  | 0.2673  | 0.6753  | **0.2096**       |
 | `turbulent_radiative_layer_2D`   | 0.5001  | 0.5016  | 0.2418  | **0.1956**       |
@@ -46,7 +46,7 @@ We emphasize that these settings are not selected to explore peak performance of
 | `post_neutron_star_merger`           | 0.4144  | **0.4064** | -       | -             |
 | `rayleigh_benard`                    | 0.6049  | 0.8568  | 0.8448  | **0.4807**       |
 | `rayleigh_taylor_instability` (At = 0.25) | 0.4013  | **0.2251** | 0.6140  | 0.3771   |
-| `shear_flow`                         | 0.2963  | **0.2087** | 0.5799  | 0.3258        |
+| `shear_flow`                         | 0.4450  | **0.3626** | 0.836 | 0.3972          |
 | `supernova_explosion_64`             | 0.3804  | 0.3645  | 0.3242  | **0.2801**       |
 | `turbulence_gravity_cooling`         | 0.2381  | 0.2789  | 0.3152  | **0.2093**       |
 | `turbulent_radiative_layer_2D`       | 0.4906  | 0.4938  | 0.2394  | **0.1247**       |
@@ -71,7 +71,7 @@ We emphasize that these settings are not selected to explore peak performance of
 | `post_neutron_star_merger`           | 0.76       | **0.70**    | ---          | ---                |
 | `rayleigh_benard`                    | $>$10      | $>$10       | $>$10        | $>$10              |
 | `rayleigh_taylor_instability`        | $>$10      | **6.72**    | $>$10        | $>$10              |
-| `shear_flow`                         | 1.62       | 1.63        | 1.22         | **0.32**           |
+| `shear_flow`                         | $>$10       | $>$10      | $>$10        | **2.33**           |
 | `supernova_explosion_64`             | 2.41       | 1.86        | **0.94**     | 1.12               |
 | `turbulence_gravity_cooling`         | 3.55       | 4.49        | 7.14         | **1.30**           |
 | `turbulent_radiative_layer_2D`       | 1.79       | 6.01        | 0.66         | **0.54**           |
@@ -93,7 +93,7 @@ We emphasize that these settings are not selected to explore peak performance of
 | `post_neutron_star_merger`           | 1.05        | <u>1.05</u>  | ---           | ---                |
 | `rayleigh_benard`                    | $>$10       | $>$10        | $>$10         | $>$10              |
 | `rayleigh_taylor_instability`        | $>$10       | $>$10        | <u>2.84</u>   | 7.43               |
-| `shear_flow`                         | $>$10       | $>$10        | $>$10         | 1.91               |
+| `shear_flow`                         | $>$10       | $>$10        | $>$10         | $>$10              |
 | `supernova_explosion_64`             | $>$10       | $>$10        | <u>1.69</u>   | 4.55               |
 | `turbulence_gravity_cooling`         | 5.63        | 6.95         | 4.15          | <u>2.09</u>        |
 | `turbulent_radiative_layer_2D`       | 3.54        | $>$10        | 1.04          | <u>1.01</u>        |

@@ -39,7 +39,7 @@ Table: VRMSE metrics on test sets (lower is better). Best results are shown in b
 
 ## About the data
 
-**Dimension of discretized data:** 60 time-steps of 128 $\times$ 128 $\times$ 128 cubes.
+**Dimension of discretized data:** 119 time-steps of 128 $\times$ 128 $\times$ 128 cubes.
 
 **Fields available in the data:** Density (scalar field), velocity (vector field).
 

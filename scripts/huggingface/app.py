@@ -182,7 +182,7 @@ st.set_page_config(
 )
 st.image("assets/the_well_logo.png")
 st.markdown("""
-    [The Well](https://openreview.net/pdf?id=00Sx577BT3) is a collection of 15TB datasets of physics simulations.
+    [The Well](https://arxiv.org/abs/2412.00568) is a collection of 15TB datasets of physics simulations.
 
     This space allows you to tap into the Well by visualizing different datasets hosted on the [Hugging Face Hub](https://huggingface.co/polymathic-ai).
     - Select a dataset
@@ -192,7 +192,7 @@ st.markdown("""
 
     For field corresponding of higher tensor order (e.g. velocity) loading the data may be slow.
     For this reason, we recommend downloading the data to work on the Well.
-    Check the [documentation](the-well.polymathic-ai.org) for more information.
+    Check the [documentation](polymathic-ai.org/the_well) for more information.
 
 """)
 # The order of the following widget matters
