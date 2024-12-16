@@ -6,6 +6,8 @@ from typing import Optional
 
 import yaml
 
+from the_well.data.utils import WELL_DATASETS
+
 WELL_REGISTRY: str = os.path.join(os.path.dirname(__file__), "registry.yaml")
 
 
@@ -21,37 +23,11 @@ def create_url_registry(
         base_path: The path where the 'datasets' directory is located.
         base_url: The base URL of the files.
     """
-
-    datasets = [
-        "acoustic_scattering_discontinuous",
-        "acoustic_scattering_inclusions",
-        "acoustic_scattering_maze",
-        "active_matter",
-        "convective_envelope_rsg",
-        "euler_multi_quadrants_openBC",
-        "euler_multi_quadrants_periodicBC",
-        "helmholtz_staircase",
-        "MHD_64",
-        "MHD_256",
-        "gray_scott_reaction_diffusion",
-        "planetswe",
-        "post_neutron_star_merger",
-        "rayleigh_benard",
-        "rayleigh_taylor_instability",
-        "shear_flow",
-        "supernova_explosion_64",
-        "supernova_explosion_128",
-        "turbulence_gravity_cooling",
-        "turbulent_radiative_layer_2D",
-        "turbulent_radiative_layer_3D",
-        "viscoelastic_instability",
-    ]
-
     splits = ["train", "valid", "test"]
 
     registry = {}
 
-    for dataset in datasets:
+    for dataset in WELL_DATASETS:
         registry[dataset] = {}
 
         for split in splits:
