@@ -21,37 +21,11 @@ import torch
 import yaml
 from torch.utils.data import Dataset
 
-from the_well.data.utils import IO_PARAMS
+from the_well.data.utils import IO_PARAMS, WELL_DATASETS, is_dataset_in_the_well
 from the_well.utils.export import hdf5_to_xarray
 
 if TYPE_CHECKING:
     from .augmentation import Augmentation
-
-WELL_DATASETS = [
-    "acoustic_scattering_maze",
-    "acoustic_scattering_inclusions",
-    "acoustic_scattering_discontinuous",
-    "active_matter",
-    "convective_envelope_rsg",
-    "euler_multi_quadrants_openBC",
-    "euler_multi_quadrants_periodicBC",
-    "helmholtz_staircase",
-    "MHD_256",
-    "MHD_64",
-    "gray_scott_reaction_diffusion",
-    "planetswe",
-    "post_neutron_star_merger",
-    "rayleigh_benard",
-    "rayleigh_taylor_instability",
-    "shear_flow",
-    "supernova_explosion_64",
-    "supernova_explosion_128",
-    "turbulence_gravity_cooling",
-    "turbulent_radiative_layer_2D",
-    "turbulent_radiative_layer_3D",
-    "viscoelastic_instability",
-    "dummy",
-]
 
 
 def raw_steps_to_possible_sample_t0s(
@@ -275,8 +249,8 @@ class WellDataset(Dataset):
             self.normalization_path = os.path.join(path, normalization_path)
 
         else:
-            assert (
-                well_dataset_name in WELL_DATASETS
+            assert is_dataset_in_the_well(
+                well_dataset_name
             ), f"Dataset name {well_dataset_name} not in the expected list {WELL_DATASETS}."
             self.data_path = os.path.join(
                 well_base_path, well_dataset_name, "data", well_split_name

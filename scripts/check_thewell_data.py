@@ -6,7 +6,7 @@ from typing import List
 import h5py
 import numpy as np
 
-from the_well.data.datasets import WELL_DATASETS
+from the_well.data.utils import WELL_DATASETS
 
 
 def check_bc(bc: str) -> str:
