@@ -27,6 +27,28 @@ class MSE(Metric):
         return torch.mean((x - y) ** 2, dim=n_spatial_dims)
 
 
+class MAE(Metric):
+    @staticmethod
+    def eval(
+        x: torch.Tensor | np.ndarray,
+        y: torch.Tensor | np.ndarray,
+        meta: WellMetadata,
+    ) -> torch.Tensor:
+        """
+        Mean Absolute Error
+
+        Args:
+            x: Input tensor.
+            y: Target tensor.
+            meta: Metadata for the dataset.
+
+        Returns:
+            Mean absolute error between x and y.
+        """
+        n_spatial_dims = tuple(range(-meta.n_spatial_dims - 1, -1))
+        return torch.mean((x - y).abs(), dim=n_spatial_dims)
+
+
 class NMSE(Metric):
     @staticmethod
     def eval(

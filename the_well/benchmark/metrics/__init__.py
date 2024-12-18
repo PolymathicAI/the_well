@@ -4,10 +4,11 @@ from .plottable_data import (
     plot_all_time_metrics,
     plot_power_spectrum_by_field,
 )
-from .spatial import MSE, NMSE, NRMSE, RMSE, VMSE, VRMSE, LInfinity
+from .spatial import MAE, MSE, NMSE, NRMSE, RMSE, VMSE, VRMSE, LInfinity
 from .spectral import binned_spectral_mse
 
 __all__ = [
+    "MAE",
     "NRMSE",
     "RMSE",
     "MSE",
