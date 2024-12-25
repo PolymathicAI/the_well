@@ -42,6 +42,7 @@ WELL_DATASETS = [
     "planetswe",
     "post_neutron_star_merger",
     "rayleigh_benard",
+    "rayleigh_benard_uniform",
     "rayleigh_taylor_instability",
     "shear_flow",
     "supernova_explosion_64",
@@ -203,6 +204,8 @@ class WellDataset(Dataset):
             Only include files whose name contains at least one of these strings
         exclude_filters:
             Exclude any files whose name contains at least one of these strings
+        append_split:
+            Append split name to path
         use_normalization:
             Whether to normalize data in the dataset
         n_steps_input:
@@ -249,6 +252,7 @@ class WellDataset(Dataset):
         well_split_name: str = "train",
         include_filters: List[str] = [],
         exclude_filters: List[str] = [],
+        append_split: bool = True,
         use_normalization: bool = False,
         max_rollout_steps=100,
         n_steps_input: int = 1,
@@ -273,6 +277,8 @@ class WellDataset(Dataset):
         if path is not None:
             self.data_path = path
             self.normalization_path = os.path.join(path, normalization_path)
+            if append_split:
+                self.data_path = os.path.join(path, "data", well_split_name)
 
         else:
             assert (
