@@ -252,7 +252,7 @@ class WellDataset(Dataset):
         well_split_name: str = "train",
         include_filters: List[str] = [],
         exclude_filters: List[str] = [],
-        append_split: bool = True,
+        append_split: bool = False,
         use_normalization: bool = False,
         max_rollout_steps=100,
         n_steps_input: int = 1,
