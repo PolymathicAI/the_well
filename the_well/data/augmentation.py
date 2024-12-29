@@ -3,9 +3,44 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Tuple
 
+import numpy as np
 import torch
 
 from .datasets import BoundaryCondition, TrajectoryData, TrajectoryMetadata
+
+PROPER_2D_ROTATIONS = [
+    ((0, 1), (0, 0)),  # 0 - x, y -> x, y
+    ((1, 0), (0, 1)),  # 90 - x, y -> y, -x
+    ((0, 1), (1, 1)),  # 180 - x, y -> -x, -y
+    ((1, 0), (1, 0)),  # 270 - x, y -> -y, x
+]
+
+PROPER_3D_ROTATIONS = [
+    ((0, 1, 2), [1, 1, 0]),
+    ((0, 1, 2), [1, 0, 1]),
+    ((0, 1, 2), [0, 1, 1]),
+    ((0, 1, 2), [0, 0, 0]),
+    ((0, 2, 1), [1, 1, 1]),
+    ((0, 2, 1), [1, 0, 0]),
+    ((0, 2, 1), [0, 1, 0]),
+    ((0, 2, 1), [0, 0, 1]),
+    ((1, 0, 2), [1, 1, 1]),
+    ((1, 0, 2), [1, 0, 0]),
+    ((1, 0, 2), [0, 1, 0]),
+    ((1, 0, 2), [0, 0, 1]),
+    ((1, 2, 0), [1, 1, 0]),
+    ((1, 2, 0), [1, 0, 1]),
+    ((1, 2, 0), [0, 1, 1]),
+    ((1, 2, 0), [0, 0, 0]),
+    ((2, 0, 1), [1, 1, 0]),
+    ((2, 0, 1), [1, 0, 1]),
+    ((2, 0, 1), [0, 1, 1]),
+    ((2, 0, 1), [0, 0, 0]),
+    ((2, 1, 0), [1, 1, 1]),
+    ((2, 1, 0), [1, 0, 0]),
+    ((2, 1, 0), [0, 1, 0]),
+    ((2, 1, 0), [0, 0, 1]),
+]
 
 
 class Augmentation(ABC):
@@ -87,6 +122,9 @@ class RandomAxisFlip(Augmentation):
         self, data: TrajectoryData, metadata: TrajectoryMetadata
     ) -> TrajectoryData:
         spatial = metadata.dataset.n_spatial_dims
+        # Geometric augmentations for non-euclidean data not implemented yet
+        if metadata.dataset.metadata.grid_type != "cartesian":
+            return data
         # i-th dim is flipped if mask[i] == True
         mask = torch.rand(spatial) < self.p
 
@@ -161,7 +199,9 @@ class RandomAxisPermute(Augmentation):
         self, data: TrajectoryData, metadata: TrajectoryMetadata
     ) -> TrajectoryData:
         spatial = metadata.dataset.n_spatial_dims
-
+        # Geometric augmentations for non-euclidean data not implemented yet
+        if metadata.dataset.metadata.grid_type != "cartesian":
+            return data
         if torch.rand(()) < self.p:
             permutation = torch.randperm(spatial)
         else:
@@ -236,7 +276,9 @@ class RandomAxisRoll(Augmentation):
         self, data: TrajectoryData, metadata: TrajectoryMetadata
     ) -> TrajectoryData:
         shape = metadata.dataset.metadata.spatial_resolution
-
+        # Geometric augmentations for non-euclidean data not implemented yet
+        if metadata.dataset.metadata.grid_type != "cartesian":
+            return data
         bc = data["boundary_conditions"]
 
         periodic = torch.all(bc == BoundaryCondition.PERIODIC.value, dim=-1)
@@ -286,3 +328,43 @@ class RandomAxisRoll(Augmentation):
             )
 
         return data
+
+
+class RandomRotation90(Augmentation):
+    """Applies a random multiple of 90 degree rotation by decomposing
+    the rotation into axis permutations and reflections. Selects from
+    prepopulated set of proper rotations."""
+
+    def __init__(self, p: float = 1.0):
+        self.p = p
+
+    def __call__(
+        self, data: TrajectoryData, metadata: TrajectoryMetadata
+    ) -> TrajectoryData:
+        spatial = metadata.dataset.n_spatial_dims
+        # Geometric augmentations for non-euclidean data not implemented yet
+        if (
+            metadata.dataset.metadata.grid_type != "cartesian"
+            or torch.rand(()) > self.p
+        ):
+            return data
+
+        if spatial == 2:
+            permutation, reflection_mask = np.random.choice(PROPER_2D_ROTATIONS)
+        elif spatial == 3:
+            permutation, reflection_mask = np.random.choice(PROPER_3D_ROTATIONS)
+        permutation, reflection_mask = (
+            torch.tensor(permutation),
+            torch.tensor(reflection_mask),
+        )
+        data = self.rotate(data, permutation, reflection_mask)
+        return self.rotate(data)
+
+    @staticmethod
+    def rotate90(
+        data: TrajectoryData,
+        permutation: torch.Tensor,
+        reflection_mask: torch.Tensor,
+    ) -> TrajectoryData:
+        data = RandomAxisPermute.permute(data, permutation)
+        return RandomAxisFlip.flip(data, reflection_mask)
