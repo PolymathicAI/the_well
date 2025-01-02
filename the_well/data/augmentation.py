@@ -350,15 +350,16 @@ class RandomRotation90(Augmentation):
             return data
 
         if spatial == 2:
-            permutation, reflection_mask = np.random.choice(PROPER_2D_ROTATIONS)
+            chosen_ind = np.random.choice(len(PROPER_2D_ROTATIONS))
+            permutation, reflection_mask = PROPER_2D_ROTATIONS[chosen_ind]
         elif spatial == 3:
-            permutation, reflection_mask = np.random.choice(PROPER_3D_ROTATIONS)
+            chosen_ind = np.random.choice(len(PROPER_3D_ROTATIONS))
+            permutation, reflection_mask = PROPER_3D_ROTATIONS[chosen_ind]
         permutation, reflection_mask = (
             torch.tensor(permutation),
             torch.tensor(reflection_mask),
         )
-        data = self.rotate(data, permutation, reflection_mask)
-        return self.rotate(data)
+        return self.rotate90(data, permutation, reflection_mask)
 
     @staticmethod
     def rotate90(
