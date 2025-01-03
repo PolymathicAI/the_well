@@ -1,9 +1,12 @@
 """Data augmentation and transformations."""
 
 from abc import ABC, abstractmethod
-from typing import Dict, Tuple
+from collections.abc import Sequence
+from typing import Dict, Tuple, Union
 
+import einops
 import torch
+import torchvision.transforms.functional as F
 
 from .datasets import BoundaryCondition, TrajectoryData, TrajectoryMetadata
 
@@ -284,5 +287,54 @@ class RandomAxisRoll(Augmentation):
                 shifts=shifts,
                 dims=axes,
             )
+
+        return data
+
+
+
+class Resize2D(Augmentation):
+    """Resizes the spatial dimensions of fields to a target size using torchvision resize transform.
+
+    Only supports 2D data with fields of order 0 or 1.
+    Warning: This doesn't alter the 'spatial_resolution' field in the dataset.metadata.
+
+    Parameters
+    ----------
+    target_size :
+        The target size for spatial dimensions (sets the smallest dimension to this size and preserves aspect ratio).
+    """
+
+    def __init__(self, target_size: Union[Sequence[int], int], interpolation: str = F.InterpolationMode.BILINEAR):
+        self.target_size = target_size
+        self.interpolation = interpolation
+
+    def __call__(
+        self, data: TrajectoryData, metadata: TrajectoryMetadata
+    ) -> TrajectoryData:
+        if metadata.dataset.metadata.n_spatial_dims != 2:
+            raise ValueError("Resize2D transform only supports 2D data.")
+
+        for key in ("variable_fields", "constant_fields"):
+            for order, fields in data[key].items():
+                for name, field in fields.items():
+                    if order == 2:
+                        raise ValueError("Resize transform for order 2 fields is not currently supported.")
+
+                    if order == 1:
+                        field = einops.rearrange(field, 't ... d -> d t ...')
+
+                    # Resize spatial dimensions
+                    field = F.resize(field, (self.target_size, self.target_size))
+
+                    # Rearrange back to original format
+                    if order == 1:
+                        field = einops.rearrange(field, 'd t ... -> t ... d')
+
+                    fields[name] = field
+        
+        if "space_grid" in data:
+            grid = einops.rearrange(data["space_grid"], 'x y d -> d x y')
+            grid = F.resize(grid, (self.target_size, self.target_size))
+            data["space_grid"] = einops.rearrange(grid, 'd x y -> x y d')
 
         return data
