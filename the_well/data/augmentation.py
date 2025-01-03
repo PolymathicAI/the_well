@@ -291,7 +291,6 @@ class RandomAxisRoll(Augmentation):
         return data
 
 
-
 class Resize2D(Augmentation):
     """Resizes the spatial dimensions of fields to a target size using torchvision resize transform.
 
@@ -304,7 +303,11 @@ class Resize2D(Augmentation):
         The target size for spatial dimensions (sets the smallest dimension to this size and preserves aspect ratio).
     """
 
-    def __init__(self, target_size: Union[Sequence[int], int], interpolation: str = F.InterpolationMode.BILINEAR):
+    def __init__(
+        self,
+        target_size: Union[Sequence[int], int],
+        interpolation: str = F.InterpolationMode.BILINEAR,
+    ):
         self.target_size = target_size
         self.interpolation = interpolation
 
@@ -318,23 +321,25 @@ class Resize2D(Augmentation):
             for order, fields in data[key].items():
                 for name, field in fields.items():
                     if order == 2:
-                        raise ValueError("Resize transform for order 2 fields is not currently supported.")
+                        raise ValueError(
+                            "Resize transform for order 2 fields is not currently supported."
+                        )
 
                     if order == 1:
-                        field = einops.rearrange(field, 't ... d -> d t ...')
+                        field = einops.rearrange(field, "t ... d -> d t ...")
 
                     # Resize spatial dimensions
                     field = F.resize(field, (self.target_size, self.target_size))
 
                     # Rearrange back to original format
                     if order == 1:
-                        field = einops.rearrange(field, 'd t ... -> t ... d')
+                        field = einops.rearrange(field, "d t ... -> t ... d")
 
                     fields[name] = field
-        
+
         if "space_grid" in data:
-            grid = einops.rearrange(data["space_grid"], 'x y d -> d x y')
+            grid = einops.rearrange(data["space_grid"], "x y d -> d x y")
             grid = F.resize(grid, (self.target_size, self.target_size))
-            data["space_grid"] = einops.rearrange(grid, 'd x y -> x y d')
+            data["space_grid"] = einops.rearrange(grid, "d x y -> x y d")
 
         return data
