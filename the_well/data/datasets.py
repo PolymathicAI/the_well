@@ -247,7 +247,7 @@ class WellDataset(Dataset):
         normalization_path: str = "../stats.yaml",
         well_base_path: Optional[str] = None,
         well_dataset_name: Optional[str] = None,
-        well_split_name: Optional[str] = "train",
+        well_split_name: Optional[str] = None,
         include_filters: List[str] = [],
         exclude_filters: List[str] = [],
         use_normalization: bool = False,
