@@ -204,8 +204,6 @@ class WellDataset(Dataset):
             Only include files whose name contains at least one of these strings
         exclude_filters:
             Exclude any files whose name contains at least one of these strings
-        append_split:
-            Append split name to path
         use_normalization:
             Whether to normalize data in the dataset
         n_steps_input:
@@ -249,10 +247,9 @@ class WellDataset(Dataset):
         normalization_path: str = "../stats.yaml",
         well_base_path: Optional[str] = None,
         well_dataset_name: Optional[str] = None,
-        well_split_name: str = "train",
+        well_split_name: Optional[str] = "train",
         include_filters: List[str] = [],
         exclude_filters: List[str] = [],
-        append_split: bool = False,
         use_normalization: bool = False,
         max_rollout_steps=100,
         n_steps_input: int = 1,
@@ -277,7 +274,7 @@ class WellDataset(Dataset):
         if path is not None:
             self.data_path = path
             self.normalization_path = os.path.join(path, normalization_path)
-            if append_split:
+            if well_split_name is not None:
                 self.data_path = os.path.join(path, "data", well_split_name)
 
         else:
