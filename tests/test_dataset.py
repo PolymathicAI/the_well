@@ -57,6 +57,7 @@ class TestDataset(TestCase):
         dataset = WellDataset(
             well_base_path="datasets",
             well_dataset_name="active_matter",
+            well_split_name="train",
             use_normalization=False,
         )
         self.assertTrue(len(dataset))
