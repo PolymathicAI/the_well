@@ -696,11 +696,15 @@ class WellDataset(Dataset):
         else:
             raise NotImplementedError()
 
-    def _preprocess_data(self, data: TrajectoryData, traj_metadata: TrajectoryMetadata) -> TrajectoryData:
+    def _preprocess_data(
+        self, data: TrajectoryData, traj_metadata: TrajectoryMetadata
+    ) -> TrajectoryData:
         """Preprocess the data before applying transformations. Identity in Well"""
         return data
-    
-    def _postprocess_data(self, data: TrajectoryData, traj_metadata: TrajectoryMetadata) -> TrajectoryData:
+
+    def _postprocess_data(
+        self, data: TrajectoryData, traj_metadata: TrajectoryMetadata
+    ) -> TrajectoryData:
         """Postprocess the data after applying transformations. Flattens fields and scalars into single channel dim."""
         # Start with field data
         for key in ("variable_fields", "constant_fields"):
@@ -725,7 +729,9 @@ class WellDataset(Dataset):
 
         return data
 
-    def _construct_sample(self, data: TrajectoryData, traj_metadata: TrajectoryMetadata) -> Dict[str, torch.Tensor]:
+    def _construct_sample(
+        self, data: TrajectoryData, traj_metadata: TrajectoryMetadata
+    ) -> Dict[str, torch.Tensor]:
         # Input/Output split
         sample = {
             "input_fields": data["variable_fields"][
@@ -747,9 +753,9 @@ class WellDataset(Dataset):
             sample["space_grid"] = data["space_grid"]  # H x W x D
             sample["input_time_grid"] = data["time_grid"][: self.n_steps_input]  # Ti
             sample["output_time_grid"] = data["time_grid"][self.n_steps_input :]  # To
-        
+
         return {k: v for k, v in sample.items() if v.numel() > 0}
-    
+
     def __getitem__(self, index):
         # Find specific file and local index
         file_idx = int(
@@ -818,7 +824,7 @@ class WellDataset(Dataset):
                 self.n_steps_input + output_steps,
                 dt,
             )
-        
+
         # Break out into sub-processes to make inheritance easier
         data = cast(TrajectoryData, data)
         traj_metadata = TrajectoryMetadata(
