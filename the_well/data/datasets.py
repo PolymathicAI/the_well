@@ -42,6 +42,7 @@ WELL_DATASETS = [
     "planetswe",
     "post_neutron_star_merger",
     "rayleigh_benard",
+    "rayleigh_benard_uniform",
     "rayleigh_taylor_instability",
     "shear_flow",
     "supernova_explosion_64",
@@ -246,7 +247,7 @@ class WellDataset(Dataset):
         normalization_path: str = "../stats.yaml",
         well_base_path: Optional[str] = None,
         well_dataset_name: Optional[str] = None,
-        well_split_name: str = "train",
+        well_split_name: Literal["train", "valid", "test", None] = None,
         include_filters: List[str] = [],
         exclude_filters: List[str] = [],
         use_normalization: bool = False,
@@ -273,6 +274,8 @@ class WellDataset(Dataset):
         if path is not None:
             self.data_path = path
             self.normalization_path = os.path.join(path, normalization_path)
+            if well_split_name is not None:
+                self.data_path = os.path.join(path, "data", well_split_name)
 
         else:
             assert (
