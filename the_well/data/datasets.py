@@ -699,15 +699,6 @@ class WellDataset(Dataset):
     def _preprocess_data(self, data: TrajectoryData, traj_metadata: TrajectoryMetadata) -> TrajectoryData:
         """Preprocess the data before applying transformations. Identity in Well"""
         return data
-
-    def _apply_transforms(self, data: TrajectoryData, traj_metadata: TrajectoryMetadata) -> TrajectoryData:
-        """ Apply augmentations or transformations to the data."""
-        if self.transform is not None:
-            data = self.transform(
-                data,
-                traj_metadata,
-            )
-        return data
     
     def _postprocess_data(self, data: TrajectoryData, traj_metadata: TrajectoryMetadata) -> TrajectoryData:
         """Postprocess the data after applying transformations. Flattens fields and scalars into single channel dim."""
@@ -840,7 +831,8 @@ class WellDataset(Dataset):
         # Apply any type of pre-processing that needs to be applied before augmentation
         data = self._preprocess_data(data, traj_metadata)
         # Apply augmentations and other transformations
-        data = self._apply_transforms(data, traj_metadata)
+        if self.transform is not None:
+            data = self.transform(data, traj_metadata)
         # Convert ingestable format - in this class this flattens the fields
         data = self._postprocess_data(data, traj_metadata)
         # Break apart into x, y
