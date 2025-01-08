@@ -1,0 +1,2 @@
+_target_: the_well.data.augmentation.RandomRotation90
+p: 1.0
