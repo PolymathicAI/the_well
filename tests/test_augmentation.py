@@ -7,6 +7,7 @@ from the_well.data.augmentation import (
     RandomAxisFlip,
     RandomAxisPermute,
     RandomAxisRoll,
+    RandomRotation90,
 )
 
 
@@ -105,6 +106,72 @@ class TestAugmentation(TestCase):
                     elif order == 2:
                         expected = expected[..., permutation, :][..., :, permutation]
 
+                    self.assertTrue(torch.allclose(after[key][order][name], expected))
+
+    def test_random_rotation90_2D(self):
+        T, L, H, W = 2, 5, 7, 11
+        before = {
+            "variable_fields": {
+                0: {"a": torch.randn(T, L, H, W)},
+                1: {"b": torch.randn(T, L, H, W, 3)},
+                2: {"c": torch.randn(T, L, H, W, 3, 3)},
+            },
+            "constant_fields": {
+                0: {"d": torch.randn(L, H, W)},
+                1: {"e": torch.randn(L, H, W, 3)},
+                2: {"f": torch.randn(L, H, W, 3, 3)},
+            },
+        }
+
+        # Test is 90 degree rotation
+        naive_rotation = 1  # For torch.rot90
+        naive_rot_matrix = torch.tensor([[0, -1, 0], [1, 0, 0], [0, 0, 1]]).float()
+        # Make sure the decomposed version is giving the same results
+        decomposed_rotation_permute = torch.tensor((1, 0, 2))
+        decomposed_rotation_flip = torch.tensor([True, False, False])
+        # T L H W
+        after = RandomRotation90.rotate90(
+            deepcopy(before),
+            permutation=decomposed_rotation_permute,
+            reflection_mask=decomposed_rotation_flip,
+        )
+
+        for key in ("variable_fields", "constant_fields"):
+            for order in (0, 1, 2):
+                for name in before[key][order]:
+                    if "variable" in key:
+                        expected = (T, H, L, W) + (3,) * order
+                    else:
+                        expected = (H, L, W) + (3,) * order
+
+                    self.assertEqual(
+                        after[key][order][name].shape,
+                        expected,
+                    )
+                    if "variable" in key:
+                        expected = torch.rot90(
+                            before[key][order][name], k=naive_rotation, dims=(1, 2)
+                        )
+                    else:
+                        expected = torch.rot90(
+                            before[key][order][name], k=naive_rotation, dims=(0, 1)
+                        )
+
+                    if order == 0:
+                        pass  # a 0-order tensor does not require transformation
+                    elif order == 1:
+                        # RX
+                        expected = torch.einsum(
+                            "ij,...j->...i", naive_rot_matrix, expected
+                        )
+                    elif order == 2:
+                        # RXR^T
+                        expected = torch.einsum(
+                            "ki,...ij,lj->...kl",
+                            naive_rot_matrix,
+                            expected,
+                            naive_rot_matrix,
+                        )
                     self.assertTrue(torch.allclose(after[key][order][name], expected))
 
     def test_random_axis_roll(self):

@@ -57,6 +57,7 @@ class TestDataset(TestCase):
         dataset = WellDataset(
             well_base_path="datasets",
             well_dataset_name="active_matter",
+            well_split_name="train",
             use_normalization=False,
         )
         self.assertTrue(len(dataset))
@@ -71,6 +72,7 @@ class TestDataset(TestCase):
         dataset = WellDataset(
             well_base_path="datasets",
             well_dataset_name="active_matter",
+            well_split_name="train",
             use_normalization=False,
         )
         n_time_steps = dataset.n_steps_per_trajectory[0] - 1
@@ -86,6 +88,7 @@ class TestDataset(TestCase):
         dataset = WellDataset(
             well_base_path="datasets",
             well_dataset_name="active_matter",
+            well_split_name="train",
             use_normalization=False,
             transform=Compose(
                 RandomAxisFlip(),
