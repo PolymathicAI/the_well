@@ -8,6 +8,7 @@ from the_well.data.augmentation import (
     RandomAxisPermute,
     RandomAxisRoll,
     RandomRotation90,
+    Resize,
 )
 
 
@@ -220,3 +221,52 @@ class TestAugmentation(TestCase):
                             expected,
                         )
                     )
+
+    def test_resize(self):
+        T, H, W = 2, 16, 16
+
+        target_size = 8
+        interpolation_mode = "bilinear"
+
+        before = {
+            "variable_fields": {
+                0: {"a": torch.randn(T, H, W)},
+                1: {"b": torch.randn(T, H, W, 2)},
+                2: {"c": torch.randn(T, H, W, 2, 2)},
+            },
+            "constant_fields": {
+                0: {"d": torch.randn(H, W)},
+                1: {"e": torch.randn(H, W, 2)},
+                2: {"f": torch.randn(H, W, 2, 2)},
+            },
+            "space_grid": torch.randn(H, W, 2),
+        }
+
+        after = Resize.resize(
+            deepcopy(before),
+            n_spatial_dims=2,
+            size=target_size,
+            mode=interpolation_mode,
+        )
+
+        # Check variable fields
+        for order in (0, 1, 2):
+            for name in before["variable_fields"][order]:
+                self.assertEqual(
+                    after["variable_fields"][order][name].shape,
+                    (T, target_size, target_size) + (2,) * order,
+                )
+
+        # Check constant fields
+        for order in (0, 1, 2):
+            for name in before["constant_fields"][order]:
+                self.assertEqual(
+                    after["constant_fields"][order][name].shape,
+                    (target_size, target_size) + (2,) * order,
+                )
+
+        # Check space grid
+        self.assertEqual(
+            after["space_grid"].shape,
+            (target_size, target_size, 2),
+        )

@@ -1,13 +1,14 @@
 """Data augmentation and transformations."""
 
+import inspect
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
-from typing import Dict, Tuple, Union
+from typing import Any, Dict, Tuple, Union
 
 import einops
 import numpy as np
 import torch
-import torchvision.transforms.functional as F
+import torch.nn.functional as F
 
 from .datasets import BoundaryCondition, TrajectoryData, TrajectoryMetadata
 
@@ -374,55 +375,113 @@ class RandomRotation90(Augmentation):
         return RandomAxisFlip.flip(data, reflection_mask)
 
 
-class Resize2D(Augmentation):
-    """Resizes the spatial dimensions of fields to a target size using torchvision resize transform.
+class Resize(Augmentation):
+    """Resizes the spatial dimensions of fields to a target size using torch interpolate function.
 
-    Only supports 2D data with fields of order 0 or 1.
+    Only supports 1D, 2D, and 3D fields.
     Warning: This doesn't alter the 'spatial_resolution' field in the dataset.metadata.
 
     Parameters
     ----------
     target_size :
-        The target size for spatial dimensions (sets the smallest dimension to this size and preserves aspect ratio).
+        The target size for spatial dimensions (if int, sets all spatial dimensions to this size; so, it does NOT preserve aspect ratio.) - either this or `scale_factor` must be provided.
+
+    scale_factor :
+        The scale factor for spatial dimensions (multiplies the spatial dimensions by this factor) - either this or `target_size` must be provided.
+
+    interpolation_mode :
+        The interpolation mode to use.
+
+    interpolation_kwargs :
+        Additional keyword arguments to pass to the torch.nn.functional.interpolate function.
     """
 
     def __init__(
         self,
-        target_size: Union[Sequence[int], int],
-        interpolation: str = F.InterpolationMode.BILINEAR,
+        *,
+        target_size: Union[Sequence[int], int, None] = None,
+        scale_factor: Union[Sequence[float], float, None] = None,
+        interpolation_mode: str,
+        **interpolation_kwargs: Dict[str, Any],
     ):
-        self.target_size = target_size
-        self.interpolation = interpolation
+        if target_size is None and scale_factor is None:
+            raise ValueError("Either target_size or scale_factor must be provided.")
+        if target_size is not None and scale_factor is not None:
+            raise ValueError("Only one of target_size or scale_factor can be provided.")
+
+        if target_size is not None:
+            if isinstance(target_size, int):
+                print(
+                    "Warning (Resize Transform): target_size is an integer. This will set all spatial dimensions to this size and NOT preserve aspect ratio."
+                )
+
+        if not set(interpolation_kwargs.keys()).issubset(
+            set(inspect.signature(F.interpolate).parameters.keys())
+        ):
+            raise ValueError(
+                "interpolation_kwargs must be a subset of F.interpolate kwargs."
+            )
+
+        self.interpolation_kwargs = interpolation_kwargs
+        self.interpolation_kwargs["size"] = target_size
+        self.interpolation_kwargs["scale_factor"] = scale_factor
+        self.interpolation_kwargs["mode"] = interpolation_mode
 
     def __call__(
         self, data: TrajectoryData, metadata: TrajectoryMetadata
     ) -> TrajectoryData:
-        if metadata.dataset.metadata.n_spatial_dims != 2:
-            raise ValueError("Resize2D transform only supports 2D data.")
+        n_spatial_dims = metadata.dataset.metadata.n_spatial_dims
+        if n_spatial_dims not in [1, 2, 3]:
+            raise ValueError("Resize transform only supports 1D, 2D, and 3D data.")
+
+        return self.resize(data, n_spatial_dims, **self.interpolation_kwargs)
+
+    @staticmethod
+    def resize(
+        data: TrajectoryData,
+        n_spatial_dims: int,
+        **interpolation_kwargs: Dict[str, Any],
+    ) -> TrajectoryData:
+        # Create a string that represents spatial dimensions (to be used with einops.pack)
+        spatial_dims = " ".join(["d" + str(i) for i in range(n_spatial_dims)])
 
         for key in ("variable_fields", "constant_fields"):
             for order, fields in data[key].items():
                 for name, field in fields.items():
-                    if order == 2:
-                        raise ValueError(
-                            "Resize transform for order 2 fields is not currently supported."
-                        )
+                    # Add dummy temporal dimension if constant fields
+                    if key == "constant_fields":
+                        field = field.unsqueeze(0)
 
-                    if order == 1:
-                        field = einops.rearrange(field, "t ... d -> d t ...")
+                    # Use einops.pack to pack all dims after the spatiotemporal dimensions (that contains field data) into one dimension and put it in the last position (e.g., (t,x,y,d,d) -> (t,x,y,d*d))
+                    x_packed, ps = einops.pack([field], f"t {spatial_dims} *")
 
-                    # Resize spatial dimensions
-                    field = F.resize(field, (self.target_size, self.target_size))
+                    # Move the packed dimension to the second position (e.g., (t,x,y,d*d) -> (t,d*d,x,y))
+                    x_packed = einops.rearrange(x_packed, "t ... c -> t c ...")
 
-                    # Rearrange back to original format
-                    if order == 1:
-                        field = einops.rearrange(field, "d t ... -> t ... d")
+                    # Resize the spatial dimensions
+                    x_packed = F.interpolate(x_packed, **interpolation_kwargs)
+
+                    # Move the packed dimension to the original position (e.g., (t,d*d,x,y) -> (t,x,y,d*d))
+                    x_packed = einops.rearrange(x_packed, "t c ... -> t ... c")
+
+                    # Unpack the packed dimension
+                    [field] = einops.unpack(x_packed, ps, f"t {spatial_dims} *")
+
+                    # Remove dummy temporal dimension if constant fields
+                    if key == "constant_fields":
+                        field = field.squeeze(0)
 
                     fields[name] = field
 
         if "space_grid" in data:
-            grid = einops.rearrange(data["space_grid"], "x y d -> d x y")
-            grid = F.resize(grid, (self.target_size, self.target_size))
-            data["space_grid"] = einops.rearrange(grid, "d x y -> x y d")
+            grid = data["space_grid"]
+
+            grid = einops.rearrange(grid, f"{spatial_dims} d -> 1 d {spatial_dims}")
+
+            grid = F.interpolate(grid, **interpolation_kwargs)
+
+            grid = einops.rearrange(grid, f"1 d {spatial_dims} -> {spatial_dims} d")
+
+            data["space_grid"] = grid
 
         return data
