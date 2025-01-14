@@ -174,10 +174,10 @@ class TrajectoryData(TypedDict):
 @dataclass
 class TrajectoryMetadata:
     dataset: "WellDataset"
-    file_idx: int
-    sample_idx: int
-    time_idx: int
-    time_stride: int
+    file_idx: int | List[int]
+    sample_idx: int | List[int]
+    time_idx: int | List[int]
+    time_stride: int | List[int]
 
 
 class WellDataset(Dataset):
@@ -696,68 +696,8 @@ class WellDataset(Dataset):
         else:
             raise NotImplementedError()
 
-    def _preprocess_data(
-        self, data: TrajectoryData, traj_metadata: TrajectoryMetadata
-    ) -> TrajectoryData:
-        """Preprocess the data before applying transformations. Identity in Well"""
-        return data
-
-    def _postprocess_data(
-        self, data: TrajectoryData, traj_metadata: TrajectoryMetadata
-    ) -> TrajectoryData:
-        """Postprocess the data after applying transformations. Flattens fields and scalars into single channel dim."""
-        # Start with field data
-        for key in ("variable_fields", "constant_fields"):
-            # Flatten all tensor fields
-            data[key] = [
-                field.unsqueeze(-1).flatten(-order - 1)
-                for order, fields in data[key].items()
-                for _, field in fields.items()
-            ]
-            # Then concatenate them along new single channel
-            if data[key]:
-                data[key] = torch.concatenate(data[key], dim=-1)
-            else:
-                data[key] = torch.tensor([])
-        # Then do the same for scalars but no flattening since no tensor-order
-        for key in ("variable_scalars", "constant_scalars"):
-            data[key] = [scalar.unsqueeze(-1) for _, scalar in data[key].items()]
-            if data[key]:
-                data[key] = torch.concatenate(data[key], dim=-1)
-            else:
-                data[key] = torch.tensor([])
-
-        return data
-
-    def _construct_sample(
-        self, data: TrajectoryData, traj_metadata: TrajectoryMetadata
-    ) -> Dict[str, torch.Tensor]:
-        # Input/Output split
-        sample = {
-            "input_fields": data["variable_fields"][
-                : self.n_steps_input
-            ],  # Ti x H x W x C
-            "output_fields": data["variable_fields"][
-                self.n_steps_input :
-            ],  # To x H x W x C
-            "constant_fields": data["constant_fields"],  # H x W x C
-            "input_scalars": data["variable_scalars"][: self.n_steps_input],  # Ti x C
-            "output_scalars": data["variable_scalars"][self.n_steps_input :],  # To x C
-            "constant_scalars": data["constant_scalars"],  # C
-        }
-
-        if self.boundary_return_type is not None:
-            sample["boundary_conditions"] = data["boundary_conditions"]  # N x 2
-
-        if self.return_grid:
-            sample["space_grid"] = data["space_grid"]  # H x W x D
-            sample["input_time_grid"] = data["time_grid"][: self.n_steps_input]  # Ti
-            sample["output_time_grid"] = data["time_grid"][self.n_steps_input :]  # To
-
-        return {k: v for k, v in sample.items() if v.numel() > 0}
-
-    def __getitem__(self, index):
-        # Find specific file and local index
+    def _load_one_sample(self, index):
+                # Find specific file and local index
         file_idx = int(
             np.searchsorted(self.file_index_offsets, index, side="right") - 1
         )  # which file we are on
@@ -824,7 +764,71 @@ class WellDataset(Dataset):
                 self.n_steps_input + output_steps,
                 dt,
             )
+        return data, file_idx, sample_idx, time_idx, dt
+    
+    def _preprocess_data(
+        self, data: TrajectoryData, traj_metadata: TrajectoryMetadata
+    ) -> TrajectoryData:
+        """Preprocess the data before applying transformations. Identity in Well"""
+        return data
 
+    def _postprocess_data(
+        self, data: TrajectoryData, traj_metadata: TrajectoryMetadata
+    ) -> TrajectoryData:
+        """Postprocess the data after applying transformations. Flattens fields and scalars into single channel dim."""
+        # Start with field data
+        for key in ("variable_fields", "constant_fields"):
+            # Flatten all tensor fields
+            data[key] = [
+                field.unsqueeze(-1).flatten(-order - 1)
+                for order, fields in data[key].items()
+                for _, field in fields.items()
+            ]
+            # Then concatenate them along new single channel
+            if data[key]:
+                data[key] = torch.concatenate(data[key], dim=-1)
+            else:
+                data[key] = torch.tensor([])
+        # Then do the same for scalars but no flattening since no tensor-order
+        for key in ("variable_scalars", "constant_scalars"):
+            data[key] = [scalar.unsqueeze(-1) for _, scalar in data[key].items()]
+            if data[key]:
+                data[key] = torch.concatenate(data[key], dim=-1)
+            else:
+                data[key] = torch.tensor([])
+
+        return data
+
+    def _construct_sample(
+        self, data: TrajectoryData, traj_metadata: TrajectoryMetadata
+    ) -> Dict[str, torch.Tensor]:
+        # Input/Output split
+        sample = {
+            "input_fields": data["variable_fields"][
+                : self.n_steps_input
+            ],  # Ti x H x W x C
+            "output_fields": data["variable_fields"][
+                self.n_steps_input :
+            ],  # To x H x W x C
+            "constant_fields": data["constant_fields"],  # H x W x C
+            "input_scalars": data["variable_scalars"][: self.n_steps_input],  # Ti x C
+            "output_scalars": data["variable_scalars"][self.n_steps_input :],  # To x C
+            "constant_scalars": data["constant_scalars"],  # C
+        }
+
+        if self.boundary_return_type is not None:
+            sample["boundary_conditions"] = data["boundary_conditions"]  # N x 2
+
+        if self.return_grid:
+            sample["space_grid"] = data["space_grid"]  # H x W x D
+            sample["input_time_grid"] = data["time_grid"][: self.n_steps_input]  # Ti
+            sample["output_time_grid"] = data["time_grid"][self.n_steps_input :]  # To
+
+        return {k: v for k, v in sample.items() if v.numel() > 0}
+
+
+    def __getitem__(self, index):
+        data, file_idx, sample_idx, time_idx, dt = self._load_one_sample(index)
         # Break out into sub-processes to make inheritance easier
         data = cast(TrajectoryData, data)
         traj_metadata = TrajectoryMetadata(
