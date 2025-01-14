@@ -697,7 +697,7 @@ class WellDataset(Dataset):
             raise NotImplementedError()
 
     def _load_one_sample(self, index):
-                # Find specific file and local index
+        # Find specific file and local index
         file_idx = int(
             np.searchsorted(self.file_index_offsets, index, side="right") - 1
         )  # which file we are on
@@ -765,7 +765,7 @@ class WellDataset(Dataset):
                 dt,
             )
         return data, file_idx, sample_idx, time_idx, dt
-    
+
     def _preprocess_data(
         self, data: TrajectoryData, traj_metadata: TrajectoryMetadata
     ) -> TrajectoryData:
@@ -825,7 +825,6 @@ class WellDataset(Dataset):
             sample["output_time_grid"] = data["time_grid"][self.n_steps_input :]  # To
 
         return {k: v for k, v in sample.items() if v.numel() > 0}
-
 
     def __getitem__(self, index):
         data, file_idx, sample_idx, time_idx, dt = self._load_one_sample(index)
