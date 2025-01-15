@@ -89,8 +89,9 @@ def field_histograms(
 
 def build_1d_power_spectrum(x, spatial_dims):
     x_fft = torch.fft.fftn(x, dim=spatial_dims, norm="ortho").abs().square()
-    # Return the shifted sqrt power spectrum - first average over spatial dims, then batch and time
-    return torch.fft.fftshift(x_fft.mean(spatial_dims[1:]).mean(0).mean(0).sqrt())
+    # Return the shifted sqrt power spectrum
+    # First average over spatial dims, then take the last time step from the first batch element
+    return torch.fft.fftshift(x_fft.mean(spatial_dims[1:])[0, -1].sqrt())
 
 
 def plot_power_spectrum_by_field(
@@ -126,7 +127,7 @@ def plot_power_spectrum_by_field(
         np_x_fft = x_fft[..., i].sqrt().cpu().numpy()
         np_y_ftt = y_fft[..., i].sqrt().cpu().numpy()
         np_res_ftt = res_fft[..., i].sqrt().cpu().numpy()
-        title = f"{field_names[i]} Radial Power Spectrum"
+        title = f"{field_names[i]} averaged 1D power spectrum"
         ax.semilogy(
             axis,
             np_x_fft,
