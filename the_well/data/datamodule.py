@@ -90,6 +90,7 @@ class WellDataModule(AbstractDataModule):
         world_size: int = 1,
         data_workers: int = 4,
         rank: int = 1,
+        boundary_return_type: Literal["padding", None] = "padding",
         transform: Optional[Augmentation] = None,
         dataset_kws: Optional[
             Dict[
@@ -111,6 +112,7 @@ class WellDataModule(AbstractDataModule):
             storage_options=storage_kwargs,
             min_dt_stride=min_dt_stride,
             max_dt_stride=max_dt_stride,
+            boundary_return_type=boundary_return_type,
             transform=transform,
             **(
                 dataset_kws["train"]
@@ -130,6 +132,7 @@ class WellDataModule(AbstractDataModule):
             storage_options=storage_kwargs,
             min_dt_stride=min_dt_stride,
             max_dt_stride=min_dt_stride,
+            boundary_return_type=boundary_return_type,
             **(
                 dataset_kws["val"]
                 if dataset_kws is not None and "val" in dataset_kws
@@ -150,6 +153,7 @@ class WellDataModule(AbstractDataModule):
             storage_options=storage_kwargs,
             min_dt_stride=min_dt_stride,
             max_dt_stride=min_dt_stride,
+            boundary_return_type=boundary_return_type,
             **(
                 dataset_kws["rollout_val"]
                 if dataset_kws is not None and "rollout_val" in dataset_kws
@@ -167,6 +171,7 @@ class WellDataModule(AbstractDataModule):
             storage_options=storage_kwargs,
             min_dt_stride=min_dt_stride,
             max_dt_stride=min_dt_stride,
+            boundary_return_type=boundary_return_type,
             **(
                 dataset_kws["test"]
                 if dataset_kws is not None and "test" in dataset_kws
@@ -186,6 +191,7 @@ class WellDataModule(AbstractDataModule):
             storage_options=storage_kwargs,
             min_dt_stride=min_dt_stride,
             max_dt_stride=min_dt_stride,
+            boundary_return_type=boundary_return_type,
             **(
                 dataset_kws["rollout_test"]
                 if dataset_kws is not None and "rollout_test" in dataset_kws
