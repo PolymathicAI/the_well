@@ -661,17 +661,28 @@ class WellDataset(Dataset):
             dim_indices = {
                 dim: i for i, dim in enumerate(file["dimensions"].attrs["spatial_dims"])
             }
-            boundary_output = torch.ones(self.n_spatial_dims, 2) # Open unless otherwise specified
+            boundary_output = torch.ones(
+                self.n_spatial_dims, 2
+            )  # Open unless otherwise specified
             for bc_name in bcs.keys():
                 bc = bcs[bc_name]
                 bc_type = bc.attrs["bc_type"].upper()  # Enum is in upper case
                 if len(bc.attrs["associated_dims"]) > 1:
-                    warnings.warn("Only axis-aligned boundary fully supported. Boundary for axis counted as `open` or `periodic` if any part of it is and `wall` otherwise."
-                                  "If this does not fit your desired usecase, set `boundary_return_type=None`.", RuntimeWarning)
+                    warnings.warn(
+                        "Only axis-aligned boundary fully supported. Boundary for axis counted as `open` or `periodic` if any part of it is and `wall` otherwise."
+                        "If this does not fit your desired usecase, set `boundary_return_type=None`.",
+                        RuntimeWarning,
+                    )
                 for dim in bc.attrs["associated_dims"]:
                     # Check all entries at the boundary - if any `open` or `periodic`, set that. However, for wall, the full boundary must be wall
-                    first_slice = tuple(slice(None) if dim != other_dim else 0 for other_dim in bc.attrs["associated_dims"])
-                    last_slice = tuple(slice(None) if dim != other_dim else -1 for other_dim in bc.attrs["associated_dims"])
+                    first_slice = tuple(
+                        slice(None) if dim != other_dim else 0
+                        for other_dim in bc.attrs["associated_dims"]
+                    )
+                    last_slice = tuple(
+                        slice(None) if dim != other_dim else -1
+                        for other_dim in bc.attrs["associated_dims"]
+                    )
                     agg_op = np.min if bc_type == "WALL" else np.max
                     mask = bc["mask"][:]
                     if agg_op(mask[first_slice]):
