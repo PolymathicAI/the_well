@@ -1,5 +1,6 @@
 import itertools
 import os
+import warnings
 from dataclasses import dataclass
 from enum import Enum
 from typing import (
@@ -660,24 +661,27 @@ class WellDataset(Dataset):
             dim_indices = {
                 dim: i for i, dim in enumerate(file["dimensions"].attrs["spatial_dims"])
             }
-            boundary_output = torch.zeros(self.n_spatial_dims, 2)
+            boundary_output = torch.ones(self.n_spatial_dims, 2) # Open unless otherwise specified
             for bc_name in bcs.keys():
                 bc = bcs[bc_name]
                 bc_type = bc.attrs["bc_type"].upper()  # Enum is in upper case
                 if len(bc.attrs["associated_dims"]) > 1:
-                    raise NotImplementedError(
-                        "Only axis-aligned boundaries supported for now. If your code is not using BCs, consider setting `boundary_return_type` to None."
-                    )
-                dim = bc.attrs["associated_dims"][0]
-                mask = bc["mask"]
-                if mask[0]:
-                    boundary_output[dim_indices[dim]][0] = BoundaryCondition[
-                        bc_type
-                    ].value
-                if mask[-1]:
-                    boundary_output[dim_indices[dim]][1] = BoundaryCondition[
-                        bc_type
-                    ].value
+                    warnings.warn("Only axis-aligned boundary fully supported. Boundary for axis counted as `open` or `periodic` if any part of it is and `wall` otherwise."
+                                  "If this does not fit your desired usecase, set `boundary_return_type=None`.", RuntimeWarning)
+                for dim in bc.attrs["associated_dims"]:
+                    # Check all entries at the boundary - if any `open` or `periodic`, set that. However, for wall, the full boundary must be wall
+                    first_slice = tuple(slice(None) if dim != other_dim else 0 for other_dim in bc.attrs["associated_dims"])
+                    last_slice = tuple(slice(None) if dim != other_dim else -1 for other_dim in bc.attrs["associated_dims"])
+                    agg_op = np.min if bc_type == "WALL" else np.max
+                    mask = bc["mask"][:]
+                    if agg_op(mask[first_slice]):
+                        boundary_output[dim_indices[dim]][0] = BoundaryCondition[
+                            bc_type
+                        ].value
+                    if agg_op(mask[last_slice]):
+                        boundary_output[dim_indices[dim]][1] = BoundaryCondition[
+                            bc_type
+                        ].value
             self._check_cache(cache, "boundary_output", boundary_output)
         return boundary_output
 
