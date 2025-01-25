@@ -234,8 +234,8 @@ def make_video(
     ndims = metadata.n_spatial_dims
     if ndims == 3:
         # Slice the data along the middle of the last axis
-        true_images = true_images[..., true_images.shape[-1] // 2, :]
-        predicted_images = predicted_images[..., predicted_images.shape[-1] // 2, :]
+        true_images = true_images[..., true_images.shape[-2] // 2, :]
+        predicted_images = predicted_images[..., predicted_images.shape[-2] // 2, :]
 
     # TODO - Eventually just add the grid info to the metadata. This is currently very fragile
     # and probably wrong for external data.
