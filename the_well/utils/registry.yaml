@@ -1,4 +1,5 @@
 MHD_256:
+  stats: https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/MHD_256/stats.yaml
   test:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/MHD_256/data/test/MHD_Ma_0.7_Ms_0.5.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/MHD_256/data/test/MHD_Ma_2_Ms_0.7.hdf5
@@ -33,6 +34,7 @@ MHD_256:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/MHD_256/data/valid/MHD_Ma_0.7_Ms_1.5.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/MHD_256/data/valid/MHD_Ma_0.7_Ms_0.7.hdf5
 MHD_64:
+  stats: https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/MHD_64/stats.yaml
   test:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/MHD_64/data/test/MHD_Ma_0.7_Ms_0.5.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/MHD_64/data/test/MHD_Ma_2_Ms_0.7.hdf5
@@ -67,6 +69,7 @@ MHD_64:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/MHD_64/data/valid/MHD_Ma_0.7_Ms_1.5.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/MHD_64/data/valid/MHD_Ma_0.7_Ms_0.7.hdf5
 acoustic_scattering_discontinuous:
+  stats: https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_discontinuous/stats.yaml
   test:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_discontinuous/data/test/acoustic_scattering_discontinuous_chunk_18.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_discontinuous/data/test/acoustic_scattering_discontinuous_chunk_19.hdf5
@@ -91,6 +94,7 @@ acoustic_scattering_discontinuous:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_discontinuous/data/valid/acoustic_scattering_discontinuous_chunk_16.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_discontinuous/data/valid/acoustic_scattering_discontinuous_chunk_17.hdf5
 acoustic_scattering_inclusions:
+  stats: https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_inclusions/stats.yaml
   test:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_inclusions/data/test/acoustic_scattering_inclusions_chunk_36.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_inclusions/data/test/acoustic_scattering_inclusions_chunk_37.hdf5
@@ -131,6 +135,7 @@ acoustic_scattering_inclusions:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_inclusions/data/valid/acoustic_scattering_inclusions_chunk_32.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_inclusions/data/valid/acoustic_scattering_inclusions_chunk_34.hdf5
 acoustic_scattering_maze:
+  stats: https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_maze/stats.yaml
   test:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_maze/data/test/acoustic_scattering_maze_chunk_19.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_maze/data/test/acoustic_scattering_maze_chunk_18.hdf5
@@ -155,6 +160,7 @@ acoustic_scattering_maze:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_maze/data/valid/acoustic_scattering_maze_chunk_17.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/acoustic_scattering_maze/data/valid/acoustic_scattering_maze_chunk_16.hdf5
 active_matter:
+  stats: https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/active_matter/stats.yaml
   test:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/active_matter/data/test/active_matter_L_10.0_zeta_11.0_alpha_-2.0.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/active_matter/data/test/active_matter_L_10.0_zeta_1.0_alpha_-2.0.hdf5
@@ -241,6 +247,7 @@ active_matter:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/active_matter/data/valid/active_matter_L_10.0_zeta_13.0_alpha_-3.0.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/active_matter/data/valid/active_matter_L_10.0_zeta_15.0_alpha_-1.0.hdf5
 convective_envelope_rsg:
+  stats: https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/convective_envelope_rsg/stats.yaml
   test:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/convective_envelope_rsg/data/test/convective_envelope_rsg_trajectories_17.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/convective_envelope_rsg/data/test/convective_envelope_rsg_trajectories_11.hdf5
@@ -274,6 +281,7 @@ convective_envelope_rsg:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/convective_envelope_rsg/data/valid/convective_envelope_rsg_trajectories_24.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/convective_envelope_rsg/data/valid/convective_envelope_rsg_trajectories_3.hdf5
 euler_multi_quadrants_openBC:
+  stats: https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/euler_multi_quadrants_openBC/stats.yaml
   test:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/euler_multi_quadrants_openBC/data/test/euler_multi_quadrants_openBC_gamma_1.453_H2_-76.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/euler_multi_quadrants_openBC/data/test/euler_multi_quadrants_openBC_gamma_1.33_H2O_20.hdf5
@@ -308,6 +316,7 @@ euler_multi_quadrants_openBC:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/euler_multi_quadrants_openBC/data/valid/euler_multi_quadrants_openBC_gamma_1.76_Ar_-180.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/euler_multi_quadrants_openBC/data/valid/euler_multi_quadrants_openBC_gamma_1.3_CO2_20.hdf5
 euler_multi_quadrants_periodicBC:
+  stats: https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/euler_multi_quadrants_periodicBC/stats.yaml
   test:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/euler_multi_quadrants_periodicBC/data/test/euler_multi_quadrants_periodicBC_gamma_1.365_Dry_air_1000.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/euler_multi_quadrants_periodicBC/data/test/euler_multi_quadrants_periodicBC_gamma_1.22_C2H6_15.hdf5
@@ -342,6 +351,7 @@ euler_multi_quadrants_periodicBC:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/euler_multi_quadrants_periodicBC/data/valid/euler_multi_quadrants_periodicBC_gamma_1.453_H2_-76.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/euler_multi_quadrants_periodicBC/data/valid/euler_multi_quadrants_periodicBC_gamma_1.76_Ar_-180.hdf5
 gray_scott_reaction_diffusion:
+  stats: https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/gray_scott_reaction_diffusion/stats.yaml
   test:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/gray_scott_reaction_diffusion/data/test/gray_scott_reaction_diffusion_maze_F_0.029_k_0.057.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/gray_scott_reaction_diffusion/data/test/gray_scott_reaction_diffusion_gliders_F_0.014_k_0.054.hdf5
@@ -364,6 +374,7 @@ gray_scott_reaction_diffusion:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/gray_scott_reaction_diffusion/data/valid/gray_scott_reaction_diffusion_worms_F_0.058_k_0.065.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/gray_scott_reaction_diffusion/data/valid/gray_scott_reaction_diffusion_spirals_F_0.018_k_0.051.hdf5
 helmholtz_staircase:
+  stats: https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/helmholtz_staircase/stats.yaml
   test:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/helmholtz_staircase/data/test/helmholtz_staircase_omega_18.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/helmholtz_staircase/data/test/helmholtz_staircase_omega_13.hdf5
@@ -416,6 +427,7 @@ helmholtz_staircase:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/helmholtz_staircase/data/valid/helmholtz_staircase_omega_20.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/helmholtz_staircase/data/valid/helmholtz_staircase_omega_09.hdf5
 planetswe:
+  stats: https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/planetswe/stats.yaml
   test:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/planetswe/data/test/planetswe_IC38_s3.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/planetswe/data/test/planetswe_IC39_s1.hdf5
@@ -540,6 +552,7 @@ planetswe:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/planetswe/data/valid/planetswe_IC32_s1.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/planetswe/data/valid/planetswe_IC34_s3.hdf5
 post_neutron_star_merger:
+  stats: https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/post_neutron_star_merger/stats.yaml
   test:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/post_neutron_star_merger/data/test/post_neutron_star_merger_scenario_2.hdf5
   train:
@@ -552,6 +565,7 @@ post_neutron_star_merger:
   valid:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/post_neutron_star_merger/data/valid/post_neutron_star_merger_scenario_1.hdf5
 rayleigh_benard:
+  stats: https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard/stats.yaml
   test:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard/data/test/rayleigh_benard_Rayleigh_1e9_Prandtl_5.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard/data/test/rayleigh_benard_Rayleigh_1e9_Prandtl_2e-1.hdf5
@@ -661,6 +675,7 @@ rayleigh_benard:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard/data/valid/rayleigh_benard_Rayleigh_1e10_Prandtl_2.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard/data/valid/rayleigh_benard_Rayleigh_1e8_Prandtl_5e-1.hdf5
 rayleigh_taylor_instability:
+  stats: https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_taylor_instability/stats.yaml
   test:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_taylor_instability/data/test/rayleigh_taylor_instability_At_75.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_taylor_instability/data/test/rayleigh_taylor_instability_At_25.hdf5
@@ -680,6 +695,7 @@ rayleigh_taylor_instability:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_taylor_instability/data/valid/rayleigh_taylor_instability_At_50.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_taylor_instability/data/valid/rayleigh_taylor_instability_At_0625.hdf5
 shear_flow:
+  stats: https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/shear_flow/stats.yaml
   test:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/shear_flow/data/test/shear_flow_Reynolds_1e5_Schmidt_2e0.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/shear_flow/data/test/shear_flow_Reynolds_5e5_Schmidt_2e-1.hdf5
@@ -768,6 +784,7 @@ shear_flow:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/shear_flow/data/valid/shear_flow_Reynolds_5e4_Schmidt_5e0.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/shear_flow/data/valid/shear_flow_Reynolds_5e4_Schmidt_1e-1.hdf5
 supernova_explosion_128:
+  stats: https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/supernova_explosion_128/stats.yaml
   test:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/supernova_explosion_128/data/test/supernova_explosion_Msun_0.1_dim128_file_01.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/supernova_explosion_128/data/test/supernova_explosion_Msun_0.1_dim128_file_09.hdf5
@@ -811,6 +828,7 @@ supernova_explosion_128:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/supernova_explosion_128/data/valid/supernova_explosion_Msun_0.1_dim128_file_00.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/supernova_explosion_128/data/valid/supernova_explosion_Msun_0.1_dim128_file_05.hdf5
 supernova_explosion_64:
+  stats: https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/supernova_explosion_64/stats.yaml
   test:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/supernova_explosion_64/data/test/supernova_explosion_Msun_1_dim64_file_18.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/supernova_explosion_64/data/test/supernova_explosion_Msun_1_dim64_file_12.hdf5
@@ -926,6 +944,7 @@ supernova_explosion_64:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/supernova_explosion_64/data/valid/supernova_explosion_Msun_0.1_dim64_file_09.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/supernova_explosion_64/data/valid/supernova_explosion_Msun_0.1_dim64_file_10.hdf5
 turbulence_gravity_cooling:
+  stats: https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/turbulence_gravity_cooling/stats.yaml
   test:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/turbulence_gravity_cooling/data/test/turbulence_gravity_cooling_rho0_4.45_Z_1_T0_100.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/turbulence_gravity_cooling/data/test/turbulence_gravity_cooling_rho0_4.45_Z_0_T0_10.hdf5
@@ -1011,6 +1030,7 @@ turbulence_gravity_cooling:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/turbulence_gravity_cooling/data/valid/turbulence_gravity_cooling_rho0_0.445_Z_0.1_T0_10.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/turbulence_gravity_cooling/data/valid/turbulence_gravity_cooling_rho0_44.5_Z_0_T0_1000.hdf5
 turbulent_radiative_layer_2D:
+  stats: https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/turbulent_radiative_layer_2D/stats.yaml
   test:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/turbulent_radiative_layer_2D/data/test/turbulent_radiative_layer_tcool_0.32.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/turbulent_radiative_layer_2D/data/test/turbulent_radiative_layer_tcool_1.00.hdf5
@@ -1042,6 +1062,7 @@ turbulent_radiative_layer_2D:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/turbulent_radiative_layer_2D/data/valid/turbulent_radiative_layer_tcool_3.16.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/turbulent_radiative_layer_2D/data/valid/turbulent_radiative_layer_tcool_0.06.hdf5
 turbulent_radiative_layer_3D:
+  stats: https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/turbulent_radiative_layer_3D/stats.yaml
   test:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/turbulent_radiative_layer_3D/data/test/turbulent_radiative_layer_tcool_0.32.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/turbulent_radiative_layer_3D/data/test/turbulent_radiative_layer_tcool_1.00.hdf5
@@ -1073,6 +1094,7 @@ turbulent_radiative_layer_3D:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/turbulent_radiative_layer_3D/data/valid/turbulent_radiative_layer_tcool_3.16.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/turbulent_radiative_layer_3D/data/valid/turbulent_radiative_layer_tcool_0.06.hdf5
 viscoelastic_instability:
+  stats: https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability/stats.yaml
   test:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability/data/test/viscoelastic_instability_transtononchaos_EIT_L.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability/data/test/viscoelastic_instability_EIT.hdf5
