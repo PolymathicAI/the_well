@@ -10,6 +10,8 @@ from the_well.data.utils import WELL_DATASETS
 
 WELL_REGISTRY: str = os.path.join(os.path.dirname(__file__), "registry.yaml")
 
+STAT_FILE_KEY = "stats"
+
 
 def create_url_registry(
     registry_path: str = WELL_REGISTRY,
@@ -29,6 +31,10 @@ def create_url_registry(
 
     for dataset in WELL_DATASETS:
         registry[dataset] = {}
+
+        stat_file = os.path.join(base_path, f"datasets/{dataset}/stats.yaml")
+        assert os.path.exists(stat_file), f"{stat_file} does not exist"
+        registry[dataset][STAT_FILE_KEY] = stat_file.replace(base_path, base_url)
 
         for split in splits:
             registry[dataset][split] = []
@@ -107,7 +113,7 @@ def well_download(
         ), f"unknown dataset '{dataset}', expected one of {list(registry.keys())}"
 
         # Download file containing dataset statistics
-        stat_file_url = registry[dataset]["stats"]
+        stat_file_url = registry[dataset][STAT_FILE_KEY]
         stat_file_path = os.path.join(base_path, f"datasets/{dataset}/stats.yaml")
         download_command = base_download_command.copy()
         download_command.extend(["-o", stat_file_path, stat_file_url])
