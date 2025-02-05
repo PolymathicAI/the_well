@@ -47,8 +47,6 @@ def create_url_registry(
             for file in files:
                 registry[dataset][split].append(file.replace(base_path, base_url))
 
-            # TODO: Add stats: stats.yaml
-
     with open(registry_path, mode="w") as f:
         yaml.dump(registry, f)
 
