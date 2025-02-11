@@ -333,7 +333,7 @@ def make_video(
             axes[i, j].tick_params(axis="both", which="both", length=0)
 
     axes[0, 0].set_ylabel(f"True\n{coords[0]}")
-    axes[1, 0].set_ylabel(f"Predictedtate\n{coords[0]}")
+    axes[1, 0].set_ylabel(f"Predicted\n{coords[0]}")
     axes[2, 0].set_ylabel(f"Error\n{coords[0]}")
 
     # # Update function for the animation
