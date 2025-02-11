@@ -2,7 +2,7 @@ import argparse
 import glob
 import os
 import subprocess
-from typing import Optional
+from typing import List, Optional
 
 import yaml
 
@@ -30,6 +30,10 @@ def create_url_registry(
     for dataset in WELL_DATASETS:
         registry[dataset] = {}
 
+        stat_file = os.path.join(base_path, f"datasets/{dataset}/stats.yaml")
+        assert os.path.exists(stat_file), f"{stat_file} does not exist"
+        registry[dataset]["stats"] = stat_file.replace(base_path, base_url)
+
         for split in splits:
             registry[dataset][split] = []
 
@@ -43,6 +47,15 @@ def create_url_registry(
 
     with open(registry_path, mode="w") as f:
         yaml.dump(registry, f)
+
+
+def _trigger_download(download_command: List[str]):
+    try:
+        subprocess.run(download_command)
+    except KeyboardInterrupt:
+        raise KeyboardInterrupt(
+            "Uh-oh, you pressed ctrl+c! No worries, restarting the download will resume where you left off."
+        ) from None
 
 
 def well_download(
@@ -68,6 +81,13 @@ def well_download(
 
     base_path = os.path.abspath(os.path.expanduser(base_path))
 
+    # --create-dirs ensures that parent directories exist
+    # --continue-at resumes download where it previously stopped
+    # --parallel downloads files concurrently
+    base_download_command = ["curl", "--create-dirs", "--continue-at", "-"]
+    if parallel:
+        base_download_command.append("--parallel")
+
     with open(registry_path, mode="r") as f:
         registry = yaml.safe_load(f)
 
@@ -88,6 +108,14 @@ def well_download(
             dataset in registry
         ), f"unknown dataset '{dataset}', expected one of {list(registry.keys())}"
 
+        # Download file containing dataset statistics
+        stat_file_url = registry[dataset]["stats"]
+        stat_file_path = os.path.join(base_path, f"datasets/{dataset}/stats.yaml")
+        download_command = base_download_command.copy()
+        download_command.extend(["-o", stat_file_path, stat_file_url])
+        _trigger_download(download_command)
+
+        # Download each split independently
         for split in splits:
             path = os.path.join(base_path, f"datasets/{dataset}/data/{split}")
 
@@ -100,23 +128,12 @@ def well_download(
 
             files = [os.path.join(path, os.path.basename(url)) for url in urls]
 
-            # --create-dirs ensures that parent directories exist
-            # --continue-at resumes download where it previously stopped
-            # --parallel downloads files concurrently
-            command = ["curl", "--create-dirs", "--continue-at", "-"]
-
-            if parallel:
-                command.append("--parallel")
+            download_command = base_download_command.copy()
 
             for file, url in zip(files, urls):
-                command.extend(["-o", file, url])
+                download_command.extend(["-o", file, url])
 
-            try:
-                subprocess.run(command)
-            except KeyboardInterrupt:
-                raise KeyboardInterrupt(
-                    "Uh-oh, you pressed ctrl+c! No worries, restarting the download will resume where you left off."
-                ) from None
+            _trigger_download(download_command)
 
 
 def main():
