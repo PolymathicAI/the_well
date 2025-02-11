@@ -1,4 +1,5 @@
 import os
+from typing import List
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -224,12 +225,17 @@ def make_video(
     metadata: WellMetadata,
     output_dir: str,
     epoch_number: int = 0,
+    field_name_overrides: List[str] = None,
+    size_multiplier: float = 1.0,
 ):
     """Make a video of the rollout comparison.
 
     Predicted/true are 2/3D channels last tensors.
     """
-    field_names = flatten_field_names(metadata, include_constants=False)
+    if field_name_overrides is not None:
+        field_names = field_name_overrides
+    else:
+        field_names = flatten_field_names(metadata, include_constants=False)
     dset_name = metadata.dataset_name
     ndims = metadata.n_spatial_dims
     if ndims == 3:
@@ -273,7 +279,7 @@ def make_video(
         len(field_names),
         layout="constrained",
         # Scale chosen empirically based on what looked good in our 2D data
-        figsize=(3 + 4.5 * len(field_names) * min(1, w / h), 2 + 8 * min(1, h / w)),
+        figsize=(size_multiplier*(3 + 4.5 * len(field_names) * min(1, w / h)), size_multiplier*(2 + 8 * min(1, h / w))),
         sharex=True,
         sharey=True,
     )
@@ -323,8 +329,8 @@ def make_video(
             plt.setp(axes[i, j].get_yticklabels(), visible=False)
             axes[i, j].tick_params(axis="both", which="both", length=0)
 
-    axes[0, 0].set_ylabel(f"True State\n{coords[0]}")
-    axes[1, 0].set_ylabel(f"Predicted State\n{coords[0]}")
+    axes[0, 0].set_ylabel(f"True\n{coords[0]}")
+    axes[1, 0].set_ylabel(f"Predictedtate\n{coords[0]}")
     axes[2, 0].set_ylabel(f"Error\n{coords[0]}")
 
     # # Update function for the animation
