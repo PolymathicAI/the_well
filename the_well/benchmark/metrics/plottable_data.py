@@ -279,7 +279,10 @@ def make_video(
         len(field_names),
         layout="constrained",
         # Scale chosen empirically based on what looked good in our 2D data
-        figsize=(size_multiplier*(3 + 4.5 * len(field_names) * min(1, w / h)), size_multiplier*(2 + 8 * min(1, h / w))),
+        figsize=(
+            size_multiplier * (3 + 4.5 * len(field_names) * min(1, w / h)),
+            size_multiplier * (2 + 8 * min(1, h / w)),
+        ),
         sharex=True,
         sharey=True,
     )
