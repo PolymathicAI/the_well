@@ -3,7 +3,7 @@
 **One line description of the data:** 2D periodic incompressible shear flow.
 
 **Longer description of the data:**
-Shear flow are a type of fluid characterized by the continuous deformation of adjacent fluid layers sliding past each other with different velocities. This phenomenon is commonly observed in various natural and engineered systems, such as rivers, atmospheric boundary layers, and industrial processes involving fluid transport.
+A shear flow is a type of fluid characterized by the continuous deformation of adjacent fluid layers sliding past each other with different velocities. This phenomenon is commonly observed in various natural and engineered systems, such as rivers, atmospheric boundary layers, and industrial processes involving fluid transport.
 The dataset explores a 2D periodic shearflow governed by incompressible Navier-Stokes equation.
 
 **Associated paper**: [Paper 1](https://www.sciencedirect.com/book/9780124059351/fluid-mechanics), [Paper 2](https://journals.aps.org/prfluids/abstract/10.1103/PhysRevFluids.6.100504), [Paper 3](https://journals.aps.org/prfluids/abstract/10.1103/PhysRevFluids.9.014202).
@@ -47,7 +47,7 @@ Table: VRMSE metrics on test sets (lower is better). Best results are shown in b
 
 ## About the data
 
-**Dimension of discretized data:** 200 time-steps of 128 $\times$ 256 images.
+**Dimension of discretized data:** 200 time-steps of 256 $\times$ 512 images.
 
 **Fields available in the data:** tracer (scalar field), pressure (scalar field), velocity (vector field).
 
@@ -57,7 +57,7 @@ Table: VRMSE metrics on test sets (lower is better). Best results are shown in b
 
 **Grid type:** uniform, cartesian coordinates.
 
-**Initial conditions:** the shear field $u_1x$ is composed of $n_\text{shear}$ shears uniformly spaced along the $z$ direction. Each shear is implemented with a tanh (hyperbolic tangent) $\text{tanh}(5\frac{y-y_k}{n_\text{shear}w})$ where $z_k$ is the vertical position of the shear and $w$ is a width factor.
+**Initial conditions:** the shear field $u_x$ is composed of $n_\text{shear}$ shears uniformly spaced along the $y$ direction (called "$z$" in the generation script). Each shear is implemented with a tanh (hyperbolic tangent) $\text{tanh}(5\frac{y-y_k}{n_\text{shear}w})$ where $y_k$ is the vertical position of the shear and $w$ is a width factor.
 The velocity field $u_y$ is composed of sinusoids along the $x$ direction located at the shear. These sinusoids have an exponential decay away from the shear in the $y$ direction $\text{sin}(n_\text{blobs}\pi x)\,e^{\frac{25}{w^2}|y-y_k|^2}$.
 The tracer matches the shear at initialization. The pressure is initialized to zero.
 The initial condition is thus indexed by $n_\text{shear},n_\text{blobs},w$.
@@ -75,7 +75,7 @@ The initial condition is thus indexed by $n_\text{shear},n_\text{blobs},w$.
 
 **Approximate time to generate the data:** per input parameter: $\sim 5h$, total: $\sim 25$ hours.
 
-**Hardware used to generate the data and precision used for generating the data:** 512 nodes of 96 CPU cores each with 96 tasks running in parallel on each node, in single precision.
+**Hardware used to generate the data and precision used for generating the data:** 512 nodes of 96 CPU cores each with 96 tasks running in parallel, in double precision.
 
 ## What is interesting and challenging about the data:
 
@@ -83,7 +83,7 @@ Shear flow are non-linear phenomena arrising in fluid mechanics and turbulence.
 Predicting the behavior of the shear flow under different Reynolds and Schmidt numbers is essential for a number of applications in aerodynamics, automotive, biomedical.
 Furthermore, such flow are unstable at large Reynolds number.
 
-Please cite these associated papers if you use this data in your research:
+Please cite this associated paper if you use this data in your research:
 
 ```
 @article{burns2020dedalus,

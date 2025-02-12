@@ -33,7 +33,7 @@ for batch in train_loader:
     ...
 ```
 
-For more information regarding the interface, please refer to the [API](/api) and the [tutorials](/tutorials/dataset).
+For more information regarding the interface, please refer to the [API](./api) and the [tutorials](./tutorials/dataset).
 
 ### Installation
 

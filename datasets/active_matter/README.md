@@ -33,7 +33,7 @@ Table: VRMSE metrics on test sets (lower is better). Best results are shown in b
 velocity (vector field), orientation tensor (tensor field), strain-rate tensor (tensor field).
 
 
-**Number of trajectories:** $5$ trajectories per parameter-set, each trajectory being generated with a different initialization of the state field {$c,D,U$}.
+**Number of trajectories:** $5$ trajectories per parameter-set, each trajectory being generated with a different initialization of the state field { $c,D,U$ }.
 
 **Size of the ensemble of all simulations:** 51.3 GB.
 

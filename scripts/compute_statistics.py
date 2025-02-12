@@ -6,7 +6,8 @@ import h5py as h5
 import torch
 import yaml
 
-from the_well.data.datasets import WELL_DATASETS, WellDataset
+from the_well.data.datasets import WellDataset
+from the_well.data.utils import WELL_DATASETS
 
 
 def compute_statistics(train_path: str, stats_path: str):
