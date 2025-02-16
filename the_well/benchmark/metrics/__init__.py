@@ -22,11 +22,11 @@ __all__ = [
 
 long_time_metrics = ["VRMSE", "RMSE", "binned_spectral_mse", "PearsonR"]
 validation_metric_suite = [
-    RMSE(), 
-    NRMSE(), 
-    LInfinity(), 
-    VRMSE(), 
-    binned_spectral_mse(), 
+    RMSE(),
+    NRMSE(),
+    LInfinity(),
+    VRMSE(),
+    binned_spectral_mse(),
     PearsonR(),
 ]
 validation_plots = [plot_power_spectrum_by_field, field_histograms]
