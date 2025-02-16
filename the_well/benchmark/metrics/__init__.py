@@ -28,7 +28,7 @@ validation_metric_suite = [
     VRMSE(), 
     binned_spectral_mse(), 
     PearsonR(),
-    ]
+]
 validation_plots = [plot_power_spectrum_by_field, field_histograms]
 time_plots = [plot_all_time_metrics]
 time_space_plots = [make_video]
