@@ -39,7 +39,7 @@ class PearsonR(Metric):
 
         # Calculate Pearson correlation coefficient
         correlation = covariance / ( 
-            (std_x * std_y + eps) 
+            std_x * std_y + eps
         ) # Adding a small value to avoid division by zero
         return correlation
 
