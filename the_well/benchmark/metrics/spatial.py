@@ -3,7 +3,7 @@ import torch
 
 from the_well.benchmark.metrics.common import Metric
 from the_well.data.datasets import WellMetadata
-from scipy.stats import pearsonr
+
 
 class PearsonR(Metric):
     @staticmethod
@@ -38,8 +38,11 @@ class PearsonR(Metric):
         std_y = torch.std(y_flat, dim=-2)
 
         # Calculate Pearson correlation coefficient
-        correlation = covariance / (std_x * std_y + eps)  # Adding a small value to avoid division by zero
+        correlation = covariance / ( 
+            (std_x * std_y + eps) 
+        ) # Adding a small value to avoid division by zero
         return correlation
+
 
 class MSE(Metric):
     @staticmethod
