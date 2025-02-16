@@ -38,7 +38,7 @@ class PearsonR(Metric):
         std_y = torch.std(y_flat, dim=-2)
 
         # Calculate Pearson correlation coefficient
-        correlation = covariance / ( 
+        correlation = covariance / (
             std_x * std_y + eps
         )  # Adding a small value to avoid division by zero
         return correlation
