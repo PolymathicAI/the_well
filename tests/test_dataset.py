@@ -11,9 +11,8 @@ from the_well.data.augmentation import (
     RandomAxisPermute,
     RandomAxisRoll,
 )
-from the_well.data.datasets import (
-    WellDataset,
-    WellMetadata,
+from the_well.data.datasets import WellDataset, WellMetadata
+from the_well.data.utils import (
     maximum_stride_for_initial_index,
     raw_steps_to_possible_sample_t0s,
 )

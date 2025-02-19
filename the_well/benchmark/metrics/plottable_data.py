@@ -6,7 +6,8 @@ import numpy as np
 import torch
 from matplotlib.animation import FuncAnimation
 
-from the_well.data.datasets import WellMetadata, flatten_field_names
+from the_well.data.datasets import WellMetadata
+from the_well.data.utils import flatten_field_names
 
 
 def field_histograms(

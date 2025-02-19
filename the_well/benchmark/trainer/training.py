@@ -22,7 +22,7 @@ from the_well.data.data_formatter import (
     DefaultChannelsLastFormatter,
 )
 from the_well.data.datamodule import AbstractDataModule
-from the_well.data.datasets import flatten_field_names
+from the_well.data.utils import flatten_field_names
 
 logger = logging.getLogger(__name__)
 

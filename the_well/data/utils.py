@@ -1,3 +1,4 @@
+import itertools
 from typing import Dict, Tuple
 
 import torch
@@ -70,3 +71,56 @@ def preprocess_batch(
     x = {"x": x, "time": time_step, "parameters": parameters}
     y = batch["output_fields"]
     return x, y
+
+
+def flatten_field_names(metadata, include_constants=True):
+    flat_field_names = itertools.chain(*metadata.field_names.values())
+    flat_constant_field_names = itertools.chain(*metadata.constant_field_names.values())
+
+    if include_constants:
+        return [*flat_field_names, *flat_constant_field_names]
+    else:
+        return [*flat_field_names]
+
+
+def raw_steps_to_possible_sample_t0s(
+    total_steps_in_trajectory: int,
+    n_steps_input: int,
+    n_steps_output: int,
+    dt_stride: int,
+):
+    """Given the total number of steps in a trajectory returns the number of samples that can be taken from the
+      trajectory such that all samples have at least n_steps_input + n_steps_output steps with steps separated
+      by dt_stride.
+
+    ex1: total_steps_in_trajectory = 5, n_steps_input = 1, n_steps_output = 1, dt_stride = 1
+        Possible samples are: [0, 1], [1, 2], [2, 3], [3, 4]
+    ex2: total_steps_in_trajectory = 5, n_steps_input = 1, n_steps_output = 1, dt_stride = 2
+        Possible samples are: [0, 2], [1, 3], [2, 4]
+    ex3: total_steps_in_trajectory = 5, n_steps_input = 1, n_steps_output = 1, dt_stride = 3
+        Possible samples are: [0, 3], [1, 4]
+    ex4: total_steps_in_trajectory = 5, n_steps_input = 2, n_steps_output = 1, dt_stride = 2
+        Possible samples are: [0, 2, 4]
+
+    """
+    elapsed_steps_per_sample = 1 + dt_stride * (
+        n_steps_input + n_steps_output - 1
+    )  # Number of steps needed for sample
+    return max(0, total_steps_in_trajectory - elapsed_steps_per_sample + 1)
+
+
+def maximum_stride_for_initial_index(
+    time_idx: int,
+    total_steps_in_trajectory: int,
+    n_steps_input: int,
+    n_steps_output: int,
+):
+    """Given the total number of steps in a file and the current step returns the maximum stride
+    that can be taken from the file such that all samples have at least n_steps_input + n_steps_output steps with a stride of
+      dt_stride
+    """
+    used_steps_per_sample = n_steps_input + n_steps_output
+    return max(
+        0,
+        int((total_steps_in_trajectory - time_idx - 1) // (used_steps_per_sample - 1)),
+    )
