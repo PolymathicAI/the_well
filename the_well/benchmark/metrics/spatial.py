@@ -5,6 +5,43 @@ from the_well.benchmark.metrics.common import Metric
 from the_well.data.datasets import WellMetadata
 
 
+class PearsonR(Metric):
+    @staticmethod
+    def eval(
+        x: torch.Tensor | np.ndarray,
+        y: torch.Tensor | np.ndarray,
+        meta: WellMetadata,
+        eps: float = 1e-7,
+    ) -> torch.Tensor:
+        """
+        Pearson Correlation Coefficient
+
+        Args:
+            x: Input tensor.
+            y: Target tensor.
+            meta: Metadata for the dataset.
+
+        Returns:
+            Pearson correlation coefficient between x and y.
+        """
+        x_flat = torch.flatten(x, start_dim=-meta.n_spatial_dims - 1, end_dim=-2)
+        y_flat = torch.flatten(y, start_dim=-meta.n_spatial_dims - 1, end_dim=-2)
+
+        # Calculate means along flattened axis
+        x_mean = torch.mean(x_flat, dim=-2, keepdim=True)
+        y_mean = torch.mean(y_flat, dim=-2, keepdim=True)
+
+        # Calculate covariance
+        covariance = torch.mean((x_flat - x_mean) * (y_flat - y_mean), dim=-2)
+        # Calculate standard deviations
+        std_x = torch.std(x_flat, dim=-2)
+        std_y = torch.std(y_flat, dim=-2)
+
+        # Calculate Pearson correlation coefficient
+        correlation = covariance / (std_x * std_y + eps)
+        return correlation
+
+
 class MSE(Metric):
     @staticmethod
     def eval(
