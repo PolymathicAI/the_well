@@ -146,5 +146,5 @@ if __name__ == "__main__":
     for dataset in WELL_DATASETS:
         compute_statistics(
             train_path=os.path.join(data_dir, dataset, "data/train"),
-            stats_path=os.path.join(data_dir, dataset, "full_stats_higherMem.yaml"),
+            stats_path=os.path.join(data_dir, dataset, "stats.yaml"),
         )
