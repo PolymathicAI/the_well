@@ -19,6 +19,13 @@ def compute_statistics(train_path: str, stats_path: str):
     means = {}
     variances = {}
     stds = {}
+    rmss = {}
+
+    counts_delta = {}
+    means_delta = {}
+    variances_delta = {}
+    stds_delta = {}
+    rmss_delta = {}
 
     for p in ds.files_paths:
         with h5.File(p, "r") as f:
@@ -28,7 +35,6 @@ def compute_statistics(train_path: str, stats_path: str):
                 for field in f[ti].attrs["field_names"]:
                     data = f[ti][field][:]
                     data = torch.as_tensor(data, dtype=torch.float64)
-
                     count = math.prod(data.shape[: data.ndim - i])
                     var, mean = torch.var_mean(
                         data,
@@ -44,6 +50,24 @@ def compute_statistics(train_path: str, stats_path: str):
                         counts[field] = [count]
                         means[field] = [mean]
                         variances[field] = [var]
+
+                    if f[ti][field].attrs["time_varying"]:
+                        delta = data[:, 1:] - data[:, :-1]
+                        del data
+                        count_delta = math.prod(delta.shape[: delta.ndim - i])
+                        var_delta, mean_delta = torch.var_mean(
+                            delta,
+                            dim=tuple(range(0, delta.ndim - i)),
+                            unbiased=False,
+                        )
+                        if field in counts_delta:
+                            counts_delta[field].append(count_delta)
+                            means_delta[field].append(mean_delta)
+                            variances_delta[field].append(var_delta)
+                        else:
+                            counts_delta[field] = [count_delta]
+                            means_delta[field] = [mean_delta]
+                            variances_delta[field] = [var_delta]
 
     for field in counts:
         weights = torch.as_tensor(counts[field], dtype=torch.int64)
@@ -61,15 +85,53 @@ def compute_statistics(train_path: str, stats_path: str):
 
         mean = first_moment
         std = (second_moment - first_moment**2).sqrt()
+        rms = second_moment.sqrt()
+
+        means[field] = mean.tolist()
+        stds[field] = std.tolist()
+        rmss[field] = rms.tolist()
 
         assert torch.all(
             std > 1e-4
         ), f"The standard deviation of the '{field}' field is abnormally low."
 
-        means[field] = mean.tolist()
-        stds[field] = std.tolist()
+        if field in counts_delta:
+            weights_delta = torch.as_tensor(counts_delta[field], dtype=torch.int64)
+            weights_delta = weights_delta / weights_delta.sum()
+            weights_delta = torch.as_tensor(weights_delta, dtype=torch.float64)
 
-    stats = {"mean": means, "std": stds}
+            means_delta[field] = torch.stack(means_delta[field])
+            variances_delta[field] = torch.stack(variances_delta[field])
+
+            first_moment_delta = torch.einsum(
+                "i...,i", means_delta[field], weights_delta
+            )
+            second_moment_delta = torch.einsum(
+                "i...,i",
+                variances_delta[field] + means_delta[field] ** 2,
+                weights_delta,
+            )
+
+            mean_delta = first_moment_delta
+            std_delta = (second_moment_delta - first_moment_delta**2).sqrt()
+            rms_delta = second_moment_delta.sqrt()
+
+            means_delta[field] = mean_delta.tolist()
+            stds_delta[field] = std_delta.tolist()
+            rmss_delta[field] = rms_delta.tolist()
+
+            assert torch.all(
+                std_delta > 1e-4
+            ), f"The delta standard deviation of the '{field}' field is abnormally low."
+
+    stats = {
+        "mean": means,
+        "std": stds,
+        "rms": rmss,
+        "mean_delta": means_delta,
+        "std_delta": stds_delta,
+        "rms_delta": rmss_delta,
+    }
 
     with open(stats_path, mode="x", encoding="utf8") as f:
         yaml.dump(stats, f)
@@ -84,5 +146,5 @@ if __name__ == "__main__":
     for dataset in WELL_DATASETS:
         compute_statistics(
             train_path=os.path.join(data_dir, dataset, "data/train"),
-            stats_path=os.path.join(data_dir, dataset, "stats.yaml"),
+            stats_path=os.path.join(data_dir, dataset, "full_stats_higherMem.yaml"),
         )
