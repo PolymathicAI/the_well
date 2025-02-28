@@ -228,6 +228,22 @@ class WellDataset(Dataset):
                 field: torch.clip(torch.as_tensor(val), min=min_std)
                 for field, val in stats["std"].items()
             }
+            self.rmss = {
+                field: torch.clip(torch.as_tensor(val), min=min_std)
+                for field, val in stats["rms"].items()
+            }
+            self.means_delta = {
+                field: torch.as_tensor(val)
+                for field, val in stats["mean_delta"].items()
+            }
+            self.stds_delta = {
+                field: torch.clip(torch.as_tensor(val), min=min_std)
+                for field, val in stats["std_delta"].items()
+            }
+            self.rmss_delta = {
+                field: torch.clip(torch.as_tensor(val), min=min_std)
+                for field, val in stats["rms_delta"].items()
+            }
 
         # Input checks
         if boundary_return_type is not None and boundary_return_type not in ["padding"]:
