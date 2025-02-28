@@ -674,6 +674,116 @@ rayleigh_benard:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard/data/valid/rayleigh_benard_Rayleigh_1e8_Prandtl_5.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard/data/valid/rayleigh_benard_Rayleigh_1e10_Prandtl_2.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard/data/valid/rayleigh_benard_Rayleigh_1e8_Prandtl_5e-1.hdf5
+rayleigh_benard_uniform:
+  stats: https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/stats.yaml
+  test:
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e7_Prandtl_1e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e6_Prandtl_5e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e7_Prandtl_1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e10_Prandtl_10.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e9_Prandtl_1e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e8_Prandtl_5e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e10_Prandtl_1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e9_Prandtl_2.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e7_Prandtl_2e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e7_Prandtl_5.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e10_Prandtl_2e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e8_Prandtl_1e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e8_Prandtl_2e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e7_Prandtl_5e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e6_Prandtl_1e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e9_Prandtl_1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e6_Prandtl_5.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e8_Prandtl_2.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e7_Prandtl_10.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e6_Prandtl_1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e9_Prandtl_5e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e6_Prandtl_2.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e8_Prandtl_1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e10_Prandtl_2.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e8_Prandtl_5.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e6_Prandtl_2e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e9_Prandtl_2e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e8_Prandtl_10.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e10_Prandtl_1e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e10_Prandtl_5e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e9_Prandtl_5.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e7_Prandtl_2.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e10_Prandtl_5.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e9_Prandtl_10.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/test/rayleigh_benard_uniform_Rayleigh_1e6_Prandtl_10.hdf5
+  train:
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e7_Prandtl_1e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e6_Prandtl_5e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e7_Prandtl_1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e10_Prandtl_10.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e9_Prandtl_1e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e8_Prandtl_5e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e10_Prandtl_1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e9_Prandtl_2.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e7_Prandtl_2e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e7_Prandtl_5.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e10_Prandtl_2e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e8_Prandtl_1e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e8_Prandtl_2e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e7_Prandtl_5e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e6_Prandtl_1e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e9_Prandtl_1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e6_Prandtl_5.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e8_Prandtl_2.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e7_Prandtl_10.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e6_Prandtl_1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e9_Prandtl_5e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e6_Prandtl_2.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e8_Prandtl_1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e10_Prandtl_2.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e8_Prandtl_5.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e6_Prandtl_2e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e9_Prandtl_2e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e8_Prandtl_10.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e10_Prandtl_1e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e10_Prandtl_5e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e9_Prandtl_5.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e7_Prandtl_2.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e10_Prandtl_5.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e9_Prandtl_10.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/train/rayleigh_benard_uniform_Rayleigh_1e6_Prandtl_10.hdf5
+  valid:
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e9_Prandtl_5.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e9_Prandtl_2e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e9_Prandtl_10.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e6_Prandtl_1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e7_Prandtl_2.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e8_Prandtl_2.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e9_Prandtl_2.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e7_Prandtl_10.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e10_Prandtl_10.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e6_Prandtl_2e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e8_Prandtl_1e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e10_Prandtl_1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e10_Prandtl_5e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e10_Prandtl_2e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e8_Prandtl_1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e10_Prandtl_5.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e9_Prandtl_1e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e7_Prandtl_1e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e7_Prandtl_5.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e6_Prandtl_10.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e6_Prandtl_5e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e10_Prandtl_1e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e7_Prandtl_5e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e7_Prandtl_1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e6_Prandtl_2.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e6_Prandtl_1e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e6_Prandtl_5.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e9_Prandtl_5e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e8_Prandtl_10.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e8_Prandtl_2e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e9_Prandtl_1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e7_Prandtl_2e-1.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e8_Prandtl_5.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e10_Prandtl_2.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_benard_uniform/data/valid/rayleigh_benard_Rayleigh_1e8_Prandtl_5e-1.hdf5
 rayleigh_taylor_instability:
   stats: https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/rayleigh_taylor_instability/stats.yaml
   test:

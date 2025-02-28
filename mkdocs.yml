@@ -36,6 +36,7 @@ nav:
     - planetswe: datasets/planetswe.md
     - post_neutron_star_merger: datasets/post_neutron_star_merger.md
     - rayleigh_benard: datasets/rayleigh_benard.md
+    - rayleigh_benard_uniform: datasets/rayleigh_benard_uniform.md
     - rayleigh_taylor_instability: datasets/rayleigh_taylor_instability.md
     - shear_flow: datasets/shear_flow.md
     - supernova_explosion_64: datasets/supernova_explosion_64.md

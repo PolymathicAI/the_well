@@ -1,6 +1,6 @@
 # Rayleigh-Bénard convection
 
-**One line description of the data:** 2D horizontally-periodic Rayleigh-Benard convection.
+**One line description of the data:** 2D horizontally-periodic Rayleigh-Benard convection on uniform grid.
 
 **Longer description of the data:**
 Rayleigh-Bénard convection involves fluid dynamics and thermodynamics, seen in a horizontal fluid layer heated from below, forming convective cells due to a temperature gradient. With the lower plate heated and the upper cooled, thermal energy creates density variations, initiating fluid motion. This results in Bénard cells, showcasing warm fluid rising and cool fluid descending. The interplay of buoyancy, conduction, and viscosity leads to complex fluid motion, including vortices and boundary layers.
@@ -71,7 +71,7 @@ Table: VRMSE metrics on test sets (lower is better). Best results are shown in b
 
 **Size of the ensemble of all simulations:** 342 GB.
 
-**Grid type:** Cartesian coordinates. Sampled uniformly along the $x$ axis. Sampled at Chebyshev nodes along the $y$ axis.
+**Grid type:** uniform, cartesian coordinates.
 
 **Initial conditions:** the buoyancy is composed of a dumped noise added to a linear background  $b(t=0) = (Ly-y)\times\delta b_0 + y(Ly-y) \times\epsilon$ where $\epsilon$ is a Gaussian white noise of scale $10^{-3}$.
 The other fields $u$ and $p$ are initialized to $0$.

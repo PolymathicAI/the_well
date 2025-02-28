@@ -18,6 +18,7 @@ WELL_DATASETS = [
     "planetswe",
     "post_neutron_star_merger",
     "rayleigh_benard",
+    "rayleigh_benard_uniform",
     "rayleigh_taylor_instability",
     "shear_flow",
     "supernova_explosion_64",
