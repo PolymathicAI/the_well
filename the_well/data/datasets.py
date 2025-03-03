@@ -232,8 +232,8 @@ class WellDataset(Dataset):
                     for field, val in stats["std"].items()
                 }
                 self.means_delta = {
-                field: torch.as_tensor(val)
-                for field, val in stats["mean_delta"].items()
+                    field: torch.as_tensor(val)
+                    for field, val in stats["mean_delta"].items()
                 }
             if normalization_type == "rms":
                 self.rmss = {
