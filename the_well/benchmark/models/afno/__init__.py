@@ -105,7 +105,7 @@ class AFNO_ND(nn.Module):
     def forward(self, x):
         dtype = x.dtype
         x = x.float()
-        spatial_dims = tuple(range(1, len(x.shape) - 1))[::-1]
+        spatial_dims = tuple(range(1, len(x.shape) - 1))
 
         x = torch.fft.rfftn(x, dim=spatial_dims, norm="ortho")
         x = self.cmlp(x)
@@ -187,16 +187,17 @@ class AFNO(BaseModel):
         self.n_blocks = n_blocks
         self.cmlp_diagonal_blocks = cmlp_diagonal_blocks
         norm_layer = partial(nn.LayerNorm, eps=1e-6)
+        self.embed_permutation = [
+            "b ... c -> b c ...",
+            "b c ... -> b ... c",
+        ]
 
         # Dimension dependent things
         if self.n_spatial_dims == 2:
             self.patch_embed = nn.Conv2d(
                 dim_in, hidden_dim, kernel_size=patch_size, stride=patch_size
             )
-            self.embed_permutation = [
-                "b h w c -> b c h w",
-                "b c h w -> b h w c",
-            ]
+
             self.patch_debed = nn.ConvTranspose2d(
                 hidden_dim, dim_out, kernel_size=patch_size, stride=patch_size
             )
@@ -205,10 +206,6 @@ class AFNO(BaseModel):
             self.patch_embed = nn.Conv3d(
                 dim_in, hidden_dim, kernel_size=patch_size, stride=patch_size
             )
-            self.embed_permutation = [
-                "b h w d c -> b c h w d",
-                "b c h w d -> b h w d c",
-            ]
             self.patch_debed = nn.ConvTranspose3d(
                 hidden_dim, dim_out, kernel_size=patch_size, stride=patch_size
             )

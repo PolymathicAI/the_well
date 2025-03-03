@@ -7,6 +7,12 @@ defaults:
 data:
   n_steps_input: 4
   n_steps_output: 1
+  normalization_type:
+    _partial_: true
+    _target_: the_well.data.normalization.ZScoreNormalization
+  train_dataset: # options: WellDataset or DeltaWellDataset
+    _partial_: true
+    _target_: the_well.data.datasets.WellDataset
 # model:
 #   gradient_checkpointing: False
 data_workers: 14

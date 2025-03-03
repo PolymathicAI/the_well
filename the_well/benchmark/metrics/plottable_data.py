@@ -252,7 +252,7 @@ def make_video(
     elif "spher" in grid_type and ndims == 2:
         coords = ["theta", "phi"]
     elif "spher" in grid_type and ndims == 3:
-        coords = ["rtheta", "phi"]
+        coords = ["r", "theta", "phi"]
     else:
         # Just default to x, y, z since throwing an error here is going to be annoying
         coords = ["x", "y", "z"][:ndims]
