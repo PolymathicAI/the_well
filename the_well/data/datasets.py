@@ -234,7 +234,7 @@ class WellDataset(Dataset):
                 self.means_delta = {
                 field: torch.as_tensor(val)
                 for field, val in stats["mean_delta"].items()
-            }
+                }
             if normalization_type == "rms":
                 self.rmss = {
                     field: torch.clip(torch.as_tensor(val), min=min_std)
