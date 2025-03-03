@@ -133,6 +133,8 @@ class WellDataset(Dataset):
             Exclude any files whose name contains at least one of these strings
         use_normalization:
             Whether to normalize data in the dataset
+        normlization_type:
+            What type of dataset normalization. Options: z-score and rms
         n_steps_input:
             Number of steps to include in each sample
         n_steps_output:
@@ -178,6 +180,7 @@ class WellDataset(Dataset):
         include_filters: List[str] = [],
         exclude_filters: List[str] = [],
         use_normalization: bool = False,
+        normalization_type: str = "z-score",
         max_rollout_steps=100,
         n_steps_input: int = 1,
         n_steps_output: int = 1,
@@ -212,7 +215,7 @@ class WellDataset(Dataset):
                 well_base_path, well_dataset_name, "data", well_split_name
             )
             self.normalization_path = os.path.join(
-                well_base_path, well_dataset_name, "stats.yaml"
+                well_base_path, well_dataset_name, "full_stats.yaml"
             )
 
         self.fs, _ = fsspec.url_to_fs(self.data_path, **(storage_options or {}))
@@ -220,30 +223,27 @@ class WellDataset(Dataset):
         if use_normalization:
             with self.fs.open(self.normalization_path, mode="r") as f:
                 stats = yaml.safe_load(f)
-
-            self.means = {
-                field: torch.as_tensor(val) for field, val in stats["mean"].items()
-            }
-            self.stds = {
-                field: torch.clip(torch.as_tensor(val), min=min_std)
-                for field, val in stats["std"].items()
-            }
-            self.rmss = {
-                field: torch.clip(torch.as_tensor(val), min=min_std)
-                for field, val in stats["rms"].items()
-            }
-            self.means_delta = {
+            if normalization_type == "z-score":
+                self.means = {
+                    field: torch.as_tensor(val) for field, val in stats["mean"].items()
+                }
+                self.stds = {
+                    field: torch.clip(torch.as_tensor(val), min=min_std)
+                    for field, val in stats["std"].items()
+                }
+                self.means_delta = {
                 field: torch.as_tensor(val)
                 for field, val in stats["mean_delta"].items()
             }
-            self.stds_delta = {
-                field: torch.clip(torch.as_tensor(val), min=min_std)
-                for field, val in stats["std_delta"].items()
-            }
-            self.rmss_delta = {
-                field: torch.clip(torch.as_tensor(val), min=min_std)
-                for field, val in stats["rms_delta"].items()
-            }
+            if normalization_type == "rms":
+                self.rmss = {
+                    field: torch.clip(torch.as_tensor(val), min=min_std)
+                    for field, val in stats["rms"].items()
+                }
+                self.rmss_delta = {
+                    field: torch.clip(torch.as_tensor(val), min=min_std)
+                    for field, val in stats["rms_delta"].items()
+                }
 
         # Input checks
         if boundary_return_type is not None and boundary_return_type not in ["padding"]:
@@ -254,6 +254,7 @@ class WellDataset(Dataset):
         # Copy params
         self.well_dataset_name = well_dataset_name
         self.use_normalization = use_normalization
+        self.normalization_type = normalization_type
         self.include_filters = include_filters
         self.exclude_filters = exclude_filters
         self.max_rollout_steps = max_rollout_steps
@@ -494,10 +495,14 @@ class WellDataset(Dataset):
                     field_data = torch.as_tensor(field_data)
                     # Normalize
                     if self.use_normalization:
-                        if field_name in self.means:
-                            field_data = field_data - self.means[field_name]
-                        if field_name in self.stds:
-                            field_data = field_data / self.stds[field_name]
+                        if self.normalization_type == "z-score":
+                            if field_name in self.means:
+                                field_data = field_data - self.means[field_name]
+                            if field_name in self.stds:
+                                field_data = field_data / self.stds[field_name]
+                        if self.normalization_type == "rms":
+                            if field_name in self.rmss:
+                                field_data = field_data / self.rmss[field_name]
                     # If constant, try to cache
                     if (
                         not field.attrs["time_varying"]

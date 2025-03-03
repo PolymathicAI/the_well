@@ -48,7 +48,9 @@ class WellDataModule(AbstractDataModule):
         exclude_filters:
             File names containing any of these strings will be excluded.
         use_normalization:
-            Whether to use normalization on the data. Currently only supports mean/std.
+            Whether to use normalization on the data.
+        normalization_type:
+            What kind of normalization to use if use_normalization is True. Currently supports z-score and rms.
         max_rollout_steps:
             Maximum number of steps to use for the rollout dataset. Mostly for memory reasons.
         n_steps_input:
@@ -82,6 +84,7 @@ class WellDataModule(AbstractDataModule):
         include_filters: List[str] = [],
         exclude_filters: List[str] = [],
         use_normalization: bool = False,
+        normalization_type: str = "z-score",
         max_rollout_steps: int = 100,
         n_steps_input: int = 1,
         n_steps_output: int = 1,
@@ -107,6 +110,7 @@ class WellDataModule(AbstractDataModule):
             include_filters=include_filters,
             exclude_filters=exclude_filters,
             use_normalization=use_normalization,
+            normalization_type=normalization_type,
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
             storage_options=storage_kwargs,
@@ -127,6 +131,7 @@ class WellDataModule(AbstractDataModule):
             include_filters=include_filters,
             exclude_filters=exclude_filters,
             use_normalization=use_normalization,
+            normalization_type=normalization_type,
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
             storage_options=storage_kwargs,
@@ -146,6 +151,7 @@ class WellDataModule(AbstractDataModule):
             include_filters=include_filters,
             exclude_filters=exclude_filters,
             use_normalization=use_normalization,
+            normalization_type=normalization_type,
             max_rollout_steps=max_rollout_steps,
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
