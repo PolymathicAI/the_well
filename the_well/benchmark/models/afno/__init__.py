@@ -84,9 +84,9 @@ class AFNO_ND(nn.Module):
         sparsity_threshold=0.01,
     ):
         super().__init__()
-        assert (
-            hidden_size % cmlp_diagonal_blocks == 0
-        ), f"hidden_size {hidden_size} should be divisble by cmlp_diagonal_blocks {cmlp_diagonal_blocks}"
+        assert hidden_size % cmlp_diagonal_blocks == 0, (
+            f"hidden_size {hidden_size} should be divisble by cmlp_diagonal_blocks {cmlp_diagonal_blocks}"
+        )
 
         self.resolution = resolution
         self.hidden_size = hidden_size

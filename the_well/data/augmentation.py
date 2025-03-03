@@ -1,11 +1,50 @@
 """Data augmentation and transformations."""
 
+import inspect
 from abc import ABC, abstractmethod
-from typing import Dict, Tuple
+from collections.abc import Sequence
+from typing import Any, Dict, Tuple, Union
 
+import einops
+import numpy as np
 import torch
+import torch.nn.functional as F
 
 from .datasets import BoundaryCondition, TrajectoryData, TrajectoryMetadata
+
+PROPER_2D_ROTATIONS = [
+    ((0, 1), (0, 0)),  # 0 - x, y -> x, y
+    ((1, 0), (0, 1)),  # 90 - x, y -> y, -x
+    ((0, 1), (1, 1)),  # 180 - x, y -> -x, -y
+    ((1, 0), (1, 0)),  # 270 - x, y -> -y, x
+]
+
+PROPER_3D_ROTATIONS = [
+    ((0, 1, 2), [1, 1, 0]),
+    ((0, 1, 2), [1, 0, 1]),
+    ((0, 1, 2), [0, 1, 1]),
+    ((0, 1, 2), [0, 0, 0]),
+    ((0, 2, 1), [1, 1, 1]),
+    ((0, 2, 1), [1, 0, 0]),
+    ((0, 2, 1), [0, 1, 0]),
+    ((0, 2, 1), [0, 0, 1]),
+    ((1, 0, 2), [1, 1, 1]),
+    ((1, 0, 2), [1, 0, 0]),
+    ((1, 0, 2), [0, 1, 0]),
+    ((1, 0, 2), [0, 0, 1]),
+    ((1, 2, 0), [1, 1, 0]),
+    ((1, 2, 0), [1, 0, 1]),
+    ((1, 2, 0), [0, 1, 1]),
+    ((1, 2, 0), [0, 0, 0]),
+    ((2, 0, 1), [1, 1, 0]),
+    ((2, 0, 1), [1, 0, 1]),
+    ((2, 0, 1), [0, 1, 1]),
+    ((2, 0, 1), [0, 0, 0]),
+    ((2, 1, 0), [1, 1, 1]),
+    ((2, 1, 0), [1, 0, 0]),
+    ((2, 1, 0), [0, 1, 0]),
+    ((2, 1, 0), [0, 0, 1]),
+]
 
 
 class Augmentation(ABC):
@@ -87,6 +126,9 @@ class RandomAxisFlip(Augmentation):
         self, data: TrajectoryData, metadata: TrajectoryMetadata
     ) -> TrajectoryData:
         spatial = metadata.dataset.n_spatial_dims
+        # Geometric augmentations for non-euclidean data not implemented yet
+        if metadata.dataset.metadata.grid_type != "cartesian":
+            return data
         # i-th dim is flipped if mask[i] == True
         mask = torch.rand(spatial) < self.p
 
@@ -161,7 +203,9 @@ class RandomAxisPermute(Augmentation):
         self, data: TrajectoryData, metadata: TrajectoryMetadata
     ) -> TrajectoryData:
         spatial = metadata.dataset.n_spatial_dims
-
+        # Geometric augmentations for non-euclidean data not implemented yet
+        if metadata.dataset.metadata.grid_type != "cartesian":
+            return data
         if torch.rand(()) < self.p:
             permutation = torch.randperm(spatial)
         else:
@@ -236,7 +280,9 @@ class RandomAxisRoll(Augmentation):
         self, data: TrajectoryData, metadata: TrajectoryMetadata
     ) -> TrajectoryData:
         shape = metadata.dataset.metadata.spatial_resolution
-
+        # Geometric augmentations for non-euclidean data not implemented yet
+        if metadata.dataset.metadata.grid_type != "cartesian":
+            return data
         bc = data["boundary_conditions"]
 
         periodic = torch.all(bc == BoundaryCondition.PERIODIC.value, dim=-1)
@@ -284,5 +330,158 @@ class RandomAxisRoll(Augmentation):
                 shifts=shifts,
                 dims=axes,
             )
+
+        return data
+
+
+class RandomRotation90(Augmentation):
+    """Applies a random multiple of 90 degree rotation by decomposing
+    the rotation into axis permutations and reflections. Selects from
+    prepopulated set of proper rotations."""
+
+    def __init__(self, p: float = 1.0):
+        self.p = p
+
+    def __call__(
+        self, data: TrajectoryData, metadata: TrajectoryMetadata
+    ) -> TrajectoryData:
+        spatial = metadata.dataset.n_spatial_dims
+        # Geometric augmentations for non-euclidean data not implemented yet
+        if (
+            metadata.dataset.metadata.grid_type != "cartesian"
+            or torch.rand(()) > self.p
+        ):
+            return data
+
+        if spatial == 2:
+            chosen_ind = np.random.choice(len(PROPER_2D_ROTATIONS))
+            permutation, reflection_mask = PROPER_2D_ROTATIONS[chosen_ind]
+        elif spatial == 3:
+            chosen_ind = np.random.choice(len(PROPER_3D_ROTATIONS))
+            permutation, reflection_mask = PROPER_3D_ROTATIONS[chosen_ind]
+        permutation, reflection_mask = (
+            torch.tensor(permutation),
+            torch.tensor(reflection_mask),
+        )
+        return self.rotate90(data, permutation, reflection_mask)
+
+    @staticmethod
+    def rotate90(
+        data: TrajectoryData,
+        permutation: torch.Tensor,
+        reflection_mask: torch.Tensor,
+    ) -> TrajectoryData:
+        data = RandomAxisPermute.permute(data, permutation)
+        return RandomAxisFlip.flip(data, reflection_mask)
+
+
+class Resize(Augmentation):
+    """Resizes the spatial dimensions of fields to a target size using torch interpolate function.
+
+    Only supports 1D, 2D, and 3D fields.
+    Warning: This doesn't alter the 'spatial_resolution' field in the dataset.metadata.
+
+    Parameters
+    ----------
+    target_size :
+        The target size for spatial dimensions (if int, sets all spatial dimensions to this size; so, it does NOT preserve aspect ratio.) - either this or `scale_factor` must be provided.
+
+    scale_factor :
+        The scale factor for spatial dimensions (multiplies the spatial dimensions by this factor) - either this or `target_size` must be provided.
+
+    interpolation_mode :
+        The interpolation mode to use.
+
+    interpolation_kwargs :
+        Additional keyword arguments to pass to the torch.nn.functional.interpolate function.
+    """
+
+    def __init__(
+        self,
+        *,
+        target_size: Union[Sequence[int], int, None] = None,
+        scale_factor: Union[Sequence[float], float, None] = None,
+        interpolation_mode: str,
+        **interpolation_kwargs: Dict[str, Any],
+    ):
+        if target_size is None and scale_factor is None:
+            raise ValueError("Either target_size or scale_factor must be provided.")
+        if target_size is not None and scale_factor is not None:
+            raise ValueError("Only one of target_size or scale_factor can be provided.")
+
+        if target_size is not None:
+            if isinstance(target_size, int):
+                print(
+                    "Warning (Resize Transform): target_size is an integer. This will set all spatial dimensions to this size and NOT preserve aspect ratio."
+                )
+
+        if not set(interpolation_kwargs.keys()).issubset(
+            set(inspect.signature(F.interpolate).parameters.keys())
+        ):
+            raise ValueError(
+                "interpolation_kwargs must be a subset of F.interpolate kwargs."
+            )
+
+        self.interpolation_kwargs = interpolation_kwargs
+        self.interpolation_kwargs["size"] = target_size
+        self.interpolation_kwargs["scale_factor"] = scale_factor
+        self.interpolation_kwargs["mode"] = interpolation_mode
+
+    def __call__(
+        self, data: TrajectoryData, metadata: TrajectoryMetadata
+    ) -> TrajectoryData:
+        n_spatial_dims = metadata.dataset.metadata.n_spatial_dims
+        if n_spatial_dims not in [1, 2, 3]:
+            raise ValueError("Resize transform only supports 1D, 2D, and 3D data.")
+
+        return self.resize(data, n_spatial_dims, **self.interpolation_kwargs)
+
+    @staticmethod
+    def resize(
+        data: TrajectoryData,
+        n_spatial_dims: int,
+        **interpolation_kwargs: Dict[str, Any],
+    ) -> TrajectoryData:
+        # Create a string that represents spatial dimensions (to be used with einops.pack)
+        spatial_dims = " ".join(["d" + str(i) for i in range(n_spatial_dims)])
+
+        for key in ("variable_fields", "constant_fields"):
+            for order, fields in data[key].items():
+                for name, field in fields.items():
+                    # Add dummy temporal dimension if constant fields
+                    if key == "constant_fields":
+                        field = field.unsqueeze(0)
+
+                    # Use einops.pack to pack all dims after the spatiotemporal dimensions (that contains field data) into one dimension and put it in the last position (e.g., (t,x,y,d,d) -> (t,x,y,d*d))
+                    x_packed, ps = einops.pack([field], f"t {spatial_dims} *")
+
+                    # Move the packed dimension to the second position (e.g., (t,x,y,d*d) -> (t,d*d,x,y))
+                    x_packed = einops.rearrange(x_packed, "t ... c -> t c ...")
+
+                    # Resize the spatial dimensions
+                    x_packed = F.interpolate(x_packed, **interpolation_kwargs)
+
+                    # Move the packed dimension to the original position (e.g., (t,d*d,x,y) -> (t,x,y,d*d))
+                    x_packed = einops.rearrange(x_packed, "t c ... -> t ... c")
+
+                    # Unpack the packed dimension
+                    [field] = einops.unpack(x_packed, ps, f"t {spatial_dims} *")
+
+                    # Remove dummy temporal dimension if constant fields
+                    if key == "constant_fields":
+                        field = field.squeeze(0)
+
+                    fields[name] = field
+
+        if "space_grid" in data:
+            grid = data["space_grid"]
+
+            grid = einops.rearrange(grid, f"{spatial_dims} d -> 1 d {spatial_dims}")
+
+            grid = F.interpolate(grid, **interpolation_kwargs)
+
+            grid = einops.rearrange(grid, f"1 d {spatial_dims} -> {spatial_dims} d")
+
+            data["space_grid"] = grid
 
         return data

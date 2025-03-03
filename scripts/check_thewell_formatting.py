@@ -21,56 +21,56 @@ def check_dataset(
 
     # Attrs
     for attr in ("sample_varying", "time_varying"):
-        assert (
-            attr in dataset.attrs
-        ), f"{dataset.name} should contain '{attr}' attribute"
-        assert isinstance(
-            dataset.attrs[attr], (bool, np.bool_)
-        ), f"attribute '{attr}' in {dataset.name} should be a boolean"
+        assert attr in dataset.attrs, (
+            f"{dataset.name} should contain '{attr}' attribute"
+        )
+        assert isinstance(dataset.attrs[attr], (bool, np.bool_)), (
+            f"attribute '{attr}' in {dataset.name} should be a boolean"
+        )
 
     if is_field:
         attr = "dim_varying"
-        assert (
-            attr in dataset.attrs
-        ), f"{dataset.name} should contain '{attr}' attribute"
-        assert isinstance(
-            dataset.attrs[attr], (list, np.ndarray)
-        ), f"attribute '{attr}' in {dataset.name} should be a list of booleans"
-        assert (
-            len(dataset.attrs[attr]) == f.attrs["n_spatial_dims"]
-        ), f"attribute '{attr}' in {dataset.name} should be of length 'n_spatial_dims'"
+        assert attr in dataset.attrs, (
+            f"{dataset.name} should contain '{attr}' attribute"
+        )
+        assert isinstance(dataset.attrs[attr], (list, np.ndarray)), (
+            f"attribute '{attr}' in {dataset.name} should be a list of booleans"
+        )
+        assert len(dataset.attrs[attr]) == f.attrs["n_spatial_dims"], (
+            f"attribute '{attr}' in {dataset.name} should be of length 'n_spatial_dims'"
+        )
 
     if is_bc:
-        assert (
-            "bc_type" in dataset.attrs
-        ), f"{dataset.name} should contain 'bc_type' attribute"
+        assert "bc_type" in dataset.attrs, (
+            f"{dataset.name} should contain 'bc_type' attribute"
+        )
 
         bc_type = dataset.attrs["bc_type"]
 
-        assert isinstance(
-            bc_type, str
-        ), f"attribute 'bc_type' in {dataset.name} should be a string"
+        assert isinstance(bc_type, str), (
+            f"attribute 'bc_type' in {dataset.name} should be a string"
+        )
 
         if bc_type.lower() not in dataset.name:
             warnings.warn(f"{dataset.name} is not named after 'bc_type' ({bc_type})")
 
         for attr in ("associated_fields", "associated_dims"):
-            assert (
-                attr in dataset.attrs
-            ), f"{dataset.name} should contain '{attr}' attribute"
-            assert isinstance(
-                dataset.attrs[attr], (list, np.ndarray)
-            ), f"attribute '{attr}' in {dataset.name} should be a list of strings"
+            assert attr in dataset.attrs, (
+                f"{dataset.name} should contain '{attr}' attribute"
+            )
+            assert isinstance(dataset.attrs[attr], (list, np.ndarray)), (
+                f"attribute '{attr}' in {dataset.name} should be a list of strings"
+            )
 
         associated_dims = dataset.attrs["associated_dims"]
 
         for dim in associated_dims:
-            assert isinstance(
-                dim, str
-            ), f"{dim} in 'associated_dims' in {dataset.name} should be a string"
-            assert (
-                dim in f["dimensions"].attrs["spatial_dims"]
-            ), f"{dim} in 'associated_dims' in {dataset.name} should be in 'spatial_dims'"
+            assert isinstance(dim, str), (
+                f"{dim} in 'associated_dims' in {dataset.name} should be a string"
+            )
+            assert dim in f["dimensions"].attrs["spatial_dims"], (
+                f"{dim} in 'associated_dims' in {dataset.name} should be in 'spatial_dims'"
+            )
 
             if dim not in dataset.name:
                 warnings.warn(
@@ -108,9 +108,9 @@ def check_dataset(
     else:
         current = dataset.shape
 
-    assert (
-        current == expected
-    ), f"{dataset.name} has shape {current}, expected {expected}"
+    assert current == expected, (
+        f"{dataset.name} has shape {current}, expected {expected}"
+    )
 
 
 def check_dimensions(f: h5.File):
@@ -119,20 +119,20 @@ def check_dimensions(f: h5.File):
 
     check_dataset(f, group, "time")
 
-    assert (
-        "spatial_dims" in group.attrs
-    ), f"{group.name} should contain 'spatial_dims' attribute"
-    assert isinstance(
-        group.attrs["spatial_dims"], (list, np.ndarray)
-    ), f"attribute 'spatial_dims' in {group.name} should be a list"
-    assert (
-        len(group.attrs["spatial_dims"]) == f.attrs["n_spatial_dims"]
-    ), f"attribute 'spatial_dims' in {group.name} should be of length 'n_spatial_dims'"
+    assert "spatial_dims" in group.attrs, (
+        f"{group.name} should contain 'spatial_dims' attribute"
+    )
+    assert isinstance(group.attrs["spatial_dims"], (list, np.ndarray)), (
+        f"attribute 'spatial_dims' in {group.name} should be a list"
+    )
+    assert len(group.attrs["spatial_dims"]) == f.attrs["n_spatial_dims"], (
+        f"attribute 'spatial_dims' in {group.name} should be of length 'n_spatial_dims'"
+    )
 
     for key in group.attrs["spatial_dims"]:
-        assert isinstance(
-            key, str
-        ), f"{key} in 'spatial_dims' in {group.name} should be a string"
+        assert isinstance(key, str), (
+            f"{key} in 'spatial_dims' in {group.name} should be a string"
+        )
 
         check_dataset(f, group, key, is_spatial=True)
 
@@ -143,17 +143,17 @@ def check_fields(f: h5.File, i: int):
     assert f"t{i}_fields" in f, f"'t{i}_fields' should be a root group"
     group = f[f"t{i}_fields"]
 
-    assert (
-        "field_names" in group.attrs
-    ), f"{group.name} should contain 'field_names' attribute"
-    assert isinstance(
-        group.attrs["field_names"], (list, np.ndarray)
-    ), f"attribute 'field_names' in {group.name} should be a list"
+    assert "field_names" in group.attrs, (
+        f"{group.name} should contain 'field_names' attribute"
+    )
+    assert isinstance(group.attrs["field_names"], (list, np.ndarray)), (
+        f"attribute 'field_names' in {group.name} should be a list"
+    )
 
     for key in group.attrs["field_names"]:
-        assert isinstance(
-            key, str
-        ), f"{key} in 'field_names' in {group.name} should be a string"
+        assert isinstance(key, str), (
+            f"{key} in 'field_names' in {group.name} should be a string"
+        )
 
         check_dataset(f, group, key, is_field=True, order=i)
 
@@ -164,17 +164,17 @@ def check_scalars(f: h5.File):
     assert "scalars" in f, "'scalars' should be a root group"
     group = f["scalars"]
 
-    assert (
-        "field_names" in group.attrs
-    ), f"{group.name} should contain 'field_names' attribute"
-    assert isinstance(
-        group.attrs["field_names"], (list, np.ndarray)
-    ), f"attribute 'field_names' in {group.name} should be a list"
+    assert "field_names" in group.attrs, (
+        f"{group.name} should contain 'field_names' attribute"
+    )
+    assert isinstance(group.attrs["field_names"], (list, np.ndarray)), (
+        f"attribute 'field_names' in {group.name} should be a list"
+    )
 
     for key in group.attrs["field_names"]:
-        assert isinstance(
-            key, str
-        ), f"{key} in 'field_names' in {group.name} should be a string"
+        assert isinstance(key, str), (
+            f"{key} in 'field_names' in {group.name} should be a string"
+        )
 
         check_dataset(f, group, key)
 
@@ -199,42 +199,42 @@ def check_hdf5_format(path: str):
     with h5.File(path, "r") as f:
         # Top level attributes
         assert "dataset_name" in f.attrs, "'dataset_name' should be a root attribute"
-        assert isinstance(
-            f.attrs["dataset_name"], str
-        ), "attribute 'dataset_name' should be a string"
+        assert isinstance(f.attrs["dataset_name"], str), (
+            "attribute 'dataset_name' should be a string"
+        )
 
-        assert (
-            "n_spatial_dims" in f.attrs
-        ), "'n_spatial_dims' should be a root attribute"
-        assert isinstance(
-            f.attrs["n_spatial_dims"], (int, np.integer)
-        ), "attribute 'n_spatial_dims' should be an integer"
+        assert "n_spatial_dims" in f.attrs, (
+            "'n_spatial_dims' should be a root attribute"
+        )
+        assert isinstance(f.attrs["n_spatial_dims"], (int, np.integer)), (
+            "attribute 'n_spatial_dims' should be an integer"
+        )
 
-        assert (
-            "n_trajectories" in f.attrs
-        ), "'n_trajectories' should be a root attribute"
-        assert isinstance(
-            f.attrs["n_trajectories"], (int, np.integer)
-        ), "attribute 'n_trajectories' should be an integer"
+        assert "n_trajectories" in f.attrs, (
+            "'n_trajectories' should be a root attribute"
+        )
+        assert isinstance(f.attrs["n_trajectories"], (int, np.integer)), (
+            "attribute 'n_trajectories' should be an integer"
+        )
 
         assert "grid_type" in f.attrs, "'grid_type' should be a root attribute"
-        assert isinstance(
-            f.attrs["grid_type"], str
-        ), "attribute 'grid_type' should be a string"
+        assert isinstance(f.attrs["grid_type"], str), (
+            "attribute 'grid_type' should be a string"
+        )
 
-        assert (
-            "simulation_parameters" in f.attrs
-        ), "'simulation_parameters' should be a root attribute"
+        assert "simulation_parameters" in f.attrs, (
+            "'simulation_parameters' should be a root attribute"
+        )
         for key in f.attrs["simulation_parameters"]:
-            assert isinstance(
-                key, str
-            ), f"'{key}' in 'simulation_parameters' should be a string"
-            assert (
-                key in f.attrs
-            ), f"'{key}' listed in 'simulation_parameters' should be a root attribute"
-            assert (
-                key in f["scalars"]
-            ), f"'{key}' listed in 'simulation_parameters' should be a dataset in /scalars"
+            assert isinstance(key, str), (
+                f"'{key}' in 'simulation_parameters' should be a string"
+            )
+            assert key in f.attrs, (
+                f"'{key}' listed in 'simulation_parameters' should be a root attribute"
+            )
+            assert key in f["scalars"], (
+                f"'{key}' listed in 'simulation_parameters' should be a dataset in /scalars"
+            )
 
         # Groups
         check_dimensions(f)

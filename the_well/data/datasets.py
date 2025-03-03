@@ -1,5 +1,6 @@
 import itertools
 import os
+import warnings
 from dataclasses import dataclass
 from enum import Enum
 from typing import (
@@ -21,54 +22,17 @@ import torch
 import yaml
 from torch.utils.data import Dataset
 
-from the_well.data.utils import IO_PARAMS, WELL_DATASETS, is_dataset_in_the_well
+from the_well.data.utils import (
+    IO_PARAMS,
+    WELL_DATASETS,
+    is_dataset_in_the_well,
+    maximum_stride_for_initial_index,
+    raw_steps_to_possible_sample_t0s,
+)
 from the_well.utils.export import hdf5_to_xarray
 
 if TYPE_CHECKING:
     from .augmentation import Augmentation
-
-
-def raw_steps_to_possible_sample_t0s(
-    total_steps_in_trajectory: int,
-    n_steps_input: int,
-    n_steps_output: int,
-    dt_stride: int,
-):
-    """Given the total number of steps in a trajectory returns the number of samples that can be taken from the
-      trajectory such that all samples have at least n_steps_input + n_steps_output steps with steps separated
-      by dt_stride.
-
-    ex1: total_steps_in_trajectory = 5, n_steps_input = 1, n_steps_output = 1, dt_stride = 1
-        Possible samples are: [0, 1], [1, 2], [2, 3], [3, 4]
-    ex2: total_steps_in_trajectory = 5, n_steps_input = 1, n_steps_output = 1, dt_stride = 2
-        Possible samples are: [0, 2], [1, 3], [2, 4]
-    ex3: total_steps_in_trajectory = 5, n_steps_input = 1, n_steps_output = 1, dt_stride = 3
-        Possible samples are: [0, 3], [1, 4]
-    ex4: total_steps_in_trajectory = 5, n_steps_input = 2, n_steps_output = 1, dt_stride = 2
-        Possible samples are: [0, 2, 4]
-
-    """
-    elapsed_steps_per_sample = 1 + dt_stride * (
-        n_steps_input + n_steps_output - 1
-    )  # Number of steps needed for sample
-    return max(0, total_steps_in_trajectory - elapsed_steps_per_sample + 1)
-
-
-def maximum_stride_for_initial_index(
-    time_idx: int,
-    total_steps_in_trajectory: int,
-    n_steps_input: int,
-    n_steps_output: int,
-):
-    """Given the total number of steps in a file and the current step returns the maximum stride
-    that can be taken from the file such that all samples have at least n_steps_input + n_steps_output steps with a stride of
-      dt_stride
-    """
-    used_steps_per_sample = n_steps_input + n_steps_output
-    return max(
-        0,
-        int((total_steps_in_trajectory - time_idx - 1) // (used_steps_per_sample - 1)),
-    )
 
 
 # Boundary condition codes
@@ -76,16 +40,6 @@ class BoundaryCondition(Enum):
     WALL = 0
     OPEN = 1
     PERIODIC = 2
-
-
-def flatten_field_names(metadata, include_constants=True):
-    flat_field_names = itertools.chain(*metadata.field_names.values())
-    flat_constant_field_names = itertools.chain(*metadata.constant_field_names.values())
-
-    if include_constants:
-        return [*flat_field_names, *flat_constant_field_names]
-    else:
-        return [*flat_field_names]
 
 
 @dataclass
@@ -147,10 +101,10 @@ class TrajectoryData(TypedDict):
 @dataclass
 class TrajectoryMetadata:
     dataset: "WellDataset"
-    file_idx: int
-    sample_idx: int
-    time_idx: int
-    time_stride: int
+    file_idx: int | List[int]
+    sample_idx: int | List[int]
+    time_idx: int | List[int]
+    time_stride: int | List[int]
 
 
 class WellDataset(Dataset):
@@ -220,7 +174,7 @@ class WellDataset(Dataset):
         normalization_path: str = "../stats.yaml",
         well_base_path: Optional[str] = None,
         well_dataset_name: Optional[str] = None,
-        well_split_name: str = "train",
+        well_split_name: Literal["train", "valid", "test", None] = None,
         include_filters: List[str] = [],
         exclude_filters: List[str] = [],
         use_normalization: bool = False,
@@ -247,11 +201,13 @@ class WellDataset(Dataset):
         if path is not None:
             self.data_path = path
             self.normalization_path = os.path.join(path, normalization_path)
+            if well_split_name is not None:
+                self.data_path = os.path.join(path, "data", well_split_name)
 
         else:
-            assert is_dataset_in_the_well(
-                well_dataset_name
-            ), f"Dataset name {well_dataset_name} not in the expected list {WELL_DATASETS}."
+            assert is_dataset_in_the_well(well_dataset_name), (
+                f"Dataset name {well_dataset_name} not in the expected list {WELL_DATASETS}."
+            )
             self.data_path = os.path.join(
                 well_base_path, well_dataset_name, "data", well_split_name
             )
@@ -271,6 +227,22 @@ class WellDataset(Dataset):
             self.stds = {
                 field: torch.clip(torch.as_tensor(val), min=min_std)
                 for field, val in stats["std"].items()
+            }
+            self.rmss = {
+                field: torch.clip(torch.as_tensor(val), min=min_std)
+                for field, val in stats["rms"].items()
+            }
+            self.means_delta = {
+                field: torch.as_tensor(val)
+                for field, val in stats["mean_delta"].items()
+            }
+            self.stds_delta = {
+                field: torch.clip(torch.as_tensor(val), min=min_std)
+                for field, val in stats["std_delta"].items()
+            }
+            self.rmss_delta = {
+                field: torch.clip(torch.as_tensor(val), min=min_std)
+                for field, val in stats["rms_delta"].items()
             }
 
         # Input checks
@@ -358,9 +330,9 @@ class WellDataset(Dataset):
                 # Fast enough that I'd rather check each file rather than processing extra files before checking
                 assert len(names) == 1, "Multiple dataset names found in specified path"
                 assert len(ndims) == 1, "Multiple ndims found in specified path"
-                assert (
-                    len(size_tuples) == 1
-                ), "Multiple resolutions found in specified path"
+                assert len(size_tuples) == 1, (
+                    "Multiple resolutions found in specified path"
+                )
 
                 # Track lowest amount of steps in case we need to use full_trajectory_mode
                 lowest_steps = min(lowest_steps, steps)
@@ -631,24 +603,38 @@ class WellDataset(Dataset):
             dim_indices = {
                 dim: i for i, dim in enumerate(file["dimensions"].attrs["spatial_dims"])
             }
-            boundary_output = torch.zeros(self.n_spatial_dims, 2)
+            boundary_output = torch.ones(
+                self.n_spatial_dims, 2
+            )  # Open unless otherwise specified
             for bc_name in bcs.keys():
                 bc = bcs[bc_name]
                 bc_type = bc.attrs["bc_type"].upper()  # Enum is in upper case
                 if len(bc.attrs["associated_dims"]) > 1:
-                    raise NotImplementedError(
-                        "Only axis-aligned boundaries supported for now. If your code is not using BCs, consider setting `boundary_return_type` to None."
+                    warnings.warn(
+                        "Only axis-aligned boundary fully supported. Boundary for axis counted as `open` or `periodic` if any part of it is and `wall` otherwise."
+                        "If this does not fit your desired usecase, set `boundary_return_type=None`.",
+                        RuntimeWarning,
                     )
-                dim = bc.attrs["associated_dims"][0]
-                mask = bc["mask"]
-                if mask[0]:
-                    boundary_output[dim_indices[dim]][0] = BoundaryCondition[
-                        bc_type
-                    ].value
-                if mask[-1]:
-                    boundary_output[dim_indices[dim]][1] = BoundaryCondition[
-                        bc_type
-                    ].value
+                for dim in bc.attrs["associated_dims"]:
+                    # Check all entries at the boundary - if any `open` or `periodic`, set that. However, for wall, the full boundary must be wall
+                    first_slice = tuple(
+                        slice(None) if dim != other_dim else 0
+                        for other_dim in bc.attrs["associated_dims"]
+                    )
+                    last_slice = tuple(
+                        slice(None) if dim != other_dim else -1
+                        for other_dim in bc.attrs["associated_dims"]
+                    )
+                    agg_op = np.min if bc_type == "WALL" else np.max
+                    mask = bc["mask"][:]
+                    if agg_op(mask[first_slice]):
+                        boundary_output[dim_indices[dim]][0] = BoundaryCondition[
+                            bc_type
+                        ].value
+                    if agg_op(mask[last_slice]):
+                        boundary_output[dim_indices[dim]][1] = BoundaryCondition[
+                            bc_type
+                        ].value
             self._check_cache(cache, "boundary_output", boundary_output)
         return boundary_output
 
@@ -667,7 +653,7 @@ class WellDataset(Dataset):
         else:
             raise NotImplementedError()
 
-    def __getitem__(self, index):
+    def _load_one_sample(self, index):
         # Find specific file and local index
         file_idx = int(
             np.searchsorted(self.file_index_offsets, index, side="right") - 1
@@ -735,41 +721,44 @@ class WellDataset(Dataset):
                 self.n_steps_input + output_steps,
                 dt,
             )
+        return data, file_idx, sample_idx, time_idx, dt
 
-        # Data transformation/augmentation
-        if self.transform is not None:
-            data = self.transform(
-                cast(TrajectoryData, data),
-                TrajectoryMetadata(
-                    dataset=self,
-                    file_idx=file_idx,
-                    sample_idx=sample_idx,
-                    time_idx=time_idx,
-                    time_stride=dt,
-                ),
-            )
+    def _preprocess_data(
+        self, data: TrajectoryData, traj_metadata: TrajectoryMetadata
+    ) -> TrajectoryData:
+        """Preprocess the data before applying transformations. Identity in Well"""
+        return data
 
-        # Concatenate fields and scalars
+    def _postprocess_data(
+        self, data: TrajectoryData, traj_metadata: TrajectoryMetadata
+    ) -> TrajectoryData:
+        """Postprocess the data after applying transformations. Flattens fields and scalars into single channel dim."""
+        # Start with field data
         for key in ("variable_fields", "constant_fields"):
+            # Flatten all tensor fields
             data[key] = [
                 field.unsqueeze(-1).flatten(-order - 1)
                 for order, fields in data[key].items()
                 for _, field in fields.items()
             ]
-
+            # Then concatenate them along new single channel
             if data[key]:
                 data[key] = torch.concatenate(data[key], dim=-1)
             else:
                 data[key] = torch.tensor([])
-
+        # Then do the same for scalars but no flattening since no tensor-order
         for key in ("variable_scalars", "constant_scalars"):
             data[key] = [scalar.unsqueeze(-1) for _, scalar in data[key].items()]
-
             if data[key]:
                 data[key] = torch.concatenate(data[key], dim=-1)
             else:
                 data[key] = torch.tensor([])
 
+        return data
+
+    def _construct_sample(
+        self, data: TrajectoryData, traj_metadata: TrajectoryMetadata
+    ) -> Dict[str, torch.Tensor]:
         # Input/Output split
         sample = {
             "input_fields": data["variable_fields"][
@@ -792,8 +781,30 @@ class WellDataset(Dataset):
             sample["input_time_grid"] = data["time_grid"][: self.n_steps_input]  # Ti
             sample["output_time_grid"] = data["time_grid"][self.n_steps_input :]  # To
 
-        # Return only non-empty keys - maybe change this later
         return {k: v for k, v in sample.items() if v.numel() > 0}
+
+    def __getitem__(self, index):
+        data, file_idx, sample_idx, time_idx, dt = self._load_one_sample(index)
+        # Break out into sub-processes to make inheritance easier
+        data = cast(TrajectoryData, data)
+        traj_metadata = TrajectoryMetadata(
+            dataset=self,
+            file_idx=file_idx,
+            sample_idx=sample_idx,
+            time_idx=time_idx,
+            time_stride=dt,
+        )
+        # Apply any type of pre-processing that needs to be applied before augmentation
+        data = self._preprocess_data(data, traj_metadata)
+        # Apply augmentations and other transformations
+        if self.transform is not None:
+            data = self.transform(data, traj_metadata)
+        # Convert ingestable format - in this class this flattens the fields
+        data = self._postprocess_data(data, traj_metadata)
+        # Break apart into x, y
+        sample = self._construct_sample(data, traj_metadata)
+        # Return only non-empty keys - maybe change this later
+        return sample
 
     def __len__(self):
         return self.len

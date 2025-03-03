@@ -34,12 +34,12 @@ class Metric(nn.Module):
 
         # Check dimensions
         n_spatial_dims = meta.n_spatial_dims
-        assert (
-            x.ndim >= n_spatial_dims + 1
-        ), "x must have at least n_spatial_dims + 1 dimensions"
-        assert (
-            y.ndim >= n_spatial_dims + 1
-        ), "y must have at least n_spatial_dims + 1 dimensions"
+        assert x.ndim >= n_spatial_dims + 1, (
+            "x must have at least n_spatial_dims + 1 dimensions"
+        )
+        assert y.ndim >= n_spatial_dims + 1, (
+            "y must have at least n_spatial_dims + 1 dimensions"
+        )
         return self.eval(x, y, meta, **kwargs)
 
     @staticmethod

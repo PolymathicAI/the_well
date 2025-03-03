@@ -11,9 +11,8 @@ from the_well.data.augmentation import (
     RandomAxisPermute,
     RandomAxisRoll,
 )
-from the_well.data.datasets import (
-    WellDataset,
-    WellMetadata,
+from the_well.data.datasets import WellDataset, WellMetadata
+from the_well.data.utils import (
     maximum_stride_for_initial_index,
     raw_steps_to_possible_sample_t0s,
 )
@@ -57,6 +56,7 @@ class TestDataset(TestCase):
         dataset = WellDataset(
             well_base_path="datasets",
             well_dataset_name="active_matter",
+            well_split_name="train",
             use_normalization=False,
         )
         self.assertTrue(len(dataset))
@@ -71,6 +71,7 @@ class TestDataset(TestCase):
         dataset = WellDataset(
             well_base_path="datasets",
             well_dataset_name="active_matter",
+            well_split_name="train",
             use_normalization=False,
         )
         n_time_steps = dataset.n_steps_per_trajectory[0] - 1
@@ -86,6 +87,7 @@ class TestDataset(TestCase):
         dataset = WellDataset(
             well_base_path="datasets",
             well_dataset_name="active_matter",
+            well_split_name="train",
             use_normalization=False,
             transform=Compose(
                 RandomAxisFlip(),

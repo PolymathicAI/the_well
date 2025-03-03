@@ -1,11 +1,13 @@
 import os
+from typing import List
 
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from matplotlib.animation import FuncAnimation
 
-from the_well.data.datasets import WellMetadata, flatten_field_names
+from the_well.data.datasets import WellMetadata
+from the_well.data.utils import flatten_field_names
 
 
 def field_histograms(
@@ -89,8 +91,9 @@ def field_histograms(
 
 def build_1d_power_spectrum(x, spatial_dims):
     x_fft = torch.fft.fftn(x, dim=spatial_dims, norm="ortho").abs().square()
-    # Return the shifted sqrt power spectrum - first average over spatial dims, then batch and time
-    return torch.fft.fftshift(x_fft.mean(spatial_dims[1:]).mean(0).mean(0).sqrt())
+    # Return the shifted sqrt power spectrum
+    # First average over spatial dims, then take the last time step from the first batch element
+    return torch.fft.fftshift(x_fft.mean(spatial_dims[1:])[0, -1].sqrt())
 
 
 def plot_power_spectrum_by_field(
@@ -126,7 +129,7 @@ def plot_power_spectrum_by_field(
         np_x_fft = x_fft[..., i].sqrt().cpu().numpy()
         np_y_ftt = y_fft[..., i].sqrt().cpu().numpy()
         np_res_ftt = res_fft[..., i].sqrt().cpu().numpy()
-        title = f"{field_names[i]} Radial Power Spectrum"
+        title = f"{field_names[i]} averaged 1D power spectrum"
         ax.semilogy(
             axis,
             np_x_fft,
@@ -223,18 +226,23 @@ def make_video(
     metadata: WellMetadata,
     output_dir: str,
     epoch_number: int = 0,
+    field_name_overrides: List[str] = None,
+    size_multiplier: float = 1.0,
 ):
     """Make a video of the rollout comparison.
 
     Predicted/true are 2/3D channels last tensors.
     """
-    field_names = flatten_field_names(metadata, include_constants=False)
+    if field_name_overrides is not None:
+        field_names = field_name_overrides
+    else:
+        field_names = flatten_field_names(metadata, include_constants=False)
     dset_name = metadata.dataset_name
     ndims = metadata.n_spatial_dims
     if ndims == 3:
         # Slice the data along the middle of the last axis
-        true_images = true_images[..., true_images.shape[-1] // 2, :]
-        predicted_images = predicted_images[..., predicted_images.shape[-1] // 2, :]
+        true_images = true_images[..., true_images.shape[-2] // 2, :]
+        predicted_images = predicted_images[..., predicted_images.shape[-2] // 2, :]
 
     # TODO - Eventually just add the grid info to the metadata. This is currently very fragile
     # and probably wrong for external data.
@@ -244,7 +252,7 @@ def make_video(
     elif "spher" in grid_type and ndims == 2:
         coords = ["theta", "phi"]
     elif "spher" in grid_type and ndims == 3:
-        coords = ["r" "theta", "phi"]
+        coords = ["rtheta", "phi"]
     else:
         # Just default to x, y, z since throwing an error here is going to be annoying
         coords = ["x", "y", "z"][:ndims]
@@ -272,7 +280,10 @@ def make_video(
         len(field_names),
         layout="constrained",
         # Scale chosen empirically based on what looked good in our 2D data
-        figsize=(3 + 4.5 * len(field_names) * min(1, w / h), 2 + 8 * min(1, h / w)),
+        figsize=(
+            size_multiplier * (3 + 4.5 * len(field_names) * min(1, w / h)),
+            size_multiplier * (2 + 8 * min(1, h / w)),
+        ),
         sharex=True,
         sharey=True,
     )
@@ -322,8 +333,8 @@ def make_video(
             plt.setp(axes[i, j].get_yticklabels(), visible=False)
             axes[i, j].tick_params(axis="both", which="both", length=0)
 
-    axes[0, 0].set_ylabel(f"True State\n{coords[0]}")
-    axes[1, 0].set_ylabel(f"Predicted State\n{coords[0]}")
+    axes[0, 0].set_ylabel(f"True\n{coords[0]}")
+    axes[1, 0].set_ylabel(f"Predicted\n{coords[0]}")
     axes[2, 0].set_ylabel(f"Error\n{coords[0]}")
 
     # # Update function for the animation
