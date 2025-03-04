@@ -218,7 +218,7 @@ class WellDataset(Dataset):
                 well_base_path, well_dataset_name, "data", well_split_name
             )
             self.normalization_path = os.path.join(
-                well_base_path, well_dataset_name, "stats.yaml"
+                well_base_path, well_dataset_name, "full_stats.yaml"
             )
 
         self.fs, _ = fsspec.url_to_fs(self.data_path, **(storage_options or {}))
@@ -378,6 +378,7 @@ class WellDataset(Dataset):
                     self.field_names = {i: [] for i in range(3)}
                     self.constant_field_names = {i: [] for i in range(3)}
                     self.core_field_names = []
+                    seen = set()
 
                     for i in range(3):
                         ti = f"t{i}_fields"
@@ -397,15 +398,11 @@ class WellDataset(Dataset):
 
                                 if _f[ti][field].attrs["time_varying"]:
                                     self.field_names[i].append(field_name)
+                                    if field not in seen:
+                                        seen.add(field)
+                                        self.core_field_names.append(field)
                                 else:
                                     self.constant_field_names[i].append(field_name)
-        seen = set()
-        for i in range(3):
-            for fname in self.field_names[i]:
-                fname = fname.rsplit("_", 1)[0]
-                if fname not in seen:
-                    seen.add(fname)
-                    self.core_field_names.append(fname)
         # Full trajectory mode overrides the above and just sets each sample to "full"
         # trajectory where full = min(lowest_steps_per_file, max_rollout_steps)
         if self.full_trajectory_mode:
