@@ -1,4 +1,6 @@
 import logging
+import warnings
+
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Literal, Optional
 
@@ -51,6 +53,8 @@ class WellDataModule(AbstractDataModule):
             Whether to use normalization on the data.
         normalization_type:
             What kind of normalization to use if use_normalization is True. Currently supports z-score and rms.
+        target_type:
+            What type of output fields. Options: full and delta
         max_rollout_steps:
             Maximum number of steps to use for the rollout dataset. Mostly for memory reasons.
         n_steps_input:
@@ -84,7 +88,8 @@ class WellDataModule(AbstractDataModule):
         include_filters: List[str] = [],
         exclude_filters: List[str] = [],
         use_normalization: bool = False,
-        normalization_type: str = "z-score",
+        normalization_type: Literal["z-score", "rms", None] = None,
+        target_type: Literal["full", "delta"] = "full",
         max_rollout_steps: int = 100,
         n_steps_input: int = 1,
         n_steps_output: int = 1,
@@ -103,6 +108,33 @@ class WellDataModule(AbstractDataModule):
         ] = None,
         storage_kwargs: Optional[Dict] = None,
     ):
+        with warnings.catch_warnings():
+            warnings.simplefilter("always")  # Ensure warnings are always displayed
+
+            if use_normalization:
+                warnings.warn(
+                    "`use_normalization` parameter will be removed in a future version. "
+                    "For proper normalizing, set both use_normalization=True and normalization_type to either z-score or rms."
+                    "Default behavior is `normalization_type=None` and `use_normalization=False`.",
+                    DeprecationWarning,
+                )
+
+            if (use_normalization is False) and (normalization_type is not None):
+                warnings.warn(
+                    "Inconsistent normalization settings: `use_normalization=False`, but `normalization_type` is set. "
+                    "Defaulting `normalization_type=None` and `use_normalization=False`.",
+                    UserWarning,
+                )
+                normalization_type = None
+
+            if (use_normalization is True) and (normalization_type is None):
+                warnings.warn(
+                    "Inconsistent normalization settings: `use_normalization=True`, but `normalization_type` is None. "
+                    "Defaulting `normalization_type=None` and `use_normalization=False`.",
+                    UserWarning,
+                )
+                use_normalization = False
+
         self.train_dataset = WellDataset(
             well_base_path=well_base_path,
             well_dataset_name=well_dataset_name,
@@ -111,6 +143,7 @@ class WellDataModule(AbstractDataModule):
             exclude_filters=exclude_filters,
             use_normalization=use_normalization,
             normalization_type=normalization_type,
+            target_type=target_type,
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
             storage_options=storage_kwargs,
@@ -132,6 +165,7 @@ class WellDataModule(AbstractDataModule):
             exclude_filters=exclude_filters,
             use_normalization=use_normalization,
             normalization_type=normalization_type,
+            target_type=target_type,
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
             storage_options=storage_kwargs,
@@ -152,6 +186,7 @@ class WellDataModule(AbstractDataModule):
             exclude_filters=exclude_filters,
             use_normalization=use_normalization,
             normalization_type=normalization_type,
+            target_type=target_type,
             max_rollout_steps=max_rollout_steps,
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
@@ -172,6 +207,9 @@ class WellDataModule(AbstractDataModule):
             well_split_name="test",
             include_filters=include_filters,
             exclude_filters=exclude_filters,
+            use_normalization=use_normalization,
+            normalization_type=normalization_type,
+            target_type=target_type,
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
             storage_options=storage_kwargs,
@@ -190,6 +228,9 @@ class WellDataModule(AbstractDataModule):
             well_split_name="test",
             include_filters=include_filters,
             exclude_filters=exclude_filters,
+            use_normalization=use_normalization,
+            normalization_type=normalization_type,
+            target_type=target_type,
             max_rollout_steps=max_rollout_steps,
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,

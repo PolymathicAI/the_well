@@ -135,6 +135,8 @@ class WellDataset(Dataset):
             Whether to normalize data in the dataset
         normlization_type:
             What type of dataset normalization. Options: z-score and rms
+        target_type:
+            What type of output fields. Options: full and delta
         n_steps_input:
             Number of steps to include in each sample
         n_steps_output:
@@ -180,7 +182,8 @@ class WellDataset(Dataset):
         include_filters: List[str] = [],
         exclude_filters: List[str] = [],
         use_normalization: bool = False,
-        normalization_type: str = "z-score",
+        normalization_type: Literal["z-score", "rms", None] = None,
+        target_type: Literal["full", "delta"] = "full",
         max_rollout_steps=100,
         n_steps_input: int = 1,
         n_steps_output: int = 1,
@@ -219,7 +222,6 @@ class WellDataset(Dataset):
             )
 
         self.fs, _ = fsspec.url_to_fs(self.data_path, **(storage_options or {}))
-
         if use_normalization:
             with self.fs.open(self.normalization_path, mode="r") as f:
                 stats = yaml.safe_load(f)
@@ -234,6 +236,10 @@ class WellDataset(Dataset):
                 self.means_delta = {
                     field: torch.as_tensor(val)
                     for field, val in stats["mean_delta"].items()
+                }
+                self.stds_delta = {
+                    field: torch.clip(torch.as_tensor(val), min=min_std)
+                    for field, val in stats["std_delta"].items()
                 }
             if normalization_type == "rms":
                 self.rmss = {
@@ -255,6 +261,7 @@ class WellDataset(Dataset):
         self.well_dataset_name = well_dataset_name
         self.use_normalization = use_normalization
         self.normalization_type = normalization_type
+        self.target_type = target_type
         self.include_filters = include_filters
         self.exclude_filters = exclude_filters
         self.max_rollout_steps = max_rollout_steps
@@ -370,6 +377,7 @@ class WellDataset(Dataset):
                     # Populate field names
                     self.field_names = {i: [] for i in range(3)}
                     self.constant_field_names = {i: [] for i in range(3)}
+                    self.core_field_names = []
 
                     for i in range(3):
                         ti = f"t{i}_fields"
@@ -391,6 +399,13 @@ class WellDataset(Dataset):
                                     self.field_names[i].append(field_name)
                                 else:
                                     self.constant_field_names[i].append(field_name)
+        seen = set()
+        for i in range(3):
+            for fname in self.field_names[i]:
+                fname = fname.rsplit("_", 1)[0]
+                if fname not in seen:
+                    seen.add(fname)
+                    self.core_field_names.append(fname)
         # Full trajectory mode overrides the above and just sets each sample to "full"
         # trajectory where full = min(lowest_steps_per_file, max_rollout_steps)
         if self.full_trajectory_mode:
@@ -496,13 +511,11 @@ class WellDataset(Dataset):
                     # Normalize
                     if self.use_normalization:
                         if self.normalization_type == "z-score":
-                            if field_name in self.means:
-                                field_data = field_data - self.means[field_name]
-                            if field_name in self.stds:
-                                field_data = field_data / self.stds[field_name]
+                            field_data = (
+                                field_data - self.means[field_name]
+                            ) / self.stds[field_name]
                         if self.normalization_type == "rms":
-                            if field_name in self.rmss:
-                                field_data = field_data / self.rmss[field_name]
+                            field_data = field_data / self.rmss[field_name]
                     # If constant, try to cache
                     if (
                         not field.attrs["time_varying"]
@@ -777,6 +790,42 @@ class WellDataset(Dataset):
             "output_scalars": data["variable_scalars"][self.n_steps_input :],  # To x C
             "constant_scalars": data["constant_scalars"],  # C
         }
+
+        if self.target_type == "delta":
+            y = torch.cat([sample["input_fields"][-1:, ...], sample["output_fields"]], dim=0)
+            y = y[1:, ...] - y[:-1, ...]
+
+            if self.use_normalization:
+                if self.normalization_type == "z-score":
+                    stds_flat = torch.cat(
+                        [self.stds[field].flatten() for field in self.core_field_names]
+                    )
+                    stds_delta_flat = torch.cat(
+                        [
+                            self.stds_delta[field].flatten()
+                            for field in self.core_field_names
+                        ]
+                    )
+                    means_delta_flat = torch.cat(
+                        [
+                            self.means_delta[field].flatten()
+                            for field in self.core_field_names
+                        ]
+                    )
+                    y = (y * stds_flat - means_delta_flat) / stds_delta_flat
+
+                if self.normalization_type == "rms":
+                    rmss_flat = torch.cat(
+                        [self.rmss[field].flatten() for field in self.core_field_names]
+                    )
+                    rmss_delta_flat = torch.cat(
+                        [
+                            self.rmss_delta[field].flatten()
+                            for field in self.core_field_names
+                        ]
+                    )
+                    y = y * rmss_flat / rmss_delta_flat
+            sample["output_fields"] = y
 
         if self.boundary_return_type is not None:
             sample["boundary_conditions"] = data["boundary_conditions"]  # N x 2
