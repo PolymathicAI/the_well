@@ -218,7 +218,7 @@ class WellDataset(Dataset):
                 well_base_path, well_dataset_name, "data", well_split_name
             )
             self.normalization_path = os.path.join(
-                well_base_path, well_dataset_name, "full_stats.yaml"
+                well_base_path, well_dataset_name, "stats.yaml"
             )
 
         self.fs, _ = fsspec.url_to_fs(self.data_path, **(storage_options or {}))
@@ -377,6 +377,8 @@ class WellDataset(Dataset):
                     # Populate field names
                     self.field_names = {i: [] for i in range(3)}
                     self.constant_field_names = {i: [] for i in range(3)}
+
+                    # Store the core names for dealing with normalization cases
                     self.core_field_names = []
                     seen = set()
 
@@ -403,6 +405,37 @@ class WellDataset(Dataset):
                                         self.core_field_names.append(field)
                                 else:
                                     self.constant_field_names[i].append(field_name)
+        # Create flattened tensors for stats for delta target calculation
+        if self.target_type == "delta":
+            if self.use_normalization:
+                if self.normalization_type == "z-score":
+                    self.stds_flat = torch.cat(
+                        [self.stds[field].flatten() for field in self.core_field_names]
+                    )
+                    self.stds_delta_flat = torch.cat(
+                        [
+                            self.stds_delta[field].flatten()
+                            for field in self.core_field_names
+                        ]
+                    )
+                    self.means_delta_flat = torch.cat(
+                        [
+                            self.means_delta[field].flatten()
+                            for field in self.core_field_names
+                        ]
+                    )
+                    print(f'means_delta_flat: {self.means_delta_flat}')
+                if self.normalization_type == "rms":
+                    self.rmss_flat = torch.cat(
+                        [self.rmss[field].flatten() for field in self.core_field_names]
+                    )
+                    self.rmss_delta_flat = torch.cat(
+                        [
+                            self.rmss_delta[field].flatten()
+                            for field in self.core_field_names
+                        ]
+                    )
+                    print(f'rms_delta_flat: {self.rmss_delta_flat}')
         # Full trajectory mode overrides the above and just sets each sample to "full"
         # trajectory where full = min(lowest_steps_per_file, max_rollout_steps)
         if self.full_trajectory_mode:
@@ -796,34 +829,10 @@ class WellDataset(Dataset):
 
             if self.use_normalization:
                 if self.normalization_type == "z-score":
-                    stds_flat = torch.cat(
-                        [self.stds[field].flatten() for field in self.core_field_names]
-                    )
-                    stds_delta_flat = torch.cat(
-                        [
-                            self.stds_delta[field].flatten()
-                            for field in self.core_field_names
-                        ]
-                    )
-                    means_delta_flat = torch.cat(
-                        [
-                            self.means_delta[field].flatten()
-                            for field in self.core_field_names
-                        ]
-                    )
-                    y = (y * stds_flat - means_delta_flat) / stds_delta_flat
+                    y = (y * self.stds_flat - self.means_delta_flat) / self.stds_delta_flat
 
                 if self.normalization_type == "rms":
-                    rmss_flat = torch.cat(
-                        [self.rmss[field].flatten() for field in self.core_field_names]
-                    )
-                    rmss_delta_flat = torch.cat(
-                        [
-                            self.rmss_delta[field].flatten()
-                            for field in self.core_field_names
-                        ]
-                    )
-                    y = y * rmss_flat / rmss_delta_flat
+                    y = y * self.rmss_flat / self.rmss_delta_flat
             sample["output_fields"] = y
 
         if self.boundary_return_type is not None:
