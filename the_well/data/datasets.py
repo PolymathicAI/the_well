@@ -792,7 +792,9 @@ class WellDataset(Dataset):
         }
 
         if self.target_type == "delta":
-            y = torch.cat([sample["input_fields"][-1:, ...], sample["output_fields"]], dim=0)
+            y = torch.cat(
+                [sample["input_fields"][-1:, ...], sample["output_fields"]], dim=0
+            )
             y = y[1:, ...] - y[:-1, ...]
 
             if self.use_normalization:
