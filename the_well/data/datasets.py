@@ -424,7 +424,7 @@ class WellDataset(Dataset):
                             for field in self.core_field_names
                         ]
                     )
-                    print(f'means_delta_flat: {self.means_delta_flat}')
+
                 if self.normalization_type == "rms":
                     self.rmss_flat = torch.cat(
                         [self.rmss[field].flatten() for field in self.core_field_names]
@@ -435,7 +435,6 @@ class WellDataset(Dataset):
                             for field in self.core_field_names
                         ]
                     )
-                    print(f'rms_delta_flat: {self.rmss_delta_flat}')
         # Full trajectory mode overrides the above and just sets each sample to "full"
         # trajectory where full = min(lowest_steps_per_file, max_rollout_steps)
         if self.full_trajectory_mode:
@@ -829,7 +828,9 @@ class WellDataset(Dataset):
 
             if self.use_normalization:
                 if self.normalization_type == "z-score":
-                    y = (y * self.stds_flat - self.means_delta_flat) / self.stds_delta_flat
+                    y = (
+                        y * self.stds_flat - self.means_delta_flat
+                    ) / self.stds_delta_flat
 
                 if self.normalization_type == "rms":
                     y = y * self.rmss_flat / self.rmss_delta_flat
