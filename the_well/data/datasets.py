@@ -378,7 +378,7 @@ class WellDataset(Dataset):
                     self.field_names = {i: [] for i in range(3)}
                     self.constant_field_names = {i: [] for i in range(3)}
 
-                    # Store the core names for dealing with normalization cases
+                    # Store the core names for dealing with delta normalization cases
                     self.core_field_names = []
                     seen = set()
 
