@@ -211,7 +211,7 @@ class Trainer:
 
             y_pred = formatter.process_output_channel_last(y_pred)
 
-            if ((not train) and (hasattr(self, "dset_norm")) and (self.dset_norm)):
+            if (not train) and (hasattr(self, "dset_norm")) and (self.dset_norm):
                 # Denormalize moving batch
                 moving_batch["input_fields"] = self.dset_norm.denormalize_flattened(
                     moving_batch["input_fields"], "variable"
@@ -230,7 +230,7 @@ class Trainer:
                 elif self.target_type == "full":
                     y_pred = self.dset_norm.denormalize_flattened(y_pred, "variable")
 
-            if ((not train) and (self.target_type == "delta")):
+            if (not train) and (self.target_type == "delta"):
                 assert {
                     moving_batch["input_fields"][:, -1, ...].shape == y_pred.shape
                 }, f"Mismatching shapes between last input timestep {moving_batch[:, -1, ...].shape}\
