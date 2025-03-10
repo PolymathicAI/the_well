@@ -191,7 +191,6 @@ class Trainer:
             )
         y_preds = []
         for i in range(rollout_steps):
-
             if not train and hasattr(self, "dset_norm") and self.dset_norm:
                 moving_batch["input_fields"] = self.dset_norm.normalize_flattened(
                     moving_batch["input_fields"], "variable"
