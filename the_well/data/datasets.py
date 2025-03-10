@@ -33,6 +33,7 @@ from the_well.utils.export import hdf5_to_xarray
 
 if TYPE_CHECKING:
     from .augmentation import Augmentation
+from .normalization import ZScoreNormalization, RMSNormalization
 
 
 # Boundary condition codes
@@ -135,8 +136,6 @@ class WellDataset(Dataset):
             Whether to normalize data in the dataset
         normlization_type:
             What type of dataset normalization. Options: z-score and rms
-        target_type:
-            What type of output fields. Options: full and delta
         n_steps_input:
             Number of steps to include in each sample
         n_steps_output:
@@ -183,7 +182,6 @@ class WellDataset(Dataset):
         exclude_filters: List[str] = [],
         use_normalization: bool = False,
         normalization_type: Literal["z-score", "rms", None] = None,
-        target_type: Literal["full", "delta"] = "full",
         max_rollout_steps=100,
         n_steps_input: int = 1,
         n_steps_output: int = 1,
@@ -218,38 +216,10 @@ class WellDataset(Dataset):
                 well_base_path, well_dataset_name, "data", well_split_name
             )
             self.normalization_path = os.path.join(
-                well_base_path, well_dataset_name, "stats.yaml"
+                well_base_path, well_dataset_name, "full_stats.yaml"
             )
 
         self.fs, _ = fsspec.url_to_fs(self.data_path, **(storage_options or {}))
-        if use_normalization:
-            with self.fs.open(self.normalization_path, mode="r") as f:
-                stats = yaml.safe_load(f)
-            if normalization_type == "z-score":
-                self.means = {
-                    field: torch.as_tensor(val) for field, val in stats["mean"].items()
-                }
-                self.stds = {
-                    field: torch.clip(torch.as_tensor(val), min=min_std)
-                    for field, val in stats["std"].items()
-                }
-                self.means_delta = {
-                    field: torch.as_tensor(val)
-                    for field, val in stats["mean_delta"].items()
-                }
-                self.stds_delta = {
-                    field: torch.clip(torch.as_tensor(val), min=min_std)
-                    for field, val in stats["std_delta"].items()
-                }
-            if normalization_type == "rms":
-                self.rmss = {
-                    field: torch.clip(torch.as_tensor(val), min=min_std)
-                    for field, val in stats["rms"].items()
-                }
-                self.rmss_delta = {
-                    field: torch.clip(torch.as_tensor(val), min=min_std)
-                    for field, val in stats["rms_delta"].items()
-                }
 
         # Input checks
         if boundary_return_type is not None and boundary_return_type not in ["padding"]:
@@ -261,7 +231,6 @@ class WellDataset(Dataset):
         self.well_dataset_name = well_dataset_name
         self.use_normalization = use_normalization
         self.normalization_type = normalization_type
-        self.target_type = target_type
         self.include_filters = include_filters
         self.exclude_filters = exclude_filters
         self.max_rollout_steps = max_rollout_steps
@@ -304,6 +273,21 @@ class WellDataset(Dataset):
         # Override name if necessary for logging
         if name_override is not None:
             self.dataset_name = name_override
+
+        # Initialize normalization classes if True
+        if use_normalization:
+            with self.fs.open(self.normalization_path, mode="r") as f:
+                stats = yaml.safe_load(f)
+            if normalization_type == "z-score":
+                self.norm = ZScoreNormalization(
+                    stats, self.core_field_names, self.core_constant_field_names
+                )
+            if normalization_type == "rms":
+                self.norm = RMSNormalization(
+                    stats, self.core_field_names, self.core_constant_field_names
+                )
+            else:
+                self.norm = None
 
     def _build_metadata(self):
         """Builds multi-file indices and checks that folder contains consistent dataset"""
@@ -378,8 +362,9 @@ class WellDataset(Dataset):
                     self.field_names = {i: [] for i in range(3)}
                     self.constant_field_names = {i: [] for i in range(3)}
 
-                    # Store the core names for dealing with delta normalization cases
+                    # Store the core names without the tensor indices appended
                     self.core_field_names = []
+                    self.core_constant_field_names = []
                     seen = set()
 
                     for i in range(3):
@@ -405,36 +390,10 @@ class WellDataset(Dataset):
                                         self.core_field_names.append(field)
                                 else:
                                     self.constant_field_names[i].append(field_name)
-        # Create flattened tensors for stats for delta target calculation
-        if self.target_type == "delta":
-            if self.use_normalization:
-                if self.normalization_type == "z-score":
-                    self.stds_flat = torch.cat(
-                        [self.stds[field].flatten() for field in self.core_field_names]
-                    )
-                    self.stds_delta_flat = torch.cat(
-                        [
-                            self.stds_delta[field].flatten()
-                            for field in self.core_field_names
-                        ]
-                    )
-                    self.means_delta_flat = torch.cat(
-                        [
-                            self.means_delta[field].flatten()
-                            for field in self.core_field_names
-                        ]
-                    )
+                                    if field not in seen:
+                                        seen.add(field)
+                                        self.core_constant_field_names.append(field)
 
-                if self.normalization_type == "rms":
-                    self.rmss_flat = torch.cat(
-                        [self.rmss[field].flatten() for field in self.core_field_names]
-                    )
-                    self.rmss_delta_flat = torch.cat(
-                        [
-                            self.rmss_delta[field].flatten()
-                            for field in self.core_field_names
-                        ]
-                    )
         # Full trajectory mode overrides the above and just sets each sample to "full"
         # trajectory where full = min(lowest_steps_per_file, max_rollout_steps)
         if self.full_trajectory_mode:
@@ -538,13 +497,8 @@ class WellDataset(Dataset):
                     field_data = field_data[multi_index]
                     field_data = torch.as_tensor(field_data)
                     # Normalize
-                    if self.use_normalization:
-                        if self.normalization_type == "z-score":
-                            field_data = (
-                                field_data - self.means[field_name]
-                            ) / self.stds[field_name]
-                        if self.normalization_type == "rms":
-                            field_data = field_data / self.rmss[field_name]
+                    if self.use_normalization and self.norm:
+                        field_data = self.norm.normalize(field_data, field_name)
                     # If constant, try to cache
                     if (
                         not field.attrs["time_varying"]
@@ -820,22 +774,6 @@ class WellDataset(Dataset):
             "constant_scalars": data["constant_scalars"],  # C
         }
 
-        if self.target_type == "delta":
-            y = torch.cat(
-                [sample["input_fields"][-1:, ...], sample["output_fields"]], dim=0
-            )
-            y = y[1:, ...] - y[:-1, ...]
-
-            if self.use_normalization:
-                if self.normalization_type == "z-score":
-                    y = (
-                        y * self.stds_flat - self.means_delta_flat
-                    ) / self.stds_delta_flat
-
-                if self.normalization_type == "rms":
-                    y = y * self.rmss_flat / self.rmss_delta_flat
-            sample["output_fields"] = y
-
         if self.boundary_return_type is not None:
             sample["boundary_conditions"] = data["boundary_conditions"]  # N x 2
 
@@ -912,3 +850,81 @@ class WellDataset(Dataset):
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: {self.data_path}>"
+
+
+class DeltaWellDataset(WellDataset):
+    """Dataset for delta target type."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)  # Pass all arguments to WellDataset
+
+    def _reconstruct_fields(self, file, cache, sample_idx, time_idx, n_steps, dt):
+        """Reconstruct space fields starting at index sample_idx, time_idx, with
+        n_steps and dt stride."""
+        variable_fields = {0: {}, 1: {}, 2: {}}
+        constant_fields = {0: {}, 1: {}, 2: {}}
+        # Iterate through field types and apply appropriate transforms to stack them
+        for i, order_fields in enumerate(["t0_fields", "t1_fields", "t2_fields"]):
+            field_names = file[order_fields].attrs["field_names"]
+            for field_name in field_names:
+                field = file[order_fields][field_name]
+                use_dims = field.attrs["dim_varying"]
+                # If the field is in the cache, use it, otherwise go through read/pad
+                if field_name in cache:
+                    field_data = cache[field_name]
+                else:
+                    field_data = field
+                    # Index is built gradually since there can be different numbers of leading fields
+                    multi_index = ()
+                    if field.attrs["sample_varying"]:
+                        multi_index = multi_index + (sample_idx,)
+                    if field.attrs["time_varying"]:
+                        multi_index = multi_index + (
+                            slice(time_idx, time_idx + n_steps * dt, dt),
+                        )
+                    field_data = field_data[multi_index]
+                    field_data = torch.as_tensor(field_data)
+                    if field.attrs["time_varying"]:
+                        x = field_data[: self.n_steps_input]  # Input steps
+                        y = field_data[self.n_steps_input :]  # Output steps
+                        y = torch.cat(
+                            [x[-1:, ...], y], dim=0
+                        )  # Ensure continuity before computing deltas
+                        y = y[1:, ...] - y[:-1, ...]  # Compute deltas
+                        field_data = torch.cat(
+                            [x, y], dim=0
+                        )  # Keep all input steps + delta outputs
+                        # Normalize
+                        if self.use_normalization and self.norm:
+                            field_data[: self.n_steps_input] = self.norm.normalize(
+                                field_data[: self.n_steps_input], field_name
+                            )
+                            field_data[self.n_steps_input :] = (
+                                self.norm.delta_normalize(
+                                    field_data[self.n_steps_input :], field_name
+                                )
+                            )
+                    else:
+                        if self.use_normalization and self.norm:
+                            field_data = self.norm.normalize(field_data, field_name)
+                    # If constant, try to cache
+                    if (
+                        not field.attrs["time_varying"]
+                        and not field.attrs["sample_varying"]
+                    ):
+                        self._check_cache(cache, field_name, field_data)
+
+                # Expand dims
+                field_data = self._pad_axes(
+                    field_data,
+                    use_dims,
+                    time_varying=field.attrs["time_varying"],
+                    tensor_order=i,
+                )
+
+                if field.attrs["time_varying"]:
+                    variable_fields[i][field_name] = field_data
+                else:
+                    constant_fields[i][field_name] = field_data
+
+        return (variable_fields, constant_fields)

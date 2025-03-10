@@ -7,6 +7,9 @@ defaults:
 data:
   n_steps_input: 4
   n_steps_output: 1
+  use_normalization: True # must be set to True along with a supported type
+  normalization_type: # options: z-score or rms or empty
+  target_type: "full" # options: full or delta
 # model:
 #   gradient_checkpointing: False
 data_workers: 14

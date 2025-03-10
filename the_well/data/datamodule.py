@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Literal, Optional
 from torch.utils.data import DataLoader, DistributedSampler
 
 from .augmentation import Augmentation
-from .datasets import WellDataset
+from .datasets import WellDataset, DeltaWellDataset
 
 logger = logging.getLogger(__name__)
 
@@ -107,6 +107,7 @@ class WellDataModule(AbstractDataModule):
         ] = None,
         storage_kwargs: Optional[Dict] = None,
     ):
+        self.target_type = target_type
         with warnings.catch_warnings():
             warnings.simplefilter("always")  # Ensure warnings are always displayed
 
@@ -133,8 +134,9 @@ class WellDataModule(AbstractDataModule):
                     UserWarning,
                 )
                 use_normalization = False
-
-        self.train_dataset = WellDataset(
+        # Use DeltaWellDataset only for training, WellDataset for everything else
+        TrainDataset = DeltaWellDataset if target_type == "delta" else WellDataset
+        self.train_dataset = TrainDataset(
             well_base_path=well_base_path,
             well_dataset_name=well_dataset_name,
             well_split_name="train",
@@ -142,7 +144,6 @@ class WellDataModule(AbstractDataModule):
             exclude_filters=exclude_filters,
             use_normalization=use_normalization,
             normalization_type=normalization_type,
-            target_type=target_type,
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
             storage_options=storage_kwargs,
@@ -162,9 +163,6 @@ class WellDataModule(AbstractDataModule):
             well_split_name="valid",
             include_filters=include_filters,
             exclude_filters=exclude_filters,
-            use_normalization=use_normalization,
-            normalization_type=normalization_type,
-            target_type=target_type,
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
             storage_options=storage_kwargs,
@@ -183,9 +181,6 @@ class WellDataModule(AbstractDataModule):
             well_split_name="valid",
             include_filters=include_filters,
             exclude_filters=exclude_filters,
-            use_normalization=use_normalization,
-            normalization_type=normalization_type,
-            target_type=target_type,
             max_rollout_steps=max_rollout_steps,
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
@@ -206,9 +201,6 @@ class WellDataModule(AbstractDataModule):
             well_split_name="test",
             include_filters=include_filters,
             exclude_filters=exclude_filters,
-            use_normalization=use_normalization,
-            normalization_type=normalization_type,
-            target_type=target_type,
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
             storage_options=storage_kwargs,
@@ -227,9 +219,6 @@ class WellDataModule(AbstractDataModule):
             well_split_name="test",
             include_filters=include_filters,
             exclude_filters=exclude_filters,
-            use_normalization=use_normalization,
-            normalization_type=normalization_type,
-            target_type=target_type,
             max_rollout_steps=max_rollout_steps,
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,

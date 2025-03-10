@@ -120,6 +120,7 @@ class Trainer:
         self.optimizer = optimizer
         self.lr_scheduler = lr_scheduler
         self.loss_fn = loss_fn
+        self.target_type = datamodule.target_type
         self.validation_suite = validation_metric_suite + [self.loss_fn]
         self.max_epoch = epochs
         self.checkpoint_frequency = checkpoint_frequency
@@ -138,6 +139,8 @@ class Trainer:
         self.best_val_loss = None
         self.starting_val_loss = float("inf")
         self.dset_metadata = self.datamodule.train_dataset.metadata
+        if self.datamodule.train_dataset.use_normalization:
+            self.dset_norm = self.datamodule.train_dataset.norm
         if formatter == "channels_first_default":
             self.formatter = DefaultChannelsFirstFormatter(self.dset_metadata)
         elif formatter == "channels_last_default":
@@ -172,7 +175,7 @@ class Trainer:
             checkpoint["epoch"] + 1
         )  # Saves after training loop, so start at next epoch
 
-    def rollout_model(self, model, batch, formatter):
+    def rollout_model(self, model, batch, formatter, train=True):
         """Rollout the model for as many steps as we have data for."""
         inputs, y_ref = formatter.process_input(batch)
         rollout_steps = min(
@@ -188,10 +191,45 @@ class Trainer:
             )
         y_preds = []
         for i in range(rollout_steps):
+            if not train and hasattr(self, 'dset_norm') and self.dset_norm:
+                moving_batch["input_fields"] = self.dset_norm.normalize_flattened(
+                    moving_batch["input_fields"], "variable"
+                )
+                if "constant_fields" in moving_batch:
+                    moving_batch["constant_fields"] = self.dset_norm.normalize_flattened(
+                        moving_batch["constant_fields"], "constant"
+                    )
+
             inputs, _ = formatter.process_input(moving_batch)
-            inputs = map(lambda x: x.to(self.device), inputs)
+            inputs = list(map(lambda x: x.to(self.device), inputs))
             y_pred = model(*inputs)
-            y_pred = formatter.process_output(y_pred)
+
+            if train:
+                pass
+            elif hasattr(self, 'dset_norm') and self.dset_norm:
+                # Denormalize moving batch
+                moving_batch["input_fields"] = self.dset_norm.denormalize_flattened(
+                    moving_batch["input_fields"], "variable"
+                )
+                if "constant_fields" in moving_batch:
+                    moving_batch["constant_fields"] = self.dset_norm.denormalize_flattened(
+                        moving_batch["constant_fields"], "constant"
+                    )
+                # Denormalize prediction
+                if self.target_type == "delta":
+                    y_pred = self.dset_norm.delta_denormalize_flattened(
+                        y_pred, "variable"
+                    )
+                elif self.target_type == "full":
+                    y_pred = self.dset_norm.denormalize_flattened(y_pred, "variable")
+            y_pred = formatter.process_output_channel_last(y_pred)
+            if ((not train) and (self.target_type == "delta")):
+                assert {
+                    moving_batch["input_fields"][:, -1, ...].shape == y_pred.shape
+                }, f"Mismatching shapes between last input timestep {moving_batch[:, -1, ...].shape}\
+                and prediction {y_pred.shape}"
+                y_pred = moving_batch["input_fields"][:, -1, ...] + y_pred
+            y_pred = formatter.process_output_expand_time(y_pred)
             # If not last step, update moving batch for autoregressive prediction
             if i != rollout_steps - 1:
                 moving_batch["input_fields"] = torch.cat(
@@ -266,7 +304,9 @@ class Trainer:
         ):
             for i, batch in enumerate(tqdm.tqdm(dataloader)):
                 # Rollout for length of target
-                y_pred, y_ref = self.rollout_model(self.model, batch, self.formatter)
+                y_pred, y_ref = self.rollout_model(
+                    self.model, batch, self.formatter, train=False
+                )
                 assert (
                     y_ref.shape == y_pred.shape
                 ), f"Mismatching shapes between reference {y_ref.shape} and prediction {y_pred.shape}"
