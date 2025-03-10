@@ -51,7 +51,7 @@ class WellDataModule(AbstractDataModule):
         use_normalization:
             Whether to use normalization on the data.
         normalization_type:
-            What kind of normalization to use if use_normalization is True. Currently supports z-score and rms.
+            What kind of normalization to use if use_normalization is True. Currently supports zscore and rms.
         target_type:
             What type of output fields. Options: full and delta
         max_rollout_steps:
@@ -87,7 +87,7 @@ class WellDataModule(AbstractDataModule):
         include_filters: List[str] = [],
         exclude_filters: List[str] = [],
         use_normalization: bool = False,
-        normalization_type: Literal["z-score", "rms", None] = None,
+        normalization_type: Literal["zscore", "rms", None] = None,
         target_type: Literal["full", "delta"] = "full",
         max_rollout_steps: int = 100,
         n_steps_input: int = 1,
@@ -114,7 +114,7 @@ class WellDataModule(AbstractDataModule):
             if use_normalization:
                 warnings.warn(
                     "`use_normalization` parameter will be removed in a future version. "
-                    "For proper normalizing, set both use_normalization=True and normalization_type to either z-score or rms."
+                    "For proper normalizing, set both use_normalization=True and normalization_type to either zscore or rms."
                     "Default behavior is `normalization_type=None` and `use_normalization=False`.",
                     DeprecationWarning,
                 )

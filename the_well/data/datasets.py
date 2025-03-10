@@ -135,7 +135,7 @@ class WellDataset(Dataset):
         use_normalization:
             Whether to normalize data in the dataset
         normlization_type:
-            What type of dataset normalization. Options: z-score and rms
+            What type of dataset normalization. Options: zscore and rms
         n_steps_input:
             Number of steps to include in each sample
         n_steps_output:
@@ -181,7 +181,7 @@ class WellDataset(Dataset):
         include_filters: List[str] = [],
         exclude_filters: List[str] = [],
         use_normalization: bool = False,
-        normalization_type: Literal["z-score", "rms", None] = None,
+        normalization_type: Literal["zscore", "rms", None] = None,
         max_rollout_steps=100,
         n_steps_input: int = 1,
         n_steps_output: int = 1,
@@ -278,11 +278,11 @@ class WellDataset(Dataset):
         if use_normalization:
             with self.fs.open(self.normalization_path, mode="r") as f:
                 stats = yaml.safe_load(f)
-            if normalization_type == "z-score":
+            if normalization_type == "zscore":
                 self.norm = ZScoreNormalization(
                     stats, self.core_field_names, self.core_constant_field_names
                 )
-            if normalization_type == "rms":
+            elif normalization_type == "rms":
                 self.norm = RMSNormalization(
                     stats, self.core_field_names, self.core_constant_field_names
                 )

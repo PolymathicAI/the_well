@@ -7,9 +7,8 @@ defaults:
 data:
   n_steps_input: 4
   n_steps_output: 1
-  use_normalization: True # must be set to True along with a supported type
-  normalization_type: # options: z-score or rms or empty
-  target_type: "full" # options: full or delta
+  normalization_type: "zscore" # Norm type if use_normalization is set to be True in individual dataset;Options: zscore or rms or empty
+  target_type: "full" # options: full or delta type prediction
 # model:
 #   gradient_checkpointing: False
 data_workers: 14
