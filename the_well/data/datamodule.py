@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Literal, Optional
 from torch.utils.data import DataLoader, DistributedSampler
 
 from .augmentation import Augmentation
-from .datasets import WellDataset, DeltaWellDataset
+from .datasets import DeltaWellDataset, WellDataset
 
 logger = logging.getLogger(__name__)
 

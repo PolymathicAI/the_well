@@ -33,7 +33,7 @@ from the_well.utils.export import hdf5_to_xarray
 
 if TYPE_CHECKING:
     from .augmentation import Augmentation
-from .normalization import ZScoreNormalization, RMSNormalization
+from .normalization import RMSNormalization, ZScoreNormalization
 
 
 # Boundary condition codes

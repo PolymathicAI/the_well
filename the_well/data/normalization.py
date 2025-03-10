@@ -1,6 +1,7 @@
 """Dataset normalization options."""
 
 from typing import Dict, List
+
 import torch
 
 
