@@ -853,78 +853,51 @@ class WellDataset(Dataset):
 
 
 class DeltaWellDataset(WellDataset):
-    """Dataset for delta target type."""
+    """Dataset for delta target type, modifying the field reconstruction to compute deltas."""
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)  # Pass all arguments to WellDataset
+        super().__init__(*args, **kwargs)
+
+    def _compute_deltas(self, field_data: torch.Tensor) -> torch.Tensor:
+        """Compute deltas for time-varying fields while ensuring continuity."""
+        x = field_data[: self.n_steps_input]
+        y = field_data[self.n_steps_input :]
+        y = torch.cat([x[-1:, ...], y], dim=0)  # Ensure continuity
+        return torch.cat([x, y[1:, ...] - y[:-1, ...]], dim=0)
+
+    def _process_field_data(
+        self, field_data: torch.Tensor, field_name: str, time_varying: bool
+    ) -> torch.Tensor:
+        """Process field data by computing deltas if time-varying and applying normalization."""
+        if time_varying:
+            field_data = self._compute_deltas(field_data)
+            if self.use_normalization and self.norm:
+                field_data[: self.n_steps_input] = self.norm.normalize(
+                    field_data[: self.n_steps_input], field_name
+                )
+                field_data[self.n_steps_input :] = self.norm.delta_normalize(
+                    field_data[self.n_steps_input :], field_name
+                )
+        elif self.use_normalization and self.norm:
+            field_data = self.norm.normalize(field_data, field_name)
+        return field_data
 
     def _reconstruct_fields(self, file, cache, sample_idx, time_idx, n_steps, dt):
-        """Reconstruct space fields starting at index sample_idx, time_idx, with
-        n_steps and dt stride."""
-        variable_fields = {0: {}, 1: {}, 2: {}}
-        constant_fields = {0: {}, 1: {}, 2: {}}
-        # Iterate through field types and apply appropriate transforms to stack them
-        for i, order_fields in enumerate(["t0_fields", "t1_fields", "t2_fields"]):
-            field_names = file[order_fields].attrs["field_names"]
-            for field_name in field_names:
-                field = file[order_fields][field_name]
-                use_dims = field.attrs["dim_varying"]
-                # If the field is in the cache, use it, otherwise go through read/pad
-                if field_name in cache:
-                    field_data = cache[field_name]
-                else:
-                    field_data = field
-                    # Index is built gradually since there can be different numbers of leading fields
-                    multi_index = ()
-                    if field.attrs["sample_varying"]:
-                        multi_index = multi_index + (sample_idx,)
-                    if field.attrs["time_varying"]:
-                        multi_index = multi_index + (
-                            slice(time_idx, time_idx + n_steps * dt, dt),
-                        )
-                    field_data = field_data[multi_index]
-                    field_data = torch.as_tensor(field_data)
-                    if field.attrs["time_varying"]:
-                        x = field_data[: self.n_steps_input]  # Input steps
-                        y = field_data[self.n_steps_input :]  # Output steps
-                        y = torch.cat(
-                            [x[-1:, ...], y], dim=0
-                        )  # Ensure continuity before computing deltas
-                        y = y[1:, ...] - y[:-1, ...]  # Compute deltas
-                        field_data = torch.cat(
-                            [x, y], dim=0
-                        )  # Keep all input steps + delta outputs
-                        # Normalize
-                        if self.use_normalization and self.norm:
-                            field_data[: self.n_steps_input] = self.norm.normalize(
-                                field_data[: self.n_steps_input], field_name
-                            )
-                            field_data[self.n_steps_input :] = (
-                                self.norm.delta_normalize(
-                                    field_data[self.n_steps_input :], field_name
-                                )
-                            )
-                    else:
-                        if self.use_normalization and self.norm:
-                            field_data = self.norm.normalize(field_data, field_name)
-                    # If constant, try to cache
-                    if (
-                        not field.attrs["time_varying"]
-                        and not field.attrs["sample_varying"]
-                    ):
-                        self._check_cache(cache, field_name, field_data)
+        """Reconstruct space fields with delta transformation for output steps."""
+        variable_fields, constant_fields = super()._reconstruct_fields(
+            file, cache, sample_idx, time_idx, n_steps, dt
+        )
 
-                # Expand dims
-                field_data = self._pad_axes(
-                    field_data,
-                    use_dims,
-                    time_varying=field.attrs["time_varying"],
-                    tensor_order=i,
+        for i in variable_fields:
+            for field_name, field_data in variable_fields[i].items():
+                variable_fields[i][field_name] = self._process_field_data(
+                    field_data, field_name, time_varying=True
                 )
 
-                if field.attrs["time_varying"]:
-                    variable_fields[i][field_name] = field_data
-                else:
-                    constant_fields[i][field_name] = field_data
+        for i in constant_fields:
+            for field_name, field_data in constant_fields[i].items():
+                constant_fields[i][field_name] = self._process_field_data(
+                    field_data, field_name, time_varying=False
+                )
 
-        return (variable_fields, constant_fields)
+        return variable_fields, constant_fields

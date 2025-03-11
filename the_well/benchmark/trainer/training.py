@@ -211,7 +211,7 @@ class Trainer:
 
             y_pred = formatter.process_output_channel_last(y_pred)
 
-            if (not train) and (hasattr(self, "dset_norm")) and (self.dset_norm):
+            if (not train) and hasattr(self, "dset_norm") and (self.dset_norm):
                 # Denormalize moving batch
                 moving_batch["input_fields"] = self.dset_norm.denormalize_flattened(
                     moving_batch["input_fields"], "variable"
