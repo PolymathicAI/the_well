@@ -884,9 +884,20 @@ class DeltaWellDataset(WellDataset):
 
     def _reconstruct_fields(self, file, cache, sample_idx, time_idx, n_steps, dt):
         """Reconstruct space fields with delta transformation for output steps."""
+
+        # Store the original normalization state
+        original_use_normalization = self.use_normalization
+
+        # Temporarily disable normalization
+        self.use_normalization = False
+
+        # Call the parent method without normalization
         variable_fields, constant_fields = super()._reconstruct_fields(
             file, cache, sample_idx, time_idx, n_steps, dt
         )
+
+        # Restore the original normalization state
+        self.use_normalization = original_use_normalization
 
         for i in variable_fields:
             for field_name, field_data in variable_fields[i].items():
