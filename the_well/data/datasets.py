@@ -275,10 +275,7 @@ class WellDataset(Dataset):
             self.dataset_name = name_override
 
         # Initialize normalization classes if True and path exists
-        if (
-            use_normalization
-            and normalization_type
-        ):
+        if use_normalization and normalization_type:
             try:
                 with self.fs.open(self.normalization_path, mode="r") as f:
                     stats = yaml.safe_load(f)
