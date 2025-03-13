@@ -1,12 +1,13 @@
 import logging
 import warnings
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Dict, Callable, List, Literal, Optional
 
 from torch.utils.data import DataLoader, DistributedSampler
 
-from .augmentation import Augmentation
-from .datasets import DeltaWellDataset, WellDataset
+from the_well.data.augmentation import Augmentation
+from the_well.data.datasets import DeltaWellDataset, WellDataset
+from the_well.data.normalization import ZScoreNormalization
 
 logger = logging.getLogger(__name__)
 
@@ -87,7 +88,7 @@ class WellDataModule(AbstractDataModule):
         include_filters: List[str] = [],
         exclude_filters: List[str] = [],
         use_normalization: bool = False,
-        normalization_type: Literal["zscore", "rms", None] = None,
+        normalization_type: Optional[Callable[..., Any]] = None,
         target_type: Literal["full", "delta"] = "full",
         max_rollout_steps: int = 100,
         n_steps_input: int = 1,
@@ -114,12 +115,20 @@ class WellDataModule(AbstractDataModule):
             if use_normalization:
                 warnings.warn(
                     "`use_normalization` parameter will be removed in a future version. "
-                    "For proper normalizing, set both use_normalization=True and normalization_type to either zscore or rms."
-                    "Default behavior is `normalization_type=None` and `use_normalization=False`.",
+                    "For proper normalizing, set both use_normalization=True and normalization_type to either ZScoreNormalization or RMSNormalization."
+                    "Default behavior is `normalization_type=ZScoreNormalization` and `use_normalization=True`."
+                    "To switch off normalization instead, please set use_normalization=False in the config.yaml file",
                     DeprecationWarning,
                 )
+                if normalization_type is None:
+                    warnings.warn(
+                        "use_normalization=True, but normalization_type is None. "
+                        "Defaulting to ZScoreNormalization.",
+                        UserWarning,
+                    )
+                    normalization_type = ZScoreNormalization  # Default fallback
 
-            if (use_normalization is False) and (normalization_type is not None):
+            elif normalization_type is not None:
                 warnings.warn(
                     "Inconsistent normalization settings: `use_normalization=False`, but `normalization_type` is set. "
                     "Defaulting `normalization_type=None` and `use_normalization=False`.",
@@ -127,13 +136,6 @@ class WellDataModule(AbstractDataModule):
                 )
                 normalization_type = None
 
-            if (use_normalization is True) and (normalization_type is None):
-                warnings.warn(
-                    "Inconsistent normalization settings: `use_normalization=True`, but `normalization_type` is None. "
-                    "Defaulting `normalization_type=None` and `use_normalization=False`.",
-                    UserWarning,
-                )
-                use_normalization = False
         # Use DeltaWellDataset only for training, WellDataset for everything else
         TrainDataset = DeltaWellDataset if target_type == "delta" else WellDataset
         self.train_dataset = TrainDataset(

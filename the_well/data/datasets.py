@@ -6,6 +6,7 @@ from enum import Enum
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
     Dict,
     List,
     Literal,
@@ -32,8 +33,7 @@ from the_well.data.utils import (
 from the_well.utils.export import hdf5_to_xarray
 
 if TYPE_CHECKING:
-    from .augmentation import Augmentation
-from .normalization import RMSNormalization, ZScoreNormalization
+    from the_well.data.augmentation import Augmentation
 
 
 # Boundary condition codes
@@ -135,7 +135,7 @@ class WellDataset(Dataset):
         use_normalization:
             Whether to normalize data in the dataset
         normlization_type:
-            What type of dataset normalization. Options: zscore and rms
+            What type of dataset normalization. Callable Options: ZSCORE and RMS
         n_steps_input:
             Number of steps to include in each sample
         n_steps_output:
@@ -181,7 +181,7 @@ class WellDataset(Dataset):
         include_filters: List[str] = [],
         exclude_filters: List[str] = [],
         use_normalization: bool = False,
-        normalization_type: Literal["zscore", "rms", None] = None,
+        normalization_type: Optional[Callable[..., Any]] = None,
         max_rollout_steps=100,
         n_steps_input: int = 1,
         n_steps_output: int = 1,
@@ -274,20 +274,33 @@ class WellDataset(Dataset):
         if name_override is not None:
             self.dataset_name = name_override
 
-        # Initialize normalization classes if True
-        if use_normalization:
-            with self.fs.open(self.normalization_path, mode="r") as f:
-                stats = yaml.safe_load(f)
-            if normalization_type == "zscore":
-                self.norm = ZScoreNormalization(
-                    stats, self.core_field_names, self.core_constant_field_names
+        # Initialize normalization classes if True and path exists
+        if (
+            use_normalization
+            and normalization_type
+        ):
+            try:
+                with self.fs.open(self.normalization_path, mode="r") as f:
+                    stats = yaml.safe_load(f)
+
+                if stats:
+                    self.norm = normalization_type(
+                        stats, self.core_field_names, self.core_constant_field_names
+                    )
+                else:
+                    warnings.warn(
+                        f"Normalization file {self.normalization_path} is empty. Proceeding without normalization.",
+                        UserWarning,
+                    )
+                    self.norm = None
+            except Exception as e:
+                warnings.warn(
+                    f"Error loading normalization file {self.normalization_path}: {e}. Proceeding without normalization.",
+                    UserWarning,
                 )
-            elif normalization_type == "rms":
-                self.norm = RMSNormalization(
-                    stats, self.core_field_names, self.core_constant_field_names
-                )
-            else:
                 self.norm = None
+        else:
+            self.norm = None
 
     def _build_metadata(self):
         """Builds multi-file indices and checks that folder contains consistent dataset"""
