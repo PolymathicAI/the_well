@@ -1,7 +1,7 @@
 import logging
 import warnings
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Callable, List, Literal, Optional
+from typing import Any, Callable, Dict, List, Literal, Optional
 
 from torch.utils.data import DataLoader, DistributedSampler
 
