@@ -175,6 +175,38 @@ class Trainer:
             checkpoint["epoch"] + 1
         )  # Saves after training loop, so start at next epoch
 
+    def normalize(self, batch):
+        if hasattr(self, "dset_norm") and self.dset_norm:
+            batch["input_fields"] = self.dset_norm.normalize_flattened(
+                batch["input_fields"], "variable"
+            )
+            if "constant_fields" in batch:
+                batch["constant_fields"] = self.dset_norm.normalize_flattened(
+                    batch["constant_fields"], "constant"
+                )
+        return batch
+
+    def denormalize(self, batch, prediction):
+        if hasattr(self, "dset_norm") and self.dset_norm:
+            batch["input_fields"] = self.dset_norm.denormalize_flattened(
+                batch["input_fields"], "variable"
+            )
+            if "constant_fields" in batch:
+                batch["constant_fields"] = self.dset_norm.denormalize_flattened(
+                    batch["constant_fields"], "constant"
+                )
+
+            if self.target_type == "delta":
+                prediction = self.dset_norm.delta_denormalize_flattened(
+                    prediction, "variable"
+                )
+            elif self.target_type == "full":
+                prediction = self.dset_norm.denormalize_flattened(
+                    prediction, "variable"
+                )
+
+        return batch, prediction
+
     def rollout_model(self, model, batch, formatter, train=True):
         """Rollout the model for as many steps as we have data for."""
         inputs, y_ref = formatter.process_input(batch)
@@ -191,44 +223,17 @@ class Trainer:
             )
         y_preds = []
         for i in range(rollout_steps):
-            if not train and hasattr(self, "dset_norm") and self.dset_norm:
-                moving_batch["input_fields"] = self.dset_norm.normalize_flattened(
-                    moving_batch["input_fields"], "variable"
-                )
-                if "constant_fields" in moving_batch:
-                    moving_batch["constant_fields"] = (
-                        self.dset_norm.normalize_flattened(
-                            moving_batch["constant_fields"], "constant"
-                        )
-                    )
+            if not train:
+                moving_batch = self.normalize(moving_batch)
 
             inputs, _ = formatter.process_input(moving_batch)
             inputs = list(map(lambda x: x.to(self.device), inputs))
             y_pred = model(*inputs)
 
-            if train:
-                pass
-
             y_pred = formatter.process_output_channel_last(y_pred)
 
-            if (not train) and hasattr(self, "dset_norm") and (self.dset_norm):
-                # Denormalize moving batch
-                moving_batch["input_fields"] = self.dset_norm.denormalize_flattened(
-                    moving_batch["input_fields"], "variable"
-                )
-                if "constant_fields" in moving_batch:
-                    moving_batch["constant_fields"] = (
-                        self.dset_norm.denormalize_flattened(
-                            moving_batch["constant_fields"], "constant"
-                        )
-                    )
-                # Denormalize prediction
-                if self.target_type == "delta":
-                    y_pred = self.dset_norm.delta_denormalize_flattened(
-                        y_pred, "variable"
-                    )
-                elif self.target_type == "full":
-                    y_pred = self.dset_norm.denormalize_flattened(y_pred, "variable")
+            if not train:
+                moving_batch, y_pred = self.denormalize(moving_batch, y_pred)
 
             if (not train) and (self.target_type == "delta"):
                 assert {
