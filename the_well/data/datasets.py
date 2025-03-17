@@ -274,7 +274,7 @@ class WellDataset(Dataset):
         if name_override is not None:
             self.dataset_name = name_override
 
-        # Initialize normalization classes if True and path exists
+        # Initialize normalization classes if True
         if use_normalization and normalization_type:
             try:
                 with self.fs.open(self.normalization_path, mode="r") as f:

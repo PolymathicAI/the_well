@@ -6,7 +6,7 @@ from typing import Any, Callable, Dict, List, Literal, Optional
 from torch.utils.data import DataLoader, DistributedSampler
 
 from the_well.data.augmentation import Augmentation
-from the_well.data.datasets import DeltaWellDataset, WellDataset
+from the_well.data.datasets import WellDataset
 from the_well.data.normalization import ZScoreNormalization
 
 logger = logging.getLogger(__name__)
@@ -53,8 +53,8 @@ class WellDataModule(AbstractDataModule):
             Whether to use normalization on the data.
         normalization_type:
             What kind of normalization to use if use_normalization is True. Currently supports zscore and rms.
-        target_type:
-            What type of output fields. Options: full and delta
+        train_dataset:
+            What type of training dataset type. WellDataset or DeltaWellDataset options.
         max_rollout_steps:
             Maximum number of steps to use for the rollout dataset. Mostly for memory reasons.
         n_steps_input:
@@ -89,7 +89,7 @@ class WellDataModule(AbstractDataModule):
         exclude_filters: List[str] = [],
         use_normalization: bool = False,
         normalization_type: Optional[Callable[..., Any]] = None,
-        target_type: Literal["full", "delta"] = "full",
+        train_dataset: Callable[..., Any] = WellDataset,
         max_rollout_steps: int = 100,
         n_steps_input: int = 1,
         n_steps_output: int = 1,
@@ -108,7 +108,6 @@ class WellDataModule(AbstractDataModule):
         ] = None,
         storage_kwargs: Optional[Dict] = None,
     ):
-        self.target_type = target_type
         with warnings.catch_warnings():
             warnings.simplefilter("always")  # Ensure warnings are always displayed
 
@@ -136,9 +135,8 @@ class WellDataModule(AbstractDataModule):
                 )
                 normalization_type = None
 
-        # Use DeltaWellDataset only for training, WellDataset for everything else
-        TrainDataset = DeltaWellDataset if target_type == "delta" else WellDataset
-        self.train_dataset = TrainDataset(
+        # DeltaWellDataset only for training for delta case, WellDataset for everything else
+        self.train_dataset = train_dataset(
             well_base_path=well_base_path,
             well_dataset_name=well_dataset_name,
             well_split_name="train",

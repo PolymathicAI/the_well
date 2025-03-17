@@ -22,6 +22,7 @@ from the_well.data.data_formatter import (
     DefaultChannelsLastFormatter,
 )
 from the_well.data.datamodule import AbstractDataModule
+from the_well.data.datasets import DeltaWellDataset
 from the_well.data.utils import flatten_field_names
 
 logger = logging.getLogger(__name__)
@@ -120,7 +121,7 @@ class Trainer:
         self.optimizer = optimizer
         self.lr_scheduler = lr_scheduler
         self.loss_fn = loss_fn
-        self.target_type = datamodule.target_type
+        self.is_delta = isinstance(datamodule.train_dataset, DeltaWellDataset)
         self.validation_suite = validation_metric_suite + [self.loss_fn]
         self.max_epoch = epochs
         self.checkpoint_frequency = checkpoint_frequency
@@ -196,11 +197,12 @@ class Trainer:
                     batch["constant_fields"], "constant"
                 )
 
-            if self.target_type == "delta":
+            # Delta denormalization is different than full denormalization
+            if self.is_delta:
                 prediction = self.dset_norm.delta_denormalize_flattened(
                     prediction, "variable"
                 )
-            elif self.target_type == "full":
+            else:
                 prediction = self.dset_norm.denormalize_flattened(
                     prediction, "variable"
                 )
@@ -235,7 +237,7 @@ class Trainer:
             if not train:
                 moving_batch, y_pred = self.denormalize(moving_batch, y_pred)
 
-            if (not train) and (self.target_type == "delta"):
+            if (not train) and self.is_delta:
                 assert {
                     moving_batch["input_fields"][:, -1, ...].shape == y_pred.shape
                 }, f"Mismatching shapes between last input timestep {moving_batch[:, -1, ...].shape}\
