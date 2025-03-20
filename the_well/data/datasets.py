@@ -216,7 +216,7 @@ class WellDataset(Dataset):
                 well_base_path, well_dataset_name, "data", well_split_name
             )
             self.normalization_path = os.path.join(
-                well_base_path, well_dataset_name, "full_stats.yaml"
+                well_base_path, well_dataset_name, "stats.yaml"
             )
 
         self.fs, _ = fsspec.url_to_fs(self.data_path, **(storage_options or {}))
