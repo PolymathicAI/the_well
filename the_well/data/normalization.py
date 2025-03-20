@@ -19,7 +19,7 @@ class ZScoreNormalization:
         stats: Dict,
         core_field_names: List[str],
         core_constant_field_names: List[str],
-        min_value: float = 1e-4,
+        min_std: float = 1e-4,
     ):
         """Initialize the Z-Score Normalizer with statistics."""
         self.core_field_names = core_field_names
@@ -36,27 +36,27 @@ class ZScoreNormalization:
             for field in core_field_names + core_constant_field_names
         }
         self.stds = {
-            field: torch.clip(torch.as_tensor(stats["std"][field]), min=min_value)
+            field: torch.clip(torch.as_tensor(stats["std"][field]), min=min_std)
             for field in core_field_names + core_constant_field_names
         }
         self.means_delta = {
-            field: torch.as_tensor(stats["mean_delta"].get(field, min_value))
+            field: torch.as_tensor(stats["mean_delta"][field])
             for field in core_field_names
         }
         self.stds_delta = {
             field: torch.clip(
-                torch.as_tensor(stats["std_delta"].get(field, min_value)), min=min_value
+                torch.as_tensor(stats["std_delta"].get(field, min_std)), min=min_std
             )
             for field in core_field_names
         }
 
         # Initialize missing deltas for constant fields
         self.constant_means_delta = {
-            field: torch.full_like(self.means[field], min_value)
+            field: torch.full_like(self.means[field], min_std)
             for field in core_constant_field_names
         }
         self.constant_stds_delta = {
-            field: torch.full_like(self.stds[field], min_value)
+            field: torch.full_like(self.stds[field], min_std)
             for field in core_constant_field_names
         }
 

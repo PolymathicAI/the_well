@@ -229,7 +229,7 @@ class Trainer:
                 moving_batch = self.normalize(moving_batch)
 
             inputs, _ = formatter.process_input(moving_batch)
-            inputs = list(map(lambda x: x.to(self.device), inputs))
+            inputs = [x.to(self.device) for x in inputs]
             y_pred = model(*inputs)
 
             y_pred = formatter.process_output_channel_last(y_pred)
