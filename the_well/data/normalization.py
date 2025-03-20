@@ -19,7 +19,7 @@ class ZScoreNormalization:
         stats: Dict,
         core_field_names: List[str],
         core_constant_field_names: List[str],
-        min_std: float = 1e-4,
+        min_denom: float = 1e-4,
     ):
         """Initialize the Z-Score Normalizer with statistics."""
         self.core_field_names = core_field_names
@@ -36,7 +36,7 @@ class ZScoreNormalization:
             for field in core_field_names + core_constant_field_names
         }
         self.stds = {
-            field: torch.clip(torch.as_tensor(stats["std"][field]), min=min_std)
+            field: torch.clip(torch.as_tensor(stats["std"][field]), min=min_denom)
             for field in core_field_names + core_constant_field_names
         }
         self.means_delta = {
@@ -45,18 +45,18 @@ class ZScoreNormalization:
         }
         self.stds_delta = {
             field: torch.clip(
-                torch.as_tensor(stats["std_delta"].get(field, min_std)), min=min_std
+                torch.as_tensor(stats["std_delta"].get(field, min_denom)), min=min_denom
             )
             for field in core_field_names
         }
 
         # Initialize missing deltas for constant fields
         self.constant_means_delta = {
-            field: torch.full_like(self.means[field], min_std)
+            field: torch.full_like(self.means[field], min_denom)
             for field in core_constant_field_names
         }
         self.constant_stds_delta = {
-            field: torch.full_like(self.stds[field], min_std)
+            field: torch.full_like(self.stds[field], min_denom)
             for field in core_constant_field_names
         }
 
@@ -190,7 +190,7 @@ class RMSNormalization:
         stats: Dict,
         core_field_names: List[str],
         core_constant_field_names: List[str],
-        min_value: float = 1e-4,
+        min_denom: float = 1e-4,
     ):
         """Initialize the RMS Normalizer with statistics."""
         self.core_field_names = core_field_names
@@ -203,19 +203,19 @@ class RMSNormalization:
 
         # Store stats for individual fields
         self.rmss = {
-            field: torch.clip(torch.as_tensor(stats["rms"][field]), min=min_value)
+            field: torch.clip(torch.as_tensor(stats["rms"][field]), min=min_denom)
             for field in core_field_names + core_constant_field_names
         }
         self.rmss_delta = {
             field: torch.clip(
-                torch.as_tensor(stats["rms_delta"].get(field, min_value)), min=min_value
+                torch.as_tensor(stats["rms_delta"].get(field, min_denom)), min=min_denom
             )
             for field in core_field_names
         }
 
         # Initialize missing deltas for constant fields
         self.constant_rmss_delta = {
-            field: torch.full_like(self.rmss[field], min_value)
+            field: torch.full_like(self.rmss[field], min_denom)
             for field in core_constant_field_names
         }
 
