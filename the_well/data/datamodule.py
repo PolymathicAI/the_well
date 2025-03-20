@@ -1,11 +1,13 @@
 import logging
+import warnings
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Callable, Dict, List, Literal, Optional
 
 from torch.utils.data import DataLoader, DistributedSampler
 
-from .augmentation import Augmentation
-from .datasets import WellDataset
+from the_well.data.augmentation import Augmentation
+from the_well.data.datasets import WellDataset
+from the_well.data.normalization import ZScoreNormalization
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +50,11 @@ class WellDataModule(AbstractDataModule):
         exclude_filters:
             File names containing any of these strings will be excluded.
         use_normalization:
-            Whether to use normalization on the data. Currently only supports mean/std.
+            Whether to use normalization on the data.
+        normalization_type:
+            What kind of normalization to use if use_normalization is True. Currently supports zscore and rms.
+        train_dataset:
+            What type of training dataset type. WellDataset or DeltaWellDataset options.
         max_rollout_steps:
             Maximum number of steps to use for the rollout dataset. Mostly for memory reasons.
         n_steps_input:
@@ -82,6 +88,8 @@ class WellDataModule(AbstractDataModule):
         include_filters: List[str] = [],
         exclude_filters: List[str] = [],
         use_normalization: bool = False,
+        normalization_type: Optional[Callable[..., Any]] = None,
+        train_dataset: Callable[..., Any] = WellDataset,
         max_rollout_steps: int = 100,
         n_steps_input: int = 1,
         n_steps_output: int = 1,
@@ -100,13 +108,42 @@ class WellDataModule(AbstractDataModule):
         ] = None,
         storage_kwargs: Optional[Dict] = None,
     ):
-        self.train_dataset = WellDataset(
+        with warnings.catch_warnings():
+            warnings.simplefilter("always")  # Ensure warnings are always displayed
+
+            if use_normalization:
+                warnings.warn(
+                    "`use_normalization` parameter will be removed in a future version. "
+                    "For proper normalizing, set both use_normalization=True and normalization_type to either ZScoreNormalization or RMSNormalization."
+                    "Default behavior is `normalization_type=ZScoreNormalization` and `use_normalization=True`."
+                    "To switch off normalization instead, please set use_normalization=False in the config.yaml file",
+                    DeprecationWarning,
+                )
+                if normalization_type is None:
+                    warnings.warn(
+                        "use_normalization=True, but normalization_type is None. "
+                        "Defaulting to ZScoreNormalization.",
+                        UserWarning,
+                    )
+                    normalization_type = ZScoreNormalization  # Default fallback
+
+            elif normalization_type is not None:
+                warnings.warn(
+                    "Inconsistent normalization settings: `use_normalization=False`, but `normalization_type` is set. "
+                    "Defaulting `normalization_type=None` and `use_normalization=False`.",
+                    UserWarning,
+                )
+                normalization_type = None
+
+        # DeltaWellDataset only for training for delta case, WellDataset for everything else
+        self.train_dataset = train_dataset(
             well_base_path=well_base_path,
             well_dataset_name=well_dataset_name,
             well_split_name="train",
             include_filters=include_filters,
             exclude_filters=exclude_filters,
             use_normalization=use_normalization,
+            normalization_type=normalization_type,
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
             storage_options=storage_kwargs,
@@ -126,7 +163,6 @@ class WellDataModule(AbstractDataModule):
             well_split_name="valid",
             include_filters=include_filters,
             exclude_filters=exclude_filters,
-            use_normalization=use_normalization,
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,
             storage_options=storage_kwargs,
@@ -145,7 +181,6 @@ class WellDataModule(AbstractDataModule):
             well_split_name="valid",
             include_filters=include_filters,
             exclude_filters=exclude_filters,
-            use_normalization=use_normalization,
             max_rollout_steps=max_rollout_steps,
             n_steps_input=n_steps_input,
             n_steps_output=n_steps_output,

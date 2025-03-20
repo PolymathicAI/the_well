@@ -16,7 +16,11 @@ class AbstractDataFormatter(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def process_output(self, output: torch.Tensor) -> torch.Tensor:
+    def process_output_channel_last(self, output: torch.Tensor) -> torch.Tensor:
+        raise NotImplementedError
+
+    @abstractmethod
+    def process_output_expand_time(self, output: torch.Tensor) -> torch.Tensor:
         raise NotImplementedError
 
 
@@ -44,8 +48,11 @@ class DefaultChannelsFirstFormatter(AbstractDataFormatter):
         # in some cases (staircase), its ok. In others, it's not.
         return (torch.nan_to_num(x),), torch.nan_to_num(y)
 
-    def process_output(self, output: torch.Tensor) -> torch.Tensor:
-        return rearrange(output, "b c ... -> b 1 ... c")
+    def process_output_channel_last(self, output: torch.Tensor) -> torch.Tensor:
+        return rearrange(output, "b c ... -> b ... c")
+
+    def process_output_expand_time(self, output: torch.Tensor) -> torch.Tensor:
+        return rearrange(output, "b ... c -> b 1 ... c")
 
 
 class DefaultChannelsLastFormatter(AbstractDataFormatter):
@@ -72,5 +79,8 @@ class DefaultChannelsLastFormatter(AbstractDataFormatter):
         # in some cases (staircase), its ok. In others, it's not.
         return (torch.nan_to_num(x),), torch.nan_to_num(y)
 
-    def process_output(self, output: torch.Tensor) -> torch.Tensor:
+    def process_output_channel_last(self, output: torch.Tensor) -> torch.Tensor:
+        return output
+
+    def process_output_expand_time(self, output: torch.Tensor) -> torch.Tensor:
         return rearrange(output, "b ... c -> b 1 ... c")

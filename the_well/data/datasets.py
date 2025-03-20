@@ -6,6 +6,7 @@ from enum import Enum
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
     Dict,
     List,
     Literal,
@@ -32,7 +33,7 @@ from the_well.data.utils import (
 from the_well.utils.export import hdf5_to_xarray
 
 if TYPE_CHECKING:
-    from .augmentation import Augmentation
+    from the_well.data.augmentation import Augmentation
 
 
 # Boundary condition codes
@@ -133,6 +134,8 @@ class WellDataset(Dataset):
             Exclude any files whose name contains at least one of these strings
         use_normalization:
             Whether to normalize data in the dataset
+        normlization_type:
+            What type of dataset normalization. Callable Options: ZSCORE and RMS
         n_steps_input:
             Number of steps to include in each sample
         n_steps_output:
@@ -178,6 +181,7 @@ class WellDataset(Dataset):
         include_filters: List[str] = [],
         exclude_filters: List[str] = [],
         use_normalization: bool = False,
+        normalization_type: Optional[Callable[..., Any]] = None,
         max_rollout_steps=100,
         n_steps_input: int = 1,
         n_steps_output: int = 1,
@@ -217,34 +221,6 @@ class WellDataset(Dataset):
 
         self.fs, _ = fsspec.url_to_fs(self.data_path, **(storage_options or {}))
 
-        if use_normalization:
-            with self.fs.open(self.normalization_path, mode="r") as f:
-                stats = yaml.safe_load(f)
-
-            self.means = {
-                field: torch.as_tensor(val) for field, val in stats["mean"].items()
-            }
-            self.stds = {
-                field: torch.clip(torch.as_tensor(val), min=min_std)
-                for field, val in stats["std"].items()
-            }
-            self.rmss = {
-                field: torch.clip(torch.as_tensor(val), min=min_std)
-                for field, val in stats["rms"].items()
-            }
-            self.means_delta = {
-                field: torch.as_tensor(val)
-                for field, val in stats["mean_delta"].items()
-            }
-            self.stds_delta = {
-                field: torch.clip(torch.as_tensor(val), min=min_std)
-                for field, val in stats["std_delta"].items()
-            }
-            self.rmss_delta = {
-                field: torch.clip(torch.as_tensor(val), min=min_std)
-                for field, val in stats["rms_delta"].items()
-            }
-
         # Input checks
         if boundary_return_type is not None and boundary_return_type not in ["padding"]:
             raise NotImplementedError("Only padding boundary conditions supported")
@@ -254,6 +230,7 @@ class WellDataset(Dataset):
         # Copy params
         self.well_dataset_name = well_dataset_name
         self.use_normalization = use_normalization
+        self.normalization_type = normalization_type
         self.include_filters = include_filters
         self.exclude_filters = exclude_filters
         self.max_rollout_steps = max_rollout_steps
@@ -296,6 +273,31 @@ class WellDataset(Dataset):
         # Override name if necessary for logging
         if name_override is not None:
             self.dataset_name = name_override
+
+        # Initialize normalization classes if True
+        if use_normalization and normalization_type:
+            try:
+                with self.fs.open(self.normalization_path, mode="r") as f:
+                    stats = yaml.safe_load(f)
+
+                if stats:
+                    self.norm = normalization_type(
+                        stats, self.core_field_names, self.core_constant_field_names
+                    )
+                else:
+                    warnings.warn(
+                        f"Normalization file {self.normalization_path} is empty. Proceeding without normalization.",
+                        UserWarning,
+                    )
+                    self.norm = None
+            except Exception as e:
+                warnings.warn(
+                    f"Error loading normalization file {self.normalization_path}: {e}. Proceeding without normalization.",
+                    UserWarning,
+                )
+                self.norm = None
+        else:
+            self.norm = None
 
     def _build_metadata(self):
         """Builds multi-file indices and checks that folder contains consistent dataset"""
@@ -370,6 +372,11 @@ class WellDataset(Dataset):
                     self.field_names = {i: [] for i in range(3)}
                     self.constant_field_names = {i: [] for i in range(3)}
 
+                    # Store the core names without the tensor indices appended
+                    self.core_field_names = []
+                    self.core_constant_field_names = []
+                    seen = set()
+
                     for i in range(3):
                         ti = f"t{i}_fields"
                         # if _f[ti][field].attrs["symmetric"]:
@@ -388,8 +395,15 @@ class WellDataset(Dataset):
 
                                 if _f[ti][field].attrs["time_varying"]:
                                     self.field_names[i].append(field_name)
+                                    if field not in seen:
+                                        seen.add(field)
+                                        self.core_field_names.append(field)
                                 else:
                                     self.constant_field_names[i].append(field_name)
+                                    if field not in seen:
+                                        seen.add(field)
+                                        self.core_constant_field_names.append(field)
+
         # Full trajectory mode overrides the above and just sets each sample to "full"
         # trajectory where full = min(lowest_steps_per_file, max_rollout_steps)
         if self.full_trajectory_mode:
@@ -493,11 +507,8 @@ class WellDataset(Dataset):
                     field_data = field_data[multi_index]
                     field_data = torch.as_tensor(field_data)
                     # Normalize
-                    if self.use_normalization:
-                        if field_name in self.means:
-                            field_data = field_data - self.means[field_name]
-                        if field_name in self.stds:
-                            field_data = field_data / self.stds[field_name]
+                    if self.use_normalization and self.norm:
+                        field_data = self.norm.normalize(field_data, field_name)
                     # If constant, try to cache
                     if (
                         not field.attrs["time_varying"]
@@ -849,3 +860,65 @@ class WellDataset(Dataset):
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: {self.data_path}>"
+
+
+class DeltaWellDataset(WellDataset):
+    """Dataset for delta target type, modifying the field reconstruction to compute deltas."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def _compute_deltas(self, field_data: torch.Tensor) -> torch.Tensor:
+        """Compute deltas for time-varying fields while ensuring continuity."""
+        x = field_data[: self.n_steps_input]
+        y = field_data[self.n_steps_input :]
+        y = torch.cat([x[-1:, ...], y], dim=0)  # Ensure continuity
+        return torch.cat([x, y[1:, ...] - y[:-1, ...]], dim=0)
+
+    def _process_field_data(
+        self, field_data: torch.Tensor, field_name: str, time_varying: bool
+    ) -> torch.Tensor:
+        """Process field data by computing deltas if time-varying and applying normalization."""
+        if time_varying:
+            field_data = self._compute_deltas(field_data)
+            if self.use_normalization and self.norm:
+                field_data[: self.n_steps_input] = self.norm.normalize(
+                    field_data[: self.n_steps_input], field_name
+                )
+                field_data[self.n_steps_input :] = self.norm.delta_normalize(
+                    field_data[self.n_steps_input :], field_name
+                )
+        elif self.use_normalization and self.norm:
+            field_data = self.norm.normalize(field_data, field_name)
+        return field_data
+
+    def _reconstruct_fields(self, file, cache, sample_idx, time_idx, n_steps, dt):
+        """Reconstruct space fields with delta transformation for output steps."""
+
+        # Store the original normalization state
+        original_use_normalization = self.use_normalization
+
+        # Temporarily disable normalization
+        self.use_normalization = False
+
+        # Call the parent method without normalization
+        variable_fields, constant_fields = super()._reconstruct_fields(
+            file, cache, sample_idx, time_idx, n_steps, dt
+        )
+
+        # Restore the original normalization state
+        self.use_normalization = original_use_normalization
+
+        for i in variable_fields:
+            for field_name, field_data in variable_fields[i].items():
+                variable_fields[i][field_name] = self._process_field_data(
+                    field_data, field_name, time_varying=True
+                )
+
+        for i in constant_fields:
+            for field_name, field_data in constant_fields[i].items():
+                constant_fields[i][field_name] = self._process_field_data(
+                    field_data, field_name, time_varying=False
+                )
+
+        return variable_fields, constant_fields
