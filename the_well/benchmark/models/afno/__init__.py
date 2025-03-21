@@ -11,6 +11,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from einops import rearrange
+from huggingface_hub import PyTorchModelHubMixin
 from timm.models.layers import DropPath, trunc_normal_
 
 
@@ -163,7 +164,7 @@ class Block(nn.Module):
         return x
 
 
-class AFNO(nn.Module):
+class AFNO(nn.Module, PyTorchModelHubMixin):
     def __init__(
         self,
         dim_in,

@@ -7,6 +7,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from einops import rearrange
+from huggingface_hub import PyTorchModelHubMixin
 from timm.layers import DropPath
 
 from the_well.data.datasets import WellMetadata
@@ -175,7 +176,7 @@ class AxialAttentionBlock(nn.Module):
         return input + self.drop_path(self.gamma * x)
 
 
-class AViT(nn.Module):
+class AViT(nn.Module, PyTorchModelHubMixin):
     """
     Uses axial attention to predict forward dynamics. This simplified version
     just stacks time in channels.

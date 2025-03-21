@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from huggingface_hub import PyTorchModelHubMixin
 
 from the_well.data.datasets import WellMetadata
 
@@ -120,7 +121,7 @@ class ReFNOBlock(nn.Module):
         return self.spectral_conv(self.mlp(x))
 
 
-class ReFNO(nn.Module):
+class ReFNO(nn.Module, PyTorchModelHubMixin):
     def __init__(
         self,
         dim_in: int,

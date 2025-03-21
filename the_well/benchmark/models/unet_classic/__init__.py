@@ -11,6 +11,7 @@ from collections import OrderedDict
 
 import torch
 import torch.nn as nn
+from huggingface_hub import PyTorchModelHubMixin
 from torch.utils.checkpoint import checkpoint
 
 from the_well.data.datasets import WellMetadata
@@ -25,7 +26,7 @@ pool_modules = {1: nn.MaxPool1d, 2: nn.MaxPool2d, 3: nn.MaxPool3d}
 norm_modules = {1: nn.BatchNorm1d, 2: nn.BatchNorm2d, 3: nn.BatchNorm3d}
 
 
-class UNetClassic(nn.Module):
+class UNetClassic(nn.Module, PyTorchModelHubMixin):
     def __init__(
         self,
         dim_in: int,

@@ -6,6 +6,7 @@ Thanks to Kim Stachenfeld for providing the TF version of the code.
 """
 
 import torch.nn as nn
+from huggingface_hub import PyTorchModelHubMixin
 
 from the_well.data.datasets import WellMetadata
 
@@ -56,7 +57,7 @@ class DilatedBlock(nn.Module):
         return x
 
 
-class DilatedResNet(nn.Module):
+class DilatedResNet(nn.Module, PyTorchModelHubMixin):
     def __init__(
         self,
         dim_in: int,

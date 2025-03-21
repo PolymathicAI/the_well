@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from huggingface_hub import PyTorchModelHubMixin
 from neuralop.models import TFNO as neuralop_TFNO
 from torch.utils.checkpoint import checkpoint
 
@@ -57,7 +58,7 @@ class NeuralOpsCheckpointWrapper(neuralop_TFNO):
         return x
 
 
-class TFNO(nn.Module):
+class TFNO(nn.Module, PyTorchModelHubMixin):
     def __init__(
         self,
         dim_in: int,

@@ -13,6 +13,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from einops import rearrange
+from huggingface_hub import PyTorchModelHubMixin
 from timm.models.layers import DropPath
 from torch.utils.checkpoint import checkpoint
 
@@ -200,7 +201,7 @@ class Stage(nn.Module):
         return x
 
 
-class UNetConvNext(nn.Module):
+class UNetConvNext(nn.Module, PyTorchModelHubMixin):
     def __init__(
         self,
         dim_in: int,
