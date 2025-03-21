@@ -62,7 +62,7 @@ def repack_h5(input_filename: str, output_filename: str):
 def upload_folder(folder: str, repo_id: str):
     api = HfApi()
     api.upload_large_folder(
-        repo_id=repo_id, folder_path=folder, repo_type="dataset", private=True
+        repo_id=repo_id, folder_path=folder, repo_type="dataset", private=False
     )
 
 
