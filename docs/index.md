@@ -136,12 +136,13 @@ This project has been led by the <a href="https://polymathic-ai.org/">Polymathic
 If you find this project useful for your research, please consider citing
 
 ```
-@inproceedings{ohana2024thewell,
-  title={The Well: a Large-Scale Collection of Diverse Physics Simulations for Machine Learning},
-  author={Ruben Ohana and Michael McCabe and Lucas Thibaut Meyer and Rudy Morel and Fruzsina Julia Agocs and Miguel Beneitez and Marsha Berger and Blakesley Burkhart and Stuart B. Dalziel and Drummond Buschman Fielding and Daniel Fortunato and Jared A. Goldberg and Keiya Hirashima and Yan-Fei Jiang and Rich Kerswell and Suryanarayana Maddu and Jonah M. Miller and Payel Mukhopadhyay and Stefan S. Nixon and Jeff Shen and Romain Watteaux and Bruno R{\'e}galdo-Saint Blancard and Fran{\c{c}}ois Rozet and Liam Holden Parker and Miles Cranmer and Shirley Ho},
-  booktitle={The Thirty-eight Conference on Neural Information Processing Systems Datasets and Benchmarks Track},
-  year={2024},
-  url={https://openreview.net/forum?id=00Sx577BT3}
+@article{ohana2024well,
+  title={The well: a large-scale collection of diverse physics simulations for machine learning},
+  author={Ohana, Ruben and McCabe, Michael and Meyer, Lucas and Morel, Rudy and Agocs, Fruzsina and Beneitez, Miguel and Berger, Marsha and Burkhart, Blakesly and Dalziel, Stuart and Fielding, Drummond and others},
+  journal={Advances in Neural Information Processing Systems},
+  volume={37},
+  pages={44989--45037},
+  year={2024}
 }
 ```
 
