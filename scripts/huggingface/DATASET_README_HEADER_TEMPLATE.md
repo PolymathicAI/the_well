@@ -14,6 +14,8 @@ task_ids:
 - multivariate-time-series-forecasting
 ---
 
+This Dataset is part of [The Well Collection](https://huggingface.co/papers/2412.00568).
+
 # How To Load from HuggingFace Hub
 
 1. Be sure to have `the_well` installed (`pip install the_well`)

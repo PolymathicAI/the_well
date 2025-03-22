@@ -99,3 +99,6 @@ outputs/
 wandb/
 datasets/rt_experimental
 check_well_data_4059043.out
+
+# Ignore streamlit local runs
+.streamlit/
