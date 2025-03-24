@@ -1,3 +1,4 @@
+import inspect
 import logging
 import pathlib
 import tempfile
@@ -26,23 +27,9 @@ def link_model_card(model_path: pathlib.Path, target_file: pathlib.Path):
     target_file.symlink_to(readme_file)
 
 
-def retrieve_model_name(cfg_target: str) -> str:
-    """Retrieve the name of the model folder from the hydra config target"""
-    model_name = str(cfg_target.split(".")[-2])
-    return model_name
-
-
-def get_model_path(model_name: str) -> pathlib.Path:
-    return (
-        pathlib.Path(__file__)
-        / ".."
-        / ".."
-        / ".."
-        / "the_well"
-        / "benchmark"
-        / "models"
-        / model_name
-    ).resolve()
+def retrive_model_path(model: torch.nn.Module) -> pathlib.Path:
+    model_path = pathlib.Path(inspect.getfile(model.__class__)).parent
+    return model_path
 
 
 def upload_folder(folder: pathlib.Path, repo_id: str):
@@ -79,8 +66,8 @@ def main(cfg: DictConfig):
     model_state_dict = checkpoint["model_state_dict"]
     model.load_state_dict(model_state_dict)
 
-    model_name = retrieve_model_name(cfg.model._target_)
-    model_path = get_model_path(model_name)
+    model_path = retrive_model_path(model)
+    model_name = model.__class__.__name__
     dataset_name = str(cfg.data.well_dataset_name)
     repo_id = f"polymathic-ai/{model_name}-{dataset_name}"
     logger.info("Uploading model.")
