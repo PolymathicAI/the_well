@@ -12,7 +12,9 @@ from the_well.data import WellDataModule
 
 logger = logging.getLogger("the_well")
 
-CONFIG_DIR = pathlib.Path(__file__) / ".." / ".." / "the_well" / "benchmark" / "configs"
+CONFIG_DIR = (
+    pathlib.Path(__file__) / ".." / ".." / ".." / "the_well" / "benchmark" / "configs"
+).resolve()
 CONFIG_NAME = "model_upload"
 
 
@@ -22,7 +24,8 @@ def link_model_card(model_name: str, target_file: pathlib.Path):
         pathlib.Path(__file__) / ".." / ".." / "the_well" / "benchmark" / "models"
     )
     readme_file = model_directory / model_name / "README.md"
-    readme_file.symlink_to(target_file)
+    readme_file = readme_file.resolve()
+    target_file.symlink_to(readme_file)
 
 
 def upload_folder(folder: pathlib.Path, repo_id: str):
@@ -32,7 +35,7 @@ def upload_folder(folder: pathlib.Path, repo_id: str):
     )
 
 
-@hydra.main(config_path=CONFIG_DIR, config_name=CONFIG_NAME)
+@hydra.main(config_path=str(CONFIG_DIR), config_name=CONFIG_NAME)
 def main(cfg: DictConfig):
     logger.info(f"Instantiate datamodule {cfg.data._target_}")
     datamodule: WellDataModule = instantiate(cfg.data)
