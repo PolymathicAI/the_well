@@ -18,14 +18,31 @@ CONFIG_DIR = (
 CONFIG_NAME = "model_upload"
 
 
-def link_model_card(model_name: str, target_file: pathlib.Path):
+def link_model_card(model_path: pathlib.Path, target_file: pathlib.Path):
     """Link the README associated to the model to the current directory."""
-    model_directory = (
-        pathlib.Path(__file__) / ".." / ".." / "the_well" / "benchmark" / "models"
-    )
-    readme_file = model_directory / model_name / "README.md"
+    readme_file = model_path / "README.md"
     readme_file = readme_file.resolve()
+    logger.info(f"Link {target_file=} to {readme_file=}")
     target_file.symlink_to(readme_file)
+
+
+def retrieve_model_name(cfg_target: str) -> str:
+    """Retrieve the name of the model folder from the hydra config target"""
+    model_name = str(cfg_target.split(".")[-2])
+    return model_name
+
+
+def get_model_path(model_name: str) -> pathlib.Path:
+    return (
+        pathlib.Path(__file__)
+        / ".."
+        / ".."
+        / ".."
+        / "the_well"
+        / "benchmark"
+        / "models"
+        / model_name
+    ).resolve()
 
 
 def upload_folder(folder: pathlib.Path, repo_id: str):
@@ -62,14 +79,15 @@ def main(cfg: DictConfig):
     model_state_dict = checkpoint["model_state_dict"]
     model.load_state_dict(model_state_dict)
 
-    model_name = model.__class__.__name__
+    model_name = retrieve_model_name(cfg.model._target_)
+    model_path = get_model_path(model_name)
     dataset_name = str(cfg.data.well_dataset_name)
     repo_id = f"polymathic-ai/{model_name}-{dataset_name}"
     logger.info("Uploading model.")
     with tempfile.TemporaryDirectory() as tmp_dirname:
         tmp_dirname = pathlib.Path(tmp_dirname)
         # Copy model readme
-        link_model_card(model_name, tmp_dirname / "README.md")
+        link_model_card(model_path, tmp_dirname / "README.md")
         # Save model locally with HF formalism
         model.save_pretrained(tmp_dirname)
         upload_folder(tmp_dirname, repo_id=repo_id)
