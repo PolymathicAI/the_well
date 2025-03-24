@@ -3,3 +3,6 @@ defaults:
   - model: ???
 
 model_ckpt: ???
+data:
+  n_steps_input: 4
+  n_steps_output: 1
