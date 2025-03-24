@@ -34,8 +34,9 @@ def retrive_model_path(model: torch.nn.Module) -> pathlib.Path:
 
 def upload_folder(folder: pathlib.Path, repo_id: str):
     api = HfApi()
+    logger.info(f"Upload {folder=} to {repo_id=}")
     api.upload_large_folder(
-        repo_id=repo_id, folder_path=folder, repo_type="dataset", private=False
+        repo_id=repo_id, folder_path=folder, repo_type="model", private=False
     )
 
 
