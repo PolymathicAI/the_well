@@ -1,9 +1,10 @@
 import logging
-import os.path as osp
+import pathlib
+import tempfile
 
 import hydra
 import torch
-from huggingface_hub import PyTorchModelHubMixin
+from huggingface_hub import HfApi, PyTorchModelHubMixin
 from hydra.utils import instantiate
 from omegaconf import DictConfig
 
@@ -11,8 +12,24 @@ from the_well.data import WellDataModule
 
 logger = logging.getLogger("the_well")
 
-CONFIG_DIR = osp.join(osp.dirname(__file__), "../../the_well/benchmark/configs")
+CONFIG_DIR = pathlib.Path(__file__) / ".." / ".." / "the_well" / "benchmark" / "configs"
 CONFIG_NAME = "model_upload"
+
+
+def link_model_card(model_name: str, target_file: pathlib.Path):
+    """Link the README associated to the model to the current directory."""
+    model_directory = (
+        pathlib.Path(__file__) / ".." / ".." / "the_well" / "benchmark" / "models"
+    )
+    readme_file = model_directory / model_name / "README.md"
+    readme_file.symlink_to(target_file)
+
+
+def upload_folder(folder: pathlib.Path, repo_id: str):
+    api = HfApi()
+    api.upload_large_folder(
+        repo_id=repo_id, folder_path=folder, repo_type="dataset", private=False
+    )
 
 
 @hydra.main(config_path=CONFIG_DIR, config_name=CONFIG_NAME)
@@ -42,8 +59,17 @@ def main(cfg: DictConfig):
     model_state_dict = checkpoint["model_state_dict"]
     model.load_state_dict(model_state_dict)
 
+    model_name = model.__class__.__name__
+    dataset_name = str(cfg.data.well_dataset_name)
+    repo_id = f"polymathic-ai/{model_name}-{dataset_name}"
     logger.info("Uploading model.")
-    # TODO: Actually upload the model.
+    with tempfile.TemporaryDirectory() as tmp_dirname:
+        tmp_dirname = pathlib.Path(tmp_dirname)
+        # Copy model readme
+        link_model_card(model_name, tmp_dirname / "README.md")
+        # Save model locally with HF formalism
+        model.save_pretrained(tmp_dirname)
+        upload_folder(tmp_dirname, repo_id=repo_id)
 
 
 if __name__ == "__main__":
