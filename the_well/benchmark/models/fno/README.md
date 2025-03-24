@@ -31,11 +31,40 @@ Implementation of the [Fourier Neural Operator](https://arxiv.org/abs/2010.08895
 
 For benchmarking on the Well, we used the following parameters.
 
+| Parameters  | Values |
+|-------------|--------|
+| Modes       | 16     |
+| Blocks      | 4      |
+| Hidden Size | 128    |
 
-| Parameters | Values |
-|------------|--------|
-| Modes      | 16     |
-| Blocks     | 4      |
-| Hidden Size| 128    |
+## Trained Model Versions
+
+Below is the list of checkpoints available for the training of FNO on different datasets of the Well.
+
+| Dataset                                | Best Learning Rate | Epochs | VRMSE  |
+|----------------------------------------|--------------------|--------|--------|
+| [acoustic_scattering_maze](https://huggingface.co/models/polymathic-ai/acoustic_scattering_maze)             | 1E-3               | 27     | 0.5033 |
+| active_matter                          | 5E-3               | 239    | 0.3157 |
+| convective_envelope_rsg                | 1E-4               | 14     | 0.0224 |
+| gray_scott_reaction_diffusion          | 1E-3               | 46     | 0.2044 |
+| helmholtz_staircase                    | 5E-4               | 132    | 0.00160|
+| MHD_64                                 | 5E-3               | 170    | 0.3352 |
+| planetswe                              | 5E-4               | 49     | 0.0855 |
+| post_neutron_star_merger               | 5E-4               | 104    | 0.4144 |
+| rayleigh_benard                        | 1E-4               | 32     | 0.6049 |
+| rayleigh_taylor_instability (At = 0.25)| 5E-3               | 177    | 0.4013 |
+| shear_flow                             | 1E-3               | 24     | 0.4450 |
+| supernova_explosion_64                 | 1E-4               | 40     | 0.3804 |
+| turbulence_gravity_cooling             | 1E-4               | 13     | 0.2381 |
+| turbulent_radiative_layer_2D           | 5E-3               | 500    | 0.4906 |
+| viscoelastic_instability               | 5E-3               | 205    | 0.7195 |
 
 ## Loading the model from Hugging Face
+
+To load the FNO model trained on a dataset of the Well, use the following while replacing `<datasetname>` by the actual name of the dataset.
+
+```python
+from the_well.benchmark.models import FNO
+
+model = FNO.from_pretrained("polymathic-ai/FNO-<datasetname>")
+```
