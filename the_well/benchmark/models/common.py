@@ -1,7 +1,19 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from huggingface_hub import PyTorchModelHubMixin
 from torch.nn.utils.parametrizations import spectral_norm
+
+
+class BaseModel(nn.Module, PyTorchModelHubMixin):
+    def __init__(
+        self,
+        n_spatial_dims: int,
+        spatial_resolution: tuple[int, ...],
+    ):
+        super().__init__()
+        self.n_spatial_dims = n_spatial_dims
+        self.spatial_resolution = spatial_resolution
 
 
 class NestedLinear(nn.Linear):

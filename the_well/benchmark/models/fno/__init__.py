@@ -1,12 +1,10 @@
 # from typing import Dict, Tuple
 
 import torch
-import torch.nn as nn
-from huggingface_hub import PyTorchModelHubMixin
 from neuralop.models import FNO as neuralop_FNO
 from torch.utils.checkpoint import checkpoint
 
-from the_well.data.datasets import WellMetadata
+from the_well.benchmark.models.common import BaseModel
 
 
 class NeuralOpsCheckpointWrapper(neuralop_FNO):
@@ -61,19 +59,20 @@ class NeuralOpsCheckpointWrapper(neuralop_FNO):
         return x
 
 
-class FNO(nn.Module, PyTorchModelHubMixin):
+class FNO(BaseModel):
     def __init__(
         self,
         dim_in: int,
         dim_out: int,
-        dset_metadata: WellMetadata,
+        n_spatial_dims: int,
+        spatial_resolution: tuple[int, ...],
         modes1: int,
         modes2: int,
         modes3: int = 16,
         hidden_channels: int = 64,
         gradient_checkpointing: bool = False,
     ):
-        super(FNO, self).__init__()
+        super().__init__(n_spatial_dims, spatial_resolution)
         self.dim_in = dim_in
         self.dim_out = dim_out
         self.modes1 = modes1
@@ -82,7 +81,6 @@ class FNO(nn.Module, PyTorchModelHubMixin):
         self.hidden_channels = hidden_channels
         self.model = None
         self.initialized = False
-        self.n_spatial_dims = dset_metadata.n_spatial_dims
         self.gradient_checkpointing = gradient_checkpointing
 
         if self.n_spatial_dims == 2:

@@ -13,11 +13,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from einops import rearrange
-from huggingface_hub import PyTorchModelHubMixin
 from timm.models.layers import DropPath
 from torch.utils.checkpoint import checkpoint
 
-from the_well.data.datasets import WellMetadata
+from the_well.benchmark.models.common import BaseModel
 
 conv_modules = {1: nn.Conv1d, 2: nn.Conv2d, 3: nn.Conv3d}
 conv_transpose_modules = {
@@ -201,22 +200,20 @@ class Stage(nn.Module):
         return x
 
 
-class UNetConvNext(nn.Module, PyTorchModelHubMixin):
+class UNetConvNext(BaseModel):
     def __init__(
         self,
         dim_in: int,
         dim_out: int,
-        dset_metadata: WellMetadata,
+        n_spatial_dims: int,
+        spatail_resolution: tuple[int, ...],
         stages: int = 4,
         blocks_per_stage: int = 1,
         blocks_at_neck: int = 1,
-        n_spatial_dims: int = 2,
         init_features: int = 32,
         gradient_checkpointing: bool = False,
     ):
-        super(UNetConvNext, self).__init__()
-        self.dset_metadata = dset_metadata
-        n_spatial_dims = dset_metadata.n_spatial_dims
+        super().__init__(n_spatial_dims, spatail_resolution)
         self.n_spatial_dims = n_spatial_dims
         features = init_features
         self.gradient_checkpointing = gradient_checkpointing

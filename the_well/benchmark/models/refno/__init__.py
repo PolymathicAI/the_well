@@ -1,11 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from huggingface_hub import PyTorchModelHubMixin
 
-from the_well.data.datasets import WellMetadata
-
-from ..common import SN_MLP, SigmaNormLinear
+from the_well.benchmark.models.common import SN_MLP, BaseModel, SigmaNormLinear
 
 
 def filter_reconstruction(x, mag_bias, phase_bias):
@@ -121,27 +118,30 @@ class ReFNOBlock(nn.Module):
         return self.spectral_conv(self.mlp(x))
 
 
-class ReFNO(nn.Module, PyTorchModelHubMixin):
+class ReFNO(BaseModel):
     def __init__(
         self,
         dim_in: int,
         dim_out: int,
-        dset_metadata: WellMetadata,
+        n_spatial_dims: int,
+        spatial_resolution: tuple[int, ...],
         hidden_dim: int = 64,
         blocks: int = 4,
         ratio: float = 1.0,
     ):
-        super(ReFNO, self).__init__()
+        super().__init__(n_spatial_dims, spatial_resolution)
         """
 
         """
-        self.resolution = tuple(dset_metadata.spatial_resolution)
         self.encoder = SigmaNormLinear(dim_in, hidden_dim)
         self.pos_embedding = nn.Parameter(
-            torch.randn(self.resolution + (hidden_dim,)) * 0.02
+            torch.randn(self.spatial_resolution + (hidden_dim,)) * 0.02
         )
         self.processor_blocks = nn.ModuleList(
-            [ReFNOBlock(hidden_dim, self.resolution, ratio) for _ in range(blocks)]
+            [
+                ReFNOBlock(hidden_dim, self.spatial_resolution, ratio)
+                for _ in range(blocks)
+            ]
         )
         self.decoder = SigmaNormLinear(hidden_dim, dim_out)
 

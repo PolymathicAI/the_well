@@ -11,10 +11,9 @@ from collections import OrderedDict
 
 import torch
 import torch.nn as nn
-from huggingface_hub import PyTorchModelHubMixin
 from torch.utils.checkpoint import checkpoint
 
-from the_well.data.datasets import WellMetadata
+from the_well.benchmark.models.common import BaseModel
 
 conv_modules = {1: nn.Conv1d, 2: nn.Conv2d, 3: nn.Conv3d}
 conv_transpose_modules = {
@@ -26,19 +25,17 @@ pool_modules = {1: nn.MaxPool1d, 2: nn.MaxPool2d, 3: nn.MaxPool3d}
 norm_modules = {1: nn.BatchNorm1d, 2: nn.BatchNorm2d, 3: nn.BatchNorm3d}
 
 
-class UNetClassic(nn.Module, PyTorchModelHubMixin):
+class UNetClassic(BaseModel):
     def __init__(
         self,
         dim_in: int,
         dim_out: int,
-        dset_metadata: WellMetadata,
+        n_spatial_dims: int,
+        spatial_resolution: tuple[int, ...],
         init_features: int = 32,
         gradient_checkpointing: bool = False,
     ):
-        super(UNetClassic, self).__init__()
-        self.dset_metadata = dset_metadata
-        n_spatial_dims = dset_metadata.n_spatial_dims
-        self.n_spatial_dims = n_spatial_dims
+        super().__init__(n_spatial_dims, spatial_resolution)
         self.gradient_checkpointing = gradient_checkpointing
         features = init_features
         self.encoder1 = self._block(dim_in, features, name="enc1")

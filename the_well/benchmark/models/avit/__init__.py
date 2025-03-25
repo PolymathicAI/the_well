@@ -7,10 +7,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from einops import rearrange
-from huggingface_hub import PyTorchModelHubMixin
 from timm.layers import DropPath
 
-from the_well.data.datasets import WellMetadata
+from the_well.benchmark.models.common import BaseModel
 
 
 class hMLP_stem(nn.Module):
@@ -176,7 +175,7 @@ class AxialAttentionBlock(nn.Module):
         return input + self.drop_path(self.gamma * x)
 
 
-class AViT(nn.Module, PyTorchModelHubMixin):
+class AViT(BaseModel):
     """
     Uses axial attention to predict forward dynamics. This simplified version
     just stacks time in channels.
@@ -192,36 +191,36 @@ class AViT(nn.Module, PyTorchModelHubMixin):
         self,
         dim_in: int,
         dim_out: int,
-        dset_metadata: WellMetadata,
+        n_spatial_dims: int,
+        spatial_resolution: tuple[int, ...],
         hidden_dim: int = 768,
         num_heads: int = 12,
         processor_blocks: int = 8,
         drop_path: float = 0.0,
     ):
-        super().__init__()
+        super().__init__(n_spatial_dims, spatial_resolution)
         # Normalization - not used in the well
         self.drop_path = drop_path
         self.dp = np.linspace(0, drop_path, processor_blocks)
 
-        self.resolution = tuple(dset_metadata.spatial_resolution)
         # Patch size hardcoded at 16 in this implementation
         self.patch_size = 16
         # Embedding
-        pe_size = tuple(int(k / self.patch_size) for k in self.resolution) + (
+        pe_size = tuple(int(k / self.patch_size) for k in self.spatial_resolution) + (
             hidden_dim,
         )
         self.absolute_pe = nn.Parameter(0.02 * torch.randn(*pe_size))
         self.embed = hMLP_stem(
             dim_in=dim_in,
             hidden_dim=hidden_dim,
-            n_spatial_dims=dset_metadata.n_spatial_dims,
+            n_spatial_dims=self.n_spatial_dims,
         )
         self.blocks = nn.ModuleList(
             [
                 AxialAttentionBlock(
                     hidden_dim=hidden_dim,
                     num_heads=num_heads,
-                    n_spatial_dims=dset_metadata.n_spatial_dims,
+                    n_spatial_dims=self.n_spatial_dims,
                     drop_path=self.dp[i],
                 )
                 for i in range(processor_blocks)
@@ -230,12 +229,12 @@ class AViT(nn.Module, PyTorchModelHubMixin):
         self.debed = hMLP_output(
             hidden_dim=hidden_dim,
             dim_out=dim_out,
-            n_spatial_dims=dset_metadata.n_spatial_dims,
+            n_spatial_dims=self.n_spatial_dims,
         )
 
-        if dset_metadata.n_spatial_dims == 2:
+        if self.n_spatial_dims == 2:
             self.embed_reshapes = ["b h w c -> b c h w", "b c h w -> b h w c"]
-        if dset_metadata.n_spatial_dims == 3:
+        if self.n_spatial_dims == 3:
             self.embed_reshapes = ["b h w d c -> b c h w d", "b c h w d -> b h w d c"]
 
     def forward(self, x):
