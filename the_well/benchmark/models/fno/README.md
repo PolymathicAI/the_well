@@ -37,6 +37,10 @@ For benchmarking on the Well, we used the following parameters.
 | Blocks      | 4      |
 | Hidden Size | 128    |
 
+## Information about benchmarking
+
+The models have been trained for a fixed time of 12 hours on a NVIDIA H100 96GB GPU or 500 epochs (whichever happens first). In the time dimension, the context length was set to 4. The batch size was set to maximize the memory usage. We experiment with 5 different learning rates for each model on each dataset, and use the model performing best on the validation set to report test set results (using the `recent.pt` checkpoint). The reported results are here to provide a simple baseline and **should not be considered as state-of-the-art.** We hope that the community will build upon these results to develop better architectures for PDE surrogate modeling.
+
 ## Trained Model Versions
 
 Below is the list of checkpoints available for the training of FNO on different datasets of the Well.
