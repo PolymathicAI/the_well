@@ -168,18 +168,18 @@ class Block(nn.Module):
 class AFNO(BaseModel):
     def __init__(
         self,
-        dim_in,
-        dim_out,
-        spatial_resolution,
-        n_spatial_dims,
-        hidden_dim=768,
-        n_blocks=12,  # Depth in original code - changing for consistency
-        cmlp_diagonal_blocks=8,  # num_blocks in original
-        patch_size=8,
-        mlp_ratio=4.0,
-        drop_rate=0.0,
-        drop_path_rate=0.0,
-        sparsity_threshold=0.01,
+        dim_in: int,
+        dim_out: int,
+        n_spatial_dims: int,
+        spatial_resolution: tuple[int, ...],
+        hidden_dim: int = 768,
+        n_blocks: int = 12,  # Depth in original code - changing for consistency
+        cmlp_diagonal_blocks: int = 8,  # num_blocks in original
+        patch_size: int = 8,
+        mlp_ratio: float = 4.0,
+        drop_rate: float = 0.0,
+        drop_path_rate: float = 0.0,
+        sparsity_threshold: float = 0.01,
     ):
         super().__init__(n_spatial_dims, spatial_resolution)
         self.dim_in = dim_in
@@ -212,7 +212,7 @@ class AFNO(BaseModel):
             self.patch_debed = nn.ConvTranspose3d(
                 hidden_dim, dim_out, kernel_size=patch_size, stride=patch_size
             )
-        self.inner_size = [k // patch_size for k in self.resolution]
+        self.inner_size = [k // patch_size for k in self.spatial_resolution]
         pos_embed_size = [1] + self.inner_size + [hidden_dim]
         self.pos_embed = nn.Parameter(0.02 * torch.randn(pos_embed_size))
         self.pos_drop = nn.Dropout(p=drop_rate)
