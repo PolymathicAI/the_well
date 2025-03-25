@@ -69,7 +69,7 @@ class DilatedResNet(BaseModel):
         hidden_dim: int = 32,
         padding_type: str = "zero",
     ):
-        super(DilatedResNet, self).__init__(n_spatial_dims, spatial_resolution)
+        super().__init__(n_spatial_dims, spatial_resolution)
         self.dim_in = dim_in
         self.dim_out = dim_out
         self.kernel_size = kernel_size
