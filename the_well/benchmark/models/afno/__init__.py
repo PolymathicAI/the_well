@@ -13,6 +13,8 @@ import torch.nn.functional as F
 from einops import rearrange
 from timm.models.layers import DropPath, trunc_normal_
 
+from the_well.benchmark.models.common import BaseModel
+
 
 class RealImagGELU(nn.Module):
     def forward(self, x):
@@ -163,26 +165,25 @@ class Block(nn.Module):
         return x
 
 
-class AFNO(nn.Module):
+class AFNO(BaseModel):
     def __init__(
         self,
-        dim_in,
-        dim_out,
-        dset_metadata,
-        hidden_dim=768,
-        n_blocks=12,  # Depth in original code - changing for consistency
-        cmlp_diagonal_blocks=8,  # num_blocks in original
-        patch_size=8,
-        mlp_ratio=4.0,
-        drop_rate=0.0,
-        drop_path_rate=0.0,
-        sparsity_threshold=0.01,
+        dim_in: int,
+        dim_out: int,
+        n_spatial_dims: int,
+        spatial_resolution: tuple[int, ...],
+        hidden_dim: int = 768,
+        n_blocks: int = 12,  # Depth in original code - changing for consistency
+        cmlp_diagonal_blocks: int = 8,  # num_blocks in original
+        patch_size: int = 8,
+        mlp_ratio: float = 4.0,
+        drop_rate: float = 0.0,
+        drop_path_rate: float = 0.0,
+        sparsity_threshold: float = 0.01,
     ):
-        super().__init__()
+        super().__init__(n_spatial_dims, spatial_resolution)
         self.dim_in = dim_in
         self.dim_out = dim_out
-        self.resolution = dset_metadata.spatial_resolution
-        self.n_spatial_dims = dset_metadata.n_spatial_dims
         self.n_blocks = n_blocks
         self.cmlp_diagonal_blocks = cmlp_diagonal_blocks
         norm_layer = partial(nn.LayerNorm, eps=1e-6)
@@ -211,7 +212,7 @@ class AFNO(nn.Module):
             self.patch_debed = nn.ConvTranspose3d(
                 hidden_dim, dim_out, kernel_size=patch_size, stride=patch_size
             )
-        self.inner_size = [k // patch_size for k in self.resolution]
+        self.inner_size = [k // patch_size for k in self.spatial_resolution]
         pos_embed_size = [1] + self.inner_size + [hidden_dim]
         self.pos_embed = nn.Parameter(0.02 * torch.randn(pos_embed_size))
         self.pos_drop = nn.Dropout(p=drop_rate)
