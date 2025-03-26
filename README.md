@@ -11,6 +11,8 @@
 [![Docs](https://img.shields.io/badge/docs-latest---?color=25005a&labelColor=grey)](https://polymathic-ai.org/the_well/)
 [![arXiv](https://img.shields.io/badge/arXiv-2412.00568---?logo=arXiv&labelColor=b31b1b&color=grey)](https://arxiv.org/abs/2412.00568)
 [![NeurIPS](https://img.shields.io/badge/NeurIPS-2024---?logo=https%3A%2F%2Fneurips.cc%2Fstatic%2Fcore%2Fimg%2FNeurIPS-logo.svg&labelColor=68448B&color=b3b3b3)](https://openreview.net/forum?id=00Sx577BT3)
+[![HuggingFace](https://img.shields.io/badge/datasets-%20?logo=huggingface&logoColor=%23FFD21E&label=Hugging%20Face&labelColor=%236B7280&color=%23FFD21E
+)](https://huggingface.co/collections/polymathic-ai/the-well-67e129f4ca23e0447395d74c)
 
 </div>
 
