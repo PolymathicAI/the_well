@@ -64,7 +64,8 @@ def main(cfg: DictConfig):
     logger.info(f"Instantiate model {cfg.model._target_}")
     model = instantiate(
         cfg.model,
-        dset_metadata=dset_metadata,
+        n_spatail_dims=dset_metadata.n_spatial_dims,
+        spatial_resolution=dset_metadata.spatial_resolution,
         dim_in=n_input_fields,
         dim_out=n_output_fields,
     )
