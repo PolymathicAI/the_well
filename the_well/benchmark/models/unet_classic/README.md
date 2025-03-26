@@ -72,3 +72,11 @@ Below is the list of checkpoints available for the training of U-Net on differen
 | [viscoelastic_instability](https://huggingface.co/polymathic-ai/UNET-viscoelastic_instability) | 5E-4 | 198 | 0.3147 |
 
 ## Loading the model from Hugging Face
+
+To load the U-Net model trained on a dataset of the Well, use the following while replacing `<datasetname>` by the actual name of the dataset.
+
+```python
+from the_well.benchmark.models import UNetClassic
+
+model = UNetClassic.from_pretrained("polymathic-ai/UNET-<datasetname>")
+```

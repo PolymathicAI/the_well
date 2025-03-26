@@ -70,3 +70,11 @@ Below is the list of checkpoints available for the training of TFNO on different
 | [viscoelastic_instability](https://huggingface.co/polymathic-ai/TFNO-viscoelastic_instability) | 5E-3 | 199 | 0.7021 |
 
 ## Loading the model from Hugging Face
+
+To load the TFNO model trained on a dataset of the Well, use the following while replacing `<datasetname>` by the actual name of the dataset.
+
+```python
+from the_well.benchmark.models import TFNO
+
+model = TFNO.from_pretrained("polymathic-ai/TFNO-<datasetname>")
+```

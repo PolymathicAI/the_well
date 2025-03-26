@@ -74,3 +74,11 @@ Below is the list of checkpoints available for the training of CNextU-Net on dif
 | [viscoelastic_instability](https://huggingface.co/polymathic-ai/CNextU-Net-viscoelastic_instability) | 5E-4 | 114 | 0.1966 |
 
 ## Loading the model from Hugging Face
+
+To load the CNextU-Net model trained on a dataset of the Well, use the following while replacing `<datasetname>` by the actual name of the dataset.
+
+```python
+from the_well.benchmark.models import UNetConvNext
+
+model = UNetConvNext.from_pretrained("polymathic-ai/CNextU-Net-<datasetname>")
+```
