@@ -23,6 +23,17 @@ tags:
 
 ---
 
+# Benchmarking Models on the Well
+
+[The Well](https://github.com/PolymathicAI/the_well) is a 15TB dataset collection of physics simulations. This model is part of the models that have been benchmarked on the Well.
+
+
+The models have been trained for a fixed time of 12 hours or up to 500 epochs, whichever happens first. The training was performed on a NVIDIA H100 96GB GPU.
+In the time dimension, the context length was set to 4. The batch size was set to maximize the memory usage. We experiment with 5 different learning rates for each model on each dataset.
+We use the model performing best on the validation set to report test set results.
+
+The reported results are here to provide a simple baseline. **They should not be considered as state-of-the-art**. We hope that the community will build upon these results to develop better architectures for PDE surrogate modeling.
+
 # Fourier Neural Operator
 
 Implementation of the [Fourier Neural Operator](https://arxiv.org/abs/2010.08895) provided by [`neuraloperator v0.3.0`](https://neuraloperator.github.io/dev/index.html).
@@ -37,9 +48,6 @@ For benchmarking on the Well, we used the following parameters.
 | Blocks      | 4      |
 | Hidden Size | 128    |
 
-## Information about benchmarking
-
-The models have been trained for a fixed time of 12 hours on a NVIDIA H100 96GB GPU or 500 epochs (whichever happens first). In the time dimension, the context length was set to 4. The batch size was set to maximize the memory usage. We experiment with 5 different learning rates for each model on each dataset, and use the model performing best on the validation set to report test set results (using the `recent.pt` checkpoint). The reported results are here to provide a simple baseline and **should not be considered as state-of-the-art.** We hope that the community will build upon these results to develop better architectures for PDE surrogate modeling.
 
 ## Trained Model Versions
 
