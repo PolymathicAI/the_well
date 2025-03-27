@@ -5,7 +5,7 @@ import tempfile
 
 import hydra
 import torch
-from huggingface_hub import HfApi, PyTorchModelHubMixin
+from huggingface_hub import PyTorchModelHubMixin
 from hydra.utils import instantiate
 from omegaconf import DictConfig
 
@@ -17,14 +17,6 @@ CONFIG_DIR = (
     pathlib.Path(__file__) / ".." / ".." / ".." / "the_well" / "benchmark" / "configs"
 ).resolve()
 CONFIG_NAME = "model_upload"
-
-
-def link_model_card(model_path: pathlib.Path, target_file: pathlib.Path):
-    """Link the README associated to the model to the current directory."""
-    readme_file = model_path / "README.md"
-    readme_file = readme_file.resolve()
-    logger.info(f"Link {target_file=} to {readme_file=}")
-    target_file.symlink_to(readme_file)
 
 
 def retrive_model_path(model: torch.nn.Module) -> pathlib.Path:
@@ -40,14 +32,6 @@ def retrive_model_path(model: torch.nn.Module) -> pathlib.Path:
         / model_folder
     ).resolve()
     return model_path
-
-
-def upload_folder(folder: pathlib.Path, repo_id: str):
-    api = HfApi()
-    logger.info(f"Upload {folder=} to {repo_id=}")
-    api.upload_large_folder(
-        repo_id=repo_id, folder_path=folder, repo_type="model", private=False
-    )
 
 
 @hydra.main(config_path=str(CONFIG_DIR), config_name=CONFIG_NAME)
@@ -85,11 +69,15 @@ def main(cfg: DictConfig):
     logger.info("Uploading model.")
     with tempfile.TemporaryDirectory() as tmp_dirname:
         tmp_dirname = pathlib.Path(tmp_dirname)
-        # Copy model readme
-        link_model_card(model_path, tmp_dirname / "README.md")
-        # Save model locally with HF formalism
-        model.save_pretrained(tmp_dirname)
-        upload_folder(tmp_dirname, repo_id=repo_id)
+        model_card_path = (model_path / "README.md").resolve()
+        assert model_card_path.exists(), f"{model_card_path} does not exist."
+        # Upload model with HF formalism
+        model.save_pretrained(
+            tmp_dirname,
+            push_to_hub=True,
+            repo_id=repo_id,
+            model_card_kwargs={"template_path": model_card_path},
+        )
 
 
 if __name__ == "__main__":
