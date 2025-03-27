@@ -75,10 +75,10 @@ Below is the list of checkpoints available for the training of CNextU-Net on dif
 
 ## Loading the model from Hugging Face
 
-To load the CNextU-Net model trained on a dataset of the Well, use the following while replacing `<datasetname>` by the actual name of the dataset.
+To load the CNextU-Net model trained on a dataset of the Well, use the following while assigning `datasetname` to the actual name of the dataset.
 
 ```python
 from the_well.benchmark.models import UNetConvNext
 
-model = UNetConvNext.from_pretrained("polymathic-ai/CNextU-Net-<datasetname>")
+model = UNetConvNext.from_pretrained(f"polymathic-ai/CNextU-Net-{datasetname}")
 ```

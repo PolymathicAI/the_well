@@ -73,10 +73,10 @@ Below is the list of checkpoints available for the training of U-Net on differen
 
 ## Loading the model from Hugging Face
 
-To load the U-Net model trained on a dataset of the Well, use the following while replacing `<datasetname>` by the actual name of the dataset.
+To load the U-Net model trained on a dataset of the Well, use the following while assigning `datasetname` to the actual name of the dataset.
 
 ```python
 from the_well.benchmark.models import UNetClassic
 
-model = UNetClassic.from_pretrained("polymathic-ai/UNET-<datasetname>")
+model = UNetClassic.from_pretrained(f"polymathic-ai/UNET-{datasetname}")
 ```
