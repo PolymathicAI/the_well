@@ -20,16 +20,7 @@ CONFIG_NAME = "model_upload"
 
 def retrive_model_path(model: torch.nn.Module) -> pathlib.Path:
     model_folder = inspect.getfile(model.__class__).split("/")[-2]
-    model_path = (
-        pathlib.Path(__file__)
-        / ".."
-        / ".."
-        / ".."
-        / "the_well"
-        / "benchmark"
-        / "models"
-        / model_folder
-    ).resolve()
+    model_path = (CONFIG_DIR.parent / "models" / model_folder).resolve()
     return model_path
 
 
