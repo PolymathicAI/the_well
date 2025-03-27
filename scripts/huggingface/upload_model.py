@@ -51,6 +51,7 @@ def main(cfg: DictConfig):
         spatial_resolution=dset_metadata.spatial_resolution,
         dim_in=n_input_fields,
         dim_out=n_output_fields,
+        _convert_="all",
     )
     assert isinstance(model, torch.nn.Module) and isinstance(
         model, PyTorchModelHubMixin
