@@ -53,9 +53,8 @@ def main(cfg: DictConfig):
         dim_out=n_output_fields,
         _convert_="all",
     )
-    assert isinstance(model, torch.nn.Module) and isinstance(
-        model, PyTorchModelHubMixin
-    )
+    assert isinstance(model, torch.nn.Module)
+    assert isinstance(model, PyTorchModelHubMixin)
 
     logger.info(f"Load checkpoints {cfg.model_ckpt}")
     checkpoint = torch.load(cfg.model_ckpt, map_location="cpu")
