@@ -1,7 +1,6 @@
 import inspect
 import logging
 import pathlib
-import tempfile
 
 import hydra
 import torch
@@ -67,17 +66,13 @@ def main(cfg: DictConfig):
     dataset_name = str(cfg.data.well_dataset_name)
     repo_id = f"polymathic-ai/{model_name}-{dataset_name}"
     logger.info("Uploading model.")
-    with tempfile.TemporaryDirectory() as tmp_dirname:
-        tmp_dirname = pathlib.Path(tmp_dirname)
-        model_card_path = (model_path / "README.md").resolve()
-        assert model_card_path.exists(), f"{model_card_path} does not exist."
-        # Upload model with HF formalism
-        model.save_pretrained(
-            tmp_dirname,
-            push_to_hub=True,
-            repo_id=repo_id,
-            model_card_kwargs={"template_path": model_card_path},
-        )
+    model_card_path = (model_path / "README.md").resolve()
+    assert model_card_path.exists(), f"{model_card_path} does not exist."
+    # Upload model with HF formalism
+    model.push_to_hub(
+        repo_id=repo_id,
+        model_card_kwargs={"template_path": model_card_path},
+    )
 
 
 if __name__ == "__main__":
