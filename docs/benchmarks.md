@@ -2,7 +2,18 @@
 
 To showcase the dataset and the associated benchmarking library, we provide a set of simple baselines time-boxed to 12 hours on a single NVIDIA H100 to demonstrate the effectiveness of naive approaches on these challenging problems and motivate the development of more sophisticated approaches. These baselines are trained on the forward problem - predicting the next snapshot of a given simulation from a short history of 4 time-steps. The models used here are the Fourier Neural Operator, Tucker-Factorized FNO, U-net and a modernized U-net using ConvNext blocks. The neural operator models are implemented using the <a href="https://neuraloperator.github.io/dev/index.html"> neuraloperator </a> library.
 
-We emphasize that these settings are not selected to explore peak performance of modern machine learning, but rather that they reflect reasonable compute budgets and off-the-shelf choices that might be selected by a domain scientist exploring machine learning for their problems. Therefore we focus on popular models using settings that are either defaults or commonly tuned.
+We emphasize that these settings are not selected to explore peak performance of modern machine learning, but rather that they reflect reasonable compute budgets and off-the-shelf choices that might be selected by a domain scientist exploring machine learning for their problems. Therefore, we focus on popular models using settings that are either defaults or commonly tuned.
+
+### Benchmarked Model Checkpoints
+
+Most of the checkpoints of the models are available on [Hugging Face](https://huggingface.co/collections/polymathic-ai/the-well-benchmark-models-67e69bd7cd8e60229b5cd43e). To load a specific checkpoint follow the example below of the FNO model trained on the `active_matter` dataset.
+
+```python
+from the_well.benchmark.models import FNO
+
+model = FNO.from_pretrained("polymathic-ai/FNO-active_matter")
+```
+
 
 ### Test results
 
