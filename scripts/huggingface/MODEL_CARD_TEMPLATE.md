@@ -25,5 +25,5 @@ To load the {{ model_name }} model trained on the `{{ dataset }}` of the Well, u
 ```python
 from the_well.benchmark.models import {{ model_name }}
 
-model = UNetClassic.from_pretrained("polymathic-ai/{{ model_name }}-{{ dataset }}")
+model = {{ model_name }}.from_pretrained("polymathic-ai/{{ model_name }}-{{ dataset }}")
 ```
