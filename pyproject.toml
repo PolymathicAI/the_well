@@ -64,6 +64,7 @@ benchmark = [
     "torch_harmonics>=0.6,<0.7",
     "wandb>=0.17.9,<0.18",
     "torchinfo>=1.8.0,<2",
+    "huggingface-hub"
 ]
 dev = [
     "pre-commit",

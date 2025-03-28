@@ -206,14 +206,14 @@ class UNetConvNext(BaseModel):
         dim_in: int,
         dim_out: int,
         n_spatial_dims: int,
-        spatail_resolution: tuple[int, ...],
+        spatial_resolution: tuple[int, ...],
         stages: int = 4,
         blocks_per_stage: int = 1,
         blocks_at_neck: int = 1,
         init_features: int = 32,
         gradient_checkpointing: bool = False,
     ):
-        super().__init__(n_spatial_dims, spatail_resolution)
+        super().__init__(n_spatial_dims, spatial_resolution)
         self.n_spatial_dims = n_spatial_dims
         features = init_features
         self.gradient_checkpointing = gradient_checkpointing
