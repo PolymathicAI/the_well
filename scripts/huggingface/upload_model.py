@@ -12,9 +12,9 @@ from the_well.data import WellDataModule
 
 logger = logging.getLogger("the_well")
 
-CONFIG_DIR = (
-    pathlib.Path(__file__) / ".." / ".." / ".." / "the_well" / "benchmark" / "configs"
-).resolve()
+CONFIG_DIR = (pathlib.Path(__file__) / "../../../the_well/benchmark/configs").resolve(
+    strict=True
+)
 CONFIG_NAME = "model_upload"
 
 
@@ -57,8 +57,7 @@ def main(cfg: DictConfig):
     dataset_name = str(cfg.data.well_dataset_name)
     repo_id = f"polymathic-ai/{model_name}-{dataset_name}"
     logger.info("Uploading model.")
-    model_card_path = (model_path / "README.md").resolve()
-    assert model_card_path.exists(), f"{model_card_path} does not exist."
+    model_card_path = (model_path / "README.md").resolve(strict=True)
     # Upload model with HF formalism
     model.push_to_hub(
         repo_id=repo_id,
