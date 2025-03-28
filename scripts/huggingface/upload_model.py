@@ -37,7 +37,7 @@ def build_model_card_kwargs(
     model_readme_content = model_card_path.read_text()
     return {
         "template_path": template_path,
-        "dataset": f"polymathic-ai/{dataset_name}",
+        "dataset": dataset_name,
         "arxiv_id": model_arxiv_id,
         "model_readme": model_readme_content,
     }

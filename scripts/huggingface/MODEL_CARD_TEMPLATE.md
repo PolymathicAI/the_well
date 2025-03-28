@@ -1,6 +1,6 @@
 ---
 arxiv: {{ arxiv }}
-datasets: {{ dataset }}
+datasets: polymathic-ai/{{ dataset }}
 tags:
 - physics
 ---
