@@ -17,6 +17,31 @@ CONFIG_DIR = (pathlib.Path(__file__) / "../../../the_well/benchmark/configs").re
 )
 CONFIG_NAME = "model_upload"
 
+MODEL_ARXIV_ID = {
+    "FNO": "2310.00120",
+    "TFNO": "2310.00120",
+    "UNetClassic": "1505.04597",
+    "UNetConvNext": "2201.03545",
+}
+
+
+def build_model_card_kwargs(
+    model: torch.nn.Module, dataset_name: str
+) -> dict[str, str]:
+    """Create a dictionary of arguments to populate the model template card."""
+    template_path = pathlib.Path(__file__).parent / "model_card_template.md"
+    model_name = model.__class__.__name__
+    model_path = retrive_model_path(model)
+    model_arxiv_id = MODEL_ARXIV_ID[model_name]
+    model_card_path = (model_path / "README.md").resolve(strict=True)
+    model_readme_content = model_card_path.read_text()
+    return {
+        "template_path": template_path,
+        "dataset": f"polymathic-ai/{dataset_name}",
+        "arxiv_id": model_arxiv_id,
+        "model_readme": model_readme_content,
+    }
+
 
 def retrive_model_path(model: torch.nn.Module) -> pathlib.Path:
     model_folder = inspect.getfile(model.__class__).split("/")[-2]
@@ -52,17 +77,12 @@ def main(cfg: DictConfig):
     model_state_dict = checkpoint["model_state_dict"]
     model.load_state_dict(model_state_dict)
 
-    model_path = retrive_model_path(model)
-    model_name = model.__class__.__name__
     dataset_name = str(cfg.data.well_dataset_name)
+    model_name = model.__class__.__name__
     repo_id = f"polymathic-ai/{model_name}-{dataset_name}"
-    logger.info("Uploading model.")
-    model_card_path = (model_path / "README.md").resolve(strict=True)
+    model_card_kwargs = build_model_card_kwargs(model, dataset_name)
     # Upload model with HF formalism
-    model.push_to_hub(
-        repo_id=repo_id,
-        model_card_kwargs={"template_path": model_card_path},
-    )
+    model.push_to_hub(repo_id=repo_id, model_card_kwargs=model_card_kwargs)
 
 
 if __name__ == "__main__":
