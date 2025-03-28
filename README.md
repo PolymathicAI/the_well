@@ -100,7 +100,7 @@ If `--dataset` and `--split` are omitted, all datasets and splits will be downlo
 
 ### Streaming from Hugging Face
 
-Most of the Well datasets are also hosted on [Hugging Face](https://huggingface.co/polymathic-ai). Data can be streamed directly from the hub using the following code.
+Most of the Well datasets are also hosted on [Hugging Face](https://huggingface.co/collections/polymathic-ai/the-well-67e129f4ca23e0447395d74c). Data can be streamed directly from the hub using the following code.
 
 ```python
 from the_well.data import WellDataset
