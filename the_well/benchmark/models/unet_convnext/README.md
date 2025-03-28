@@ -21,14 +21,14 @@ Below is the list of checkpoints available for the training of CNextU-Net on dif
 
 | Dataset | Learning Rate | Epoch | VRMSE |
 |---------|---------------|-------|-------|
-| [acoustic_scattering_maze](https://huggingface.co/polymathic-ai/UNetConvNext-acoustic_scattering) | 1E-3 | 10 | 0.0196 |
+| [acoustic_scattering_maze](https://huggingface.co/polymathic-ai/UNetConvNext-acoustic_scattering_maze) | 1E-3 | 10 | 0.0196 |
 | [active_matter](https://huggingface.co/polymathic-ai/UNetConvNext-active_matter) | 5E-3 | 156 | 0.0953 |
 | [convective_envelope_rsg](https://huggingface.co/polymathic-ai/UNetConvNext-convective_envelope_rsg) | 1E-4 | 5 | 0.0663 |
 | [gray_scott_reaction_diffusion](https://huggingface.co/polymathic-ai/UNetConvNext-gray_scott_reaction_diffusion) | 1E-4 | 15 | 0.3596 |
 | [helmholtz_staircase](https://huggingface.co/polymathic-ai/UNetConvNext-helmholtz_staircase) | 5E-4 | 47 | 0.00146 |
 | [MHD_64](https://huggingface.co/polymathic-ai/UNetConvNext-MHD_64) | 5E-3 | 59 | 0.1487 |
 | [planetswe](https://huggingface.co/polymathic-ai/UNetConvNext-planetswe) | 1E-2 | 18 | 0.3268 |
-| [post_neutron_star_merger](https://huggingface.co/polymathic-ai/UNetConvNext-post_neutron_star_merger) | - | - | - |
+| post_neutron_star_merger | - | - | - |
 | [rayleigh_benard](https://huggingface.co/polymathic-ai/UNetConvNext-rayleigh_benard) | 5E-4 | 12 | 0.4807 |
 | [rayleigh_taylor_instability](https://huggingface.co/polymathic-ai/UNetConvNext-rayleigh_taylor_instability) | 5E-3 | 56 | 0.3771 |
 | [shear_flow](https://huggingface.co/polymathic-ai/UNetConvNext-shear_flow) | 5E-4 | 9 | 0.3972 |

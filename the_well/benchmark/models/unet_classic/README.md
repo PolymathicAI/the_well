@@ -20,14 +20,14 @@ Below is the list of checkpoints available for the training of U-Net on differen
 
 | Dataset | Learning Rate | Epochs | VRMSE |
 |---------|---------------|--------|-------|
-| [acoustic_scattering (maze)](https://huggingface.co/polymathic-ai/UNETClassic-acoustic_scattering) | 1E-2 | 26 | 0.0395 |
+| [acoustic_scattering_maze](https://huggingface.co/polymathic-ai/UNETClassic-acoustic_scattering_maze) | 1E-2 | 26 | 0.0395 |
 | [active_matter](https://huggingface.co/polymathic-ai/UNETClassic-active_matter) | 5E-3 | 239 | 0.2609 |
 | [convective_envelope_rsg](https://huggingface.co/polymathic-ai/UNETClassic-convective_envelope_rsg) | 5E-4 | 19 | 0.0701 |
 | [gray_scott_reaction_diffusion](https://huggingface.co/polymathic-ai/UNETClassic-gray_scott_reaction_diffusion) | 1E-2 | 44 | 0.5870 |
 | [helmholtz_staircase](https://huggingface.co/polymathic-ai/UNETClassic-helmholtz_staircase) | 1E-3 | 120 | 0.01655 |
 | [MHD_64](https://huggingface.co/polymathic-ai/UNETClassic-MHD_64) | 5E-4 | 165 | 0.1988 |
 | [planetswe](https://huggingface.co/polymathic-ai/UNETClassic-planetswe) | 1E-2 | 49 | 0.3498 |
-| [post_neutron_star_merger](https://huggingface.co/polymathic-ai/UNETClassic-post_neutron_star_merger) | - | - | – |
+| post_neutron_star_merger | - | - | – |
 | [rayleigh_benard](https://huggingface.co/polymathic-ai/UNETClassic-rayleigh_benard) | 1E-4 | 29 | 0.8448 |
 | [rayleigh_taylor_instability](https://huggingface.co/polymathic-ai/UNETClassic-rayleigh_taylor_instability) | 5E-4 | 193 | 0.6140 |
 | [shear_flow](https://huggingface.co/polymathic-ai/UNETClassic-shear_flow) | 5E-4 | 29 | 0.836 |

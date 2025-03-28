@@ -18,7 +18,7 @@ Below is the list of checkpoints available for the training of TFNO on different
 
 | Dataset | Learning Rate | Epoch | VRMSE |
 |---------|----------------|-------|-------|
-| [acoustic_scattering_maze](https://huggingface.co/polymathic-ai/TFNO-acoustic_scattering) | 1E-3 | 27 | 0.5034 |
+| [acoustic_scattering_maze](https://huggingface.co/polymathic-ai/TFNO-acoustic_scattering_maze) | 1E-3 | 27 | 0.5034 |
 | [active_matter](https://huggingface.co/polymathic-ai/TFNO-active_matter) | 1E-3 | 243 | 0.3342 |
 | [convective_envelope_rsg](https://huggingface.co/polymathic-ai/TFNO-convective_envelope_rsg) | 1E-3 | 13 | 0.0195 |
 | [gray_scott_reaction_diffusion](https://huggingface.co/polymathic-ai/TFNO-gray_scott_reaction_diffusion) | 5E-3 | 45 | 0.1784 |
