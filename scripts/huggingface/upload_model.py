@@ -39,6 +39,7 @@ def build_model_card_kwargs(
         "template_path": template_path,
         "dataset": dataset_name,
         "arxiv_id": model_arxiv_id,
+        "model_name": model_name,
         "model_readme": model_readme_content,
     }
 

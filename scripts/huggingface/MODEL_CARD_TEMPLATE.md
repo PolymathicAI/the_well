@@ -20,10 +20,10 @@ The reported results are here to provide a simple baseline. **They should not be
 
 ## Loading the model from Hugging Face
 
-To load the U-Net model trained on the `{{ dataset }}` of the Well, use the following commands.
+To load the {{ model_name }} model trained on the `{{ dataset }}` of the Well, use the following commands.
 
 ```python
-from the_well.benchmark.models import UNetClassic
+from the_well.benchmark.models import {{ model_name }}
 
-model = UNetClassic.from_pretrained("polymathic-ai/UNET-{{ dataset }}")
+model = UNetClassic.from_pretrained("polymathic-ai/{{ model_name }}-{{ dataset }}")
 ```
