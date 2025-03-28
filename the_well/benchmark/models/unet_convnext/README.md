@@ -36,13 +36,3 @@ Below is the list of checkpoints available for the training of CNextU-Net on dif
 | [turbulence_gravity_cooling](https://huggingface.co/polymathic-ai/CNextU-Net-turbulence_gravity_cooling) | 1E-3 | 3 | 0.2093 |
 | [turbulent_radiative_layer_2D](https://huggingface.co/polymathic-ai/CNextU-Net-turbulent_radiative_layer_2D) | 5E-3 | 495 | 0.1247 |
 | [viscoelastic_instability](https://huggingface.co/polymathic-ai/CNextU-Net-viscoelastic_instability) | 5E-4 | 114 | 0.1966 |
-
-## Loading the model from Hugging Face
-
-To load the CNextU-Net model trained on a dataset of the Well, use the following while assigning `datasetname` to the actual name of the dataset.
-
-```python
-from the_well.benchmark.models import UNetConvNext
-
-model = UNetConvNext.from_pretrained(f"polymathic-ai/CNextU-Net-{datasetname}")
-```

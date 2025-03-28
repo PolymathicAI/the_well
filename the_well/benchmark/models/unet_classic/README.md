@@ -35,13 +35,3 @@ Below is the list of checkpoints available for the training of U-Net on differen
 | [turbulence_gravity_cooling](https://huggingface.co/polymathic-ai/UNET-turbulence_gravity_cooling) | 1E-3 | 14 | 0.3152 |
 | [turbulent_radiative_layer_2D](https://huggingface.co/polymathic-ai/UNET-turbulent_radiative_layer_2D) | 5E-3 | 500 | 0.2394 |
 | [viscoelastic_instability](https://huggingface.co/polymathic-ai/UNET-viscoelastic_instability) | 5E-4 | 198 | 0.3147 |
-
-## Loading the model from Hugging Face
-
-To load the U-Net model trained on a dataset of the Well, use the following while assigning `datasetname` to the actual name of the dataset.
-
-```python
-from the_well.benchmark.models import UNetClassic
-
-model = UNetClassic.from_pretrained(f"polymathic-ai/UNET-{datasetname}")
-```

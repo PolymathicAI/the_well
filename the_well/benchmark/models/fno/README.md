@@ -34,13 +34,3 @@ Below is the list of checkpoints available for the training of FNO on different 
 | [turbulence_gravity_cooling](https://huggingface.co/polymathic-ai/FNO-turbulence_gravity_cooling)         | 1E-4               | 13     | 0.2381 |
 | [turbulent_radiative_layer_2D](https://huggingface.co/polymathic-ai/FNO-turbulent_radiative_layer_2D)     | 5E-3               | 500    | 0.4906 |
 | [viscoelastic_instability](https://huggingface.co/polymathic-ai/FNO-viscoelastic_instability)             | 5E-3               | 205    | 0.7195 |
-
-## Loading the model from Hugging Face
-
-To load the FNO model trained on a dataset of the Well, use the following while assigning `datasetname` to the actual name of the dataset.
-
-```python
-from the_well.benchmark.models import FNO
-
-model = FNO.from_pretrained(f"polymathic-ai/FNO-{datasetname}")
-```

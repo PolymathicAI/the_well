@@ -17,3 +17,13 @@ We use the model performing best on the validation set to report test set result
 The reported results are here to provide a simple baseline. **They should not be considered as state-of-the-art**. We hope that the community will build upon these results to develop better architectures for PDE surrogate modeling.
 
 {{ model_readme }}
+
+## Loading the model from Hugging Face
+
+To load the U-Net model trained on the `{{ dataset }}` of the Well, use the following commands.
+
+```python
+from the_well.benchmark.models import UNetClassic
+
+model = UNetClassic.from_pretrained("polymathic-ai/UNET-{{ dataset }}")
+```
