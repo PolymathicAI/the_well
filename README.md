@@ -122,6 +122,8 @@ For better performance in large training, we advise [downloading the data locall
 
 ## Benchmark
 
+### Train Models on the Well
+
 The repository allows benchmarking surrogate models on the different datasets that compose the Well. Some state-of-the-art models are already implemented in [`models`](https://github.com/PolymathicAI/the_well/tree/master/the_well/benchmark/models), while [dataset classes](https://github.com/PolymathicAI/the_well/tree/master/the_well/data) handle the raw data of the Well.
 The benchmark relies on [a training script](https://github.com/PolymathicAI/the_well/blob/master/the_well/benchmark/train.py) that uses [hydra](https://hydra.cc/) to instantiate various classes (e.g. dataset, model, optimizer) from [configuration files](https://github.com/PolymathicAI/the_well/tree/master/the_well/benchmark/configs).
 
@@ -135,6 +137,18 @@ python train.py experiment=fno server=local data=active_matter
 Each argument corresponds to a specific configuration file. In the command above `server=local` indicates the training script to use [`local.yaml`](https://github.com/PolymathicAI/the_well/tree/master/the_well/benchmark/configs/server/local.yaml), which just declares the relative path to the data. The configuration can be overridden directly or edited with new YAML files. Please refer to [hydra documentation](https://hydra.cc/) for editing configuration.
 
 You can use this command within a sbatch script to launch the training with Slurm.
+
+### Load Benchmarked Model Checkpoints
+
+The model benchmarked in the original paper of the Well have been designed as a a simple baseline. They should not be considered as state-of-the-art. We hope that the community will build upon these results to develop better architectures for PDE surrogate modeling.
+
+Most of the checkpoints of the models are available on [Hugging Face](https://huggingface.co/collections/polymathic-ai/the-well-benchmark-models-67e69bd7cd8e60229b5cd43e). To load a specific checkpoint follow the example below of the FNO model trained on the `active_matter` dataset.
+
+```python
+from the_well.benchmark.models import FNO
+
+model = FNO.from_pretrained("polymathic-ai/FNO-active_matter")
+```
 
 ## Citation
 
