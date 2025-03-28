@@ -29,7 +29,7 @@ def build_model_card_kwargs(
     model: torch.nn.Module, dataset_name: str
 ) -> dict[str, str]:
     """Create a dictionary of arguments to populate the model template card."""
-    template_path = pathlib.Path(__file__).parent / "model_card_template.md"
+    template_path = pathlib.Path(__file__).parent / "MODEL_CARD_TEMPLATE.md"
     model_name = model.__class__.__name__
     model_path = retrive_model_path(model)
     model_arxiv_id = MODEL_ARXIV_ID[model_name]
