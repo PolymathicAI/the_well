@@ -163,7 +163,7 @@ class AxialAttentionBlock(nn.Module):
         q, k = self.qnorm(q), self.knorm(k)
 
         out = torch.zeros_like(x)
-        for (in_permutation, out_permutation) in self.spatial_permutations:
+        for in_permutation, out_permutation in self.spatial_permutations:
             q, k, v = map(lambda t: rearrange(t, in_permutation), (q, k, v))
             ax_out = F.scaled_dot_product_attention(q, k, v)
             ax_out = rearrange(ax_out, out_permutation)
