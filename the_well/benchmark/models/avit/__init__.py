@@ -139,19 +139,17 @@ class AxialAttentionBlock(nn.Module):
         if n_spatial_dims == 2:
             self.head_split = "b h w (he c) -> b h w he c"
             self.spatial_permutations = [
-                "b h w he c -> b h he w c",
-                "b h he w c -> b w he h c",
+                ("b h w he c -> b h he w c", "b h he w c -> b h w (he c)"),
+                ("b h he w c -> b h w he c", "b h w he c -> b h w (he c)"),
             ]
-            self.out_permutation = "b w he h c -> b h w (he c)"
 
         elif n_spatial_dims == 3:
             self.head_split = "b h w d (he c) -> b h w d he c"
             self.spatial_permutations = [
-                "b h w d he c -> b h w he d c",
-                "b h w he d c -> b h d he w c",
-                "b h d he w c -> b w d he h c",
+                ("b h w d he c -> b h w he d c", "b h w he d c -> b h w d (he c)"),
+                ("b h w he d c -> b h d he w c", "b h d he w c -> b h w d (he c)"),
+                ("b h d he w c -> b w d he h c", "b w d he h c -> b h w d (he c)"),
             ]
-            self.out_permutation = "b w d he h c -> b h w d (he c)"
 
     def forward(self, x):
         # input is t x b x c x h x w
@@ -165,10 +163,10 @@ class AxialAttentionBlock(nn.Module):
         q, k = self.qnorm(q), self.knorm(k)
 
         out = torch.zeros_like(x)
-        for permutation in self.spatial_permutations:
-            q, k, v = map(lambda t: rearrange(t, permutation), (q, k, v))
+        for (in_permutation, out_permutation) in self.spatial_permutations:
+            q, k, v = map(lambda t: rearrange(t, in_permutation), (q, k, v))
             ax_out = F.scaled_dot_product_attention(q, k, v)
-            ax_out = rearrange(ax_out, self.out_permutation)
+            ax_out = rearrange(ax_out, out_permutation)
             out = out + ax_out
         # Recombine
         x = self.output_head(out) + self.mlp_remaining(ff)
