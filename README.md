@@ -11,6 +11,8 @@
 [![Docs](https://img.shields.io/badge/docs-latest---?color=25005a&labelColor=grey)](https://polymathic-ai.org/the_well/)
 [![arXiv](https://img.shields.io/badge/arXiv-2412.00568---?logo=arXiv&labelColor=b31b1b&color=grey)](https://arxiv.org/abs/2412.00568)
 [![NeurIPS](https://img.shields.io/badge/NeurIPS-2024---?logo=https%3A%2F%2Fneurips.cc%2Fstatic%2Fcore%2Fimg%2FNeurIPS-logo.svg&labelColor=68448B&color=b3b3b3)](https://openreview.net/forum?id=00Sx577BT3)
+[![HuggingFace](https://img.shields.io/badge/datasets-%20?logo=huggingface&logoColor=%23FFD21E&label=Hugging%20Face&labelColor=%236B7280&color=%23FFD21E
+)](https://huggingface.co/collections/polymathic-ai/the-well-67e129f4ca23e0447395d74c)
 
 </div>
 
@@ -98,7 +100,7 @@ If `--dataset` and `--split` are omitted, all datasets and splits will be downlo
 
 ### Streaming from Hugging Face
 
-Most of the Well datasets are also hosted on [Hugging Face](https://huggingface.co/polymathic-ai). Data can be streamed directly from the hub using the following code.
+Most of the Well datasets are also hosted on [Hugging Face](https://huggingface.co/collections/polymathic-ai/the-well-67e129f4ca23e0447395d74c). Data can be streamed directly from the hub using the following code.
 
 ```python
 from the_well.data import WellDataset
@@ -120,6 +122,8 @@ For better performance in large training, we advise [downloading the data locall
 
 ## Benchmark
 
+### Train Models on the Well
+
 The repository allows benchmarking surrogate models on the different datasets that compose the Well. Some state-of-the-art models are already implemented in [`models`](https://github.com/PolymathicAI/the_well/tree/master/the_well/benchmark/models), while [dataset classes](https://github.com/PolymathicAI/the_well/tree/master/the_well/data) handle the raw data of the Well.
 The benchmark relies on [a training script](https://github.com/PolymathicAI/the_well/blob/master/the_well/benchmark/train.py) that uses [hydra](https://hydra.cc/) to instantiate various classes (e.g. dataset, model, optimizer) from [configuration files](https://github.com/PolymathicAI/the_well/tree/master/the_well/benchmark/configs).
 
@@ -134,6 +138,18 @@ Each argument corresponds to a specific configuration file. In the command above
 
 You can use this command within a sbatch script to launch the training with Slurm.
 
+### Load Benchmarked Model Checkpoints
+
+The model benchmarked in the original paper of the Well have been designed as a a simple baseline. They should not be considered as state-of-the-art. We hope that the community will build upon these results to develop better architectures for PDE surrogate modeling.
+
+Most of the checkpoints of the models are available on [Hugging Face](https://huggingface.co/collections/polymathic-ai/the-well-benchmark-models-67e69bd7cd8e60229b5cd43e). To load a specific checkpoint follow the example below of the FNO model trained on the `active_matter` dataset.
+
+```python
+from the_well.benchmark.models import FNO
+
+model = FNO.from_pretrained("polymathic-ai/FNO-active_matter")
+```
+
 ## Citation
 
 This project has been led by the <a href="https://polymathic-ai.org/">Polymathic AI</a> organization, in collaboration with researchers from the Flatiron Institute, University of Colorado Boulder, University of Cambridge, New York University, Rutgers University, Cornell University, University of Tokyo, Los Alamos Natioinal Laboratory, University of California, Berkeley, Princeton University, CEA DAM, and University of Liège.
@@ -141,12 +157,13 @@ This project has been led by the <a href="https://polymathic-ai.org/">Polymathic
 If you find this project useful for your research, please consider citing
 
 ```
-@inproceedings{ohana2024thewell,
-  title={The Well: a Large-Scale Collection of Diverse Physics Simulations for Machine Learning},
-  author={Ruben Ohana and Michael McCabe and Lucas Thibaut Meyer and Rudy Morel and Fruzsina Julia Agocs and Miguel Beneitez and Marsha Berger and Blakesley Burkhart and Stuart B. Dalziel and Drummond Buschman Fielding and Daniel Fortunato and Jared A. Goldberg and Keiya Hirashima and Yan-Fei Jiang and Rich Kerswell and Suryanarayana Maddu and Jonah M. Miller and Payel Mukhopadhyay and Stefan S. Nixon and Jeff Shen and Romain Watteaux and Bruno R{\'e}galdo-Saint Blancard and Fran{\c{c}}ois Rozet and Liam Holden Parker and Miles Cranmer and Shirley Ho},
-  booktitle={The Thirty-eight Conference on Neural Information Processing Systems Datasets and Benchmarks Track},
-  year={2024},
-  url={https://openreview.net/forum?id=00Sx577BT3}
+@article{ohana2024well,
+  title={The well: a large-scale collection of diverse physics simulations for machine learning},
+  author={Ohana, Ruben and McCabe, Michael and Meyer, Lucas and Morel, Rudy and Agocs, Fruzsina and Beneitez, Miguel and Berger, Marsha and Burkhart, Blakesly and Dalziel, Stuart and Fielding, Drummond and others},
+  journal={Advances in Neural Information Processing Systems},
+  volume={37},
+  pages={44989--45037},
+  year={2024}
 }
 ```
 

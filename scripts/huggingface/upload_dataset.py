@@ -62,7 +62,7 @@ def repack_h5(input_filename: str, output_filename: str):
 def upload_folder(folder: str, repo_id: str):
     api = HfApi()
     api.upload_large_folder(
-        repo_id=repo_id, folder_path=folder, repo_type="dataset", private=True
+        repo_id=repo_id, folder_path=folder, repo_type="dataset", private=False
     )
 
 
@@ -82,7 +82,21 @@ def process_file(
     output_directory: pathlib.Path,
     dataset_tag: str,
     dataset_name: str,
+    hdf5_repack: bool = True,
 ):
+    """Copy or process original files into a directory prior to uploading to HF hub.
+    Args:
+        root_directory: The directory containing the original file to process or copy.
+            All existing files will be considered.
+        file_path: File to be processed.
+        output_directory: Where the files will be copied or processed.
+        dataset_tag: HF dataset tags to add to the ReadMe header.
+        dataset_name: Dataset name to add to the HF dataset card.
+        hdf5_repack: Option to repack HDF5 files for cloud purposes.
+            See https://www.hdfgroup.org/2024/01/08/strategies-and-software-to-optimize-hdf5-netcdf-4-files-for-the-cloud/
+            for more details.
+
+    """
     in_dir_file_path = file_path.relative_to(root_directory)
     # Skip irrelevant files
     if not is_file_valid(file_path):
@@ -97,10 +111,10 @@ def process_file(
         logger.debug(f"Convert ReadMe {file_path}")
         edit_readme(file_path, target_filename, dataset_tag, dataset_name)
     # Process HDF5
-    elif file_path.suffix in [".hdf", ".h5", ".hdf5"]:
+    elif file_path.suffix in [".hdf", ".h5", ".hdf5"] and hdf5_repack:
         logger.debug(f"Repack HDF5 {file_path}")
         repack_h5(file_path, target_filename)
-    # Simply copy remaining files
+    # Simply copy remaining files as symbolic link
     else:
         logger.debug(f"Link file {file_path}")
         target_filename.symlink_to(file_path)
@@ -118,11 +132,17 @@ if __name__ == "__main__":
         default=1,
         help="Number of workers for the file processing.",
     )
+    parser.add_argument(
+        "--no-repack",
+        action="store_false",
+        help="Disable repacking HDF5 files for cloud optimization.",
+    )
     args = parser.parse_args()
     directory = pathlib.Path(args.directory)
     repo_id = args.repo_id
     n_proc = args.n_proc
     dataset_tag = args.tag
+    hdf5_repack = args.no_repack
     dataset_name = pathlib.Path(repo_id).name
 
     files = list(directory.rglob("*"))
@@ -135,6 +155,7 @@ if __name__ == "__main__":
             output_directory=tmp_dirname,
             dataset_tag=dataset_tag,
             dataset_name=dataset_name,
+            hdf5_repack=hdf5_repack,
         )
         with multiprocessing.Pool() as pool:
             pool.map(process_fn, files, chunksize=chunk_size)

@@ -57,7 +57,8 @@ def train(
     )
     model: torch.nn.Module = instantiate(
         cfg.model,
-        dset_metadata=dset_metadata,
+        n_spatial_dims=dset_metadata.n_spatial_dims,
+        spatial_resolution=dset_metadata.spatial_resolution,
         dim_in=n_input_fields,
         dim_out=n_output_fields,
     )
