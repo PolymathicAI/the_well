@@ -1,14 +1,15 @@
 name: Tests
 
-on: [push, pull_request]
+on:
+  pull_request:
+  push:
+    branches:
+      - main
 jobs:
   pre-commit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
       - name: Run pre-commit hooks
         uses: pre-commit/action@v3.0.1
         with:
@@ -17,14 +18,15 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v4
+        - uses: astral-sh/setup-uv@v5
+          with:
+            enable-cache: true
         - uses: actions/setup-python@v5
           with:
-            python-version: "3.10"
-            cache: "pip"
+            python-version-file: "pyproject.toml"
         - name: Install the_well
-          run: pip install .[benchmark,dev] --extra-index-url https://download.pytorch.org/whl/cpu
+          run: uv sync --all-extras --dev
         - name: Run tests
           env:
-            PYTHONPATH: ${{ github.workspace }}
             PY_COLORS: "1"
-          run: pytest tests
+          run: uv run pytest tests
