@@ -3,7 +3,9 @@ import os
 from unittest import TestCase
 
 import pytest
+from torch.utils.data import DataLoader
 
+from the_well.data import WellDataset
 from the_well.utils.download import well_download
 
 
@@ -28,3 +30,17 @@ class TestDownload(TestCase):
         hdf5_files = glob.glob(f"{ACTIVE_MATTTER_DATA_DIR}/train/*.hdf5")
 
         self.assertTrue(len(hdf5_files) == 1)
+
+
+@pytest.mark.parametrize(
+    "dataset_name", ["active_matter", "turbulent_radiative_layer_2D"]
+)
+def test_dataset_is_available_on_hf(dataset_name):
+    dataset = WellDataset(
+        well_base_path="hf://datasets/polymathic-ai/",  # access from HF hub
+        well_dataset_name=dataset_name,
+        well_split_name="valid",
+    )
+    train_loader = DataLoader(dataset)
+    batch = next(iter(train_loader))
+    assert batch is not None
