@@ -16,6 +16,12 @@ jobs:
           extra_args: --all-files
   pytest:
       runs-on: ubuntu-latest
+      strategy:
+        matrix:
+          # Test min and max supported Python versions
+          python-version:
+            - "3.10"
+            - "3.13"
       steps:
         - uses: actions/checkout@v4
         - uses: astral-sh/setup-uv@v5
@@ -23,7 +29,7 @@ jobs:
             enable-cache: true
         - uses: actions/setup-python@v5
           with:
-            python-version-file: "pyproject.toml"
+            python-version: ${{ matrix.python-version }}
         - name: Install the_well
           run: uv sync --all-extras --dev
         - name: Run tests
