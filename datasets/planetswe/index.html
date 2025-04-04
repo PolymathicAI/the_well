@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../assets/images/the_well_color_icon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.45">
     
     
       
@@ -882,6 +882,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../rayleigh_benard_uniform.md" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    rayleigh_benard_uniform
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../rayleigh_taylor_instability/" class="md-nav__link">
         
   
@@ -1226,7 +1247,7 @@
 \end{align*}
 \]</div>
 <p>with <span class="arithmatex">\(h\)</span> the deviation of pressure surface height from the mean, <span class="arithmatex">\(H\)</span> the mean height, <span class="arithmatex">\(\vec{u}\)</span> the 2D velocity, <span class="arithmatex">\(\Omega\)</span> the Coriolis parameter, and F the forcing which is defined:</p>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">find_center</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">find_center</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
     <span class="n">time_of_day</span> <span class="o">=</span> <span class="n">t</span> <span class="o">/</span> <span class="n">day</span>
     <span class="n">time_of_year</span> <span class="o">=</span> <span class="n">t</span> <span class="o">/</span> <span class="n">year</span>
     <span class="n">max_declination</span> <span class="o">=</span> <span class="mf">.4</span> <span class="c1"># Truncated from estimate of earth&#39;s solar decline</span>
@@ -1235,7 +1256,7 @@
     <span class="n">lon_anti</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">+</span> <span class="n">lon_center</span>  <span class="c1">#2*np.((np.sin(-time_of_day*2*np.pi)+1) / 2)*pi</span>
     <span class="k">return</span> <span class="n">lon_center</span><span class="p">,</span> <span class="n">lat_center</span><span class="p">,</span> <span class="n">lon_anti</span><span class="p">,</span> <span class="n">lat_center</span>
 
-<span class="k">def</span> <span class="nf">season_day_forcing</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">h_f0</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">season_day_forcing</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">h_f0</span><span class="p">):</span>
     <span class="n">phi_c</span><span class="p">,</span> <span class="n">theta_c</span><span class="p">,</span> <span class="n">phi_a</span><span class="p">,</span> <span class="n">theta_a</span> <span class="o">=</span> <span class="n">find_center</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
     <span class="n">sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span>
     <span class="n">coefficients</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">phi</span> <span class="o">-</span> <span class="n">phi_c</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">theta</span><span class="o">-</span><span class="n">theta_c</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>

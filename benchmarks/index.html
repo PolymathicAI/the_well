@@ -14,7 +14,7 @@
       
       
       <link rel="icon" href="../assets/images/the_well_color_icon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.45">
     
     
       
@@ -817,6 +817,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../datasets/rayleigh_benard_uniform.md" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    rayleigh_benard_uniform
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../datasets/rayleigh_taylor_instability/" class="md-nav__link">
         
   
@@ -1098,6 +1119,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#benchmarked-model-checkpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      Benchmarked Model Checkpoints
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#test-results" class="md-nav__link">
     <span class="md-ellipsis">
       Test results
@@ -1188,6 +1218,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#benchmarked-model-checkpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      Benchmarked Model Checkpoints
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#test-results" class="md-nav__link">
     <span class="md-ellipsis">
       Test results
@@ -1243,7 +1282,13 @@
 
 <h1 id="benchmarks">Benchmarks<a class="headerlink" href="#benchmarks" title="Permanent link">&para;</a></h1>
 <p>To showcase the dataset and the associated benchmarking library, we provide a set of simple baselines time-boxed to 12 hours on a single NVIDIA H100 to demonstrate the effectiveness of naive approaches on these challenging problems and motivate the development of more sophisticated approaches. These baselines are trained on the forward problem - predicting the next snapshot of a given simulation from a short history of 4 time-steps. The models used here are the Fourier Neural Operator, Tucker-Factorized FNO, U-net and a modernized U-net using ConvNext blocks. The neural operator models are implemented using the <a href="https://neuraloperator.github.io/dev/index.html"> neuraloperator </a> library.</p>
-<p>We emphasize that these settings are not selected to explore peak performance of modern machine learning, but rather that they reflect reasonable compute budgets and off-the-shelf choices that might be selected by a domain scientist exploring machine learning for their problems. Therefore we focus on popular models using settings that are either defaults or commonly tuned.</p>
+<p>We emphasize that these settings are not selected to explore peak performance of modern machine learning, but rather that they reflect reasonable compute budgets and off-the-shelf choices that might be selected by a domain scientist exploring machine learning for their problems. Therefore, we focus on popular models using settings that are either defaults or commonly tuned.</p>
+<h3 id="benchmarked-model-checkpoints">Benchmarked Model Checkpoints<a class="headerlink" href="#benchmarked-model-checkpoints" title="Permanent link">&para;</a></h3>
+<p>Most of the checkpoints of the models are available on <a href="https://huggingface.co/collections/polymathic-ai/the-well-benchmark-models-67e69bd7cd8e60229b5cd43e">Hugging Face</a>. To load a specific checkpoint follow the example below of the FNO model trained on the <code>active_matter</code> dataset.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">the_well.benchmark.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">FNO</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">FNO</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s2">&quot;polymathic-ai/FNO-active_matter&quot;</span><span class="p">)</span>
+</code></pre></div>
 <h3 id="test-results">Test results<a class="headerlink" href="#test-results" title="Permanent link">&para;</a></h3>
 <table>
 <thead>

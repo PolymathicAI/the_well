@@ -14,7 +14,7 @@
       
       
       <link rel="icon" href="assets/images/the_well_color_icon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.45">
     
     
       
@@ -977,6 +977,27 @@
   
   
     <li class="md-nav__item">
+      <a href="datasets/rayleigh_benard_uniform.md" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    rayleigh_benard_uniform
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="datasets/rayleigh_taylor_instability/" class="md-nav__link">
         
   
@@ -1424,8 +1445,8 @@
 
 <h2 id="tap-into-the-well">Tap into the Well<a class="headerlink" href="#tap-into-the-well" title="Permanent link">&para;</a></h2>
 <p>Once the Well package installed and the data downloaded you can use them in your training pipeline.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">the_well.data</span> <span class="kn">import</span> <span class="n">WellDataset</span>
-<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">the_well.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">WellDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch.utils.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataLoader</span>
 
 <span class="n">trainset</span> <span class="o">=</span> <span class="n">WellDataset</span><span class="p">(</span>
     <span class="n">well_base_path</span><span class="o">=</span><span class="s2">&quot;path/to/base&quot;</span><span class="p">,</span>
@@ -1470,8 +1491,8 @@ pip install .
 <p>If <code>--dataset</code> and <code>--split</code> are omitted, all datasets and splits will be downloaded. This could take a while!</p>
 <h3 id="streaming-from-hugging-face">Streaming from Hugging Face<a class="headerlink" href="#streaming-from-hugging-face" title="Permanent link">&para;</a></h3>
 <p>Most of the Well datasets are also hosted on <a href="https://huggingface.co/polymathic-ai">Hugging Face</a>. Data can be streamed directly from the hub using the following code.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">the_well.data</span> <span class="kn">import</span> <span class="n">WellDataset</span>
-<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">the_well.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">WellDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch.utils.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataLoader</span>
 
 <span class="c1"># The following line may take a couple of minutes to instantiate the datamodule</span>
 <span class="n">trainset</span> <span class="o">=</span> <span class="n">WellDataset</span><span class="p">(</span>
@@ -1497,12 +1518,13 @@ python<span class="w"> </span>train.py<span class="w"> </span><span class="nv">e
 <h2 id="citation">Citation<a class="headerlink" href="#citation" title="Permanent link">&para;</a></h2>
 <p>This project has been led by the <a href="https://polymathic-ai.org/">Polymathic AI</a> organization, in collaboration with researchers from the Flatiron Institute, University of Colorado Boulder, University of Cambridge, New York University, Rutgers University, Cornell University, University of Tokyo, Los Alamos Natioinal Laboratory, University of Califronia, Berkeley, Princeton University, CEA DAM, and University of Liège.</p>
 <p>If you find this project useful for your research, please consider citing</p>
-<div class="highlight"><pre><span></span><code>@inproceedings{ohana2024thewell,
-  title={The Well: a Large-Scale Collection of Diverse Physics Simulations for Machine Learning},
-  author={Ruben Ohana and Michael McCabe and Lucas Thibaut Meyer and Rudy Morel and Fruzsina Julia Agocs and Miguel Beneitez and Marsha Berger and Blakesley Burkhart and Stuart B. Dalziel and Drummond Buschman Fielding and Daniel Fortunato and Jared A. Goldberg and Keiya Hirashima and Yan-Fei Jiang and Rich Kerswell and Suryanarayana Maddu and Jonah M. Miller and Payel Mukhopadhyay and Stefan S. Nixon and Jeff Shen and Romain Watteaux and Bruno R{\&#39;e}galdo-Saint Blancard and Fran{\c{c}}ois Rozet and Liam Holden Parker and Miles Cranmer and Shirley Ho},
-  booktitle={The Thirty-eight Conference on Neural Information Processing Systems Datasets and Benchmarks Track},
-  year={2024},
-  url={https://openreview.net/forum?id=00Sx577BT3}
+<div class="highlight"><pre><span></span><code>@article{ohana2024well,
+  title={The well: a large-scale collection of diverse physics simulations for machine learning},
+  author={Ohana, Ruben and McCabe, Michael and Meyer, Lucas and Morel, Rudy and Agocs, Fruzsina and Beneitez, Miguel and Berger, Marsha and Burkhart, Blakesly and Dalziel, Stuart and Fielding, Drummond and others},
+  journal={Advances in Neural Information Processing Systems},
+  volume={37},
+  pages={44989--45037},
+  year={2024}
 }
 </code></pre></div>
 <h2 id="contact">Contact<a class="headerlink" href="#contact" title="Permanent link">&para;</a></h2>

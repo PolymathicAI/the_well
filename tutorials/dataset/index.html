@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../assets/images/the_well_color_icon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.45">
     
     
       
@@ -918,6 +918,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../datasets/rayleigh_benard_uniform.md" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    rayleigh_benard_uniform
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../datasets/rayleigh_taylor_instability/" class="md-nav__link">
         
   
@@ -1522,6 +1543,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
                     processEnvironments: true
                 },
                 displayAlign: 'center',
+                messageStyle: 'none',
                 CommonHTML: {
                     linebreaks: {
                     automatic: true
@@ -1750,16 +1772,16 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="c1"># !pip install the_well[benchmark]</span>
 
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">einops</span> <span class="kn">import</span> <span class="n">rearrange</span>
-<span class="kn">from</span> <span class="nn">neuralop.models</span> <span class="kn">import</span> <span class="n">FNO</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">einops</span><span class="w"> </span><span class="kn">import</span> <span class="n">rearrange</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">neuralop.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">FNO</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
 
-<span class="kn">from</span> <span class="nn">the_well.benchmark.metrics</span> <span class="kn">import</span> <span class="n">VRMSE</span>
-<span class="kn">from</span> <span class="nn">the_well.data</span> <span class="kn">import</span> <span class="n">WellDataset</span>
-<span class="kn">from</span> <span class="nn">the_well.utils.download</span> <span class="kn">import</span> <span class="n">well_download</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">the_well.benchmark.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">VRMSE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">the_well.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">WellDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">the_well.utils.download</span><span class="w"> </span><span class="kn">import</span> <span class="n">well_download</span>
 
 <span class="n">device</span> <span class="o">=</span> <span class="s2">"cuda"</span>
 <span class="n">base_path</span> <span class="o">=</span> <span class="s2">"./datasets"</span>  <span class="c1"># path/to/storage</span>
@@ -2545,11 +2567,11 @@ sigma = xs.reshape(-1, F).std(dim=0).to(device)</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">preprocess</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span> <span class="o">/</span> <span class="n">sigma</span>
 
 
-<span class="k">def</span> <span class="nf">postprocess</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">postprocess</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">mu</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-16">def preprocess(x):
