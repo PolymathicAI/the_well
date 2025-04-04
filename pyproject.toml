@@ -23,6 +23,14 @@ authors = [
     {name="Bruno Régaldo-Saint Blancard"},
     {name="François Rozet"},
 ]
+maintainers = [
+    {name="Miles Cranmer"},
+    {name="Mike McCabe"},
+    {name="Lucas Meyer"},
+    {name="Payel Mukhopadhyay"},
+    {name="Ruben Ohana"},
+    {name="François Rozet"},
+]
 requires-python = ">=3.10"
 dependencies = [
     "einops>=0.8",
@@ -39,6 +47,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Scientific/Engineering :: Physics",
 ]
