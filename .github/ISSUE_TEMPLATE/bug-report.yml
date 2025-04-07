@@ -1,0 +1,37 @@
+name: Bug Report
+description: Create a report to help us reproduce and fix the bug
+title: "[Bug]: "
+labels: ["bug"]
+
+body:
+  - type: markdown
+    attributes:
+      value: >
+        Thank you for taking the time to file a bug report.
+        Before creating a new issue, please make sure to take a few minutes to check for already existing issues or information about the bug.
+  - type: textarea
+    attributes:
+      label: "Describe the issue:"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "Reproduce the code example:"
+      description: >
+        A short code example that reproduces the problem/missing feature.
+        It should be self-contained.
+      placeholder: |
+        << your code here >>
+      render: python
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "Context for the issue:"
+      description: |
+        Please explain how this issue affects your intended use of the Well.
+        You can also provide additional context that you think might be relevant.
+      placeholder: |
+        << your explanation here >>
+    validations:
+      required: false
