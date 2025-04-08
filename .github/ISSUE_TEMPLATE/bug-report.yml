@@ -8,7 +8,7 @@ body:
     attributes:
       value: >
         Thank you for taking the time to file a bug report.
-        Before creating a new issue, please make sure to take a few minutes to check for already existing issues or information about the bug.
+        Before creating a new issue, you can have a quick look to the [FAQ](https://github.com/PolymathicAI/the_well/discussions/categories/q-a?discussions_q=category%3AQ%26A+) and [existing issues](https://github.com/PolymathicAI/the_well/issues).
   - type: textarea
     attributes:
       label: "Describe the issue:"
