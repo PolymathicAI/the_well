@@ -276,26 +276,12 @@ class WellDataset(Dataset):
 
         # Initialize normalization classes if True
         if use_normalization and normalization_type:
-            try:
-                with self.fs.open(self.normalization_path, mode="r") as f:
-                    stats = yaml.safe_load(f)
+            with self.fs.open(self.normalization_path, mode="r") as f:
+                stats = yaml.safe_load(f)
 
-                if stats:
-                    self.norm = normalization_type(
-                        stats, self.core_field_names, self.core_constant_field_names
-                    )
-                else:
-                    warnings.warn(
-                        f"Normalization file {self.normalization_path} is empty. Proceeding without normalization.",
-                        UserWarning,
-                    )
-                    self.norm = None
-            except Exception as e:
-                warnings.warn(
-                    f"Error loading normalization file {self.normalization_path}: {e}. Proceeding without normalization.",
-                    UserWarning,
-                )
-                self.norm = None
+            self.norm = normalization_type(
+                stats, self.core_field_names, self.core_constant_field_names
+            )
         else:
             self.norm = None
 
