@@ -3,6 +3,7 @@ import random
 import tempfile
 from unittest import TestCase
 
+import pytest
 import torch
 
 from the_well.data.augmentation import (
@@ -11,7 +12,8 @@ from the_well.data.augmentation import (
     RandomAxisPermute,
     RandomAxisRoll,
 )
-from the_well.data.datasets import WellDataset, WellMetadata
+from the_well.data.datasets import DeltaWellDataset, WellDataset, WellMetadata
+from the_well.data.normalization import RMSNormalization, ZScoreNormalization
 from the_well.data.utils import (
     maximum_stride_for_initial_index,
     raw_steps_to_possible_sample_t0s,
@@ -181,3 +183,35 @@ class TestDataset(TestCase):
                     self.assertTrue(torch.equal(data[key], data_next[key]))
                 else:
                     self.assertFalse(torch.equal(data[key], data_next[key]))
+
+
+@pytest.mark.parametrize("normalization_type", [RMSNormalization, ZScoreNormalization])
+def test_normalization(normalization_type):
+    dataset = WellDataset(
+        well_base_path="datasets",
+        well_dataset_name="active_matter",
+        well_split_name="train",
+        n_steps_input=4,
+        n_steps_output=1,
+        use_normalization=True,
+        normalization_type=normalization_type,
+    )
+    assert len(dataset) > 0
+    data = dataset[0]
+    assert data is not None
+
+
+@pytest.mark.parametrize("normalization_type", [ZScoreNormalization, RMSNormalization])
+def test_delta_normalization(normalization_type):
+    dataset = DeltaWellDataset(
+        well_base_path="datasets",
+        well_dataset_name="active_matter",
+        well_split_name="train",
+        n_steps_input=4,
+        n_steps_output=1,
+        use_normalization=True,
+        normalization_type=normalization_type,
+    )
+    assert len(dataset) > 0
+    data = dataset[0]
+    assert data is not None
