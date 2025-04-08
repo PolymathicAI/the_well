@@ -9,6 +9,8 @@ import yaml
 from the_well.data.datasets import WellDataset
 from the_well.data.utils import WELL_DATASETS
 
+ROUNDING_DECIMALS = 4
+
 
 def compute_statistics(train_path: str, stats_path: str):
     assert not os.path.isfile(stats_path), f"{stats_path} already exists."
@@ -86,6 +88,10 @@ def compute_statistics(train_path: str, stats_path: str):
         mean = first_moment
         std = (second_moment - first_moment**2).sqrt()
         rms = second_moment.sqrt()
+        # Round values
+        mean = mean.round(ROUNDING_DECIMALS)
+        std = std.round(ROUNDING_DECIMALS)
+        rms = rms.round(ROUNDING_DECIMALS)
 
         means[field] = mean.tolist()
         stds[field] = std.tolist()
@@ -115,6 +121,10 @@ def compute_statistics(train_path: str, stats_path: str):
             mean_delta = first_moment_delta
             std_delta = (second_moment_delta - first_moment_delta**2).sqrt()
             rms_delta = second_moment_delta.sqrt()
+            # Round values
+            mean_delta = mean_delta.round(ROUNDING_DECIMALS)
+            std_delta = std_delta.round(ROUNDING_DECIMALS)
+            rms_delta = rms_delta.round(ROUNDING_DECIMALS)
 
             means_delta[field] = mean_delta.tolist()
             stds_delta[field] = std_delta.tolist()
