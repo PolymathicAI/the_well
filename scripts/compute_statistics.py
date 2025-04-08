@@ -89,9 +89,9 @@ def compute_statistics(train_path: str, stats_path: str):
         std = (second_moment - first_moment**2).sqrt()
         rms = second_moment.sqrt()
         # Round values
-        mean = mean.round(ROUNDING_DECIMALS)
-        std = std.round(ROUNDING_DECIMALS)
-        rms = rms.round(ROUNDING_DECIMALS)
+        mean = mean.round(decimals=ROUNDING_DECIMALS)
+        std = std.round(decimals=ROUNDING_DECIMALS)
+        rms = rms.round(decimals=ROUNDING_DECIMALS)
 
         means[field] = mean.tolist()
         stds[field] = std.tolist()
@@ -122,9 +122,9 @@ def compute_statistics(train_path: str, stats_path: str):
             std_delta = (second_moment_delta - first_moment_delta**2).sqrt()
             rms_delta = second_moment_delta.sqrt()
             # Round values
-            mean_delta = mean_delta.round(ROUNDING_DECIMALS)
-            std_delta = std_delta.round(ROUNDING_DECIMALS)
-            rms_delta = rms_delta.round(ROUNDING_DECIMALS)
+            mean_delta = mean_delta.round(decimals=ROUNDING_DECIMALS)
+            std_delta = std_delta.round(decimals=ROUNDING_DECIMALS)
+            rms_delta = rms_delta.round(decimals=ROUNDING_DECIMALS)
 
             means_delta[field] = mean_delta.tolist()
             stds_delta[field] = std_delta.tolist()
