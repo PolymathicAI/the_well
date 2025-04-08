@@ -1,5 +1,6 @@
 import argparse
 import math
+import multiprocessing as mp
 import os
 
 import h5py as h5
@@ -150,11 +151,19 @@ def compute_statistics(train_path: str, stats_path: str):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("Compute the Well dataset statistics")
     parser.add_argument("the_well_dir", type=str)
+    parser.add_argument("-n", type=int, default=1, help="Number of processes")
     args = parser.parse_args()
     data_dir = args.the_well_dir
+    n_processes = args.n
 
-    for dataset in WELL_DATASETS:
-        compute_statistics(
-            train_path=os.path.join(data_dir, dataset, "data/train"),
-            stats_path=os.path.join(data_dir, dataset, "stats.yaml"),
-        )
+    with mp.Pool(n_processes) as pool:
+        for dataset in WELL_DATASETS:
+            pool.apply_async(
+                compute_statistics,
+                kwds={
+                    "train_path": os.path.join(data_dir, dataset, "data/train"),
+                    "stats_path": os.path.join(data_dir, dataset, "stats.yaml"),
+                },
+            )
+        pool.close()
+        pool.join()
