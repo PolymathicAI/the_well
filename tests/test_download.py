@@ -6,31 +6,31 @@ from torch.utils.data import DataLoader
 
 from the_well.data import DeltaWellDataset, WellDataset
 from the_well.data.normalization import RMSNormalization, ZScoreNormalization
-from the_well.utils.download import well_download
 
 
-@pytest.mark.order(1)
-def test_active_matter():
-    ACTIVE_MATTTER_DIR = pathlib.Path("datasets/active_matter").resolve()
-    ACTIVE_MATTTER_DATA_DIR = ACTIVE_MATTTER_DIR / "data"
-
-    assert ACTIVE_MATTTER_DIR.exists()
-    assert ACTIVE_MATTTER_DIR.is_dir()
-    assert not ACTIVE_MATTTER_DATA_DIR.exists()
-
-    well_download(
-        base_path=".",
-        dataset="active_matter",
-        split="train",
-        first_only=True,
-    )
-
-    assert ACTIVE_MATTTER_DATA_DIR.exists()
-    assert ACTIVE_MATTTER_DATA_DIR.is_dir()
-
-    hdf5_files = glob.glob(f"{ACTIVE_MATTTER_DATA_DIR}/train/*.hdf5")
-
+def test_download_dataset(downloaded_dataset):
+    dataset_dir: pathlib.Path = downloaded_dataset
+    hdf5_files = glob.glob(f"{dataset_dir}/data/train/*.hdf5")
     assert len(hdf5_files) == 1
+
+
+@pytest.mark.parametrize("dataset_cls", [DeltaWellDataset, WellDataset])
+@pytest.mark.parametrize("normalization_type", [RMSNormalization, ZScoreNormalization])
+def test_dataset_with_normalization(
+    downloaded_dataset, dataset_cls, normalization_type
+):
+    dataset_dir: pathlib.Path = downloaded_dataset
+    base_dataset_dir = dataset_dir.parent
+    dataset_name = dataset_dir.name
+
+    dataset = dataset_cls(
+        well_base_path=base_dataset_dir,
+        well_dataset_name=dataset_name,
+        well_split_name="train",
+        use_normalization=True,
+        normalization_type=normalization_type,
+    )
+    assert len(dataset) > 0
 
 
 @pytest.mark.parametrize(
