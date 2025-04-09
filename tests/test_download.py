@@ -1,6 +1,5 @@
 import glob
-import os
-from unittest import TestCase
+import pathlib
 
 import pytest
 from torch.utils.data import DataLoader
@@ -10,26 +9,27 @@ from the_well.utils.download import well_download
 
 
 @pytest.mark.order(1)
-class TestDownload(TestCase):
-    def test_active_matter(self):
-        ACTIVE_MATTTER_DIR = os.path.abspath("datasets/active_matter")
-        ACTIVE_MATTTER_DATA_DIR = os.path.join(ACTIVE_MATTTER_DIR, "data")
+def test_active_matter():
+    ACTIVE_MATTTER_DIR = pathlib.Path("datasets/active_matter").resolve()
+    ACTIVE_MATTTER_DATA_DIR = ACTIVE_MATTTER_DIR / "data"
 
-        self.assertTrue(os.path.isdir(ACTIVE_MATTTER_DIR))
-        self.assertFalse(os.path.isdir(ACTIVE_MATTTER_DATA_DIR))
+    assert ACTIVE_MATTTER_DIR.exists()
+    assert ACTIVE_MATTTER_DIR.is_dir()
+    assert not ACTIVE_MATTTER_DATA_DIR.exists()
 
-        well_download(
-            base_path=".",
-            dataset="active_matter",
-            split="train",
-            first_only=True,
-        )
+    well_download(
+        base_path=".",
+        dataset="active_matter",
+        split="train",
+        first_only=True,
+    )
 
-        self.assertTrue(os.path.isdir(ACTIVE_MATTTER_DATA_DIR))
+    assert ACTIVE_MATTTER_DATA_DIR.exists()
+    assert ACTIVE_MATTTER_DATA_DIR.is_dir()
 
-        hdf5_files = glob.glob(f"{ACTIVE_MATTTER_DATA_DIR}/train/*.hdf5")
+    hdf5_files = glob.glob(f"{ACTIVE_MATTTER_DATA_DIR}/train/*.hdf5")
 
-        self.assertTrue(len(hdf5_files) == 1)
+    assert len(hdf5_files) == 1
 
 
 @pytest.mark.parametrize(
