@@ -13,6 +13,7 @@ def test_dataset_is_available_on_hf(dataset_name):
         well_base_path="hf://datasets/polymathic-ai/",  # access from HF hub
         well_dataset_name=dataset_name,
         well_split_name="valid",
+        use_normalization=False,
     )
     train_loader = DataLoader(dataset)
     batch = next(iter(train_loader))
