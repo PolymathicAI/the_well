@@ -276,26 +276,12 @@ class WellDataset(Dataset):
 
         # Initialize normalization classes if True
         if use_normalization and normalization_type:
-            try:
-                with self.fs.open(self.normalization_path, mode="r") as f:
-                    stats = yaml.safe_load(f)
+            with self.fs.open(self.normalization_path, mode="r") as f:
+                stats = yaml.safe_load(f)
 
-                if stats:
-                    self.norm = normalization_type(
-                        stats, self.core_field_names, self.core_constant_field_names
-                    )
-                else:
-                    warnings.warn(
-                        f"Normalization file {self.normalization_path} is empty. Proceeding without normalization.",
-                        UserWarning,
-                    )
-                    self.norm = None
-            except Exception as e:
-                warnings.warn(
-                    f"Error loading normalization file {self.normalization_path}: {e}. Proceeding without normalization.",
-                    UserWarning,
-                )
-                self.norm = None
+            self.norm = normalization_type(
+                stats, self.core_field_names, self.core_constant_field_names
+            )
         else:
             self.norm = None
 
@@ -867,12 +853,19 @@ class DeltaWellDataset(WellDataset):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if (
+            (self.min_dt_stride != 1)
+            or (self.max_dt_stride != 1)
+            and (self.use_normalization)
+        ):
+            raise ValueError(
+                "DeltaWellDataset does not support non-unity stride and normalization."
+            )
 
     def _compute_deltas(self, field_data: torch.Tensor) -> torch.Tensor:
         """Compute deltas for time-varying fields while ensuring continuity."""
         x = field_data[: self.n_steps_input]
-        y = field_data[self.n_steps_input :]
-        y = torch.cat([x[-1:, ...], y], dim=0)  # Ensure continuity
+        y = field_data[self.n_steps_input - 1 :]
         return torch.cat([x, y[1:, ...] - y[:-1, ...]], dim=0)
 
     def _process_field_data(
