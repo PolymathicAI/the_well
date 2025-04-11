@@ -853,6 +853,14 @@ class DeltaWellDataset(WellDataset):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if (
+            (self.min_dt_stride != 1)
+            or (self.max_dt_stride != 1)
+            and (self.use_normalization)
+        ):
+            raise ValueError(
+                "DeltaWellDataset does not support non-unity stride and normalization."
+            )
 
     def _compute_deltas(self, field_data: torch.Tensor) -> torch.Tensor:
         """Compute deltas for time-varying fields while ensuring continuity."""
