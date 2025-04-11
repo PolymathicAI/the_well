@@ -1,14 +1,42 @@
 mean:
-  density: 0.9029736153411749
-  energy: 3.00115261292566
+  density: 9.0297E-01
+  energy: 3.0012E+00
   momentum:
-  - 0.006306125415069628
-  - -0.00031003850831677827
-  pressure: 0.8983182105778643
+  - 6.3061E-03
+  - -3.1004E-04
+  pressure: 8.9832E-01
+mean_delta:
+  density: -1.4651E-04
+  energy: -4.9490E-04
+  momentum:
+  - 5.2013E-08
+  - -2.5775E-05
+  pressure: -1.0778E-04
+rms:
+  density: 1.1153E+00
+  energy: 4.2926E+00
+  momentum:
+  - 5.3187E-01
+  - 5.2237E-01
+  pressure: 1.2017E+00
+rms_delta:
+  density: 1.2808E-01
+  energy: 4.9510E-01
+  momentum:
+  - 1.2251E-01
+  - 1.1786E-01
+  pressure: 1.2791E-01
 std:
-  density: 0.6546131319833446
-  energy: 3.0690936564650584
+  density: 6.5461E-01
+  energy: 3.0691E+00
   momentum:
-  - 0.5318317215859584
-  - 0.5223733825104366
-  pressure: 0.7981593200808426
+  - 5.3183E-01
+  - 5.2237E-01
+  pressure: 7.9816E-01
+std_delta:
+  density: 1.2808E-01
+  energy: 4.9510E-01
+  momentum:
+  - 1.2251E-01
+  - 1.1786E-01
+  pressure: 1.2791E-01
