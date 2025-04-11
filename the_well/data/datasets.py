@@ -857,8 +857,7 @@ class DeltaWellDataset(WellDataset):
     def _compute_deltas(self, field_data: torch.Tensor) -> torch.Tensor:
         """Compute deltas for time-varying fields while ensuring continuity."""
         x = field_data[: self.n_steps_input]
-        y = field_data[self.n_steps_input :]
-        y = torch.cat([x[-1:, ...], y], dim=0)  # Ensure continuity
+        y = field_data[self.n_steps_input - 1 :]
         return torch.cat([x, y[1:, ...] - y[:-1, ...]], dim=0)
 
     def _process_field_data(
