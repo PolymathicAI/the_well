@@ -1,7 +1,7 @@
-import os.path
+import pathlib
 import random
-import tempfile
 
+import pytest
 import torch
 
 from the_well.data.augmentation import (
@@ -10,7 +10,8 @@ from the_well.data.augmentation import (
     RandomAxisPermute,
     RandomAxisRoll,
 )
-from the_well.data.datasets import WellDataset, WellMetadata
+from the_well.data.datasets import DeltaWellDataset, WellDataset, WellMetadata
+from the_well.data.normalization import RMSNormalization, ZScoreNormalization
 from the_well.data.utils import (
     maximum_stride_for_initial_index,
     raw_steps_to_possible_sample_t0s,
@@ -49,27 +50,35 @@ def test_metadata():
     assert shapes["constant_fields"] == [256, 256, 4]
 
 
-def test_local_dataset():
+def test_local_dataset(download_dataset):
+    dataset_dir: pathlib.Path = download_dataset
+    base_dataset_dir = dataset_dir.parent
+    dataset_name = dataset_dir.name
+
     dataset = WellDataset(
-        well_base_path="datasets",
-        well_dataset_name="active_matter",
+        well_base_path=base_dataset_dir,
+        well_dataset_name=dataset_name,
         well_split_name="train",
         use_normalization=False,
     )
     assert len(dataset) > 0
 
 
-def test_absolute_path_dataset():
-    dataset = WellDataset(
-        path="datasets/active_matter/data/train", use_normalization=False
-    )
+def test_absolute_path_dataset(download_dataset):
+    dataset_dir: pathlib.Path = download_dataset
+    path = str(dataset_dir / "data" / "train")
+    dataset = WellDataset(path=path, use_normalization=False)
     assert len(dataset) > 0
 
 
-def test_last_time_step():
+def test_last_time_step(download_dataset):
+    dataset_dir: pathlib.Path = download_dataset
+    base_dataset_dir = dataset_dir.parent
+    dataset_name = dataset_dir.name
+
     dataset = WellDataset(
-        well_base_path="datasets",
-        well_dataset_name="active_matter",
+        well_base_path=base_dataset_dir,
+        well_dataset_name=dataset_name,
         well_split_name="train",
         use_normalization=False,
     )
@@ -83,10 +92,33 @@ def test_last_time_step():
     assert "output_fields" in data
 
 
-def test_augmentation():
+@pytest.mark.parametrize("dataset_cls", [DeltaWellDataset, WellDataset])
+@pytest.mark.parametrize("normalization_type", [RMSNormalization, ZScoreNormalization])
+def test_dataset_with_normalization(download_dataset, dataset_cls, normalization_type):
+    dataset_dir: pathlib.Path = download_dataset
+    base_dataset_dir = dataset_dir.parent
+    dataset_name = dataset_dir.name
+
+    dataset = dataset_cls(
+        well_base_path=base_dataset_dir,
+        well_dataset_name=dataset_name,
+        well_split_name="train",
+        n_steps_input=4,
+        n_steps_output=1,
+        use_normalization=True,
+        normalization_type=normalization_type,
+    )
+    assert len(dataset) > 0
+
+
+def test_dataset_with_augmentation(download_dataset):
+    dataset_dir: pathlib.Path = download_dataset
+    base_dataset_dir = dataset_dir.parent
+    dataset_name = dataset_dir.name
+
     dataset = WellDataset(
-        well_base_path="datasets",
-        well_dataset_name="active_matter",
+        well_base_path=base_dataset_dir,
+        well_dataset_name=dataset_name,
         well_split_name="train",
         use_normalization=False,
         transform=Compose(
@@ -142,43 +174,42 @@ def test_maximum_stride_for_initial_index():
     assert maximum_stride_for_initial_index(5, 5, 1, 1) == 0
 
 
-def test_dummy_dataset():
-    with tempfile.TemporaryDirectory() as dir_name:
-        filename = os.path.join(dir_name, "dummy_well_data.hdf5")
-        write_dummy_data(filename)
-        dataset = WellDataset(path=dir_name, use_normalization=False, return_grid=True)
-        # Dummy dataset should contain 2 trajectories of 9 valid samples each
-        assert len(dataset) == 2 * 9
+def test_dummy_dataset(tmp_path):
+    filename = tmp_path / "dummy_well_data.hdf5"
+    write_dummy_data(filename)
+    dataset = WellDataset(path=str(tmp_path), use_normalization=False, return_grid=True)
+    # Dummy dataset should contain 2 trajectories of 9 valid samples each
+    assert len(dataset) == 2 * 9
 
-        data = dataset[0]
+    data = dataset[0]
 
-        for key in (
-            "input_fields",
-            "output_fields",
-            "constant_fields",
-            "input_scalars",
-            "output_scalars",
-            "constant_scalars",
-        ):
-            assert key in data
+    for key in (
+        "input_fields",
+        "output_fields",
+        "constant_fields",
+        "input_scalars",
+        "output_scalars",
+        "constant_scalars",
+    ):
+        assert key in data
 
-        for key, shape in dataset.metadata.sample_shapes.items():
-            if "input" in key or "output" in key:
-                assert list(data[key].shape[1:]) == shape
-            else:
-                assert list(data[key].shape) == shape
+    for key, shape in dataset.metadata.sample_shapes.items():
+        if "input" in key or "output" in key:
+            assert list(data[key].shape[1:]) == shape
+        else:
+            assert list(data[key].shape) == shape
 
-        data_next = dataset[1]
+    data_next = dataset[1]
 
-        for key in (
-            "input_fields",
-            "output_fields",
-            "constant_fields",
-            "input_scalars",
-            "output_scalars",
-            "constant_scalars",
-        ):
-            if "constant" in key:
-                assert torch.equal(data[key], data_next[key])
-            else:
-                assert not torch.equal(data[key], data_next[key])
+    for key in (
+        "input_fields",
+        "output_fields",
+        "constant_fields",
+        "input_scalars",
+        "output_scalars",
+        "constant_scalars",
+    ):
+        if "constant" in key:
+            assert torch.equal(data[key], data_next[key])
+        else:
+            assert not torch.equal(data[key], data_next[key])

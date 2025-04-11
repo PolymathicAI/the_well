@@ -1,14 +1,36 @@
 mean:
-  density: 262.54026035432025
-  pressure: -69.41958438151447
-  speed_of_sound: 1.0108841668547919
+  density: 2.6254E+02
+  pressure: 9.9185E-02
+  speed_of_sound: 1.0110E+00
   velocity:
-  - -185.54113241222865
-  - -18.997634314320923
+  - 3.4241E-03
+  - 3.3008E-03
+mean_delta:
+  pressure: -5.5849E-04
+  velocity:
+  - 5.3296E-05
+  - 5.4172E-05
+rms:
+  density: 1.7169E+03
+  pressure: 3.0833E-01
+  speed_of_sound: 1.0888E+00
+  velocity:
+  - 5.3853E-02
+  - 5.4035E-02
+rms_delta:
+  pressure: 9.0357E-02
+  velocity:
+  - 1.8046E-02
+  - 1.8004E-02
 std:
-  density: 1696.7860591461533
-  pressure: 158788416.1268341
-  speed_of_sound: 0.4041109093568111
+  density: 1.6967E+03
+  pressure: 2.9194E-01
+  speed_of_sound: 4.0424E-01
   velocity:
-  - 43177896.57912548
-  - 77087978.82465929
+  - 5.3744E-02
+  - 5.3934E-02
+std_delta:
+  pressure: 9.0355E-02
+  velocity:
+  - 1.8046E-02
+  - 1.8004E-02
