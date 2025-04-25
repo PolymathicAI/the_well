@@ -235,7 +235,7 @@ def test_restricted_samples_int(tmp_path):
     filename = tmp_path / "dummy_well_data.hdf5"
     write_dummy_data(filename)
     dataset = WellDataset(path=str(tmp_path), use_normalization=False, return_grid=True, restrict_num_samples=5)
-    assert len(dataset) ==  1 * 9, f"Restricted dataset should contain 5 total samples, but found {len(dataset)}"
+    assert len(dataset) ==  5, f"Restricted dataset should contain 5 total samples, but found {len(dataset)}"
     data = dataset[0]
 
 def test_restricted_samples_float(tmp_path):
