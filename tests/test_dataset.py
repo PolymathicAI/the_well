@@ -181,3 +181,48 @@ class TestDataset(TestCase):
                     self.assertTrue(torch.equal(data[key], data_next[key]))
                 else:
                     self.assertFalse(torch.equal(data[key], data_next[key]))
+
+    def test_restricted_traj_int(self):
+        with tempfile.TemporaryDirectory() as dir_name:
+            filename = os.path.join(dir_name, "dummy_well_data.hdf5")
+            write_dummy_data(filename)
+            dataset = WellDataset(
+                path=dir_name, use_normalization=False, return_grid=True, restrict_num_trajectories=1
+            )
+            # Dummy dataset should contain 2 trajectories of 9 valid samples each, 1 after restriction
+            self.assertEqual(len(dataset), 1 * 9)
+            # Make sure we can still pull data
+            data = dataset[0]
+
+    def test_restricted_traj_float(self):
+        with tempfile.TemporaryDirectory() as dir_name:
+            filename = os.path.join(dir_name, "dummy_well_data.hdf5")
+            write_dummy_data(filename)
+            dataset = WellDataset(
+                path=dir_name, use_normalization=False, return_grid=True, restrict_num_trajectories=.5
+            )
+            self.assertEqual(len(dataset), 1 * 9)
+            data = dataset[0]
+
+    def test_restricted_samples_int(self):
+        with tempfile.TemporaryDirectory() as dir_name:
+            filename = os.path.join(dir_name, "dummy_well_data.hdf5")
+            write_dummy_data(filename)
+            dataset = WellDataset(
+                path=dir_name, use_normalization=False, return_grid=True, restrict_num_samples=5
+            )
+            # Dummy dataset should contain 2 trajectories of 9 valid samples each, 1 after restriction
+            self.assertEqual(len(dataset), 5)
+            # Make sure we can still pull data
+            data = dataset[0]
+
+    def test_restricted_samples_float(self):
+        with tempfile.TemporaryDirectory() as dir_name:
+            filename = os.path.join(dir_name, "dummy_well_data.hdf5")
+            write_dummy_data(filename)
+            dataset = WellDataset(
+                path=dir_name, use_normalization=False, return_grid=True, restrict_num_samples=.5
+            )
+            # Dummy dataset should contain 2 trajectories of 9 valid samples each, 1 after restriction
+            self.assertEqual(len(dataset), 9)
+            data = dataset[0]
