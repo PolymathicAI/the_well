@@ -479,9 +479,6 @@ class WellDataset(Dataset):
 
         # Just to make sure it doesn't put us in file -1
         self.file_index_offsets[0] = -1
-        self.files: List[h5.File | None] = [
-            None for _ in self.files_paths
-        ]  # We open file references as they come
         # Dataset length is last number of samples
         self.len = self.file_index_offsets[-1]
         self.n_spatial_dims = int(ndims.pop())  # Number of spatial dims
@@ -505,16 +502,6 @@ class WellDataset(Dataset):
             n_trajectories_per_file=self.n_trajectories_per_file,
             n_steps_per_trajectory=self.n_steps_per_trajectory,
         )
-
-    def _open_file(self, file_ind: int):
-        _file = h5.File(
-            self.fs.open(
-                self.files_paths[file_ind], "rb", **IO_PARAMS["fsspec_params"]
-            ),
-            "r",
-            **IO_PARAMS["h5py_params"],
-        )
-        self.files[file_ind] = _file
 
     def _check_cache(self, cache: Dict[str, Any], name: str, data: Any):
         if self.cache_small and data.numel() < self.max_cache_size:
@@ -737,8 +724,6 @@ class WellDataset(Dataset):
         sample_idx = local_idx // windows_per_trajectory
         time_idx = local_idx % windows_per_trajectory
         # open hdf5 file (and cache the open object)
-        # if self.files[file_idx] is None:
-        #     self._open_file(file_idx)
         with h5.File(
             self.fs.open(
                 self.files_paths[file_idx], "rb", **IO_PARAMS["fsspec_params"]
@@ -909,8 +894,6 @@ class WellDataset(Dataset):
         datasets = []
         total_samples = 0
         for file_idx in range(len(self.files_paths)):
-            if self.files[file_idx] is None:
-                self._open_file(file_idx)
             with h5.File(
                 self.fs.open(
                     self.files_paths[file_idx], "rb", **IO_PARAMS["fsspec_params"]
