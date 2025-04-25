@@ -148,7 +148,7 @@ class WellDataset(Dataset):
             Whether to flatten tensor valued field into channels
         restrict_num_trajectories:
             Whether to restrict the number of trajectories to a subset of the dataset. Integer inputs restrict to a number. Float to a percentage.
-        restrict_num_samples:  
+        restrict_num_samples:
             Whether to restrict the number of samples to a subset of the dataset. Integer inputs restrict to a number. Float to a percentage.
         cache_small:
             Whether to cache small tensors in memory for faster access
@@ -192,8 +192,8 @@ class WellDataset(Dataset):
         min_dt_stride: int = 1,
         max_dt_stride: int = 1,
         flatten_tensors: bool = True,
-        restrict_num_trajectories: Optional[float|int] = None,
-        restrict_num_samples: Optional[float|int] = None,
+        restrict_num_trajectories: Optional[float | int] = None,
+        restrict_num_samples: Optional[float | int] = None,
         restriction_seed: int = 0,
         cache_small: bool = True,
         max_cache_size: float = 1e9,
@@ -302,18 +302,22 @@ class WellDataset(Dataset):
                 restrict_num_samples, restrict_num_trajectories, restriction_seed
             )
 
-    def _build_restriction_set(self, restrict_num_samples: Optional[int|float], 
-                                restrict_num_trajectories: Optional[int|float], 
-                                seed: int):
+    def _build_restriction_set(
+        self,
+        restrict_num_samples: Optional[int | float],
+        restrict_num_trajectories: Optional[int | float],
+        seed: int,
+    ):
         """Builds a restriction set for the dataset based on the specified restrictions"""
         np.random.seed(seed)
         if restrict_num_samples is not None and restrict_num_trajectories is not None:
-            warnings.warn("Both restrict_num_samples and restrict_num_trajectories are set. Using restrict_num_samples.")
+            warnings.warn(
+                "Both restrict_num_samples and restrict_num_trajectories are set. Using restrict_num_samples."
+            )
         global_indices = np.arange(self.len)
         if restrict_num_trajectories is not None:
             # Compute total number of trajectories, collect all indices corresponding to them, then select a subset
-            total_trajectories = sum(
-                self.n_trajectories_per_file)
+            total_trajectories = sum(self.n_trajectories_per_file)
             if 0 < restrict_num_trajectories < 1:
                 restrict_num_trajectories = int(
                     total_trajectories * restrict_num_trajectories
@@ -323,7 +327,7 @@ class WellDataset(Dataset):
                     f"Requested {restrict_num_trajectories} trajectories, but only {total_trajectories} available. Using all available trajectories."
                 )
                 restrict_num_trajectories = int(total_trajectories)
-            
+
             # Get all indices corresponding to the trajectories
             trajectories_sampled = np.random.choice(
                 total_trajectories,
@@ -334,15 +338,20 @@ class WellDataset(Dataset):
             current_index = 0
             for traj in range(total_trajectories):
                 file_index = int(
-                    np.searchsorted(self.file_index_offsets, current_index, side="right") - 1
+                    np.searchsorted(
+                        self.file_index_offsets, current_index, side="right"
+                    )
+                    - 1
                 )
                 if traj in trajectories_sampled:
-                    global_indices = global_indices + list(range(0, self.n_windows_per_trajectory[file_index]))
+                    global_indices = global_indices + list(
+                        range(0, self.n_windows_per_trajectory[file_index])
+                    )
                 current_index += self.n_windows_per_trajectory[file_index]
             global_indices = np.array(global_indices)
 
         if restrict_num_samples is not None:
-            if 0. < restrict_num_samples < 1.:
+            if 0.0 < restrict_num_samples < 1.0:
                 restrict_num_samples = int(self.len * restrict_num_samples)
             elif restrict_num_samples > self.len:
                 warnings.warn(
@@ -731,7 +740,7 @@ class WellDataset(Dataset):
             "r",
             **IO_PARAMS["h5py_params"],
         ) as file:
-        # If we gave a stride range, decide the largest size we can use given the sample location
+            # If we gave a stride range, decide the largest size we can use given the sample location
             dt = self.min_dt_stride
             if self.max_dt_stride > self.min_dt_stride:
                 effective_max_dt = maximum_stride_for_initial_index(
@@ -756,13 +765,15 @@ class WellDataset(Dataset):
                 self.n_steps_input + output_steps,
                 dt,
             )
-            data["variable_scalars"], data["constant_scalars"] = self._reconstruct_scalars(
-                file,
-                self.caches[file_idx],
-                sample_idx,
-                time_idx,
-                self.n_steps_input + output_steps,
-                dt,
+            data["variable_scalars"], data["constant_scalars"] = (
+                self._reconstruct_scalars(
+                    file,
+                    self.caches[file_idx],
+                    sample_idx,
+                    time_idx,
+                    self.n_steps_input + output_steps,
+                    dt,
+                )
             )
 
             if self.boundary_return_type is not None:
@@ -903,7 +914,7 @@ class WellDataset(Dataset):
             ) as file:
                 # Load the dataset using the hdf5_to_xarray function
                 ds = hdf5_to_xarray(file, backend=backend)
-            # Ensure 'sample' dimension is always present
+                # Ensure 'sample' dimension is always present
                 if "sample" not in ds.sizes:
                     ds = ds.expand_dims("sample")
                 # Adjust the 'sample' coordinate
