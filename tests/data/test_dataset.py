@@ -231,6 +231,7 @@ def test_restricted_traj_int(tmp_path):
     ), f"Restricted dataset should contain 1 trajectories of 9 valid samples each, but found {len(dataset)}"
     # Make sure we can still pull data
     data = dataset[0]
+    assert data is not None
 
 
 def test_restricted_traj_float(tmp_path):
@@ -246,6 +247,7 @@ def test_restricted_traj_float(tmp_path):
         len(dataset) == 1 * 9
     ), f"Restricted dataset should contain 1 trajectories of 9 valid samples each, but found {len(dataset)}"
     data = dataset[0]
+    assert data is not None
 
 
 def test_restricted_samples_int(tmp_path):
@@ -261,6 +263,7 @@ def test_restricted_samples_int(tmp_path):
         len(dataset) == 5
     ), f"Restricted dataset should contain 5 total samples, but found {len(dataset)}"
     data = dataset[0]
+    assert data is not None
 
 
 def test_restricted_samples_float(tmp_path):
@@ -276,3 +279,4 @@ def test_restricted_samples_float(tmp_path):
         len(dataset) == 1 * 9
     ), f"Restricted dataset should contain .5*18 samples, but found {len(dataset)}"
     data = dataset[0]
+    assert data is not None
