@@ -1,16 +1,48 @@
 mean:
-  density: 0.2923559679146195
-  pressure: 0.058572328592563706
-  temperature: 157046.90938693486
+  density: 2.9236E-01
+  pressure: 5.8572E-02
+  temperature: 1.5705E+05
   velocity:
-  - 0.005017495268192297
-  - 0.004769778035097766
-  - -0.00017156216420367414
+  - 5.0175E-03
+  - 4.7698E-03
+  - -1.7156E-04
+mean_delta:
+  density: 6.5495E-05
+  pressure: 6.3258E-04
+  temperature: 4.2642E+03
+  velocity:
+  - -5.5719E-05
+  - 2.1411E-05
+  - 9.9219E-06
+rms:
+  density: 8.1292E-01
+  pressure: 5.7896E+00
+  temperature: 1.8548E+06
+  velocity:
+  - 1.3460E+00
+  - 1.3370E+00
+  - 1.3396E+00
+rms_delta:
+  density: 6.5067E-02
+  pressure: 8.1213E+00
+  temperature: 4.7380E+05
+  velocity:
+  - 1.0004E+00
+  - 1.0017E+00
+  - 1.0026E+00
 std:
-  density: 0.7585278947364227
-  pressure: 5.78935332149458
-  temperature: 1848090.9746757823
+  density: 7.5853E-01
+  pressure: 5.7894E+00
+  temperature: 1.8481E+06
   velocity:
-  - 1.3459669702050021
-  - 1.3369507269422247
-  - 1.3395602822467847
+  - 1.3460E+00
+  - 1.3370E+00
+  - 1.3396E+00
+std_delta:
+  density: 6.5067E-02
+  pressure: 8.1213E+00
+  temperature: 4.7378E+05
+  velocity:
+  - 1.0004E+00
+  - 1.0017E+00
+  - 1.0026E+00
