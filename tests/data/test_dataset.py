@@ -214,33 +214,65 @@ def test_dummy_dataset(tmp_path):
         else:
             assert not torch.equal(data[key], data_next[key])
 
+
 def test_restricted_traj_int(tmp_path):
     filename = tmp_path / "dummy_well_data.hdf5"
     write_dummy_data(filename)
-    dataset = WellDataset(path=str(tmp_path), use_normalization=False, return_grid=True, restrict_num_trajectories=1)
+    dataset = WellDataset(
+        path=str(tmp_path),
+        use_normalization=False,
+        return_grid=True,
+        restrict_num_trajectories=1,
+    )
     # Dummy dataset should contain 2 trajectories of 9 valid samples each, 1 after restriction
 
-    assert len(dataset) == 1 * 9, f"Restricted dataset should contain 1 trajectories of 9 valid samples each, but found {len(dataset)}"
+    assert (
+        len(dataset) == 1 * 9
+    ), f"Restricted dataset should contain 1 trajectories of 9 valid samples each, but found {len(dataset)}"
     # Make sure we can still pull data
     data = dataset[0]
+
 
 def test_restricted_traj_float(tmp_path):
     filename = tmp_path / "dummy_well_data.hdf5"
     write_dummy_data(filename)
-    dataset = WellDataset(path=str(tmp_path), use_normalization=False, return_grid=True, restrict_num_trajectories=.5)
-    assert len(dataset) ==  1 * 9, f"Restricted dataset should contain 1 trajectories of 9 valid samples each, but found {len(dataset)}"
+    dataset = WellDataset(
+        path=str(tmp_path),
+        use_normalization=False,
+        return_grid=True,
+        restrict_num_trajectories=0.5,
+    )
+    assert (
+        len(dataset) == 1 * 9
+    ), f"Restricted dataset should contain 1 trajectories of 9 valid samples each, but found {len(dataset)}"
     data = dataset[0]
+
 
 def test_restricted_samples_int(tmp_path):
     filename = tmp_path / "dummy_well_data.hdf5"
     write_dummy_data(filename)
-    dataset = WellDataset(path=str(tmp_path), use_normalization=False, return_grid=True, restrict_num_samples=5)
-    assert len(dataset) ==  5, f"Restricted dataset should contain 5 total samples, but found {len(dataset)}"
+    dataset = WellDataset(
+        path=str(tmp_path),
+        use_normalization=False,
+        return_grid=True,
+        restrict_num_samples=5,
+    )
+    assert (
+        len(dataset) == 5
+    ), f"Restricted dataset should contain 5 total samples, but found {len(dataset)}"
     data = dataset[0]
+
 
 def test_restricted_samples_float(tmp_path):
     filename = tmp_path / "dummy_well_data.hdf5"
     write_dummy_data(filename)
-    dataset = WellDataset(path=str(tmp_path), use_normalization=False, return_grid=True, restrict_num_trajectories=.5)
-    assert len(dataset) ==  1 * 9, f"Restricted dataset should contain .5*18 samples, but found {len(dataset)}"
+    dataset = WellDataset(
+        path=str(tmp_path),
+        use_normalization=False,
+        return_grid=True,
+        restrict_num_trajectories=0.5,
+    )
+    assert (
+        len(dataset) == 1 * 9
+    ), f"Restricted dataset should contain .5*18 samples, but found {len(dataset)}"
     data = dataset[0]
