@@ -1,56 +1,105 @@
+import math
+
 import torch
 
-from the_well.data import WellDataset
-from the_well.data.normalization import ZScoreNormalization
+from the_well.data.normalization import RMSNormalization, ZScoreNormalization
 
 
-def compute_mean_std(dataset, n_samples=100, seed=42):
-    torch.manual_seed(seed)  # Ensures reproducibility in CI
-    total_sum = 0.0
-    total_sq_sum = 0.0
-    total_count = 0
+def test_zscore_normalization():
+    """Test the ZScoreNormalization actually provides the correct normalization.
+    We consider fields whose mean and std are given by a linear function of the field index.
 
-    n_samples = min(len(dataset), n_samples)
-    indices = torch.randperm(len(dataset))[:n_samples]
-
-    for idx in indices:
-        sample = dataset[idx]["input_fields"]  # shape: [T, H, W, C]
-        total_sum += sample.sum(dim=(0, 1, 2))  # sum over T, H, W
-        total_sq_sum += (sample**2).sum(dim=(0, 1, 2))
-        total_count += sample.shape[0] * sample.shape[1] * sample.shape[2]
-
-    mean = total_sum / total_count
-    var = total_sq_sum / total_count - mean**2
-    std = var.sqrt()
-    return mean, std
-
-
-def test_normalization():
-    base_path = "hf://datasets/polymathic-ai/"
-    dataset_name = "turbulent_radiative_layer_2D"
-    n_samples = 100  # Random subset for fast checking
-
-    # Load datasets directly from Hugging Face
-    train_dataset = WellDataset(
-        well_base_path=base_path,
-        well_dataset_name=dataset_name,
-        well_split_name="train",
-        n_steps_input=4,
-        n_steps_output=1,
-        use_normalization=True,
-        normalization_type=ZScoreNormalization,
+    """
+    n_fields = 4
+    h = 64
+    w = 64
+    t = 10
+    batch_size = 64
+    tol = 1e-2
+    std = torch.arange(n_fields) + 1.0
+    mean = torch.arange(n_fields)
+    delta_mean = torch.zeros_like(mean)
+    delta_std = math.sqrt(2) * std
+    stats = {
+        "mean": {f"field_{i}": mean[i] for i in range(n_fields)},
+        "std": {f"field_{i}": std[i] for i in range(n_fields)},
+        "mean_delta": {f"field_{i}": delta_mean[i] for i in range(n_fields)},
+        "std_delta": {f"field_{i}": delta_std[i] for i in range(n_fields)},
+    }
+    normalization = ZScoreNormalization(
+        stats=stats,
+        core_field_names=[f"field_{i}" for i in range(n_fields)],
+        core_constant_field_names=[],
     )
 
-    # Compute stats for random subset of train split
-    mean_train, std_train = compute_mean_std(train_dataset, n_samples=n_samples)
-    print("\n=== Train Set (Random Subset) Statistics After Normalization ===")
-    print("Mean:", mean_train)
-    print("Std:", std_train)
+    input_tensor = std * torch.randn(batch_size, h, w, t, n_fields) + mean
+    delta_input_tensor = input_tensor[..., 1:, :] - input_tensor[..., :-1, :]
+    for i in range(n_fields):
+        normalized_tensor = normalization.normalize(input_tensor[..., i], f"field_{i}")
+        assert normalized_tensor.shape == (batch_size, h, w, t)
+        assert torch.allclose(
+            torch.mean(normalized_tensor), torch.tensor(0.0), atol=tol
+        )
+        assert torch.allclose(torch.std(normalized_tensor), torch.tensor(1.0), atol=tol)
 
-    # Assert mean ~ 0 and std ~ 1
-    assert torch.allclose(mean_train, torch.zeros_like(mean_train), atol=0.1), (
-        "Train mean is not close to 0."
+        normalized_delta_tensor = normalization.delta_normalize(
+            delta_input_tensor[..., i], f"field_{i}"
+        )
+        assert normalized_delta_tensor.shape == (batch_size, h, w, t - 1)
+        assert torch.allclose(
+            torch.mean(normalized_delta_tensor), torch.tensor(0.0), atol=tol
+        )
+        assert torch.allclose(
+            torch.std(normalized_delta_tensor), torch.tensor(1.0), atol=tol
+        )
+
+
+def test_rms_normalization():
+    """Test the RMSNormalization actually provides the correct normalization.
+    We consider fields whose mean and std are given by a linear function of the field index.
+    """
+    n_fields = 4
+    h = 64
+    w = 64
+    t = 10
+    batch_size = 64
+    tol = 1e-2
+    std = torch.arange(n_fields) + 1.0
+    mean = torch.arange(n_fields)
+    delta_std = math.sqrt(2) * std
+    stats = {
+        "rms": {f"field_{i}": std[i] for i in range(n_fields)},
+        "rms_delta": {f"field_{i}": delta_std[i] for i in range(n_fields)},
+    }
+    normalization = RMSNormalization(
+        stats=stats,
+        core_field_names=[f"field_{i}" for i in range(n_fields)],
+        core_constant_field_names=[],
     )
-    assert torch.allclose(std_train, torch.ones_like(std_train), atol=0.1), (
-        "Train std is not close to 1."
-    )
+
+    input_tensor = std * torch.randn(batch_size, h, w, t, n_fields) + mean
+    delta_input_tensor = input_tensor[..., 1:, :] - input_tensor[..., :-1, :]
+    for i in range(n_fields):
+        normalized_tensor = normalization.normalize(input_tensor[..., i], f"field_{i}")
+        assert normalized_tensor.shape == (batch_size, h, w, t)
+        assert torch.allclose(
+            torch.mean(normalized_tensor),
+            mean[i].float() / std[i].float(),
+            atol=tol,
+        )
+        assert torch.allclose(
+            torch.std(normalized_tensor),
+            torch.tensor(1.0),
+            atol=tol,
+        )
+
+        normalized_delta_tensor = normalization.delta_normalize(
+            delta_input_tensor[..., i], f"field_{i}"
+        )
+        assert normalized_delta_tensor.shape == (batch_size, h, w, t - 1)
+        assert torch.allclose(
+            torch.mean(normalized_delta_tensor), torch.tensor(0.0), atol=tol
+        )
+        assert torch.allclose(
+            torch.std(normalized_delta_tensor), torch.tensor(1.0), atol=tol
+        )
