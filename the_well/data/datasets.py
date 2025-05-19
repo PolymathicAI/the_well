@@ -136,6 +136,9 @@ class WellDataset(Dataset):
             Whether to normalize data in the dataset
         normlization_type:
             What type of dataset normalization. Callable Options: ZSCORE and RMS
+        max_rollout_steps:
+            Maximum number of output steps to return in a single sample, mostly used for
+            full trajectory mode.
         n_steps_input:
             Number of steps to include in each sample
         n_steps_output:
