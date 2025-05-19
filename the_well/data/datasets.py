@@ -406,9 +406,6 @@ class WellDataset(Dataset):
 
         # Just to make sure it doesn't put us in file -1
         self.file_index_offsets[0] = -1
-        self.files: List[h5.File | None] = [
-            None for _ in self.files_paths
-        ]  # We open file references as they come
         # Dataset length is last number of samples
         self.len = self.file_index_offsets[-1]
         self.n_spatial_dims = int(ndims.pop())  # Number of spatial dims
@@ -433,16 +430,6 @@ class WellDataset(Dataset):
             n_steps_per_trajectory=self.n_steps_per_trajectory,
         )
 
-    def _open_file(self, file_ind: int):
-        _file = h5.File(
-            self.fs.open(
-                self.files_paths[file_ind], "rb", **IO_PARAMS["fsspec_params"]
-            ),
-            "r",
-            **IO_PARAMS["h5py_params"],
-        )
-        self.files[file_ind] = _file
-
     def _check_cache(self, cache: Dict[str, Any], name: str, data: Any):
         if self.cache_small and data.numel() < self.max_cache_size:
             cache[name] = data
@@ -466,7 +453,9 @@ class WellDataset(Dataset):
         expand_dims = expand_dims + (1,) * tensor_order
         return torch.tile(field_data, expand_dims)
 
-    def _reconstruct_fields(self, file, cache, sample_idx, time_idx, n_steps, dt):
+    def _reconstruct_fields(
+        self, file: h5.File, cache, sample_idx, time_idx, n_steps, dt
+    ):
         """Reconstruct space fields starting at index sample_idx, time_idx, with
         n_steps and dt stride."""
         variable_fields = {0: {}, 1: {}, 2: {}}
@@ -517,7 +506,9 @@ class WellDataset(Dataset):
 
         return (variable_fields, constant_fields)
 
-    def _reconstruct_scalars(self, file, cache, sample_idx, time_idx, n_steps, dt):
+    def _reconstruct_scalars(
+        self, file: h5.File, cache, sample_idx, time_idx, n_steps, dt
+    ):
         """Reconstruct scalar values (not fields) starting at index sample_idx, time_idx, with
         n_steps and dt stride."""
         variable_scalars = {}
@@ -553,7 +544,9 @@ class WellDataset(Dataset):
 
         return (variable_scalars, constant_scalars)
 
-    def _reconstruct_grids(self, file, cache, sample_idx, time_idx, n_steps, dt):
+    def _reconstruct_grids(
+        self, file: h5.File, cache, sample_idx, time_idx, n_steps, dt
+    ):
         """Reconstruct grid values starting at index sample_idx, time_idx, with
         n_steps and dt stride."""
         # Time
@@ -587,7 +580,7 @@ class WellDataset(Dataset):
                 self._check_cache(cache, "space_grid", space_grid)
         return space_grid, time_grid
 
-    def _padding_bcs(self, file, cache, sample_idx, time_idx, n_steps, dt):
+    def _padding_bcs(self, file: h5.File, cache, sample_idx, time_idx, n_steps, dt):
         """Handles BC case where BC corresponds to a specific padding type
 
         Note/TODO - currently assumes boundaries to be axis-aligned and cover the entire
@@ -635,7 +628,7 @@ class WellDataset(Dataset):
             self._check_cache(cache, "boundary_output", boundary_output)
         return boundary_output
 
-    def _reconstruct_bcs(self, file, cache, sample_idx, time_idx, n_steps, dt):
+    def _reconstruct_bcs(self, file: h5.File, cache, sample_idx, time_idx, n_steps, dt):
         """Needs work to support arbitrary BCs.
 
         Currently supports finite set of boundary condition types that describe
@@ -661,9 +654,6 @@ class WellDataset(Dataset):
         )  # First offset is -1
         sample_idx = local_idx // windows_per_trajectory
         time_idx = local_idx % windows_per_trajectory
-        # open hdf5 file (and cache the open object)
-        if self.files[file_idx] is None:
-            self._open_file(file_idx)
 
         # If we gave a stride range, decide the largest size we can use given the sample location
         dt = self.min_dt_stride
@@ -682,42 +672,51 @@ class WellDataset(Dataset):
         data = {}
 
         output_steps = min(self.n_steps_output, self.max_rollout_steps)
-        data["variable_fields"], data["constant_fields"] = self._reconstruct_fields(
-            self.files[file_idx],
-            self.caches[file_idx],
-            sample_idx,
-            time_idx,
-            self.n_steps_input + output_steps,
-            dt,
-        )
-        data["variable_scalars"], data["constant_scalars"] = self._reconstruct_scalars(
-            self.files[file_idx],
-            self.caches[file_idx],
-            sample_idx,
-            time_idx,
-            self.n_steps_input + output_steps,
-            dt,
-        )
-
-        if self.boundary_return_type is not None:
-            data["boundary_conditions"] = self._reconstruct_bcs(
-                self.files[file_idx],
+        with h5.File(
+            self.fs.open(
+                self.files_paths[file_idx], "rb", **IO_PARAMS["fsspec_params"]
+            ),
+            "r",
+            **IO_PARAMS["h5py_params"],
+        ) as f:
+            data["variable_fields"], data["constant_fields"] = self._reconstruct_fields(
+                f,
                 self.caches[file_idx],
                 sample_idx,
                 time_idx,
                 self.n_steps_input + output_steps,
                 dt,
             )
-
-        if self.return_grid:
-            data["space_grid"], data["time_grid"] = self._reconstruct_grids(
-                self.files[file_idx],
-                self.caches[file_idx],
-                sample_idx,
-                time_idx,
-                self.n_steps_input + output_steps,
-                dt,
+            data["variable_scalars"], data["constant_scalars"] = (
+                self._reconstruct_scalars(
+                    f,
+                    self.caches[file_idx],
+                    sample_idx,
+                    time_idx,
+                    self.n_steps_input + output_steps,
+                    dt,
+                )
             )
+
+            if self.boundary_return_type is not None:
+                data["boundary_conditions"] = self._reconstruct_bcs(
+                    f,
+                    self.caches[file_idx],
+                    sample_idx,
+                    time_idx,
+                    self.n_steps_input + output_steps,
+                    dt,
+                )
+
+            if self.return_grid:
+                data["space_grid"], data["time_grid"] = self._reconstruct_grids(
+                    f,
+                    self.caches[file_idx],
+                    sample_idx,
+                    time_idx,
+                    self.n_steps_input + output_steps,
+                    dt,
+                )
         return data, file_idx, sample_idx, time_idx, dt
 
     def _preprocess_data(
@@ -828,9 +827,14 @@ class WellDataset(Dataset):
         datasets = []
         total_samples = 0
         for file_idx in range(len(self.files_paths)):
-            if self.files[file_idx] is None:
-                self._open_file(file_idx)
-            ds = hdf5_to_xarray(self.files[file_idx], backend=backend)
+            with h5.File(
+                self.fs.open(
+                    self.files_paths[file_idx], "rb", **IO_PARAMS["fsspec_params"]
+                ),
+                "r",
+                **IO_PARAMS["h5py_params"],
+            ) as f:
+                ds = hdf5_to_xarray(f, backend=backend)
             # Ensure 'sample' dimension is always present
             if "sample" not in ds.sizes:
                 ds = ds.expand_dims("sample")
