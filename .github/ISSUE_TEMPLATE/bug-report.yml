@@ -12,6 +12,8 @@ body:
   - type: textarea
     attributes:
       label: "Describe the issue:"
+      placeholder: |
+        << your issue description here >>
     validations:
       required: true
   - type: textarea
@@ -30,7 +32,10 @@ body:
       label: "Version"
       description: |
         Which version of the Well are you using?
-        (You can obtain the version by running `python -c "import the_well; print(the_well.__version__)"`)
+        You can obtain the version by running the following command:
+        ```sh
+        python -c "import the_well; print(the_well.__version__)"
+        ```
       placeholder: |
         << your version here >>
     validations:
@@ -40,6 +45,10 @@ body:
       label: "Environment"
       description: |
         Which environment are you using? List the packages you have installed along the Well.
+        In case you use pip, you can obtain the list of installed packages by running the following command:
+        ```sh
+        pip freeze
+        ``
       placeholder: |
         << your environment here >>
     validations:
