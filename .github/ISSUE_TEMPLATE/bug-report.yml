@@ -48,7 +48,7 @@ body:
         In case you use pip, you can obtain the list of installed packages by running the following command:
         ```sh
         pip freeze
-        ``
+        ```
       placeholder: |
         << your environment here >>
     validations:
