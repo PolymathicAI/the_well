@@ -16,13 +16,32 @@ body:
       required: true
   - type: textarea
     attributes:
-      label: "Reproduce the code example:"
+      label: "Code to reproduce the issue:"
       description: >
         A short code example that reproduces the problem/missing feature.
         It should be self-contained.
       placeholder: |
         << your code here >>
       render: python
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "Version"
+      description: |
+        Which version of the Well are you using?
+        (You can obtain the version by running `python -c "import the_well; print(the_well.__version__)"`)
+      placeholder: |
+        << your version here >>
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "Environment"
+      description: |
+        Which environment are you using? List the packages you have installed along the Well.
+      placeholder: |
+        << your environment here >>
     validations:
       required: true
   - type: textarea
