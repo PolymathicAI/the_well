@@ -1,8 +1,21 @@
 mean:
-  mask: 0.06486892700195315
-  pressure_im: 0.0010585477817267562
-  pressure_re: 7.424803941594361e-05
+  mask: 6.4869E-02
+  pressure_im: 1.0585E-03
+  pressure_re: 7.4248E-05
+mean_delta:
+  pressure_im: 2.8587E-17
+  pressure_re: 5.8285E-18
+rms:
+  mask: 2.5469E-01
+  pressure_im: 1.9992E-01
+  pressure_re: 1.9963E-01
+rms_delta:
+  pressure_im: 2.5599E-02
+  pressure_re: 2.5599E-02
 std:
-  mask: 0.2462944362172408
-  pressure_im: 0.1999191371711864
-  pressure_re: 0.19962861570463183
+  mask: 2.4629E-01
+  pressure_im: 1.9992E-01
+  pressure_re: 1.9963E-01
+std_delta:
+  pressure_im: 2.5599E-02
+  pressure_re: 2.5599E-02
