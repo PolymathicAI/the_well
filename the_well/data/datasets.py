@@ -146,6 +146,10 @@ class WellDataset(Dataset):
             Maximum stride between samples
         flatten_tensors:
             Whether to flatten tensor valued field into channels
+        restrict_num_trajectories:
+            Whether to restrict the number of trajectories to a subset of the dataset. Integer inputs restrict to a number. Float to a percentage.
+        restrict_num_samples:
+            Whether to restrict the number of samples to a subset of the dataset. Integer inputs restrict to a number. Float to a percentage.
         cache_small:
             Whether to cache small tensors in memory for faster access
         max_cache_size:
@@ -188,6 +192,9 @@ class WellDataset(Dataset):
         min_dt_stride: int = 1,
         max_dt_stride: int = 1,
         flatten_tensors: bool = True,
+        restrict_num_trajectories: Optional[float | int] = None,
+        restrict_num_samples: Optional[float | int] = None,
+        restriction_seed: int = 0,
         cache_small: bool = True,
         max_cache_size: float = 1e9,
         return_grid: bool = True,
@@ -239,6 +246,9 @@ class WellDataset(Dataset):
         self.min_dt_stride = min_dt_stride
         self.max_dt_stride = max_dt_stride
         self.flatten_tensors = flatten_tensors
+        self.restrict_num_trajectories = restrict_num_trajectories
+        self.restrict_num_samples = restrict_num_samples
+        self.restriction_seed = restriction_seed
         self.return_grid = return_grid
         self.boundary_return_type = boundary_return_type
         self.full_trajectory_mode = full_trajectory_mode
@@ -284,6 +294,78 @@ class WellDataset(Dataset):
             )
         else:
             self.norm = None
+
+        # If we're limiting number of samples/trajectories...
+        self.restriction_set = None
+        if restrict_num_samples is not None or restrict_num_trajectories is not None:
+            self._build_restriction_set(
+                restrict_num_samples, restrict_num_trajectories, restriction_seed
+            )
+
+    def _build_restriction_set(
+        self,
+        restrict_num_samples: Optional[int | float],
+        restrict_num_trajectories: Optional[int | float],
+        seed: int,
+    ):
+        """Builds a restriction set for the dataset based on the specified restrictions"""
+        np.random.seed(seed)
+        if restrict_num_samples is not None and restrict_num_trajectories is not None:
+            warnings.warn(
+                "Both restrict_num_samples and restrict_num_trajectories are set. Using restrict_num_samples."
+            )
+        global_indices = np.arange(self.len)
+        if restrict_num_trajectories is not None:
+            # Compute total number of trajectories, collect all indices corresponding to them, then select a subset
+            total_trajectories = sum(self.n_trajectories_per_file)
+            if 0 < restrict_num_trajectories < 1:
+                restrict_num_trajectories = int(
+                    total_trajectories * restrict_num_trajectories
+                )
+            elif restrict_num_trajectories > total_trajectories:
+                warnings.warn(
+                    f"Requested {restrict_num_trajectories} trajectories, but only {total_trajectories} available. Using all available trajectories."
+                )
+                restrict_num_trajectories = int(total_trajectories)
+
+            # Get all indices corresponding to the trajectories
+            trajectories_sampled = np.random.choice(
+                total_trajectories,
+                size=restrict_num_trajectories,
+                replace=False,
+            )
+            global_indices = []
+            current_index = 0
+            for traj in range(total_trajectories):
+                file_index = int(
+                    np.searchsorted(
+                        self.file_index_offsets, current_index, side="right"
+                    )
+                    - 1
+                )
+                if traj in trajectories_sampled:
+                    global_indices = global_indices + list(
+                        range(0, self.n_windows_per_trajectory[file_index])
+                    )
+                current_index += self.n_windows_per_trajectory[file_index]
+            global_indices = np.array(global_indices)
+
+        if restrict_num_samples is not None:
+            if 0.0 < restrict_num_samples < 1.0:
+                restrict_num_samples = int(self.len * restrict_num_samples)
+            elif restrict_num_samples > self.len:
+                warnings.warn(
+                    f"Requested {restrict_num_samples} samples, but only {self.len} available. Using all available samples."
+                )
+                restrict_num_samples = self.len
+            # Compute total number of samples, collect all indices corresponding to them, then select a subset
+            global_indices = np.random.choice(
+                global_indices,
+                size=restrict_num_samples,
+                replace=False,
+            )
+        self.restriction_set = global_indices
+        self.len = len(global_indices)
 
     def _build_metadata(self):
         """Builds multi-file indices and checks that folder contains consistent dataset"""
@@ -406,9 +488,6 @@ class WellDataset(Dataset):
 
         # Just to make sure it doesn't put us in file -1
         self.file_index_offsets[0] = -1
-        self.files: List[h5.File | None] = [
-            None for _ in self.files_paths
-        ]  # We open file references as they come
         # Dataset length is last number of samples
         self.len = self.file_index_offsets[-1]
         self.n_spatial_dims = int(ndims.pop())  # Number of spatial dims
@@ -432,16 +511,6 @@ class WellDataset(Dataset):
             n_trajectories_per_file=self.n_trajectories_per_file,
             n_steps_per_trajectory=self.n_steps_per_trajectory,
         )
-
-    def _open_file(self, file_ind: int):
-        _file = h5.File(
-            self.fs.open(
-                self.files_paths[file_ind], "rb", **IO_PARAMS["fsspec_params"]
-            ),
-            "r",
-            **IO_PARAMS["h5py_params"],
-        )
-        self.files[file_ind] = _file
 
     def _check_cache(self, cache: Dict[str, Any], name: str, data: Any):
         if self.cache_small and data.numel() < self.max_cache_size:
@@ -652,6 +721,8 @@ class WellDataset(Dataset):
 
     def _load_one_sample(self, index):
         # Find specific file and local index
+        if self.restriction_set is not None:
+            index = self.restriction_set[index]
         file_idx = int(
             np.searchsorted(self.file_index_offsets, index, side="right") - 1
         )  # which file we are on
@@ -662,62 +733,68 @@ class WellDataset(Dataset):
         sample_idx = local_idx // windows_per_trajectory
         time_idx = local_idx % windows_per_trajectory
         # open hdf5 file (and cache the open object)
-        if self.files[file_idx] is None:
-            self._open_file(file_idx)
+        with h5.File(
+            self.fs.open(
+                self.files_paths[file_idx], "rb", **IO_PARAMS["fsspec_params"]
+            ),
+            "r",
+            **IO_PARAMS["h5py_params"],
+        ) as file:
+            # If we gave a stride range, decide the largest size we can use given the sample location
+            dt = self.min_dt_stride
+            if self.max_dt_stride > self.min_dt_stride:
+                effective_max_dt = maximum_stride_for_initial_index(
+                    time_idx,
+                    self.n_steps_per_trajectory[file_idx],
+                    self.n_steps_input,
+                    self.n_steps_output,
+                )
+                effective_max_dt = min(effective_max_dt, self.max_dt_stride)
+                if effective_max_dt > self.min_dt_stride:
+                    # Randint is non-inclusive on the upper bound
+                    dt = np.random.randint(self.min_dt_stride, effective_max_dt + 1)
+            # Fetch the data
+            data = {}
 
-        # If we gave a stride range, decide the largest size we can use given the sample location
-        dt = self.min_dt_stride
-        if self.max_dt_stride > self.min_dt_stride:
-            effective_max_dt = maximum_stride_for_initial_index(
-                time_idx,
-                self.n_steps_per_trajectory[file_idx],
-                self.n_steps_input,
-                self.n_steps_output,
-            )
-            effective_max_dt = min(effective_max_dt, self.max_dt_stride)
-            if effective_max_dt > self.min_dt_stride:
-                # Randint is non-inclusive on the upper bound
-                dt = np.random.randint(self.min_dt_stride, effective_max_dt + 1)
-        # Fetch the data
-        data = {}
-
-        output_steps = min(self.n_steps_output, self.max_rollout_steps)
-        data["variable_fields"], data["constant_fields"] = self._reconstruct_fields(
-            self.files[file_idx],
-            self.caches[file_idx],
-            sample_idx,
-            time_idx,
-            self.n_steps_input + output_steps,
-            dt,
-        )
-        data["variable_scalars"], data["constant_scalars"] = self._reconstruct_scalars(
-            self.files[file_idx],
-            self.caches[file_idx],
-            sample_idx,
-            time_idx,
-            self.n_steps_input + output_steps,
-            dt,
-        )
-
-        if self.boundary_return_type is not None:
-            data["boundary_conditions"] = self._reconstruct_bcs(
-                self.files[file_idx],
+            output_steps = min(self.n_steps_output, self.max_rollout_steps)
+            data["variable_fields"], data["constant_fields"] = self._reconstruct_fields(
+                file,
                 self.caches[file_idx],
                 sample_idx,
                 time_idx,
                 self.n_steps_input + output_steps,
                 dt,
             )
-
-        if self.return_grid:
-            data["space_grid"], data["time_grid"] = self._reconstruct_grids(
-                self.files[file_idx],
-                self.caches[file_idx],
-                sample_idx,
-                time_idx,
-                self.n_steps_input + output_steps,
-                dt,
+            data["variable_scalars"], data["constant_scalars"] = (
+                self._reconstruct_scalars(
+                    file,
+                    self.caches[file_idx],
+                    sample_idx,
+                    time_idx,
+                    self.n_steps_input + output_steps,
+                    dt,
+                )
             )
+
+            if self.boundary_return_type is not None:
+                data["boundary_conditions"] = self._reconstruct_bcs(
+                    file,
+                    self.caches[file_idx],
+                    sample_idx,
+                    time_idx,
+                    self.n_steps_input + output_steps,
+                    dt,
+                )
+
+            if self.return_grid:
+                data["space_grid"], data["time_grid"] = self._reconstruct_grids(
+                    file,
+                    self.caches[file_idx],
+                    sample_idx,
+                    time_idx,
+                    self.n_steps_input + output_steps,
+                    dt,
+                )
         return data, file_idx, sample_idx, time_idx, dt
 
     def _preprocess_data(
@@ -828,18 +905,24 @@ class WellDataset(Dataset):
         datasets = []
         total_samples = 0
         for file_idx in range(len(self.files_paths)):
-            if self.files[file_idx] is None:
-                self._open_file(file_idx)
-            ds = hdf5_to_xarray(self.files[file_idx], backend=backend)
-            # Ensure 'sample' dimension is always present
-            if "sample" not in ds.sizes:
-                ds = ds.expand_dims("sample")
-            # Adjust the 'sample' coordinate
-            if "sample" in ds.coords:
-                n_samples = ds.sizes["sample"]
-                ds = ds.assign_coords(sample=ds.coords["sample"] + total_samples)
-                total_samples += n_samples
-            datasets.append(ds)
+            with h5.File(
+                self.fs.open(
+                    self.files_paths[file_idx], "rb", **IO_PARAMS["fsspec_params"]
+                ),
+                "r",
+                **IO_PARAMS["h5py_params"],
+            ) as file:
+                # Load the dataset using the hdf5_to_xarray function
+                ds = hdf5_to_xarray(file, backend=backend)
+                # Ensure 'sample' dimension is always present
+                if "sample" not in ds.sizes:
+                    ds = ds.expand_dims("sample")
+                # Adjust the 'sample' coordinate
+                if "sample" in ds.coords:
+                    n_samples = ds.sizes["sample"]
+                    ds = ds.assign_coords(sample=ds.coords["sample"] + total_samples)
+                    total_samples += n_samples
+                datasets.append(ds)
 
         combined_ds = xr.concat(datasets, dim="sample")
         return combined_ds
