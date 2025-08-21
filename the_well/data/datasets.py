@@ -178,7 +178,7 @@ class WellDataset(Dataset):
     def __init__(
         self,
         path: Optional[str] = None,
-        normalization_path: Optional[str] = None, #"../stats.yaml",
+        normalization_path: Optional[str] = None,  # "../stats.yaml",
         well_base_path: Optional[str] = None,
         well_dataset_name: Optional[str] = None,
         well_split_name: Literal["train", "valid", "test", None] = None,
@@ -224,7 +224,7 @@ class WellDataset(Dataset):
             self.data_path = os.path.join(
                 well_base_path, well_dataset_name, "data", well_split_name
             )
-            trunk_path =  os.path.join(well_base_path, well_dataset_name)
+            trunk_path = os.path.join(well_base_path, well_dataset_name)
             if normalization_path is None:
                 normalization_path = os.path.join(
                     well_base_path, well_dataset_name, "stats.yaml"
