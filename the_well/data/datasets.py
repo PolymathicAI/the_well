@@ -213,7 +213,6 @@ class WellDataset(Dataset):
             self.data_path = path
             trunk_path = path
             if normalization_path is None:
-                print("Normalization path is None, swapping to default")
                 normalization_path = "stats.yaml"
             if well_split_name is not None:
                 self.data_path = os.path.join(path, "data", well_split_name)
@@ -231,13 +230,10 @@ class WellDataset(Dataset):
                     well_base_path, well_dataset_name, "stats.yaml"
                 )
         if os.path.isabs(normalization_path):
-            print("abs path")
             self.normalization_path = normalization_path
         else:
-            print("rel path")
             self.normalization_path = os.path.join(trunk_path, normalization_path)
 
-        print("this is my normalization path", self.normalization_path)  
         self.fs, _ = fsspec.url_to_fs(self.data_path, **(storage_options or {}))
 
         # Input checks
