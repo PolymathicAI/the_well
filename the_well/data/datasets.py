@@ -178,7 +178,7 @@ class WellDataset(Dataset):
     def __init__(
         self,
         path: Optional[str] = None,
-        normalization_path: str = "../stats.yaml",
+        normalization_path: Optional[str] = None,  # "../stats.yaml",
         well_base_path: Optional[str] = None,
         well_dataset_name: Optional[str] = None,
         well_split_name: Literal["train", "valid", "test", None] = None,
@@ -211,7 +211,9 @@ class WellDataset(Dataset):
         ), "Must specify path or well_base_path and well_dataset_name"
         if path is not None:
             self.data_path = path
-            self.normalization_path = os.path.join(path, normalization_path)
+            trunk_path = path
+            if normalization_path is None:
+                normalization_path = "stats.yaml"
             if well_split_name is not None:
                 self.data_path = os.path.join(path, "data", well_split_name)
 
@@ -222,9 +224,15 @@ class WellDataset(Dataset):
             self.data_path = os.path.join(
                 well_base_path, well_dataset_name, "data", well_split_name
             )
-            self.normalization_path = os.path.join(
-                well_base_path, well_dataset_name, "stats.yaml"
-            )
+            trunk_path = os.path.join(well_base_path, well_dataset_name)
+            if normalization_path is None:
+                normalization_path = os.path.join(
+                    well_base_path, well_dataset_name, "stats.yaml"
+                )
+        if os.path.isabs(normalization_path):
+            self.normalization_path = normalization_path
+        else:
+            self.normalization_path = os.path.join(trunk_path, normalization_path)
 
         self.fs, _ = fsspec.url_to_fs(self.data_path, **(storage_options or {}))
 
