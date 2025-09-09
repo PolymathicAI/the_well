@@ -161,6 +161,9 @@ class WellDataset(Dataset):
         full_trajectory_mode:
             Overrides to return full trajectory starting from t0 instead of samples
                 for long run validation.
+        start_output_steps_at_t:
+            For full trajectory mode, this is the first step returned by "output_fields". If -1,
+            start from end of n_steps_input. Otherwise, build initial n_steps_input backwards from this step.
         name_override:
             Override name of dataset (used for more precise logging)
         transform:
@@ -200,6 +203,7 @@ class WellDataset(Dataset):
         return_grid: bool = True,
         boundary_return_type: str = "padding",
         full_trajectory_mode: bool = False,
+        start_output_steps_at_t: int = -1,
         name_override: Optional[str] = None,
         transform: Optional["Augmentation"] = None,
         min_std: float = 1e-4,
@@ -260,12 +264,31 @@ class WellDataset(Dataset):
         self.return_grid = return_grid
         self.boundary_return_type = boundary_return_type
         self.full_trajectory_mode = full_trajectory_mode
+        self.start_output_steps_at_t = start_output_steps_at_t
         self.cache_small = cache_small
         self.max_cache_size = max_cache_size
         self.transform = transform
         if self.min_dt_stride < self.max_dt_stride and self.full_trajectory_mode:
             raise ValueError(
                 "Full trajectory mode not supported with variable stride lengths"
+            )
+        if (
+            self.full_trajectory_mode
+            and self.start_output_steps_at_t >= 0
+            and (self.n_steps_input + 1) * self.min_dt_stride
+            > self.start_output_steps_at_t
+        ):
+            raise ValueError(
+                f"Full trajectory set to begin target at t={start_output_steps_at_t}, but first available step is t={(self.n_steps_input+1)*self.min_dt_stride} "
+                f"given n_steps_input={self.n_steps_input} and  min_dt_stride={self.min_dt_stride}."
+            )
+        if self.start_output_steps_at_t > 0 and (
+            self.restrict_num_samples is not None
+            or self.restrict_num_trajectories is not None
+        ):
+            raise NotImplementedError(
+                "Full trajectory mode not currently supported with sample/trajectory restrictions as restrictions are currently implemented"
+                "for training while full trajectory mode is implemented for validation."
             )
         # Check the directory has hdf5 that meet our exclusion criteria
         sub_files = self.fs.glob(self.data_path + "/*.h5") + self.fs.glob(
@@ -484,10 +507,12 @@ class WellDataset(Dataset):
         # trajectory where full = min(lowest_steps_per_file, max_rollout_steps)
         if self.full_trajectory_mode:
             self.n_steps_output = (
-                lowest_steps // self.min_dt_stride
+                (lowest_steps - max(0, self.start_output_steps_at_t))
+                // self.min_dt_stride
             ) - self.n_steps_input
             assert self.n_steps_output > 0, (
-                f"Full trajectory mode not supported for dataset {names[0]} with {lowest_steps} minimum steps"
+                f"Full trajectory mode not supported for dataset {list(names)[0]} with {lowest_steps} minimum steps"
+                f"starting output at step {self.start_output_steps_at_t}"
                 f" and a minimum stride of {self.min_dt_stride} and {self.n_steps_input} input steps"
             )
             self.n_windows_per_trajectory = [1] * self.n_files
@@ -765,6 +790,10 @@ class WellDataset(Dataset):
             data = {}
 
             output_steps = min(self.n_steps_output, self.max_rollout_steps)
+            # If start_output_steps_at_t set, then work backwards for initial time index
+            if self.full_trajectory_mode and self.start_output_steps_at_t >= 0:
+                time_idx = self.start_output_steps_at_t - (self.n_steps_input) * dt
+
             data["variable_fields"], data["constant_fields"] = self._reconstruct_fields(
                 file,
                 self.caches[file_idx],

@@ -325,3 +325,18 @@ def test_restricted_samples_float(tmp_path):
     ), f"Restricted dataset should contain .5*18 samples, but found {len(dataset)}"
     data = dataset[0]
     assert data is not None
+
+
+@pytest.mark.parametrize("start_output_steps_at_t", [-1, 4])
+def test_full_trajectory_mode_minimum_steps(tmp_path, start_output_steps_at_t):
+    filename = tmp_path / "dummy_well_data.hdf5"
+    write_dummy_data(filename)
+    dataset = WellDataset(
+        path=str(tmp_path),
+        full_trajectory_mode=True,
+        start_output_steps_at_t=start_output_steps_at_t,
+    )
+    data = dataset[0]
+    assert data["output_fields"].shape[0] == (
+        9 - max(0, start_output_steps_at_t)
+    )  # Fake dataset has 10 time steps
