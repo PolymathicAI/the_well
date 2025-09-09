@@ -317,7 +317,7 @@ class WellDataset(Dataset):
         seed: int,
     ):
         """Builds a restriction set for the dataset based on the specified restrictions"""
-        np.random.seed(seed)
+        gen = np.random.default_rng(seed)
         if restrict_num_samples is not None and restrict_num_trajectories is not None:
             warnings.warn(
                 "Both restrict_num_samples and restrict_num_trajectories are set. Using restrict_num_samples."
@@ -337,7 +337,7 @@ class WellDataset(Dataset):
                 restrict_num_trajectories = int(total_trajectories)
 
             # Get all indices corresponding to the trajectories
-            trajectories_sampled = np.random.choice(
+            trajectories_sampled = gen.choice(
                 total_trajectories,
                 size=restrict_num_trajectories,
                 replace=False,
@@ -367,7 +367,7 @@ class WellDataset(Dataset):
                 )
                 restrict_num_samples = self.len
             # Compute total number of samples, collect all indices corresponding to them, then select a subset
-            global_indices = np.random.choice(
+            global_indices = gen.choice(
                 global_indices,
                 size=restrict_num_samples,
                 replace=False,

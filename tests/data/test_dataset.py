@@ -2,6 +2,7 @@ import pathlib
 import random
 
 import pytest
+import numpy as np
 import torch
 
 from the_well.data.augmentation import (
@@ -265,6 +266,43 @@ def test_restricted_samples_int(tmp_path):
     data = dataset[0]
     assert data is not None
 
+def test_same_seed_leads_to_same_restriction_samples(tmp_path):
+    filename = tmp_path / "dummy_well_data.hdf5"
+    write_dummy_data(filename)
+    dataset1 = WellDataset(
+        path=str(tmp_path),
+        use_normalization=False,
+        return_grid=True,
+        restrict_num_samples=5,
+        restriction_seed=42
+    )
+    dataset2 = WellDataset(
+        path=str(tmp_path),
+        use_normalization=False,
+        return_grid=True,
+        restrict_num_samples=5,
+        restriction_seed=42
+    )
+    assert np.all(dataset1.restriction_set == dataset2.restriction_set), "Restriction sets should be identical for same seed"
+
+def test_same_seed_leads_to_same_restriction_trajectories(tmp_path):
+    filename = tmp_path / "dummy_well_data.hdf5"
+    write_dummy_data(filename)
+    dataset1 = WellDataset(
+        path=str(tmp_path),
+        use_normalization=False,
+        return_grid=True,
+        restrict_num_trajectories=1,
+        restriction_seed=42
+    )
+    dataset2 = WellDataset(
+        path=str(tmp_path),
+        use_normalization=False,
+        return_grid=True,
+        restrict_num_trajectories=1,
+        restriction_seed=42
+    )
+    assert np.all(dataset1.restriction_set == dataset2.restriction_set), "Restriction sets should be identical for same seed"
 
 def test_restricted_samples_float(tmp_path):
     filename = tmp_path / "dummy_well_data.hdf5"
