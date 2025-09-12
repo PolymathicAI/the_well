@@ -150,12 +150,18 @@ class WellDataset(Dataset):
             Whether to restrict the number of trajectories to a subset of the dataset. Integer inputs restrict to a number. Float to a percentage.
         restrict_num_samples:
             Whether to restrict the number of samples to a subset of the dataset. Integer inputs restrict to a number. Float to a percentage.
+        restriction_seed:
+            Seed used to generate restriction set. Necessary to ensure same set is sampled across runs.
         cache_small:
             Whether to cache small tensors in memory for faster access
         max_cache_size:
             Maximum numel of constant tensor to cache
         return_grid:
             Whether to return grid coordinates
+        normalize_time_grid:
+            Whether to normalize the time grid so that it returns relative rather than absolute time.
+            Default is True as absolute time generally leads to better scenario fitting in the well,
+            but poor generalization.
         boundary_return_type: options=['padding', 'mask', 'exact', 'none']
             How to return boundary conditions. Currently only padding supported.
         full_trajectory_mode:
@@ -201,6 +207,7 @@ class WellDataset(Dataset):
         cache_small: bool = True,
         max_cache_size: float = 1e9,
         return_grid: bool = True,
+        normalize_time_grid: bool = True,
         boundary_return_type: str = "padding",
         full_trajectory_mode: bool = False,
         start_output_steps_at_t: int = -1,
@@ -262,6 +269,7 @@ class WellDataset(Dataset):
         self.restrict_num_samples = restrict_num_samples
         self.restriction_seed = restriction_seed
         self.return_grid = return_grid
+        self.normalize_time_grid = normalize_time_grid
         self.boundary_return_type = boundary_return_type
         self.full_trajectory_mode = full_trajectory_mode
         self.start_output_steps_at_t = start_output_steps_at_t
@@ -669,7 +677,8 @@ class WellDataset(Dataset):
         # We have already sampled leading index if it existed so timegrid should be 1D
         time_grid = time_grid[time_idx : time_idx + n_steps * dt : dt]
         # Nothing should depend on absolute time - might change if we add weather
-        time_grid = time_grid - time_grid.min()
+        if self.normalize_time_grid:
+            time_grid = time_grid - time_grid.min()
 
         # Space - TODO - support time-varying grids or non-tensor product grids
         if "space_grid" in cache:

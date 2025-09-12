@@ -331,12 +331,34 @@ def test_restricted_samples_float(tmp_path):
 def test_full_trajectory_mode_minimum_steps(tmp_path, start_output_steps_at_t):
     filename = tmp_path / "dummy_well_data.hdf5"
     write_dummy_data(filename)
-    dataset = WellDataset(
+    ctrl_dataset = WellDataset(
         path=str(tmp_path),
         full_trajectory_mode=True,
-        start_output_steps_at_t=start_output_steps_at_t,
+        start_output_steps_at_t=-1,
+        return_grid=True,
+        normalize_time_grid=False,
     )
-    data = dataset[0]
-    assert data["output_fields"].shape[0] == (
-        9 - max(0, start_output_steps_at_t)
+    exp_dataset = WellDataset(
+        path=str(tmp_path),
+        use_normalization=False,
+        return_grid=True,
+        full_trajectory_mode=True,
+        start_output_steps_at_t=start_output_steps_at_t,
+        normalize_time_grid=False,
+    )
+    ctrl_data = ctrl_dataset[0]
+    exp_data = exp_dataset[0]
+    offset = max(0, start_output_steps_at_t)
+    assert (
+        exp_data["output_time_grid"].shape[0]
+        == (ctrl_data["output_time_grid"].shape[0] - offset)
+    ), (
+        f"Output time grid shape mismatch. Should be offset by {offset} steps."
     )  # Fake dataset has 10 time steps
+    if start_output_steps_at_t >= 0:
+        assert (
+            ctrl_data["output_time_grid"][offset - 1] == exp_data["output_time_grid"][0]
+        ), f"Expected output time grids to match at offset {offset-1} vs 0, but got {ctrl_data['output_time_grid'][offset-1]} vs {exp_data['output_time_grid'][0]}"
+        assert (
+            ctrl_data["output_time_grid"][offset - 2] == exp_data["input_time_grid"][0]
+        ), "Expected input time to be time prior to first target output time"
