@@ -515,9 +515,9 @@ class WellDataset(Dataset):
         # trajectory where full = min(lowest_steps_per_file, max_rollout_steps)
         if self.full_trajectory_mode:
             self.n_steps_output = (
-                (lowest_steps - max(0, self.start_output_steps_at_t))
+                (lowest_steps - max(self.n_steps_input*self.min_dt_stride, self.start_output_steps_at_t))
                 // self.min_dt_stride
-            ) - self.n_steps_input
+            )
             assert self.n_steps_output > 0, (
                 f"Full trajectory mode not supported for dataset {list(names)[0]} with {lowest_steps} minimum steps"
                 f"starting output at step {self.start_output_steps_at_t}"
