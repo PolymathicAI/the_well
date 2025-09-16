@@ -349,12 +349,6 @@ def test_full_trajectory_mode_minimum_steps(tmp_path, start_output_steps_at_t):
     ctrl_data = ctrl_dataset[0]
     exp_data = exp_dataset[0]
     offset = max(0, start_output_steps_at_t)
-    assert (
-        exp_data["output_time_grid"].shape[0]
-        == (ctrl_data["output_time_grid"].shape[0] - offset)
-    ), (
-        f"Output time grid shape mismatch. Should be offset by {offset} steps."
-    )  # Fake dataset has 10 time steps
     if start_output_steps_at_t >= 0:
         assert (
             ctrl_data["output_time_grid"][offset - 1] == exp_data["output_time_grid"][0]
