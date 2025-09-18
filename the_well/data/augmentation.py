@@ -348,10 +348,10 @@ class RandomRotation90(Augmentation):
     ) -> TrajectoryData:
         spatial = metadata.dataset.n_spatial_dims
         # Geometric augmentations for non-euclidean data not implemented yet
-        if ((
+        if (
             metadata.dataset.metadata.grid_type != "cartesian"
             or torch.rand(()) > self.p
-        ) and self.hardcoded_rotation_index is None):
+        ) and self.hardcoded_rotation_index is None:
             return data
 
         if spatial == 2:
