@@ -368,11 +368,14 @@ class WellDataset(Dataset):
                 restrict_num_trajectories = int(total_trajectories)
 
             # Get all indices corresponding to the trajectories
-            trajectories_sampled = gen.choice(
-                total_trajectories,
-                size=restrict_num_trajectories,
-                replace=False,
-            )
+            trajectories = np.arange(total_trajectories)
+            gen.shuffle(trajectories) # Shuffle instead of sampling so that subsequent runs are nested
+            trajectories_sampled = trajectories[:restrict_num_trajectories]
+            # trajectories_sampled = gen.choice(
+            #     total_trajectories,
+            #     size=restrict_num_trajectories,
+            #     replace=False,
+            # )
             global_indices = []
             current_index = 0
             for traj in range(total_trajectories):
@@ -398,11 +401,13 @@ class WellDataset(Dataset):
                 )
                 restrict_num_samples = self.len
             # Compute total number of samples, collect all indices corresponding to them, then select a subset
-            global_indices = gen.choice(
-                global_indices,
-                size=restrict_num_samples,
-                replace=False,
-            )
+            gen.shuffle(global_indices) # Shuffle instead of sampling so that increasing runs with the same seed are nested
+            global_indices = global_indices[:restrict_num_samples]
+            # global_indices = gen.choice(
+            #     global_indices,
+            #     size=restrict_num_samples,
+            #     replace=False,
+            # )
         self.restriction_set = global_indices
         self.len = len(global_indices)
 
