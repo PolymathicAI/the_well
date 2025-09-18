@@ -19,6 +19,7 @@ class Metric(nn.Module):
             **kwargs : dict
                 Additional arguments for the metric.
     """
+
     def forward(self, *args, **kwargs):
         assert len(args) >= 3, "At least three arguments required (x, y, and meta)"
         x, y, meta = args[:3]
@@ -45,6 +46,8 @@ class Metric(nn.Module):
     def eval(self, x, y, meta, **kwargs):
         raise NotImplementedError
 
+
 class TrajectoryMetric(Metric):
     """Base class for trajectory-level metrics."""
+
     pass
