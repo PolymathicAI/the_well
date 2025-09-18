@@ -6,7 +6,7 @@ from .plottable_data import (
 )
 from .spatial import MAE, MSE, NMSE, NRMSE, RMSE, VMSE, VRMSE, LInfinity, PearsonR
 from .spectral import binned_spectral_mse
-from .temporal import HistogramW1
+from .temporal import HistogramW1, WindowedDTW
 
 __all__ = [
     "MAE",
@@ -20,6 +20,7 @@ __all__ = [
     "binned_spectral_mse",
     "PearsonR",
     "HistogramW1",
+    "WindowedDTW",
 ]
 
 long_time_metrics = ["VRMSE", "RMSE", "binned_spectral_mse", "PearsonR"]
