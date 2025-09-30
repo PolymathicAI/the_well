@@ -48,6 +48,7 @@ class MSE(Metric):
         x: torch.Tensor | np.ndarray,
         y: torch.Tensor | np.ndarray,
         meta: WellMetadata,
+        eps: float = 1e-7
     ) -> torch.Tensor:
         """
         Mean Squared Error
@@ -70,6 +71,7 @@ class MAE(Metric):
         x: torch.Tensor | np.ndarray,
         y: torch.Tensor | np.ndarray,
         meta: WellMetadata,
+        eps: float = 1e-7,
     ) -> torch.Tensor:
         """
         Mean Absolute Error
@@ -148,6 +150,7 @@ class RMSE(Metric):
         x: torch.Tensor | np.ndarray,
         y: torch.Tensor | np.ndarray,
         meta: WellMetadata,
+        eps: float = 1e-7,
     ) -> torch.Tensor:
         """
         Root Mean Squared Error
@@ -198,6 +201,7 @@ class VMSE(Metric):
         x: torch.Tensor | np.ndarray,
         y: torch.Tensor | np.ndarray,
         meta: WellMetadata,
+        eps: float = 1e-7,
     ) -> torch.Tensor:
         """
         Variance Scaled Mean Squared Error
@@ -219,6 +223,7 @@ class VRMSE(Metric):
         x: torch.Tensor | np.ndarray,
         y: torch.Tensor | np.ndarray,
         meta: WellMetadata,
+        eps: float = 1e-7,
     ) -> torch.Tensor:
         """
         Root Variance Scaled Mean Squared Error
@@ -240,6 +245,7 @@ class LInfinity(Metric):
         x: torch.Tensor | np.ndarray,
         y: torch.Tensor | np.ndarray,
         meta: WellMetadata,
+        eps: float = 1e-7,
     ) -> torch.Tensor:
         """
         L-Infinity Norm

@@ -4,12 +4,13 @@ from .plottable_data import (
     plot_all_time_metrics,
     plot_power_spectrum_by_field,
 )
-from .spatial import MAE, MSE, NMSE, NRMSE, RMSE, VMSE, VRMSE, LInfinity, PearsonR
+from .spatial import MAE, MSE, NMAE, NMSE, NRMSE, RMSE, VMSE, VRMSE, LInfinity, PearsonR
 from .spectral import binned_spectral_mse
 from .temporal import HistogramW1, WindowedDTW
 
 __all__ = [
     "MAE",
+    "NMAE",
     "NRMSE",
     "RMSE",
     "MSE",

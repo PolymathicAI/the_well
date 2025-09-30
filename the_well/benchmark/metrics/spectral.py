@@ -124,6 +124,7 @@ class binned_spectral_mse(Metric):
         meta: WellMetadata,
         bins: torch.Tensor = None,
         fourier_input: bool = False,
+        eps: float = 1e-7,
     ) -> torch.Tensor:
         """
         Binned Spectral Mean Squared Error.
