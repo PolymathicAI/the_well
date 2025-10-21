@@ -5,7 +5,6 @@ from the_well.data import DeltaWellDataset, WellDataset
 from the_well.data.normalization import RMSNormalization, ZScoreNormalization
 
 
-@pytest.mark.skip
 @pytest.mark.parametrize(
     "dataset_name", ["active_matter", "turbulent_radiative_layer_2D"]
 )
@@ -21,7 +20,6 @@ def test_dataset_is_available_on_hf(dataset_name):
     assert batch is not None
 
 
-@pytest.mark.skip
 @pytest.mark.parametrize("normalization_type", [RMSNormalization, ZScoreNormalization])
 def test_dataset_is_available_with_normalization(normalization_type):
     dataset = WellDataset(
@@ -36,8 +34,6 @@ def test_dataset_is_available_with_normalization(normalization_type):
     batch = next(iter(train_loader))
     assert batch is not None
 
-
-@pytest.mark.skip
 @pytest.mark.parametrize("normalization_type", [ZScoreNormalization, RMSNormalization])
 def test_dataset_is_available_with_delta_normalization(normalization_type):
     dataset = DeltaWellDataset(
