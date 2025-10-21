@@ -314,7 +314,11 @@ class Trainer:
         loss_dict = {}
         time_logs = {}
         count = 0
-        denom = len(dataloader) if full else min(self.short_validation_length, len(dataloader))
+        denom = (
+            len(dataloader)
+            if full
+            else min(self.short_validation_length, len(dataloader))
+        )
         with torch.autocast(
             self.device.type, enabled=self.enable_amp, dtype=self.amp_type
         ):
