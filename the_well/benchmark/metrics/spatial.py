@@ -48,7 +48,7 @@ class MSE(Metric):
         x: torch.Tensor | np.ndarray,
         y: torch.Tensor | np.ndarray,
         meta: WellMetadata,
-        eps: float = 1e-7
+        eps: float = 1e-7,
     ) -> torch.Tensor:
         """
         Mean Squared Error
@@ -86,6 +86,7 @@ class MAE(Metric):
         """
         n_spatial_dims = tuple(range(-meta.n_spatial_dims - 1, -1))
         return torch.mean((x - y).abs(), dim=n_spatial_dims)
+
 
 class NMAE(Metric):
     @staticmethod
