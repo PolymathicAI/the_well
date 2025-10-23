@@ -3,6 +3,7 @@ import os
 import warnings
 from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -244,7 +245,7 @@ class WellDataset(Dataset):
             self.normalization_path = normalization_path
         else:
             self.normalization_path = os.path.join(
-                trunk_path, normalization_path.removeprefix(trunk_path).lstrip("./")
+                trunk_path, str(normalization_path).removeprefix(str(trunk_path)).lstrip("./")
             )
 
         self.fs, _ = fsspec.url_to_fs(self.data_path, **(storage_options or {}))
