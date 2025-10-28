@@ -155,7 +155,8 @@ class Trainer:
             {
                 "epoch": epoch,
                 "model_state_dict": self.model.state_dict(),
-                "optimizer_state_dit": self.optimizer.state_dict(),
+                "optimizer_state_dict": self.optimizer.state_dict(),
+                "scheduler_state_dict": self.lr_scheduler.state_dict() if self.lr_scheduler else None,
                 "validation_loss": validation_loss,
                 "best_validation_loss": self.best_val_loss,
             },
@@ -169,7 +170,9 @@ class Trainer:
         if self.model is not None:
             self.model.load_state_dict(checkpoint["model_state_dict"])
         if self.optimizer is not None:
-            self.optimizer.load_state_dict(checkpoint["optimizer_state_dit"])
+            self.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+        if self.lr_scheduler is not None and "scheduler_state_dict" in checkpoint and checkpoint["scheduler_state_dict"] is not None:
+            self.lr_scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
         self.best_val_loss = checkpoint["best_validation_loss"]
         self.starting_val_loss = checkpoint["validation_loss"]
         self.starting_epoch = (
