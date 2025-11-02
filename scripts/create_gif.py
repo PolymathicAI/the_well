@@ -59,9 +59,9 @@ def get_trajectory(
                 field = file[field_type][field_name]
                 # Field is expected to be N, T, H, W, (D1, D2)
                 if dim:
-                    assert (
-                        field.shape >= 4 + len(dim)
-                    ), f"Dimension should specify the tensor dimension to retrieve in shape {field.shape}"
+                    assert field.shape >= 4 + len(dim), (
+                        f"Dimension should specify the tensor dimension to retrieve in shape {field.shape}"
+                    )
                     traj = field[trajectory, :, :, :, dim]
                 else:
                     traj = field[trajectory, :, :, :]

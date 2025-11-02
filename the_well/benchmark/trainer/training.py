@@ -240,8 +240,10 @@ class Trainer:
             if (not train) and self.is_delta:
                 assert {
                     moving_batch["input_fields"][:, -1, ...].shape == y_pred.shape
-                }, f"Mismatching shapes between last input timestep {moving_batch[:, -1, ...].shape}\
+                }, (
+                    f"Mismatching shapes between last input timestep {moving_batch[:, -1, ...].shape}\
                 and prediction {y_pred.shape}"
+                )
                 y_pred = moving_batch["input_fields"][:, -1, ...] + y_pred
             y_pred = formatter.process_output_expand_time(y_pred)
             # If not last step, update moving batch for autoregressive prediction
@@ -321,9 +323,9 @@ class Trainer:
                 y_pred, y_ref = self.rollout_model(
                     self.model, batch, self.formatter, train=False
                 )
-                assert (
-                    y_ref.shape == y_pred.shape
-                ), f"Mismatching shapes between reference {y_ref.shape} and prediction {y_pred.shape}"
+                assert y_ref.shape == y_pred.shape, (
+                    f"Mismatching shapes between reference {y_ref.shape} and prediction {y_pred.shape}"
+                )
                 # Go through losses
                 for loss_fn in self.validation_suite:
                     # Mean over batch and time per field
@@ -385,9 +387,9 @@ class Trainer:
                 batch_time = time.time() - batch_start
                 y_pred, y_ref = self.rollout_model(self.model, batch, self.formatter)
                 forward_time = time.time() - batch_start - batch_time
-                assert (
-                    y_ref.shape == y_pred.shape
-                ), f"Mismatching shapes between reference {y_ref.shape} and prediction {y_pred.shape}"
+                assert y_ref.shape == y_pred.shape, (
+                    f"Mismatching shapes between reference {y_ref.shape} and prediction {y_pred.shape}"
+                )
                 loss = self.loss_fn(y_pred, y_ref, self.dset_metadata).mean()
             self.grad_scaler.scale(loss).backward()
             self.grad_scaler.step(self.optimizer)
@@ -398,7 +400,7 @@ class Trainer:
             backward_time = time.time() - batch_start - forward_time - batch_time
             total_time = time.time() - batch_start
             logger.info(
-                f"Epoch {epoch}, Batch {i+1}/{len(dataloader)}: loss {loss.item()}, total_time {total_time}, batch time {batch_time}, forward time {forward_time}, backward time {backward_time}"
+                f"Epoch {epoch}, Batch {i + 1}/{len(dataloader)}: loss {loss.item()}, total_time {total_time}, batch time {batch_time}, forward time {forward_time}, backward time {backward_time}"
             )
             batch_start = time.time()
         train_logs["time_per_train_iter"] = (time.time() - start_time) / len(dataloader)

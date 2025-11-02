@@ -104,9 +104,9 @@ def well_download(
     path = os.path.join(os.path.abspath(os.path.expanduser(base_path)), "datasets")
 
     for dataset in datasets:
-        assert (
-            dataset in registry
-        ), f"unknown dataset '{dataset}', expected one of {list(registry.keys())}"
+        assert dataset in registry, (
+            f"unknown dataset '{dataset}', expected one of {list(registry.keys())}"
+        )
 
         # Download file containing dataset statistics
         stat_file_url = registry[dataset]["stats"]

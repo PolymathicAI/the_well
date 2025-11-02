@@ -91,9 +91,9 @@ def compute_statistics(train_path: str, stats_path: str):
         stds[field] = std.tolist()
         rmss[field] = rms.tolist()
 
-        assert torch.all(
-            std > 1e-4
-        ), f"The standard deviation of the '{field}' field is abnormally low."
+        assert torch.all(std > 1e-4), (
+            f"The standard deviation of the '{field}' field is abnormally low."
+        )
 
         if field in counts_delta:
             weights_delta = torch.as_tensor(counts_delta[field], dtype=torch.int64)
@@ -120,9 +120,9 @@ def compute_statistics(train_path: str, stats_path: str):
             stds_delta[field] = std_delta.tolist()
             rmss_delta[field] = rms_delta.tolist()
 
-            assert torch.all(
-                std_delta > 1e-4
-            ), f"The delta standard deviation of the '{field}' field is abnormally low."
+            assert torch.all(std_delta > 1e-4), (
+                f"The delta standard deviation of the '{field}' field is abnormally low."
+            )
 
     stats = {
         "mean": means,
