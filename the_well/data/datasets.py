@@ -231,9 +231,9 @@ class WellDataset(Dataset):
                 self.data_path = os.path.join(path, "data", well_split_name)
 
         else:
-            assert is_dataset_in_the_well(well_dataset_name), (
-                f"Dataset name {well_dataset_name} not in the expected list {WELL_DATASETS}."
-            )
+            assert is_dataset_in_the_well(
+                well_dataset_name
+            ), f"Dataset name {well_dataset_name} not in the expected list {WELL_DATASETS}."
             self.data_path = os.path.join(
                 well_base_path, well_dataset_name, "data", well_split_name
             )
@@ -447,9 +447,9 @@ class WellDataset(Dataset):
                 # Fast enough that I'd rather check each file rather than processing extra files before checking
                 assert len(names) == 1, "Multiple dataset names found in specified path"
                 assert len(ndims) == 1, "Multiple ndims found in specified path"
-                assert len(size_tuples) == 1, (
-                    "Multiple resolutions found in specified path"
-                )
+                assert (
+                    len(size_tuples) == 1
+                ), "Multiple resolutions found in specified path"
 
                 # Track lowest amount of steps in case we need to use full_trajectory_mode
                 lowest_steps = min(lowest_steps, steps)

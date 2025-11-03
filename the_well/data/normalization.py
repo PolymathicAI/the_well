@@ -26,9 +26,9 @@ class ZScoreNormalization:
         self.core_constant_field_names = core_constant_field_names
 
         required_keys = {"mean", "std", "mean_delta", "std_delta"}
-        assert required_keys.issubset(stats.keys()), (
-            f"Missing required keys: {required_keys - set(stats.keys())}"
-        )
+        assert required_keys.issubset(
+            stats.keys()
+        ), f"Missing required keys: {required_keys - set(stats.keys())}"
 
         # Store stats for individual fields
         self.means = {
@@ -110,16 +110,16 @@ class ZScoreNormalization:
 
     def normalize(self, x: torch.Tensor, field: str) -> torch.Tensor:
         """Normalize a single field (field-wise normalization)."""
-        assert field in self.means and field in self.stds, (
-            f"Field '{field}' not found in statistics."
-        )
+        assert (
+            field in self.means and field in self.stds
+        ), f"Field '{field}' not found in statistics."
         return (x - self.means[field]) / self.stds[field]
 
     def delta_normalize(self, x: torch.Tensor, field: str) -> torch.Tensor:
         """Delta normalize a single field (field-wise normalization)."""
-        assert field in self.means_delta and field in self.stds_delta, (
-            f"Field '{field}' not found in delta statistics."
-        )
+        assert (
+            field in self.means_delta and field in self.stds_delta
+        ), f"Field '{field}' not found in delta statistics."
         return (x - self.means_delta[field]) / self.stds_delta[field]
 
     def normalize_flattened(self, x: torch.Tensor, mode: str) -> torch.Tensor:
@@ -129,58 +129,58 @@ class ZScoreNormalization:
             x (torch.Tensor): The input tensor with channels as last dimension.
             mode (str): "variable" for core fields, "constant" for constant fields.
         """
-        assert mode in self.flattened_means, (
-            f"Invalid mode '{mode}'. Choose from 'variable' or 'constant'."
-        )
+        assert (
+            mode in self.flattened_means
+        ), f"Invalid mode '{mode}'. Choose from 'variable' or 'constant'."
 
         mean_values = self.flattened_means[mode].to(x.device)
         std_values = self.flattened_stds[mode].to(x.device)
 
-        assert x.shape[-1] == mean_values.shape[-1], (
-            f"Channel mismatch: expected {mean_values.shape[-1]}, got {x.shape[-1]}"
-        )
+        assert (
+            x.shape[-1] == mean_values.shape[-1]
+        ), f"Channel mismatch: expected {mean_values.shape[-1]}, got {x.shape[-1]}"
         return (x - mean_values) / std_values
 
     def denormalize_flattened(self, x: torch.Tensor, mode: str) -> torch.Tensor:
         """Denormalize an input tensor where fields are flattened as channels."""
-        assert mode in self.flattened_means, (
-            f"Invalid mode '{mode}'. Choose from 'variable' or 'constant'."
-        )
+        assert (
+            mode in self.flattened_means
+        ), f"Invalid mode '{mode}'. Choose from 'variable' or 'constant'."
 
         mean_values = self.flattened_means[mode].to(x.device)
         std_values = self.flattened_stds[mode].to(x.device)
 
-        assert x.shape[-1] == mean_values.shape[-1], (
-            f"Channel mismatch: expected {mean_values.shape[-1]}, got {x.shape[-1]}"
-        )
+        assert (
+            x.shape[-1] == mean_values.shape[-1]
+        ), f"Channel mismatch: expected {mean_values.shape[-1]}, got {x.shape[-1]}"
         return x * std_values + mean_values
 
     def delta_normalize_flattened(self, x: torch.Tensor, mode: str) -> torch.Tensor:
         """Delta normalize an input tensor where fields are flattened as channels."""
-        assert mode in self.flattened_means_delta, (
-            f"Invalid mode '{mode}'. Choose from 'variable' or 'constant'."
-        )
+        assert (
+            mode in self.flattened_means_delta
+        ), f"Invalid mode '{mode}'. Choose from 'variable' or 'constant'."
 
         mean_values = self.flattened_means_delta[mode].to(x.device)
         std_values = self.flattened_stds_delta[mode].to(x.device)
 
-        assert x.shape[-1] == mean_values.shape[-1], (
-            f"Channel mismatch: expected {mean_values.shape[-1]}, got {x.shape[-1]}"
-        )
+        assert (
+            x.shape[-1] == mean_values.shape[-1]
+        ), f"Channel mismatch: expected {mean_values.shape[-1]}, got {x.shape[-1]}"
         return (x - mean_values) / std_values
 
     def delta_denormalize_flattened(self, x: torch.Tensor, mode: str) -> torch.Tensor:
         """Reverses delta normalization for a flattened input tensor."""
-        assert mode in self.flattened_means_delta, (
-            f"Invalid mode '{mode}'. Choose from 'variable' or 'constant'."
-        )
+        assert (
+            mode in self.flattened_means_delta
+        ), f"Invalid mode '{mode}'. Choose from 'variable' or 'constant'."
 
         mean_values = self.flattened_means_delta[mode].to(x.device)
         std_values = self.flattened_stds_delta[mode].to(x.device)
 
-        assert x.shape[-1] == mean_values.shape[-1], (
-            f"Channel mismatch: expected {mean_values.shape[-1]}, got {x.shape[-1]}"
-        )
+        assert (
+            x.shape[-1] == mean_values.shape[-1]
+        ), f"Channel mismatch: expected {mean_values.shape[-1]}, got {x.shape[-1]}"
         return x * std_values + mean_values
 
 
@@ -197,9 +197,9 @@ class RMSNormalization:
         self.core_constant_field_names = core_constant_field_names
 
         required_keys = {"rms", "rms_delta"}
-        assert required_keys.issubset(stats.keys()), (
-            f"Missing required keys: {required_keys - set(stats.keys())}"
-        )
+        assert required_keys.issubset(
+            stats.keys()
+        ), f"Missing required keys: {required_keys - set(stats.keys())}"
 
         # Store stats for individual fields
         self.rmss = {
@@ -251,9 +251,9 @@ class RMSNormalization:
 
     def delta_normalize(self, x: torch.Tensor, field: str) -> torch.Tensor:
         """Delta normalize a single field (field-wise normalization)."""
-        assert (field in self.rmss_delta) or (field in self.constant_rmss_delta), (
-            f"Field '{field}' not found in delta statistics."
-        )
+        assert (field in self.rmss_delta) or (
+            field in self.constant_rmss_delta
+        ), f"Field '{field}' not found in delta statistics."
         if field in self.rmss_delta:
             return x / self.rmss_delta[field]
         else:
@@ -266,52 +266,52 @@ class RMSNormalization:
             x (torch.Tensor): The input tensor with channels as last dimension.
             mode (str): "variable" for core fields, "constant" for constant fields.
         """
-        assert mode in self.flattened_rmss, (
-            f"Invalid mode '{mode}'. Choose from 'variable' or 'constant'."
-        )
+        assert (
+            mode in self.flattened_rmss
+        ), f"Invalid mode '{mode}'. Choose from 'variable' or 'constant'."
 
         rms_values = self.flattened_rmss[mode].to(x.device)
 
-        assert x.shape[-1] == rms_values.shape[-1], (
-            f"Channel mismatch: expected {rms_values.shape[-1]}, got {x.shape[-1]}"
-        )
+        assert (
+            x.shape[-1] == rms_values.shape[-1]
+        ), f"Channel mismatch: expected {rms_values.shape[-1]}, got {x.shape[-1]}"
         return x / rms_values
 
     def denormalize_flattened(self, x: torch.Tensor, mode: str) -> torch.Tensor:
         """Denormalize an input tensor where fields are flattened as channels."""
-        assert mode in self.flattened_rmss, (
-            f"Invalid mode '{mode}'. Choose from 'variable' or 'constant'."
-        )
+        assert (
+            mode in self.flattened_rmss
+        ), f"Invalid mode '{mode}'. Choose from 'variable' or 'constant'."
 
         rms_values = self.flattened_rmss[mode].to(x.device)
 
-        assert x.shape[-1] == rms_values.shape[-1], (
-            f"Channel mismatch: expected {rms_values.shape[-1]}, got {x.shape[-1]}"
-        )
+        assert (
+            x.shape[-1] == rms_values.shape[-1]
+        ), f"Channel mismatch: expected {rms_values.shape[-1]}, got {x.shape[-1]}"
         return x * rms_values
 
     def delta_normalize_flattened(self, x: torch.Tensor, mode: str) -> torch.Tensor:
         """Delta normalize an input tensor where fields are flattened as channels."""
-        assert mode in self.flattened_rmss_delta, (
-            f"Invalid mode '{mode}'. Choose from 'variable' or 'constant'."
-        )
+        assert (
+            mode in self.flattened_rmss_delta
+        ), f"Invalid mode '{mode}'. Choose from 'variable' or 'constant'."
 
         rms_values = self.flattened_rmss_delta[mode].to(x.device)
 
-        assert x.shape[-1] == rms_values.shape[-1], (
-            f"Channel mismatch: expected {rms_values.shape[-1]}, got {x.shape[-1]}"
-        )
+        assert (
+            x.shape[-1] == rms_values.shape[-1]
+        ), f"Channel mismatch: expected {rms_values.shape[-1]}, got {x.shape[-1]}"
         return x / rms_values
 
     def delta_denormalize_flattened(self, x: torch.Tensor, mode: str) -> torch.Tensor:
         """Reverses delta normalization for a flattened input tensor."""
-        assert mode in self.flattened_rmss_delta, (
-            f"Invalid mode '{mode}'. Choose from 'variable' or 'constant'."
-        )
+        assert (
+            mode in self.flattened_rmss_delta
+        ), f"Invalid mode '{mode}'. Choose from 'variable' or 'constant'."
 
         rms_values = self.flattened_rmss_delta[mode].to(x.device)
 
-        assert x.shape[-1] == rms_values.shape[-1], (
-            f"Channel mismatch: expected {rms_values.shape[-1]}, got {x.shape[-1]}"
-        )
+        assert (
+            x.shape[-1] == rms_values.shape[-1]
+        ), f"Channel mismatch: expected {rms_values.shape[-1]}, got {x.shape[-1]}"
         return x * rms_values
