@@ -23,6 +23,7 @@ PROPER_3D_ROTATIONS = [
     ((0, 1, 2), [1, 1, 0]),
     ((0, 1, 2), [1, 0, 1]),
     ((0, 1, 2), [0, 1, 1]),
+    ((2, 1, 0), [1, 1, 1]),
     ((0, 1, 2), [0, 0, 0]),
     ((0, 2, 1), [1, 1, 1]),
     ((0, 2, 1), [1, 0, 0]),
@@ -40,7 +41,6 @@ PROPER_3D_ROTATIONS = [
     ((2, 0, 1), [1, 0, 1]),
     ((2, 0, 1), [0, 1, 1]),
     ((2, 0, 1), [0, 0, 0]),
-    ((2, 1, 0), [1, 1, 1]),
     ((2, 1, 0), [1, 0, 0]),
     ((2, 1, 0), [0, 1, 0]),
     ((2, 1, 0), [0, 0, 1]),
@@ -339,8 +339,9 @@ class RandomRotation90(Augmentation):
     the rotation into axis permutations and reflections. Selects from
     prepopulated set of proper rotations."""
 
-    def __init__(self, p: float = 1.0):
+    def __init__(self, p: float = 1.0, hardcoded_rotation_index=None):
         self.p = p
+        self.hardcoded_rotation_index = hardcoded_rotation_index
 
     def __call__(
         self, data: TrajectoryData, metadata: TrajectoryMetadata
@@ -350,14 +351,20 @@ class RandomRotation90(Augmentation):
         if (
             metadata.dataset.metadata.grid_type != "cartesian"
             or torch.rand(()) > self.p
-        ):
+        ) and self.hardcoded_rotation_index is None:
             return data
 
         if spatial == 2:
-            chosen_ind = np.random.choice(len(PROPER_2D_ROTATIONS))
+            if self.hardcoded_rotation_index is not None:
+                chosen_ind = self.hardcoded_rotation_index % len(PROPER_2D_ROTATIONS)
+            else:
+                chosen_ind = np.random.choice(len(PROPER_2D_ROTATIONS))
             permutation, reflection_mask = PROPER_2D_ROTATIONS[chosen_ind]
         elif spatial == 3:
-            chosen_ind = np.random.choice(len(PROPER_3D_ROTATIONS))
+            if self.hardcoded_rotation_index is not None:
+                chosen_ind = self.hardcoded_rotation_index % len(PROPER_3D_ROTATIONS)
+            else:
+                chosen_ind = np.random.choice(len(PROPER_3D_ROTATIONS))
             permutation, reflection_mask = PROPER_3D_ROTATIONS[chosen_ind]
         permutation, reflection_mask = (
             torch.tensor(permutation),

@@ -45,3 +45,9 @@ class Metric(nn.Module):
     @staticmethod
     def eval(self, x, y, meta, **kwargs):
         raise NotImplementedError
+
+
+class TrajectoryMetric(Metric):
+    """Base class for trajectory-level metrics."""
+
+    pass

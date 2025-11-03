@@ -146,17 +146,30 @@ class WellDataset(Dataset):
             Maximum stride between samples
         flatten_tensors:
             Whether to flatten tensor valued field into channels
+        restrict_num_trajectories:
+            Whether to restrict the number of trajectories to a subset of the dataset. Integer inputs restrict to a number. Float to a percentage.
+        restrict_num_samples:
+            Whether to restrict the number of samples to a subset of the dataset. Integer inputs restrict to a number. Float to a percentage.
+        restriction_seed:
+            Seed used to generate restriction set. Necessary to ensure same set is sampled across runs.
         cache_small:
             Whether to cache small tensors in memory for faster access
         max_cache_size:
             Maximum numel of constant tensor to cache
         return_grid:
             Whether to return grid coordinates
+        normalize_time_grid:
+            Whether to normalize the time grid so that it returns relative rather than absolute time.
+            Default is True as absolute time generally leads to better scenario fitting in the well,
+            but poor generalization.
         boundary_return_type: options=['padding', 'mask', 'exact', 'none']
             How to return boundary conditions. Currently only padding supported.
         full_trajectory_mode:
             Overrides to return full trajectory starting from t0 instead of samples
                 for long run validation.
+        start_output_steps_at_t:
+            For full trajectory mode, this is the first step returned by "output_fields". If -1,
+            start from end of n_steps_input. Otherwise, build initial n_steps_input backwards from this step.
         name_override:
             Override name of dataset (used for more precise logging)
         transform:
@@ -174,7 +187,7 @@ class WellDataset(Dataset):
     def __init__(
         self,
         path: Optional[str] = None,
-        normalization_path: str = "../stats.yaml",
+        normalization_path: Optional[str] = None,  # "../stats.yaml",
         well_base_path: Optional[str] = None,
         well_dataset_name: Optional[str] = None,
         well_split_name: Literal["train", "valid", "test", None] = None,
@@ -188,11 +201,16 @@ class WellDataset(Dataset):
         min_dt_stride: int = 1,
         max_dt_stride: int = 1,
         flatten_tensors: bool = True,
+        restrict_num_trajectories: Optional[float | int] = None,
+        restrict_num_samples: Optional[float | int] = None,
+        restriction_seed: int = 0,
         cache_small: bool = True,
         max_cache_size: float = 1e9,
         return_grid: bool = True,
+        normalize_time_grid: bool = True,
         boundary_return_type: str = "padding",
         full_trajectory_mode: bool = False,
+        start_output_steps_at_t: int = -1,
         name_override: Optional[str] = None,
         transform: Optional["Augmentation"] = None,
         min_std: float = 1e-4,
@@ -204,7 +222,9 @@ class WellDataset(Dataset):
         ), "Must specify path or well_base_path and well_dataset_name"
         if path is not None:
             self.data_path = path
-            self.normalization_path = os.path.join(path, normalization_path)
+            trunk_path = path
+            if normalization_path is None:
+                normalization_path = "stats.yaml"
             if well_split_name is not None:
                 self.data_path = os.path.join(path, "data", well_split_name)
 
@@ -215,8 +235,17 @@ class WellDataset(Dataset):
             self.data_path = os.path.join(
                 well_base_path, well_dataset_name, "data", well_split_name
             )
+            trunk_path = os.path.join(well_base_path, well_dataset_name)
+            if normalization_path is None:
+                normalization_path = os.path.join(
+                    well_base_path, well_dataset_name, "stats.yaml"
+                )
+        if os.path.isabs(normalization_path):
+            self.normalization_path = normalization_path
+        else:
             self.normalization_path = os.path.join(
-                well_base_path, well_dataset_name, "stats.yaml"
+                trunk_path,
+                str(normalization_path).removeprefix(str(trunk_path)).lstrip("./"),
             )
 
         self.fs, _ = fsspec.url_to_fs(self.data_path, **(storage_options or {}))
@@ -239,15 +268,38 @@ class WellDataset(Dataset):
         self.min_dt_stride = min_dt_stride
         self.max_dt_stride = max_dt_stride
         self.flatten_tensors = flatten_tensors
+        self.restrict_num_trajectories = restrict_num_trajectories
+        self.restrict_num_samples = restrict_num_samples
+        self.restriction_seed = restriction_seed
         self.return_grid = return_grid
+        self.normalize_time_grid = normalize_time_grid
         self.boundary_return_type = boundary_return_type
         self.full_trajectory_mode = full_trajectory_mode
+        self.start_output_steps_at_t = start_output_steps_at_t
         self.cache_small = cache_small
         self.max_cache_size = max_cache_size
         self.transform = transform
         if self.min_dt_stride < self.max_dt_stride and self.full_trajectory_mode:
             raise ValueError(
                 "Full trajectory mode not supported with variable stride lengths"
+            )
+        if (
+            self.full_trajectory_mode
+            and self.start_output_steps_at_t >= 0
+            and (self.n_steps_input + 1) * self.min_dt_stride
+            > self.start_output_steps_at_t
+        ):
+            raise ValueError(
+                f"Full trajectory set to begin target at t={start_output_steps_at_t}, but first available step is t={(self.n_steps_input+1)*self.min_dt_stride} "
+                f"given n_steps_input={self.n_steps_input} and  min_dt_stride={self.min_dt_stride}."
+            )
+        if self.start_output_steps_at_t > 0 and (
+            self.restrict_num_samples is not None
+            or self.restrict_num_trajectories is not None
+        ):
+            raise NotImplementedError(
+                "Full trajectory mode not currently supported with sample/trajectory restrictions as restrictions are currently implemented"
+                "for training while full trajectory mode is implemented for validation."
             )
         # Check the directory has hdf5 that meet our exclusion criteria
         sub_files = self.fs.glob(self.data_path + "/*.h5") + self.fs.glob(
@@ -276,28 +328,87 @@ class WellDataset(Dataset):
 
         # Initialize normalization classes if True
         if use_normalization and normalization_type:
-            try:
-                with self.fs.open(self.normalization_path, mode="r") as f:
-                    stats = yaml.safe_load(f)
+            with self.fs.open(self.normalization_path, mode="r") as f:
+                stats = yaml.safe_load(f)
 
-                if stats:
-                    self.norm = normalization_type(
-                        stats, self.core_field_names, self.core_constant_field_names
-                    )
-                else:
-                    warnings.warn(
-                        f"Normalization file {self.normalization_path} is empty. Proceeding without normalization.",
-                        UserWarning,
-                    )
-                    self.norm = None
-            except Exception as e:
-                warnings.warn(
-                    f"Error loading normalization file {self.normalization_path}: {e}. Proceeding without normalization.",
-                    UserWarning,
-                )
-                self.norm = None
+            self.norm = normalization_type(
+                stats, self.core_field_names, self.core_constant_field_names
+            )
         else:
             self.norm = None
+
+        # If we're limiting number of samples/trajectories...
+        self.restriction_set = None
+        if restrict_num_samples is not None or restrict_num_trajectories is not None:
+            self._build_restriction_set(
+                restrict_num_samples, restrict_num_trajectories, restriction_seed
+            )
+
+    def _build_restriction_set(
+        self,
+        restrict_num_samples: Optional[int | float],
+        restrict_num_trajectories: Optional[int | float],
+        seed: int,
+    ):
+        """Builds a restriction set for the dataset based on the specified restrictions"""
+        gen = np.random.default_rng(seed)
+        if restrict_num_samples is not None and restrict_num_trajectories is not None:
+            warnings.warn(
+                "Both restrict_num_samples and restrict_num_trajectories are set. Using restrict_num_samples."
+            )
+        global_indices = np.arange(self.len)
+        if restrict_num_trajectories is not None:
+            # Compute total number of trajectories, collect all indices corresponding to them, then select a subset
+            total_trajectories = sum(self.n_trajectories_per_file)
+            if 0 < restrict_num_trajectories < 1:
+                restrict_num_trajectories = int(
+                    total_trajectories * restrict_num_trajectories
+                )
+            elif restrict_num_trajectories > total_trajectories:
+                warnings.warn(
+                    f"Requested {restrict_num_trajectories} trajectories, but only {total_trajectories} available. Using all available trajectories."
+                )
+                restrict_num_trajectories = int(total_trajectories)
+
+            # Get all indices corresponding to the trajectories
+            trajectories = np.arange(total_trajectories)
+            gen.shuffle(
+                trajectories
+            )  # Shuffle instead of sampling so that subsequent runs are nested
+            trajectories_sampled = trajectories[:restrict_num_trajectories]
+
+            global_indices = []
+            current_index = 0
+            for traj in range(total_trajectories):
+                file_index = int(
+                    np.searchsorted(
+                        self.file_index_offsets, current_index, side="right"
+                    )
+                    - 1
+                )
+                if traj in trajectories_sampled:
+                    global_indices = global_indices + list(
+                        range(0, self.n_windows_per_trajectory[file_index])
+                    )
+                current_index += self.n_windows_per_trajectory[file_index]
+            global_indices = np.array(global_indices)
+
+        if restrict_num_samples is not None:
+            if 0.0 < restrict_num_samples < 1.0:
+                restrict_num_samples = int(self.len * restrict_num_samples)
+            elif restrict_num_samples > self.len:
+                warnings.warn(
+                    f"Requested {restrict_num_samples} samples, but only {self.len} available. Using all available samples."
+                )
+                restrict_num_samples = self.len
+            # Compute total number of samples, collect all indices corresponding to them, then select a subset
+            gen.shuffle(
+                global_indices
+            )  # Shuffle instead of sampling so that increasing runs with the same seed are nested
+            global_indices = global_indices[:restrict_num_samples]
+
+        self.restriction_set = global_indices
+        self.len = len(global_indices)
 
     def _build_metadata(self):
         """Builds multi-file indices and checks that folder contains consistent dataset"""
@@ -408,10 +519,15 @@ class WellDataset(Dataset):
         # trajectory where full = min(lowest_steps_per_file, max_rollout_steps)
         if self.full_trajectory_mode:
             self.n_steps_output = (
-                lowest_steps // self.min_dt_stride
-            ) - self.n_steps_input
+                lowest_steps
+                - max(
+                    self.n_steps_input * self.min_dt_stride,
+                    self.start_output_steps_at_t,
+                )
+            ) // self.min_dt_stride
             assert self.n_steps_output > 0, (
-                f"Full trajectory mode not supported for dataset {names[0]} with {lowest_steps} minimum steps"
+                f"Full trajectory mode not supported for dataset {list(names)[0]} with {lowest_steps} minimum steps"
+                f"starting output at step {self.start_output_steps_at_t}"
                 f" and a minimum stride of {self.min_dt_stride} and {self.n_steps_input} input steps"
             )
             self.n_windows_per_trajectory = [1] * self.n_files
@@ -420,9 +536,6 @@ class WellDataset(Dataset):
 
         # Just to make sure it doesn't put us in file -1
         self.file_index_offsets[0] = -1
-        self.files: List[h5.File | None] = [
-            None for _ in self.files_paths
-        ]  # We open file references as they come
         # Dataset length is last number of samples
         self.len = self.file_index_offsets[-1]
         self.n_spatial_dims = int(ndims.pop())  # Number of spatial dims
@@ -446,16 +559,6 @@ class WellDataset(Dataset):
             n_trajectories_per_file=self.n_trajectories_per_file,
             n_steps_per_trajectory=self.n_steps_per_trajectory,
         )
-
-    def _open_file(self, file_ind: int):
-        _file = h5.File(
-            self.fs.open(
-                self.files_paths[file_ind], "rb", **IO_PARAMS["fsspec_params"]
-            ),
-            "r",
-            **IO_PARAMS["h5py_params"],
-        )
-        self.files[file_ind] = _file
 
     def _check_cache(self, cache: Dict[str, Any], name: str, data: Any):
         if self.cache_small and data.numel() < self.max_cache_size:
@@ -581,7 +684,8 @@ class WellDataset(Dataset):
         # We have already sampled leading index if it existed so timegrid should be 1D
         time_grid = time_grid[time_idx : time_idx + n_steps * dt : dt]
         # Nothing should depend on absolute time - might change if we add weather
-        time_grid = time_grid - time_grid.min()
+        if self.normalize_time_grid:
+            time_grid = time_grid - time_grid.min()
 
         # Space - TODO - support time-varying grids or non-tensor product grids
         if "space_grid" in cache:
@@ -666,6 +770,8 @@ class WellDataset(Dataset):
 
     def _load_one_sample(self, index):
         # Find specific file and local index
+        if self.restriction_set is not None:
+            index = self.restriction_set[index]
         file_idx = int(
             np.searchsorted(self.file_index_offsets, index, side="right") - 1
         )  # which file we are on
@@ -676,62 +782,72 @@ class WellDataset(Dataset):
         sample_idx = local_idx // windows_per_trajectory
         time_idx = local_idx % windows_per_trajectory
         # open hdf5 file (and cache the open object)
-        if self.files[file_idx] is None:
-            self._open_file(file_idx)
+        with h5.File(
+            self.fs.open(
+                self.files_paths[file_idx], "rb", **IO_PARAMS["fsspec_params"]
+            ),
+            "r",
+            **IO_PARAMS["h5py_params"],
+        ) as file:
+            # If we gave a stride range, decide the largest size we can use given the sample location
+            dt = self.min_dt_stride
+            if self.max_dt_stride > self.min_dt_stride:
+                effective_max_dt = maximum_stride_for_initial_index(
+                    time_idx,
+                    self.n_steps_per_trajectory[file_idx],
+                    self.n_steps_input,
+                    self.n_steps_output,
+                )
+                effective_max_dt = min(effective_max_dt, self.max_dt_stride)
+                if effective_max_dt > self.min_dt_stride:
+                    # Randint is non-inclusive on the upper bound
+                    dt = np.random.randint(self.min_dt_stride, effective_max_dt + 1)
+            # Fetch the data
+            data = {}
 
-        # If we gave a stride range, decide the largest size we can use given the sample location
-        dt = self.min_dt_stride
-        if self.max_dt_stride > self.min_dt_stride:
-            effective_max_dt = maximum_stride_for_initial_index(
-                time_idx,
-                self.n_steps_per_trajectory[file_idx],
-                self.n_steps_input,
-                self.n_steps_output,
-            )
-            effective_max_dt = min(effective_max_dt, self.max_dt_stride)
-            if effective_max_dt > self.min_dt_stride:
-                # Randint is non-inclusive on the upper bound
-                dt = np.random.randint(self.min_dt_stride, effective_max_dt + 1)
-        # Fetch the data
-        data = {}
+            output_steps = min(self.n_steps_output, self.max_rollout_steps)
+            # If start_output_steps_at_t set, then work backwards for initial time index
+            if self.full_trajectory_mode and self.start_output_steps_at_t >= 0:
+                time_idx = self.start_output_steps_at_t - (self.n_steps_input) * dt
 
-        output_steps = min(self.n_steps_output, self.max_rollout_steps)
-        data["variable_fields"], data["constant_fields"] = self._reconstruct_fields(
-            self.files[file_idx],
-            self.caches[file_idx],
-            sample_idx,
-            time_idx,
-            self.n_steps_input + output_steps,
-            dt,
-        )
-        data["variable_scalars"], data["constant_scalars"] = self._reconstruct_scalars(
-            self.files[file_idx],
-            self.caches[file_idx],
-            sample_idx,
-            time_idx,
-            self.n_steps_input + output_steps,
-            dt,
-        )
-
-        if self.boundary_return_type is not None:
-            data["boundary_conditions"] = self._reconstruct_bcs(
-                self.files[file_idx],
+            data["variable_fields"], data["constant_fields"] = self._reconstruct_fields(
+                file,
                 self.caches[file_idx],
                 sample_idx,
                 time_idx,
                 self.n_steps_input + output_steps,
                 dt,
             )
-
-        if self.return_grid:
-            data["space_grid"], data["time_grid"] = self._reconstruct_grids(
-                self.files[file_idx],
-                self.caches[file_idx],
-                sample_idx,
-                time_idx,
-                self.n_steps_input + output_steps,
-                dt,
+            data["variable_scalars"], data["constant_scalars"] = (
+                self._reconstruct_scalars(
+                    file,
+                    self.caches[file_idx],
+                    sample_idx,
+                    time_idx,
+                    self.n_steps_input + output_steps,
+                    dt,
+                )
             )
+
+            if self.boundary_return_type is not None:
+                data["boundary_conditions"] = self._reconstruct_bcs(
+                    file,
+                    self.caches[file_idx],
+                    sample_idx,
+                    time_idx,
+                    self.n_steps_input + output_steps,
+                    dt,
+                )
+
+            if self.return_grid:
+                data["space_grid"], data["time_grid"] = self._reconstruct_grids(
+                    file,
+                    self.caches[file_idx],
+                    sample_idx,
+                    time_idx,
+                    self.n_steps_input + output_steps,
+                    dt,
+                )
         return data, file_idx, sample_idx, time_idx, dt
 
     def _preprocess_data(
@@ -842,18 +958,24 @@ class WellDataset(Dataset):
         datasets = []
         total_samples = 0
         for file_idx in range(len(self.files_paths)):
-            if self.files[file_idx] is None:
-                self._open_file(file_idx)
-            ds = hdf5_to_xarray(self.files[file_idx], backend=backend)
-            # Ensure 'sample' dimension is always present
-            if "sample" not in ds.sizes:
-                ds = ds.expand_dims("sample")
-            # Adjust the 'sample' coordinate
-            if "sample" in ds.coords:
-                n_samples = ds.sizes["sample"]
-                ds = ds.assign_coords(sample=ds.coords["sample"] + total_samples)
-                total_samples += n_samples
-            datasets.append(ds)
+            with h5.File(
+                self.fs.open(
+                    self.files_paths[file_idx], "rb", **IO_PARAMS["fsspec_params"]
+                ),
+                "r",
+                **IO_PARAMS["h5py_params"],
+            ) as file:
+                # Load the dataset using the hdf5_to_xarray function
+                ds = hdf5_to_xarray(file, backend=backend)
+                # Ensure 'sample' dimension is always present
+                if "sample" not in ds.sizes:
+                    ds = ds.expand_dims("sample")
+                # Adjust the 'sample' coordinate
+                if "sample" in ds.coords:
+                    n_samples = ds.sizes["sample"]
+                    ds = ds.assign_coords(sample=ds.coords["sample"] + total_samples)
+                    total_samples += n_samples
+                datasets.append(ds)
 
         combined_ds = xr.concat(datasets, dim="sample")
         return combined_ds
@@ -867,12 +989,19 @@ class DeltaWellDataset(WellDataset):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if (
+            (self.min_dt_stride != 1)
+            or (self.max_dt_stride != 1)
+            and (self.use_normalization)
+        ):
+            raise ValueError(
+                "DeltaWellDataset does not support non-unity stride and normalization."
+            )
 
     def _compute_deltas(self, field_data: torch.Tensor) -> torch.Tensor:
         """Compute deltas for time-varying fields while ensuring continuity."""
         x = field_data[: self.n_steps_input]
-        y = field_data[self.n_steps_input :]
-        y = torch.cat([x[-1:, ...], y], dim=0)  # Ensure continuity
+        y = field_data[self.n_steps_input - 1 :]
         return torch.cat([x, y[1:, ...] - y[:-1, ...]], dim=0)
 
     def _process_field_data(
