@@ -314,7 +314,11 @@ class Trainer:
         loss_dict = {}
         time_logs = {}
         count = 0
-        denom = len(dataloader) if full else self.short_validation_length
+        denom = (
+            len(dataloader)
+            if full
+            else min(self.short_validation_length, len(dataloader))
+        )
         with torch.autocast(
             self.device.type, enabled=self.enable_amp, dtype=self.amp_type
         ):
@@ -460,6 +464,7 @@ class Trainer:
                     self.save_model(
                         epoch, val_loss, os.path.join(self.checkpoint_folder, "best.pt")
                     )
+                    self.best_val_loss = val_loss
             # Check if time for expensive validation - periodic or final
             if epoch % self.rollout_val_frequency == 0 or (epoch == self.max_epoch):
                 logger.info(

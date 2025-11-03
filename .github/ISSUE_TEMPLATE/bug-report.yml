@@ -1,0 +1,65 @@
+name: Bug Report
+description: Create a report to help us reproduce and fix the bug
+title: "[Bug]: "
+labels: ["bug"]
+
+body:
+  - type: markdown
+    attributes:
+      value: >
+        Thank you for taking the time to file a bug report.
+        Before creating a new issue, you can have a quick look to the [FAQ](https://github.com/PolymathicAI/the_well/discussions/categories/q-a?discussions_q=category%3AQ%26A+) and [existing issues](https://github.com/PolymathicAI/the_well/issues).
+  - type: textarea
+    attributes:
+      label: "Describe the issue:"
+      placeholder: |
+        << your issue description here >>
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "Code to reproduce the issue:"
+      description: >
+        A short code example that reproduces the problem/missing feature.
+        It should be self-contained.
+      placeholder: |
+        << your code here >>
+      render: python
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "Version"
+      description: |
+        Which version of the Well are you using?
+        You can obtain the version by running the following command:
+        ```sh
+        python -c "import the_well; print(the_well.__version__)"
+        ```
+      placeholder: |
+        << your version here >>
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "Environment"
+      description: |
+        Which environment are you using? List the packages you have installed along the Well.
+        In case you use pip, you can obtain the list of installed packages by running the following command:
+        ```sh
+        pip freeze
+        ```
+      placeholder: |
+        << your environment here >>
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "Context for the issue:"
+      description: |
+        Please explain how this issue affects your intended use of the Well.
+        You can also provide additional context that you think might be relevant.
+      placeholder: |
+        << your explanation here >>
+    validations:
+      required: false

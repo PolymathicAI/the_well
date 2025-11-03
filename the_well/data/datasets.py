@@ -136,6 +136,8 @@ class WellDataset(Dataset):
             Whether to normalize data in the dataset
         normlization_type:
             What type of dataset normalization. Callable Options: ZSCORE and RMS
+        max_rollout_steps:
+            Maximum number of output steps to return in a single sample. Return the full trajectory if larger than its actual length.
         n_steps_input:
             Number of steps to include in each sample
         n_steps_output:
@@ -328,6 +330,8 @@ class WellDataset(Dataset):
 
         # Initialize normalization classes if True
         if use_normalization and normalization_type:
+            with self.fs.open(self.normalization_path, mode="r") as f:
+                stats = yaml.safe_load(f)
             with self.fs.open(self.normalization_path, mode="r") as f:
                 stats = yaml.safe_load(f)
 
@@ -583,7 +587,9 @@ class WellDataset(Dataset):
         expand_dims = expand_dims + (1,) * tensor_order
         return torch.tile(field_data, expand_dims)
 
-    def _reconstruct_fields(self, file, cache, sample_idx, time_idx, n_steps, dt):
+    def _reconstruct_fields(
+        self, file: h5.File, cache, sample_idx, time_idx, n_steps, dt
+    ):
         """Reconstruct space fields starting at index sample_idx, time_idx, with
         n_steps and dt stride."""
         variable_fields = {0: {}, 1: {}, 2: {}}
@@ -634,7 +640,9 @@ class WellDataset(Dataset):
 
         return (variable_fields, constant_fields)
 
-    def _reconstruct_scalars(self, file, cache, sample_idx, time_idx, n_steps, dt):
+    def _reconstruct_scalars(
+        self, file: h5.File, cache, sample_idx, time_idx, n_steps, dt
+    ):
         """Reconstruct scalar values (not fields) starting at index sample_idx, time_idx, with
         n_steps and dt stride."""
         variable_scalars = {}
@@ -670,7 +678,9 @@ class WellDataset(Dataset):
 
         return (variable_scalars, constant_scalars)
 
-    def _reconstruct_grids(self, file, cache, sample_idx, time_idx, n_steps, dt):
+    def _reconstruct_grids(
+        self, file: h5.File, cache, sample_idx, time_idx, n_steps, dt
+    ):
         """Reconstruct grid values starting at index sample_idx, time_idx, with
         n_steps and dt stride."""
         # Time
@@ -705,7 +715,7 @@ class WellDataset(Dataset):
                 self._check_cache(cache, "space_grid", space_grid)
         return space_grid, time_grid
 
-    def _padding_bcs(self, file, cache, sample_idx, time_idx, n_steps, dt):
+    def _padding_bcs(self, file: h5.File, cache, sample_idx, time_idx, n_steps, dt):
         """Handles BC case where BC corresponds to a specific padding type
 
         Note/TODO - currently assumes boundaries to be axis-aligned and cover the entire
@@ -753,7 +763,7 @@ class WellDataset(Dataset):
             self._check_cache(cache, "boundary_output", boundary_output)
         return boundary_output
 
-    def _reconstruct_bcs(self, file, cache, sample_idx, time_idx, n_steps, dt):
+    def _reconstruct_bcs(self, file: h5.File, cache, sample_idx, time_idx, n_steps, dt):
         """Needs work to support arbitrary BCs.
 
         Currently supports finite set of boundary condition types that describe
