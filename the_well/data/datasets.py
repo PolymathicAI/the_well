@@ -332,8 +332,6 @@ class WellDataset(Dataset):
         if use_normalization and normalization_type:
             with self.fs.open(self.normalization_path, mode="r") as f:
                 stats = yaml.safe_load(f)
-            with self.fs.open(self.normalization_path, mode="r") as f:
-                stats = yaml.safe_load(f)
 
             self.norm = normalization_type(
                 stats, self.core_field_names, self.core_constant_field_names
