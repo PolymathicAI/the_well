@@ -98,13 +98,17 @@ def configure_experiment(
         )
         folder_path = osp.join(experiment_folder, "extended_config.yaml")
         if osp.isfile(checkpoint_path):
-            logger.info(f"Config file exists relative to checkpoint override provided, \
-                            using config file {checkpoint_path}")
+            logger.info(
+                f"Config file exists relative to checkpoint override provided, \
+                            using config file {checkpoint_path}"
+            )
         elif osp.isfile(folder_path):
-            logger.warn(f"Config file not found in checkpoint override path. \
+            logger.warn(
+                f"Config file not found in checkpoint override path. \
                         Found in experiment folder, using config file {folder_path}. \
                         This could lead to weight compatibility issues if the checkpoints do not align with \
-                        the specified folder.")
+                        the specified folder."
+            )
         else:
             logger.warn(
                 "Checkpoint override provided, but config file not found in checkpoint override path \
