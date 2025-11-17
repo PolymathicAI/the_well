@@ -45,7 +45,7 @@ class NeuralOpsCheckpointWrapper(neuralop_TFNO):
             x = self.domain_padding.pad(x)
 
         for layer_idx in range(self.n_layers):
-            self.optional_checkpointing(
+            x = self.optional_checkpointing(
                 self.fno_blocks, x, layer_idx, output_shape=output_shape[layer_idx]
             )
 
