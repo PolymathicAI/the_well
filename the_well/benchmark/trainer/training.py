@@ -204,8 +204,10 @@ class Trainer:
                     batch_dict["input_fields"], "variable"
                 )
                 if "constant_fields" in batch_dict:
-                    batch_dict["constant_fields"] = self.dset_norm.denormalize_flattened(
-                        batch_dict["constant_fields"], "constant"
+                    batch_dict["constant_fields"] = (
+                        self.dset_norm.denormalize_flattened(
+                            batch_dict["constant_fields"], "constant"
+                        )
                     )
             if direct_tensor is not None:
                 # Delta denormalization is different than full denormalization
@@ -241,7 +243,7 @@ class Trainer:
         y_preds = []
         for i in range(rollout_steps):
             # NOTE: This is a quick fix so we can make datamodule behavior consistent. Revisit this next release (MM).
-            if i > 0 and not train: 
+            if i > 0 and not train:
                 moving_batch, _ = self.normalize(moving_batch)
 
             inputs, _ = formatter.process_input(moving_batch)
