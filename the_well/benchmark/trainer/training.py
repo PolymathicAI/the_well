@@ -187,10 +187,14 @@ class Trainer:
                         batch_dict["constant_fields"], "constant"
                     )
             if direct_tensor is not None:
-                direct_tensor = self.dset_norm.normalize_flattened(
-                    direct_tensor, "variable"
-                )
-                return batch_dict, direct_tensor
+                if self.is_delta:
+                    direct_tensor = self.dset_norm.normalize_delta_flattened(
+                        direct_tensor, "variable"
+                    )
+                else:
+                    direct_tensor = self.dset_norm.normalize_flattened(
+                        direct_tensor, "variable"
+                    )
         return batch_dict, direct_tensor
 
     def denormalize(self, batch_dict=None, direct_tensor=None):
@@ -203,16 +207,16 @@ class Trainer:
                     batch_dict["constant_fields"] = self.dset_norm.denormalize_flattened(
                         batch_dict["constant_fields"], "constant"
                     )
-
-            # Delta denormalization is different than full denormalization
-            if self.is_delta:
-                direct_tensor = self.dset_norm.delta_denormalize_flattened(
-                    direct_tensor, "variable"
-                )
-            else:
-                direct_tensor = self.dset_norm.denormalize_flattened(
-                    direct_tensor, "variable"
-                )
+            if direct_tensor is not None:
+                # Delta denormalization is different than full denormalization
+                if self.is_delta:
+                    direct_tensor = self.dset_norm.delta_denormalize_flattened(
+                        direct_tensor, "variable"
+                    )
+                else:
+                    direct_tensor = self.dset_norm.denormalize_flattened(
+                        direct_tensor, "variable"
+                    )
 
         return batch_dict, direct_tensor
 
