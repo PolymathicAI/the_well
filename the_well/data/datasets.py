@@ -152,6 +152,8 @@ class WellDataset(Dataset):
             Whether to restrict the number of trajectories to a subset of the dataset. Integer inputs restrict to a number. Float to a percentage.
         restrict_num_samples:
             Whether to restrict the number of samples to a subset of the dataset. Integer inputs restrict to a number. Float to a percentage.
+        restrict_indices:
+            List of global indices to skip/exclude from the dataset. Only one restriction type should be used.
         restriction_seed:
             Seed used to generate restriction set. Necessary to ensure same set is sampled across runs.
         cache_small:
@@ -205,6 +207,7 @@ class WellDataset(Dataset):
         flatten_tensors: bool = True,
         restrict_num_trajectories: Optional[float | int] = None,
         restrict_num_samples: Optional[float | int] = None,
+        restrict_indices: Optional[list[int]] = None,
         restriction_seed: int = 0,
         cache_small: bool = True,
         max_cache_size: float = 1e9,
@@ -272,6 +275,7 @@ class WellDataset(Dataset):
         self.flatten_tensors = flatten_tensors
         self.restrict_num_trajectories = restrict_num_trajectories
         self.restrict_num_samples = restrict_num_samples
+        self.restrict_indices = restrict_indices
         self.restriction_seed = restriction_seed
         self.return_grid = return_grid
         self.normalize_time_grid = normalize_time_grid
@@ -341,23 +345,41 @@ class WellDataset(Dataset):
 
         # If we're limiting number of samples/trajectories...
         self.restriction_set = None
-        if restrict_num_samples is not None or restrict_num_trajectories is not None:
+        if (
+            restrict_num_samples is not None
+            or restrict_num_trajectories is not None
+            or restrict_indices is not None
+        ):
             self._build_restriction_set(
-                restrict_num_samples, restrict_num_trajectories, restriction_seed
+                restrict_num_samples,
+                restrict_num_trajectories,
+                restrict_indices,
+                restriction_seed,
             )
+
 
     def _build_restriction_set(
         self,
         restrict_num_samples: Optional[int | float],
         restrict_num_trajectories: Optional[int | float],
+        restrict_indices: Optional[list[int]],
         seed: int,
     ):
         """Builds a restriction set for the dataset based on the specified restrictions"""
         gen = np.random.default_rng(seed)
-        if restrict_num_samples is not None and restrict_num_trajectories is not None:
+        non_none_count = sum(
+            [
+                restrict_num_samples is not None,
+                restrict_num_trajectories is not None,
+                restrict_indices is not None,
+            ]
+        )
+
+        if non_none_count > 1:
             warnings.warn(
-                "Both restrict_num_samples and restrict_num_trajectories are set. Using restrict_num_samples."
+                "More than one restriction is set. Using restrict_num_samples."
             )
+
         global_indices = np.arange(self.len)
         if restrict_num_trajectories is not None:
             # Compute total number of trajectories, collect all indices corresponding to them, then select a subset
@@ -395,6 +417,17 @@ class WellDataset(Dataset):
                 current_index += self.n_windows_per_trajectory[file_index]
             global_indices = np.array(global_indices)
 
+        if restrict_indices is not None:
+            # Skip the specified indices by creating a mask
+            skip_set = set(restrict_indices)
+            # Filter out indices to skip, keeping only those not in skip_set
+            global_indices = np.array(
+                [idx for idx in global_indices if idx not in skip_set]
+            )
+            if len(global_indices) == 0:
+                warnings.warn(
+                    "All indices were excluded by restrict_indices. Dataset will be empty."
+                )
         if restrict_num_samples is not None:
             if 0.0 < restrict_num_samples < 1.0:
                 restrict_num_samples = int(self.len * restrict_num_samples)
