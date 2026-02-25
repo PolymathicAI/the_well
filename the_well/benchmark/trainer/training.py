@@ -243,10 +243,10 @@ class Trainer:
             )
         y_preds = []
         for i in range(rollout_steps):
-            # NOTE: This is a quick fix so we can make datamodule behavior consistent. 
+            # NOTE: This is a quick fix so we can make datamodule behavior consistent.
             # Including local normalization schemes means there needs to be the option of normalizing each step
-            # and there's currently not a registry of local vs global normalization schemes. 
-            if self.datamodule.val_dataset.use_normalization and i > 0 and not train:
+            # and there's currently not a registry of local vs global normalization schemes.
+            if not train and self.datamodule.val_dataset.use_normalization and i > 0:
                 moving_batch, _ = self.normalize(moving_batch)
 
             inputs, _ = formatter.process_input(moving_batch)
