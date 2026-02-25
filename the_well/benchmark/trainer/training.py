@@ -140,6 +140,7 @@ class Trainer:
         self.best_val_loss = None
         self.starting_val_loss = float("inf")
         self.dset_metadata = self.datamodule.train_dataset.metadata
+        self.dset_norm = None
         if self.datamodule.train_dataset.use_normalization:
             self.dset_norm = self.datamodule.train_dataset.norm
         if formatter == "channels_first_default":
@@ -234,7 +235,7 @@ class Trainer:
             _, y_ref = self.denormalize(None, y_ref)
 
         # Create a moving batch of one step at a time
-        moving_batch = batch
+        moving_batch = dict(batch)
         moving_batch["input_fields"] = moving_batch["input_fields"].to(self.device)
         if "constant_fields" in moving_batch:
             moving_batch["constant_fields"] = moving_batch["constant_fields"].to(
@@ -242,8 +243,10 @@ class Trainer:
             )
         y_preds = []
         for i in range(rollout_steps):
-            # NOTE: This is a quick fix so we can make datamodule behavior consistent. Revisit this next release (MM).
-            if i > 0 and not train:
+            # NOTE: This is a quick fix so we can make datamodule behavior consistent. 
+            # Including local normalization schemes means there needs to be the option of normalizing each step
+            # and there's currently not a registry of local vs global normalization schemes. 
+            if self.datamodule.val_dataset.use_normalization and i > 0 and not train:
                 moving_batch, _ = self.normalize(moving_batch)
 
             inputs, _ = formatter.process_input(moving_batch)
@@ -255,9 +258,9 @@ class Trainer:
                 moving_batch, y_pred = self.denormalize(moving_batch, y_pred)
 
             if (not train) and self.is_delta:
-                assert {
+                assert (
                     moving_batch["input_fields"][:, -1, ...].shape == y_pred.shape
-                }, f"Mismatching shapes between last input timestep {moving_batch[:, -1, ...].shape}\
+                ), f"Mismatching shapes between last input timestep {moving_batch[:, -1, ...].shape}\
                 and prediction {y_pred.shape}"
                 y_pred = moving_batch["input_fields"][:, -1, ...] + y_pred
             y_pred = formatter.process_output_expand_time(y_pred)
