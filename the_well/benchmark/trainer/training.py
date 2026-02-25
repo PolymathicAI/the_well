@@ -140,6 +140,7 @@ class Trainer:
         self.best_val_loss = None
         self.starting_val_loss = float("inf")
         self.dset_metadata = self.datamodule.train_dataset.metadata
+        self.dset_norm = None
         if self.datamodule.train_dataset.use_normalization:
             self.dset_norm = self.datamodule.train_dataset.norm
         if formatter == "channels_first_default":
@@ -176,38 +177,51 @@ class Trainer:
             checkpoint["epoch"] + 1
         )  # Saves after training loop, so start at next epoch
 
-    def normalize(self, batch):
+    def normalize(self, batch_dict=None, direct_tensor=None):
         if hasattr(self, "dset_norm") and self.dset_norm:
-            batch["input_fields"] = self.dset_norm.normalize_flattened(
-                batch["input_fields"], "variable"
-            )
-            if "constant_fields" in batch:
-                batch["constant_fields"] = self.dset_norm.normalize_flattened(
-                    batch["constant_fields"], "constant"
+            if batch_dict is not None:
+                batch_dict["input_fields"] = self.dset_norm.normalize_flattened(
+                    batch_dict["input_fields"], "variable"
                 )
-        return batch
+                if "constant_fields" in batch_dict:
+                    batch_dict["constant_fields"] = self.dset_norm.normalize_flattened(
+                        batch_dict["constant_fields"], "constant"
+                    )
+            if direct_tensor is not None:
+                if self.is_delta:
+                    direct_tensor = self.dset_norm.normalize_delta_flattened(
+                        direct_tensor, "variable"
+                    )
+                else:
+                    direct_tensor = self.dset_norm.normalize_flattened(
+                        direct_tensor, "variable"
+                    )
+        return batch_dict, direct_tensor
 
-    def denormalize(self, batch, prediction):
+    def denormalize(self, batch_dict=None, direct_tensor=None):
         if hasattr(self, "dset_norm") and self.dset_norm:
-            batch["input_fields"] = self.dset_norm.denormalize_flattened(
-                batch["input_fields"], "variable"
-            )
-            if "constant_fields" in batch:
-                batch["constant_fields"] = self.dset_norm.denormalize_flattened(
-                    batch["constant_fields"], "constant"
+            if batch_dict is not None:
+                batch_dict["input_fields"] = self.dset_norm.denormalize_flattened(
+                    batch_dict["input_fields"], "variable"
                 )
+                if "constant_fields" in batch_dict:
+                    batch_dict["constant_fields"] = (
+                        self.dset_norm.denormalize_flattened(
+                            batch_dict["constant_fields"], "constant"
+                        )
+                    )
+            if direct_tensor is not None:
+                # Delta denormalization is different than full denormalization
+                if self.is_delta:
+                    direct_tensor = self.dset_norm.delta_denormalize_flattened(
+                        direct_tensor, "variable"
+                    )
+                else:
+                    direct_tensor = self.dset_norm.denormalize_flattened(
+                        direct_tensor, "variable"
+                    )
 
-            # Delta denormalization is different than full denormalization
-            if self.is_delta:
-                prediction = self.dset_norm.delta_denormalize_flattened(
-                    prediction, "variable"
-                )
-            else:
-                prediction = self.dset_norm.denormalize_flattened(
-                    prediction, "variable"
-                )
-
-        return batch, prediction
+        return batch_dict, direct_tensor
 
     def rollout_model(self, model, batch, formatter, train=True):
         """Rollout the model for as many steps as we have data for."""
@@ -216,8 +230,12 @@ class Trainer:
             y_ref.shape[1], self.max_rollout_steps
         )  # Number of timesteps in target
         y_ref = y_ref[:, :rollout_steps]
+        # NOTE: This is a quick fix so we can make datamodule behavior consistent. Revisit this next release (MM).
+        if not train:
+            _, y_ref = self.denormalize(None, y_ref)
+
         # Create a moving batch of one step at a time
-        moving_batch = batch
+        moving_batch = dict(batch)
         moving_batch["input_fields"] = moving_batch["input_fields"].to(self.device)
         if "constant_fields" in moving_batch:
             moving_batch["constant_fields"] = moving_batch["constant_fields"].to(
@@ -225,22 +243,24 @@ class Trainer:
             )
         y_preds = []
         for i in range(rollout_steps):
-            if not train:
-                moving_batch = self.normalize(moving_batch)
+            # NOTE: This is a quick fix so we can make datamodule behavior consistent.
+            # Including local normalization schemes means there needs to be the option of normalizing each step
+            # and there's currently not a registry of local vs global normalization schemes.
+            if not train and self.datamodule.val_dataset.use_normalization and i > 0:
+                moving_batch, _ = self.normalize(moving_batch)
 
             inputs, _ = formatter.process_input(moving_batch)
             inputs = [x.to(self.device) for x in inputs]
             y_pred = model(*inputs)
 
             y_pred = formatter.process_output_channel_last(y_pred)
-
             if not train:
                 moving_batch, y_pred = self.denormalize(moving_batch, y_pred)
 
             if (not train) and self.is_delta:
-                assert {
+                assert (
                     moving_batch["input_fields"][:, -1, ...].shape == y_pred.shape
-                }, f"Mismatching shapes between last input timestep {moving_batch[:, -1, ...].shape}\
+                ), f"Mismatching shapes between last input timestep {moving_batch[:, -1, ...].shape}\
                 and prediction {y_pred.shape}"
                 y_pred = moving_batch["input_fields"][:, -1, ...] + y_pred
             y_pred = formatter.process_output_expand_time(y_pred)
