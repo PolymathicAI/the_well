@@ -66,6 +66,8 @@ class TFNO(BaseModel):
         modes1: int,
         modes2: int,
         modes3: int = 16,
+        rank: float = 0.2,
+        n_layers: int = 5,
         hidden_channels: int = 64,
         gradient_checkpointing: bool = False,
     ):
@@ -75,6 +77,7 @@ class TFNO(BaseModel):
         self.modes1 = modes1
         self.modes2 = modes2
         self.modes3 = modes3
+        self.rank = rank
         self.hidden_channels = hidden_channels
         self.model = None
         self.initialized = False
@@ -89,8 +92,10 @@ class TFNO(BaseModel):
             n_modes=self.n_modes,
             in_channels=self.dim_in,
             out_channels=self.dim_out,
+            rank=self.rank,
             hidden_channels=self.hidden_channels,
             gradient_checkpointing=gradient_checkpointing,
+            n_layers=n_layers,
         )
 
     def forward(self, input) -> torch.Tensor:

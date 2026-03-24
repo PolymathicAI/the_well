@@ -421,9 +421,10 @@ class Trainer:
             epoch_loss += loss.item() / len(dataloader)
             backward_time = time.time() - batch_start - forward_time - batch_time
             total_time = time.time() - batch_start
-            logger.info(
-                f"Epoch {epoch}, Batch {i + 1}/{len(dataloader)}: loss {loss.item()}, total_time {total_time}, batch time {batch_time}, forward time {forward_time}, backward time {backward_time}"
-            )
+            if i % 25 == 0:
+                logger.info(
+                            f"Epoch {epoch}, Batch {i + 1}/{len(dataloader)}: loss {loss.item()}, total_time {total_time}, batch time {batch_time}, forward time {forward_time}, backward time {backward_time}"
+                        )
             batch_start = time.time()
         train_logs["time_per_train_iter"] = (time.time() - start_time) / len(dataloader)
         train_logs["train_loss"] = epoch_loss

@@ -14,9 +14,10 @@ class NeuralOpsCheckpointWrapper(neuralop_FNO):
     """
 
     def __init__(self, *args, **kwargs):
-        super(NeuralOpsCheckpointWrapper, self).__init__(*args, **kwargs)
         if "gradient_checkpointing" in kwargs:
             self.gradient_checkpointing = kwargs["gradient_checkpointing"]
+            del kwargs["gradient_checkpointing"]
+        super(NeuralOpsCheckpointWrapper, self).__init__(*args, **kwargs)
 
     def optional_checkpointing(self, layer, *inputs, **kwargs):
         if self.gradient_checkpointing:

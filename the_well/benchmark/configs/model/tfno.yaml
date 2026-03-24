@@ -1,5 +1,8 @@
 _target_: the_well.benchmark.models.TFNO
-modes1: 16
-modes2: 16
-hidden_channels: 128
+modes1: 28
+modes2: 28
+modes3: 28
+hidden_channels: 160
+rank: 0.2
+n_layers: 4
 #num_blocks: [1, 1, 1, 1]

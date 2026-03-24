@@ -345,6 +345,7 @@ class WellDataset(Dataset):
             self._build_restriction_set(
                 restrict_num_samples, restrict_num_trajectories, restriction_seed
             )
+        print("these are the sources i'm reading from", self.files_paths)
 
     def _build_restriction_set(
         self,
