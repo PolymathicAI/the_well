@@ -345,7 +345,6 @@ class WellDataset(Dataset):
             self._build_restriction_set(
                 restrict_num_samples, restrict_num_trajectories, restriction_seed
             )
-        print("these are the sources i'm reading from", self.files_paths)
 
     def _build_restriction_set(
         self,
@@ -917,8 +916,10 @@ class WellDataset(Dataset):
             sample["space_grid"] = data["space_grid"]  # H x W x D
             sample["input_time_grid"] = data["time_grid"][: self.n_steps_input]  # Ti
             sample["output_time_grid"] = data["time_grid"][self.n_steps_input :]  # To
-
-        return {k: v for k, v in sample.items() if v.numel() > 0}
+        if self.well_dataset_name == "helmholtz_staircase":
+            return {k: torch.nan_to_num(v).contiguous() for k, v in sample.items() if v.numel() > 0}
+        else:
+            return {k: v.contiguous() for k, v in sample.items() if v.numel() > 0}
 
     def __getitem__(self, index):
         data, file_idx, sample_idx, time_idx, dt = self._load_one_sample(index)

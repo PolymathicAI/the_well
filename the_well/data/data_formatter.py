@@ -46,7 +46,7 @@ class DefaultChannelsFirstFormatter(AbstractDataFormatter):
         y = data["output_fields"]
         # TODO - Add warning to output if nan has to be replaced
         # in some cases (staircase), its ok. In others, it's not.
-        return (torch.nan_to_num(x),), torch.nan_to_num(y)
+        return (torch.nan_to_num(x).contiguous(),), torch.nan_to_num(y).contiguous()
 
     def process_output_channel_last(self, output: torch.Tensor) -> torch.Tensor:
         return rearrange(output, "b c ... -> b ... c")
@@ -77,7 +77,7 @@ class DefaultChannelsLastFormatter(AbstractDataFormatter):
         y = data["output_fields"]
         # TODO - Add warning to output if nan has to be replaced
         # in some cases (staircase), its ok. In others, it's not.
-        return (torch.nan_to_num(x),), torch.nan_to_num(y)
+        return (torch.nan_to_num(x).contiguous(),), torch.nan_to_num(y).contiguous()
 
     def process_output_channel_last(self, output: torch.Tensor) -> torch.Tensor:
         return output
