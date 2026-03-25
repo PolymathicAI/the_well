@@ -6,6 +6,7 @@ from typing import Callable, Optional
 import numpy as np
 import torch
 import torch.distributed as dist
+import torch.profiler
 import tqdm
 import wandb
 from torch.utils.data import DataLoader
@@ -56,6 +57,7 @@ class Trainer:
         short_validation_length: int,
         make_rollout_videos: bool,
         num_time_intervals: int,
+        log_interval: int = 25,
         lr_scheduler: Optional[torch.optim.lr_scheduler._LRScheduler] = None,
         device=torch.device("cuda"),
         is_distributed: bool = False,
@@ -116,11 +118,12 @@ class Trainer:
         self.artifact_folder = artifact_folder
         self.viz_folder = viz_folder
         self.device = device
-        self.model = model
+        self.model = model #torch.compile(model, fullgraph=False, mode="max-autotune") #if model is not None else None
         self.datamodule = datamodule
         self.optimizer = optimizer
         self.lr_scheduler = lr_scheduler
         self.loss_fn = loss_fn
+        self.log_interval = log_interval
         self.is_delta = isinstance(datamodule.train_dataset, DeltaWellDataset)
         self.validation_suite = validation_metric_suite + [self.loss_fn]
         self.max_epoch = epochs
@@ -225,22 +228,23 @@ class Trainer:
 
     def rollout_model(self, model, batch, formatter, train=True):
         """Rollout the model for as many steps as we have data for."""
-        inputs, y_ref = formatter.process_input(batch)
+        # inputs, y_ref = formatter.process_input(batch)
+        y_ref = batch["output_fields"]  # Use original y_ref for rollout length and denormalization, but keep inputs for first step as processed by formatter
         rollout_steps = min(
             y_ref.shape[1], self.max_rollout_steps
         )  # Number of timesteps in target
         y_ref = y_ref[:, :rollout_steps]
         # NOTE: This is a quick fix so we can make datamodule behavior consistent. Revisit this next release (MM).
-        if not train:
-            _, y_ref = self.denormalize(None, y_ref)
+
 
         # Create a moving batch of one step at a time
         moving_batch = dict(batch)
-        moving_batch["input_fields"] = moving_batch["input_fields"].to(self.device)
-        if "constant_fields" in moving_batch:
-            moving_batch["constant_fields"] = moving_batch["constant_fields"].to(
-                self.device
-            )
+        with torch.profiler.record_function("host_to_device"):
+            moving_batch["input_fields"] = moving_batch["input_fields"].to(self.device, non_blocking=True)
+            if "constant_fields" in moving_batch:
+                moving_batch["constant_fields"] = moving_batch["constant_fields"].to(
+                    self.device, non_blocking=True
+                )
         y_preds = []
         for i in range(rollout_steps):
             # NOTE: This is a quick fix so we can make datamodule behavior consistent.
@@ -250,8 +254,9 @@ class Trainer:
                 moving_batch, _ = self.normalize(moving_batch)
 
             inputs, _ = formatter.process_input(moving_batch)
-            inputs = [x.to(self.device) for x in inputs]
-            y_pred = model(*inputs)
+            inputs = [x.to(self.device, non_blocking=True) for x in inputs]
+            with torch.profiler.record_function("model_forward"):
+                y_pred = model(*inputs)
 
             y_pred = formatter.process_output_channel_last(y_pred)
             if not train:
@@ -271,7 +276,9 @@ class Trainer:
                 )
             y_preds.append(y_pred)
         y_pred_out = torch.cat(y_preds, dim=1)
-        y_ref = y_ref.to(self.device)
+        y_ref = y_ref.to(self.device, non_blocking=True)
+        if not train:
+            _, y_ref = self.denormalize(None, y_ref)
         return y_pred_out, y_ref
 
     def temporal_split_losses(
@@ -401,33 +408,82 @@ class Trainer:
         epoch_loss = 0.0
         train_logs = {}
         start_time = time.time()  # Don't need to sync this.
-        batch_start = time.time()
-        for i, batch in enumerate(dataloader):
-            with torch.autocast(
-                self.device.type, enabled=self.enable_amp, dtype=self.amp_type
-            ):
-                batch_time = time.time() - batch_start
-                y_pred, y_ref = self.rollout_model(self.model, batch, self.formatter)
-                forward_time = time.time() - batch_start - batch_time
-                assert (
-                    y_ref.shape == y_pred.shape
-                ), f"Mismatching shapes between reference {y_ref.shape} and prediction {y_pred.shape}"
-                loss = self.loss_fn(y_pred, y_ref, self.dset_metadata).mean()
-            self.grad_scaler.scale(loss).backward()
-            self.grad_scaler.step(self.optimizer)
-            self.grad_scaler.update()
-            self.optimizer.zero_grad()
-            # Syncing for all reduce anyway so may as well compute synchornous metrics
-            epoch_loss += loss.item() / len(dataloader)
-            backward_time = time.time() - batch_start - forward_time - batch_time
-            total_time = time.time() - batch_start
-            if i % 25 == 0:
-                logger.info(
-                            f"Epoch {epoch}, Batch {i + 1}/{len(dataloader)}: loss {loss.item()}, total_time {total_time}, batch time {batch_time}, forward time {forward_time}, backward time {backward_time}"
+
+        # Profile only the first epoch to identify bottlenecks without ongoing overhead.
+        # Trace is written to {artifact_folder}/profiler_traces/ in TensorBoard format.
+        # View with: tensorboard --logdir=<artifact_folder>/profiler_traces/
+        profile_this_epoch = epoch == self.starting_epoch
+        prof_dir = os.path.join(self.artifact_folder, "profiler_traces")
+
+        def _run_batches(prof=None):
+            nonlocal epoch_loss
+            data_iter = iter(dataloader)
+            i = 0
+            while True:
+                with torch.profiler.record_function("data_load"):
+                    try:
+                        batch = next(data_iter)
+                    except StopIteration:
+                        break
+                batch_start = time.time()
+                with torch.autocast(
+                    self.device.type, enabled=self.enable_amp, dtype=self.amp_type
+                ):
+                    with torch.profiler.record_function("forward"):
+                        y_pred, y_ref = self.rollout_model(
+                            self.model, batch, self.formatter
                         )
-            batch_start = time.time()
+                    assert (
+                        y_ref.shape == y_pred.shape
+                    ), f"Mismatching shapes between reference {y_ref.shape} and prediction {y_pred.shape}"
+                    with torch.profiler.record_function("loss_fn"):
+                        loss = self.loss_fn(y_pred, y_ref, self.dset_metadata).mean()
+                with torch.profiler.record_function("backward"):
+                    self.grad_scaler.scale(loss).backward()
+                with torch.profiler.record_function("optimizer_step"):
+                    self.grad_scaler.step(self.optimizer)
+                    self.grad_scaler.update()
+                    self.optimizer.zero_grad()
+                # Syncing for all reduce anyway so may as well compute synchronous metrics
+                with torch.no_grad():
+                    epoch_loss += loss / len(dataloader)
+                iter_time = time.time() - batch_start
+                if i % self.log_interval == 0:
+                    logger.info(
+                        f"Epoch {epoch}, Batch {i + 1}/{len(dataloader)}: "
+                        f"loss {loss.item():.6f}, iter_time {iter_time:.3f}s"
+                    )
+                if prof is not None:
+                    prof.step()
+                i += 1
+
+        if profile_this_epoch:
+            os.makedirs(prof_dir, exist_ok=True)
+            with torch.profiler.profile(
+                activities=[
+                    torch.profiler.ProfilerActivity.CPU,
+                    torch.profiler.ProfilerActivity.CUDA,
+                ],
+                # wait 1, warmup 2, active 5: records steps 4-8 of the epoch
+                schedule=torch.profiler.schedule(wait=1, warmup=2, active=5, repeat=1),
+                on_trace_ready=torch.profiler.tensorboard_trace_handler(prof_dir),
+                record_shapes=True,
+                with_stack=True,
+            ) as prof:
+                _run_batches(prof)
+            logger.info(
+                f"Profiler trace written to {prof_dir}. "
+                f"View with: tensorboard --logdir={prof_dir}"
+            )
+            logger.info(
+                "\n"
+                + prof.key_averages().table(sort_by="cuda_time_total", row_limit=20)
+            )
+        else:
+            _run_batches()
+
         train_logs["time_per_train_iter"] = (time.time() - start_time) / len(dataloader)
-        train_logs["train_loss"] = epoch_loss
+        train_logs["train_loss"] = epoch_loss.item()
         if self.lr_scheduler:
             self.lr_scheduler.step()
             train_logs["lr"] = self.lr_scheduler.get_last_lr()[-1]
