@@ -58,7 +58,7 @@ $\zeta =$ {1,3,5,7,9,11,13,15,17}.
 
 ## What is interesting and challenging about the data:
 
-**What phenomena of physical interest are catpured in the data:** How is energy being transferred between scales? How is vorticity coupled to the orientation field? Where does the transition from isotropic state to nematic state occur with the change in alignment ( $\zeta$ ) or dipole strength ($\alpha$)?
+**What phenomena of physical interest are captured in the data:** How is energy being transferred between scales? How is vorticity coupled to the orientation field? Where does the transition from isotropic state to nematic state occur with the change in alignment ( $\zeta$ ) or dipole strength ($\alpha$)?
 
 
 **How to evaluate a new simulator operating in this space:** Reproducing some summary statistics like power spectra and average scalar order parameters. Additionally, being able to accurately capture the phase transition from isotropic to nematic state.

@@ -94,7 +94,7 @@ Table: VRMSE metrics on test sets (lower is better). Best results are shown in b
 
 ## What is interesting and challenging about the data:
 
-**What phenomena of physical interest are catpured in the data:**
+**What phenomena of physical interest are captured in the data:**
 Gravity, hydrodynamics and radiative cooling/heating are considered in the simulations. Radiative cooling/heating is parameterized with metallicity, which the ratio of heavier elements than helium. The larger and metallicity corresponds to the later and early stage of galaxies and universe, respectively.
 It also affects the time scale of cooling/heating and star formation rate. For instance, star formation happens at dense and cold region. With the strong cooling/heating rate, dense regions are quickly cooled down and generates new stars. Inversely, in the case of a weak cooling/heating, when gas is compressed, it is heated up and prevent new stars from being generated.
 

@@ -145,7 +145,7 @@ Here we include, for completeness, a description of the different simulation par
 - `variables` list of names of primitive state vector.
 
 ## What is interesting and challenging about the data:
-**What phenomena of physical interest are catpured in the data:** The 2017 detection of the in-spiral and merger of two neutron stars
+**What phenomena of physical interest are captured in the data:** The 2017 detection of the in-spiral and merger of two neutron stars
 was a landmark discovery in astrophysics. Through a wealth of
 multi-messenger data, we now know that the merger of these
 ultracompact stellar remnants is a central engine of short gamma ray

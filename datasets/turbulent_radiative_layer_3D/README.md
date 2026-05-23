@@ -63,7 +63,7 @@ Table: VRMSE metrics on test sets (lower is better). Best results are shown in b
 
 ## What is interesting and challenging about the data:
 
-**What phenomena of physical interest are catpured in the data:** Capte the mass flux from hot to cold phase. Capture turbulent velocities. Capture the amount of mass per temperature bin ($T = \frac{P}{\rho}$).
+**What phenomena of physical interest are captured in the data:** Capte the mass flux from hot to cold phase. Capture turbulent velocities. Capture the amount of mass per temperature bin ($T = \frac{P}{\rho}$).
 
 **How to evaluate a new simulator operating in this space:** Check whether the above physical phenomena are captured by the algorithm.
 
