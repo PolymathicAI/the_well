@@ -292,7 +292,7 @@ class Trainer:
             new_losses[f"{dset_name}/{fname}_{loss_name}_T={time_str}"] = loss_subset
         return new_losses
 
-    def split_up_losses(self, loss_values, loss_name, dset_name, field_names):
+    def split_up_losses(self, loss_values, loss_name, dset_name, field_names, return_time_logs=False):
         new_losses = {}
         time_logs = {}
         time_steps = loss_values.shape[0]  # we already average over batch
@@ -303,9 +303,10 @@ class Trainer:
         ]
         # Split up losses by field
         for i, fname in enumerate(field_names):
-            time_logs[f"{dset_name}/{fname}_{loss_name}_rollout"] = loss_values[
-                :, i
-            ].cpu()
+            if return_time_logs:
+                time_logs[f"{dset_name}/{fname}_{loss_name}_rollout"] = loss_values[
+                    :, i
+                ].cpu().detach()
             new_losses |= self.temporal_split_losses(
                 loss_values[:, i], temporal_loss_intervals, loss_name, dset_name, fname
             )
@@ -313,7 +314,8 @@ class Trainer:
         new_losses |= self.temporal_split_losses(
             loss_values.mean(1), temporal_loss_intervals, loss_name, dset_name, "full"
         )
-        time_logs[f"{dset_name}/full_{loss_name}_rollout"] = loss_values.mean(1).cpu()
+        if return_time_logs:
+            time_logs[f"{dset_name}/full_{loss_name}_rollout"] = loss_values.mean(1).cpu().detach()
         return new_losses, time_logs
 
     @torch.inference_mode()
@@ -356,17 +358,18 @@ class Trainer:
                     if not isinstance(loss, dict):
                         loss = {loss_fn.__class__.__name__: loss}
                     # Split the losses and update the logging dictionary
+                    is_last_batch = (i == denom - 1)
                     for k, v in loss.items():
                         sub_loss = v.mean(0)
                         new_losses, new_time_logs = self.split_up_losses(
-                            sub_loss, k, dset_name, field_names
+                            sub_loss, k, dset_name, field_names, return_time_logs=is_last_batch
                         )
                         # TODO get better way to include spectral error.
-                        if k in long_time_metrics or "spectral_error" in k:
+                        if is_last_batch and (k in long_time_metrics or "spectral_error" in k):
                             time_logs |= new_time_logs
                         for loss_name, loss_value in new_losses.items():
                             loss_dict[loss_name] = (
-                                loss_dict.get(loss_name, 0.0) + loss_value / denom
+                                loss_dict.get(loss_name, 0.0) + loss_value.detach() / denom
                             )
                 count += 1
                 if not full and count >= self.short_validation_length:
