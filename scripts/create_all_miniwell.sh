@@ -6,6 +6,7 @@ datasets=(
     "active_matter"
     "helmholtz_staircase"
     "viscoelastic_instability"
+    "viscoelastic_instability_v2"
     "MHD_64"
     "post_neutron_star_merger"
     "shear_flow"

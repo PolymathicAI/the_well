@@ -27,7 +27,9 @@ WELL_DATASETS = [
     "turbulent_radiative_layer_2D",
     "turbulent_radiative_layer_3D",
     "viscoelastic_instability",
+    "viscoelastic_instability_v2",
 ]
+
 
 
 IO_PARAMS = {
