@@ -88,7 +88,7 @@ pip install the_well[benchmark]
 
 ### Downloading the Data
 
-The Well datasets range between 6.9GB and 5.1TB of data each, for a total of 15TB for the full collection. Ensure that your system has enough free disk space to accomodate the datasets you wish to download.
+The Well datasets range between 6.9GB and 5.1TB of data each, for a total of 15TB for the full collection. Ensure that your system has enough free disk space to accommodate the datasets you wish to download.
 
 Once `the_well` is installed, you can use the `the-well-download` command to download any dataset of The Well.
 
