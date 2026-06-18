@@ -152,7 +152,7 @@ model = FNO.from_pretrained("polymathic-ai/FNO-active_matter")
 
 ## Usage notes
 
-- The dataset `viscoelastic_instability` has been deprecated due to processing errors in the data. It remains available for backwards comparisons. However `viscoelastic_instability_v2` contains the same data without the processing error. 
+- The dataset `viscoelastic_instability` has been deprecated due to processing errors in the data. It remains available for backwards comparisons. However `viscoelastic_instability_v2` contains the same data without the processing error.
 
 ## Citation
 
