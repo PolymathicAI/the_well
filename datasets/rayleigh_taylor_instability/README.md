@@ -76,7 +76,7 @@ where $\mu$ is the mean and $\sigma$ is the standard deviation of the profile. F
 
 ## What is interesting and challenging about the data:
 
-**What phenomena of physical interest are catpured in the data:** In this dataset, there are three key aspects of physical interest. Firstly, impact of coherence on otherwise random initial conditions. Secondly, the effect of the shape of the initial energy spectrum on the structure of the flow. Finally, the transition from the Boussinesq to the non-Boussinesq regime where the mixing width transitions from symmetric to asymmetric growth.
+**What phenomena of physical interest are captured in the data:** In this dataset, there are three key aspects of physical interest. Firstly, impact of coherence on otherwise random initial conditions. Secondly, the effect of the shape of the initial energy spectrum on the structure of the flow. Finally, the transition from the Boussinesq to the non-Boussinesq regime where the mixing width transitions from symmetric to asymmetric growth.
 
 **How to evaluate a new simulator operating in this space:**
 

@@ -63,7 +63,7 @@ Table: VRMSE metrics on test sets (lower is better). Best results are shown in b
 
 ## What is interesting and challenging about the data:
 
-**What phenomena of physical interest are catpured in the data:** Pattern formation: by sweeping the two parameters $f$ and $k$, a multitude of steady and dynamic patterns can form from random initial conditions.
+**What phenomena of physical interest are captured in the data:** Pattern formation: by sweeping the two parameters $f$ and $k$, a multitude of steady and dynamic patterns can form from random initial conditions.
 
 **How to evaluate a new simulator operating in this space:** It would be impressive if a simulator—trained only on some of the patterns produced by a subset of the $(f, k)$ parameter space—could perform well on an unseen set of parameter values $(f, k)$ that produce fundamentally different patterns. Stability for steady-state patterns over long rollout times would also be impressive.
 

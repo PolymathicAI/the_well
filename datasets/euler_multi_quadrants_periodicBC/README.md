@@ -71,7 +71,7 @@ with $\rho$ the density, $u$ and $v$ the $x$ and $y$ velocity components, $e$ th
 
 ## What is interesting and challenging about the data:
 
-**What phenomena of physical interest are catpured in the data:** capture the shock formations and interactions. Multiscale shocks.
+**What phenomena of physical interest are captured in the data:** capture the shock formations and interactions. Multiscale shocks.
 
 **How to evaluate a new simulator operating in this space:** the new simulator should predict the shock at the right location and time, and the right shock strength, as compared to a pressure gauge monitoring the exact solution.
 
