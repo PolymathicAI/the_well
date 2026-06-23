@@ -64,7 +64,7 @@ Table: VRMSE metrics on test sets (lower is better). Best results are shown in b
 
 ## What is interesting and challenging about the data:
 
-**What phenomena of physical interest are catpured in the data:**
+**What phenomena of physical interest are captured in the data:**
 -	The mass flux from hot to cold phase.
 -	The turbulent velocities.
 -	Amount of mass per temperature bin (T = press/dens).

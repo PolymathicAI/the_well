@@ -60,7 +60,7 @@ Table: VRMSE metrics on test sets (lower is better). Best results are shown in b
 
 ## What is interesting and challenging about the data:
 
-**What phenomena of physical interest are catpured in the data:** MHD fluid flows in the compressible limit (sub and super sonic, sub and super Alfvenic).
+**What phenomena of physical interest are captured in the data:** MHD fluid flows in the compressible limit (sub and super sonic, sub and super Alfvenic).
 
 **How to evaluate a new simulator operating in this space:** Check metrics such as Power spectrum, two-points correlation function.
 

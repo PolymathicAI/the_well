@@ -76,7 +76,7 @@ Pressure (scalar field), density (scalar field), temperature(scalar field), velo
 
 ## What is interesting and challenging about the data:
 
-**What phenomena of physical interest are catpured in the data:**
+**What phenomena of physical interest are captured in the data:**
 The simulations are designed as an supernova explosion, which is the explosion at the last moment of massive stars, in a high-density starforming molecular cloud with a large density contrast. An adiabatic compression of a monatomic ideal gas is assumed.
 To mimic the explosion, the huge thermal energy ($10^{51}$ erg) is injected at the center of the calculation box and going to make the blastwave, which sweeps out the ambient gas and shells called as supernova feedback. These interactions between supernovae and surrounding gas are interesting because stars are formed in dense and cold regions.
 

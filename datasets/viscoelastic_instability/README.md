@@ -81,7 +81,7 @@ Table: VRMSE metrics on test sets (lower is better). Best results are shown in b
 
 ## What is interesting and challenging about the data:
 
-**What phenomena of physical interest are catpured in the data:** The phenomena of interest in the data is: (i) chaotic dynamics in viscoelastic flows in EIT and CAR. Also note that they are separate states. (ii) multistability for the same set of parameters, the flow has four different behaviours depending on the initial conditions.
+**What phenomena of physical interest are captured in the data:** The phenomena of interest in the data is: (i) chaotic dynamics in viscoelastic flows in EIT and CAR. Also note that they are separate states. (ii) multistability for the same set of parameters, the flow has four different behaviours depending on the initial conditions.
 
 **How to evaluate a new simulator operating in this space:**
 A new simulator would need to capture EIT/CAR adequately for a physically relevant parameter range.
