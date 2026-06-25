@@ -1,0 +1,49 @@
+dataset_name: viscoelastic_instability_v2
+n_spatial_dims: 2
+spatial_resolution:
+- 512
+- 512
+scalar_names: []
+constant_scalar_names:
+- Re
+- Wi
+- beta
+- epsilon
+- Lmax
+field_names:
+  0:
+  - pressure
+  - c_zz
+  1:
+  - velocity_x
+  - velocity_y
+  2:
+  - C_xx
+  - C_xy
+  - C_yx
+  - C_yy
+constant_field_names:
+  0: []
+  1: []
+  2: []
+boundary_condition_types:
+- PERIODIC
+- WALL
+n_files: 7
+n_trajectories_per_file:
+- 2
+- 3
+- 3
+- 4
+- 3
+- 3
+- 4
+n_steps_per_trajectory:
+- 20
+- 60
+- 60
+- 20
+- 20
+- 20
+- 20
+grid_type: cartesian

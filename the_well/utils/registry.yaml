@@ -1229,3 +1229,29 @@ viscoelastic_instability:
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability/data/valid/viscoelastic_instability_transtochaos_EIT_L.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability/data/valid/viscoelastic_instability_transtochaos_EIT_SAR.hdf5
   - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability/data/valid/viscoelastic_instability_AH.hdf5
+viscoelastic_instability_v2:
+  stats: https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability_v2/stats.yaml
+  test:
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability_v2/data/test/viscoelastic_instability_v2_transtononchaos_EIT_L.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability_v2/data/test/viscoelastic_instability_v2_EIT.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability_v2/data/test/viscoelastic_instability_v2_CAR.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability_v2/data/test/viscoelastic_instability_v2_transtononchaos_EIT_SAR.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability_v2/data/test/viscoelastic_instability_v2_transtochaos_EIT_L.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability_v2/data/test/viscoelastic_instability_v2_transtochaos_EIT_SAR.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability_v2/data/test/viscoelastic_instability_v2_AH.hdf5
+  train:
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability_v2/data/train/viscoelastic_instability_v2_transtononchaos_EIT_L.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability_v2/data/train/viscoelastic_instability_v2_EIT.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability_v2/data/train/viscoelastic_instability_v2_CAR.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability_v2/data/train/viscoelastic_instability_v2_transtononchaos_EIT_SAR.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability_v2/data/train/viscoelastic_instability_v2_transtochaos_EIT_L.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability_v2/data/train/viscoelastic_instability_v2_transtochaos_EIT_SAR.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability_v2/data/train/viscoelastic_instability_v2_AH.hdf5
+  valid:
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability_v2/data/valid/viscoelastic_instability_v2_transtononchaos_EIT_L.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability_v2/data/valid/viscoelastic_instability_v2_EIT.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability_v2/data/valid/viscoelastic_instability_v2_CAR.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability_v2/data/valid/viscoelastic_instability_v2_transtononchaos_EIT_SAR.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability_v2/data/valid/viscoelastic_instability_v2_transtochaos_EIT_L.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability_v2/data/valid/viscoelastic_instability_v2_transtochaos_EIT_SAR.hdf5
+  - https://sdsc-users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability_v2/data/valid/viscoelastic_instability_v2_AH.hdf5

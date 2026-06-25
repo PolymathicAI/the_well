@@ -27,6 +27,7 @@ Details of individual datasets are given in the following table:
 | `turbulent_radiative_layer_2D`| Cartesian 2D   | 128 × 384                   | 101     | 90     |
 | `turbulent_radiative_layer_3D`| Cartesian 3D   | 128 × 128 × 256             | 101     | 90     |
 | `viscoelastic_instability`    | Cartesian 2D   | 512 × 512                   | variable| 260    |
+| `viscoelastic_instability_v2` | Cartesian 2D   | 512 × 512                   | variable| 260    |
 
 
 **Table:** *Dataset description, coordinate system (CS), resolution of snapshots, n_steps (number of time-steps per trajectory), and n_traj (total number of trajectories in the dataset).*
@@ -54,5 +55,6 @@ Details of individual datasets are given in the following table:
 | `turbulent_radiative_layer_2D` | 6.9  | 2*          | 48 C            | Athena++                    |
 | `turbulent_radiative_layer_3D` | 745  | 271*        | 128 C           | Athena++                     |
 | `viscoelastic_instability` | 66        | 34*         | 64 C            | Dedalus                      |
+| `viscoelastic_instability_v2` | 66     | 34*         | 64 C            | Dedalus                      |
 
 **Table:** *Information about the different dataset generation. In the running time and hardware columns, * denotes a total for all the runs. Otherwise, these figures are given for running one simulation only. For hardware, C denotes the number of Cores. Computation was performed on nodes equipped with either 2 48-core AMD Genoa or 2 32-core Intel Icelake.*

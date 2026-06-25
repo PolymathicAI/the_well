@@ -1,10 +1,10 @@
 # Multistability of viscoelastic fluids in a 2D channel flow
 
-**This dataset has been deprecated. It remains available for backwards comparison, but contains processing errors. Please use `viscoelastic_instability_v2` instead**
+**The original version of the viscoelastic instability data had some duplicate or looping frames due to data extraction issues. This is the same data with those issues resolved. It is released as a separate dataset as backward comparisons to models trained on the problematic data may not be appropriate.**
 
 **One line description of the data:** Multistability in viscoelastic flows, i.e. four different attractors (statistically stable states) are observed for the same set of parameters depending on the initial conditions.
 
-**Longer description of the data:** Elasto-inertial turbulence (EIT) is a recently discovered two-dimensional chaotic flow state observed in dilute polymer solutions. Two-dimensional direct numerical simulations show (up to) four coexistent attractors: the laminar state (LAM), a steady arrowhead regime (SAR), Elasto-inertial turbulence (EIT) and a ‘chaotic arrowhead regime’ (CAR). The SAR is stable for all parameters considered here, while the final pair of (chaotic) flow states are visually very similar and can be distinguished only by the presence of a weak polymer arrowhead structure in the CAR regime. Both chaotic regimes are maintained by an identical near-wall mechanism and the weak arrowhead does not play a role. The data set includes snapshots on the four attractors as well as two edge states. An edge state is an unstable state that exists on the boundary between two basins of attractors, the so-called edge manifold. Edge states have a single unstable direction out of the manifold and are relevant since the lie exactly on the boundary separating qualitatively different behaviours of the flow. The edge states in the present data set are obtained through edge tracking between the laminar state and EIT and between EIT and SAR.
+**Longer description of the data:** Elasto-inertial turbulence (EIT) is a recently discovered two-dimensional chaotic flow state observed in dilute polymer solutions. Two-dimensional direct numerical simulations show (up to) four coexistent attractors: the laminar state (LAM), a steady arrowhead regime (SAR), Elasto-inertial turbulence (EIT) and a 'chaotic arrowhead regime' (CAR). The SAR is stable for all parameters considered here, while the final pair of (chaotic) flow states are visually very similar and can be distinguished only by the presence of a weak polymer arrowhead structure in the CAR regime. Both chaotic regimes are maintained by an identical near-wall mechanism and the weak arrowhead does not play a role. The data set includes snapshots on the four attractors as well as two edge states. An edge state is an unstable state that exists on the boundary between two basins of attractors, the so-called edge manifold. Edge states have a single unstable direction out of the manifold and are relevant since the lie exactly on the boundary separating qualitatively different behaviours of the flow. The edge states in the present data set are obtained through edge tracking between the laminar state and EIT and between EIT and SAR.
 
 **Associated paper**: [Paper](https://www.cambridge.org/core/services/aop-cambridge-core/content/view/D63B7EDB638451A6FC2FBBFDA85E1BBD/S0022112024000508a.pdf/multistability-of-elasto-inertial-two-dimensional-channel-flow.pdf).
 
@@ -32,11 +32,11 @@ $$
 where $\mathbf{u^\ast} = (u^\ast,v^\ast)$ is the streamwise and wall-normal velocity components, $p^\ast$ is the pressure, $\mathbf{C^\ast}$ is the positive definite conformation tensor which represents the ensemble average of the produce of the end-to-end vector of the polymer molecules. In 2D, 4 components of the tensor are solved: $c_{xx}^\ast, c_{yy}^\ast, c_{zz}^\ast, c_{xy}^\ast$. $\mathbf{T}(\mathbf{C^\ast})$ is the polymer stress tensor given by the FENE-P model.
 
 
-![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability/gif/czz_normalized.gif)
+![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/viscoelastic_instability_v2/gif/czz_normalized.gif)
 
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
-| `viscoelastic_instability` | 0.7212 | 0.7102 | 0.4185 | $\mathbf{0.2499}$ |
+| `viscoelastic_instability_v2` | - | - | - | - |
 
 Table: VRMSE metrics on test sets (lower is better). Best results are shown in bold. VRMSE is scaled such that predicting the mean value of the target field results in a score of 1.
 
@@ -83,7 +83,7 @@ Table: VRMSE metrics on test sets (lower is better). Best results are shown in b
 
 ## What is interesting and challenging about the data:
 
-**What phenomena of physical interest are captured in the data:** The phenomena of interest in the data is: (i) chaotic dynamics in viscoelastic flows in EIT and CAR. Also note that they are separate states. (ii) multistability for the same set of parameters, the flow has four different behaviours depending on the initial conditions.
+**What phenomena of physical interest are catpured in the data:** The phenomena of interest in the data is: (i) chaotic dynamics in viscoelastic flows in EIT and CAR. Also note that they are separate states. (ii) multistability for the same set of parameters, the flow has four different behaviours depending on the initial conditions.
 
 **How to evaluate a new simulator operating in this space:**
 A new simulator would need to capture EIT/CAR adequately for a physically relevant parameter range.

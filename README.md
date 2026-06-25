@@ -150,6 +150,10 @@ from the_well.benchmark.models import FNO
 model = FNO.from_pretrained("polymathic-ai/FNO-active_matter")
 ```
 
+## Usage notes
+
+- The dataset `viscoelastic_instability` has been deprecated due to processing errors in the data. It remains available for backwards comparisons. However `viscoelastic_instability_v2` contains the same data without the processing error.
+
 ## Citation
 
 This project has been led by the <a href="https://polymathic-ai.org/">Polymathic AI</a> organization, in collaboration with researchers from the Flatiron Institute, University of Colorado Boulder, University of Cambridge, New York University, Rutgers University, Cornell University, University of Tokyo, Los Alamos Natioinal Laboratory, University of California, Berkeley, Princeton University, CEA DAM, and University of Liège.

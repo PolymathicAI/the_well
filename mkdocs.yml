@@ -45,6 +45,7 @@ nav:
     - turbulent_radiative_layer_2D: datasets/turbulent_radiative_layer_2D.md
     - turbulent_radiative_layer_3D: datasets/turbulent_radiative_layer_3D.md
     - viscoelastic_instability: datasets/viscoelastic_instability.md
+    - viscoelastic_instability_v2: datasets/viscoelastic_instability_v2.md
   - Data Format: data_format.md
   - Data Visualization: "https://huggingface.co/spaces/polymathic-ai/TheWell"
   - API: api.md
