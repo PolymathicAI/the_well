@@ -327,6 +327,41 @@ def test_restricted_samples_float(tmp_path):
     assert data is not None
 
 
+def test_restricted_indices(tmp_path):
+    filename = tmp_path / "dummy_well_data.hdf5"
+    write_dummy_data(filename)
+    # Create dataset without restrictions to get the full length
+    full_dataset = WellDataset(
+        path=str(tmp_path),
+        use_normalization=False,
+        return_grid=True,
+    )
+    full_length = len(full_dataset)
+
+    # Exclude specific indices
+    indices_to_exclude = [0, 1, 5, 10]
+    dataset = WellDataset(
+        path=str(tmp_path),
+        use_normalization=False,
+        return_grid=True,
+        restrict_indices=indices_to_exclude,
+    )
+
+    expected_length = full_length - len(indices_to_exclude)
+    assert (
+        len(dataset) == expected_length
+    ), f"Restricted dataset should contain {expected_length} samples (18 - 4 excluded), but found {len(dataset)}"
+
+    # Verify we can still access data
+    data = dataset[0]
+    assert data is not None
+
+    # Verify that the restriction set doesn't contain excluded indices
+    assert all(
+        idx not in indices_to_exclude for idx in dataset.restriction_set
+    ), "Restriction set should not contain any excluded indices"
+
+
 @pytest.mark.parametrize("start_output_steps_at_t", [-1, 4])
 def test_full_trajectory_mode_minimum_steps(tmp_path, start_output_steps_at_t):
     filename = tmp_path / "dummy_well_data.hdf5"
