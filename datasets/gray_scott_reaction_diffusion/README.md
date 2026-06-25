@@ -15,7 +15,7 @@
 $$
 \begin{align*}
 \frac{\partial A}{\partial t} &= \delta_A\Delta A - AB^2 + f(1-A) \\
-\frac{\partial B}{\partial t} &= \delta_B\Delta B - AB^2 - (f+k)B
+\frac{\partial B}{\partial t} &= \delta_B\Delta B + AB^2 - (f+k)B
 \end{align*}
 $$
 
