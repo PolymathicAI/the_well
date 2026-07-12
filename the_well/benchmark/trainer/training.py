@@ -363,7 +363,10 @@ class Trainer:
                         )
                         # TODO get better way to include spectral error.
                         if k in long_time_metrics or "spectral_error" in k:
-                            time_logs |= new_time_logs
+                            for log_name, log_value in new_time_logs.items():
+                                time_logs[log_name] = (
+                                    time_logs.get(log_name, 0.0) + log_value / denom
+                                )
                         for loss_name, loss_value in new_losses.items():
                             loss_dict[loss_name] = (
                                 loss_dict.get(loss_name, 0.0) + loss_value / denom
