@@ -322,6 +322,8 @@ class WellDataset(Dataset):
         self.files_paths = sub_files
         self.files_paths.sort()
         self.caches = [{} for _ in self.files_paths]
+        self._opened_files = {}
+        self._opened_files_pid = os.getpid()
         # Build multi-index
         self.metadata = self._build_metadata()
         # Override name if necessary for logging
@@ -777,6 +779,21 @@ class WellDataset(Dataset):
         else:
             raise NotImplementedError()
 
+    def _get_file_handle(self, file_idx):
+        current_pid = os.getpid()
+        if current_pid != self._opened_files_pid:
+            self._opened_files = {}
+            self._opened_files_pid = current_pid
+
+        if file_idx not in self._opened_files:
+            f = self.fs.open(
+                self.files_paths[file_idx], "rb", **IO_PARAMS["fsspec_params"]
+            )
+            h5_file = h5.File(f, "r", **IO_PARAMS["h5py_params"])
+            self._opened_files[file_idx] = (f, h5_file)
+
+        return self._opened_files[file_idx][1]
+
     def _load_one_sample(self, index):
         # Find specific file and local index
         if self.restriction_set is not None:
@@ -791,35 +808,38 @@ class WellDataset(Dataset):
         sample_idx = local_idx // windows_per_trajectory
         time_idx = local_idx % windows_per_trajectory
         # open hdf5 file (and cache the open object)
-        with h5.File(
-            self.fs.open(
-                self.files_paths[file_idx], "rb", **IO_PARAMS["fsspec_params"]
-            ),
-            "r",
-            **IO_PARAMS["h5py_params"],
-        ) as file:
-            # If we gave a stride range, decide the largest size we can use given the sample location
-            dt = self.min_dt_stride
-            if self.max_dt_stride > self.min_dt_stride:
-                effective_max_dt = maximum_stride_for_initial_index(
-                    time_idx,
-                    self.n_steps_per_trajectory[file_idx],
-                    self.n_steps_input,
-                    self.n_steps_output,
-                )
-                effective_max_dt = min(effective_max_dt, self.max_dt_stride)
-                if effective_max_dt > self.min_dt_stride:
-                    # Randint is non-inclusive on the upper bound
-                    dt = np.random.randint(self.min_dt_stride, effective_max_dt + 1)
-            # Fetch the data
-            data = {}
+        file = self._get_file_handle(file_idx)
+        # If we gave a stride range, decide the largest size we can use given the sample location
+        dt = self.min_dt_stride
+        if self.max_dt_stride > self.min_dt_stride:
+            effective_max_dt = maximum_stride_for_initial_index(
+                time_idx,
+                self.n_steps_per_trajectory[file_idx],
+                self.n_steps_input,
+                self.n_steps_output,
+            )
+            effective_max_dt = min(effective_max_dt, self.max_dt_stride)
+            if effective_max_dt > self.min_dt_stride:
+                # Randint is non-inclusive on the upper bound
+                dt = np.random.randint(self.min_dt_stride, effective_max_dt + 1)
+        # Fetch the data
+        data = {}
 
-            output_steps = min(self.n_steps_output, self.max_rollout_steps)
-            # If start_output_steps_at_t set, then work backwards for initial time index
-            if self.full_trajectory_mode and self.start_output_steps_at_t >= 0:
-                time_idx = self.start_output_steps_at_t - (self.n_steps_input) * dt
+        output_steps = min(self.n_steps_output, self.max_rollout_steps)
+        # If start_output_steps_at_t set, then work backwards for initial time index
+        if self.full_trajectory_mode and self.start_output_steps_at_t >= 0:
+            time_idx = self.start_output_steps_at_t - (self.n_steps_input) * dt
 
-            data["variable_fields"], data["constant_fields"] = self._reconstruct_fields(
+        data["variable_fields"], data["constant_fields"] = self._reconstruct_fields(
+            file,
+            self.caches[file_idx],
+            sample_idx,
+            time_idx,
+            self.n_steps_input + output_steps,
+            dt,
+        )
+        data["variable_scalars"], data["constant_scalars"] = (
+            self._reconstruct_scalars(
                 file,
                 self.caches[file_idx],
                 sample_idx,
@@ -827,36 +847,27 @@ class WellDataset(Dataset):
                 self.n_steps_input + output_steps,
                 dt,
             )
-            data["variable_scalars"], data["constant_scalars"] = (
-                self._reconstruct_scalars(
-                    file,
-                    self.caches[file_idx],
-                    sample_idx,
-                    time_idx,
-                    self.n_steps_input + output_steps,
-                    dt,
-                )
+        )
+
+        if self.boundary_return_type is not None:
+            data["boundary_conditions"] = self._reconstruct_bcs(
+                file,
+                self.caches[file_idx],
+                sample_idx,
+                time_idx,
+                self.n_steps_input + output_steps,
+                dt,
             )
 
-            if self.boundary_return_type is not None:
-                data["boundary_conditions"] = self._reconstruct_bcs(
-                    file,
-                    self.caches[file_idx],
-                    sample_idx,
-                    time_idx,
-                    self.n_steps_input + output_steps,
-                    dt,
-                )
-
-            if self.return_grid:
-                data["space_grid"], data["time_grid"] = self._reconstruct_grids(
-                    file,
-                    self.caches[file_idx],
-                    sample_idx,
-                    time_idx,
-                    self.n_steps_input + output_steps,
-                    dt,
-                )
+        if self.return_grid:
+            data["space_grid"], data["time_grid"] = self._reconstruct_grids(
+                file,
+                self.caches[file_idx],
+                sample_idx,
+                time_idx,
+                self.n_steps_input + output_steps,
+                dt,
+            )
         return data, file_idx, sample_idx, time_idx, dt
 
     def _preprocess_data(
