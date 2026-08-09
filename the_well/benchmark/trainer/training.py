@@ -1,7 +1,7 @@
 import logging
 import os
 import time
-from typing import Callable, Optional
+from typing import Any, Callable, Dict, Optional
 
 import numpy as np
 import torch
@@ -34,6 +34,24 @@ def param_norm(parameters):
         for p in parameters:
             total_norm += p.pow(2).sum().item()
         return total_norm**0.5
+
+
+def accumulate_batch_mean(
+    accumulator: Dict[str, Any], values: Dict[str, Any], denom: float
+) -> Dict[str, Any]:
+    """Fold one batch's values into a running mean over ``denom`` batches.
+
+    ``accumulator`` is updated in place and returned. A key seen for the first time
+    starts from zero, so callers do not need to pre-populate it.
+
+    Both the scalar validation losses and the long-horizon time curves are reduced this
+    way. Keeping them on one code path is deliberate: the curves were previously merged
+    with ``|=``, which kept only the final batch, while the scalars were averaged --- an
+    asymmetry that is easy to reintroduce if the two are written out separately.
+    """
+    for name, value in values.items():
+        accumulator[name] = accumulator.get(name, 0.0) + value / denom
+    return accumulator
 
 
 class Trainer:
@@ -363,14 +381,8 @@ class Trainer:
                         )
                         # TODO get better way to include spectral error.
                         if k in long_time_metrics or "spectral_error" in k:
-                            for log_name, log_value in new_time_logs.items():
-                                time_logs[log_name] = (
-                                    time_logs.get(log_name, 0.0) + log_value / denom
-                                )
-                        for loss_name, loss_value in new_losses.items():
-                            loss_dict[loss_name] = (
-                                loss_dict.get(loss_name, 0.0) + loss_value / denom
-                            )
+                            accumulate_batch_mean(time_logs, new_time_logs, denom)
+                        accumulate_batch_mean(loss_dict, new_losses, denom)
                 count += 1
                 if not full and count >= self.short_validation_length:
                     break
