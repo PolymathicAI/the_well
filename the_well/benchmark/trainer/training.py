@@ -54,6 +54,33 @@ def accumulate_batch_mean(
     return accumulator
 
 
+def fold_batch_losses(
+    losses: Dict[str, Any],
+    split_fn: Callable,
+    dset_name: str,
+    field_names: Any,
+    denom: float,
+    loss_dict: Dict[str, Any],
+    time_logs: Dict[str, Any],
+) -> None:
+    """Fold one validation batch's losses into the running accumulators.
+
+    ``split_fn`` is ``Trainer.split_up_losses``, injected rather than reached through
+    ``self`` so this routing can be exercised without building a Trainer.
+
+    Both accumulators are running means over ``denom`` batches. The long-horizon time
+    curves in particular must be averaged and not merged: they were previously combined
+    with ``|=``, which silently kept only the final batch.
+    """
+    for k, v in losses.items():
+        sub_loss = v.mean(0)
+        new_losses, new_time_logs = split_fn(sub_loss, k, dset_name, field_names)
+        # TODO get better way to include spectral error.
+        if k in long_time_metrics or "spectral_error" in k:
+            accumulate_batch_mean(time_logs, new_time_logs, denom)
+        accumulate_batch_mean(loss_dict, new_losses, denom)
+
+
 class Trainer:
     def __init__(
         self,
@@ -374,15 +401,15 @@ class Trainer:
                     if not isinstance(loss, dict):
                         loss = {loss_fn.__class__.__name__: loss}
                     # Split the losses and update the logging dictionary
-                    for k, v in loss.items():
-                        sub_loss = v.mean(0)
-                        new_losses, new_time_logs = self.split_up_losses(
-                            sub_loss, k, dset_name, field_names
-                        )
-                        # TODO get better way to include spectral error.
-                        if k in long_time_metrics or "spectral_error" in k:
-                            accumulate_batch_mean(time_logs, new_time_logs, denom)
-                        accumulate_batch_mean(loss_dict, new_losses, denom)
+                    fold_batch_losses(
+                        loss,
+                        self.split_up_losses,
+                        dset_name,
+                        field_names,
+                        denom,
+                        loss_dict,
+                        time_logs,
+                    )
                 count += 1
                 if not full and count >= self.short_validation_length:
                     break
