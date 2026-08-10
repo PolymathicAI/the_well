@@ -82,26 +82,43 @@ def test_fold_batch_losses_averages_time_curves_over_batches():
     loss_dict, time_logs = {}, {}
     for c in curves:
         fold_batch_losses(
-            {metric: c.unsqueeze(0)}, fake_split, "ds", ["f"], len(curves),
-            loss_dict, time_logs,
+            {metric: c.unsqueeze(0)},
+            fake_split,
+            "ds",
+            ["f"],
+            len(curves),
+            loss_dict,
+            time_logs,
         )
 
     key = f"ds/full_{metric}_rollout"
     expected = (curves[0] + curves[1]) / 2
-    assert key in time_logs, f"a long-horizon metric must reach time_logs; got {list(time_logs)}"
+    assert (
+        key in time_logs
+    ), f"a long-horizon metric must reach time_logs; got {list(time_logs)}"
     assert torch.allclose(time_logs[key], expected)
-    assert not torch.allclose(time_logs[key], curves[-1]), "curve reflects only the last batch"
+    assert not torch.allclose(
+        time_logs[key], curves[-1]
+    ), "curve reflects only the last batch"
 
 
 def test_fold_batch_losses_keeps_short_metrics_out_of_time_logs():
     """A metric that is not long-horizon contributes scalars only, no curve."""
+
     def fake_split(sub_loss, k, dset_name, field_names):
-        return {f"{dset_name}/{k}_T=all": sub_loss.mean()}, {f"{dset_name}/{k}_rollout": sub_loss}
+        return {f"{dset_name}/{k}_T=all": sub_loss.mean()}, {
+            f"{dset_name}/{k}_rollout": sub_loss
+        }
 
     loss_dict, time_logs = {}, {}
     fold_batch_losses(
         {"not_a_long_time_metric": torch.tensor([[1.0, 2.0]])},
-        fake_split, "ds", ["f"], 1.0, loss_dict, time_logs,
+        fake_split,
+        "ds",
+        ["f"],
+        1.0,
+        loss_dict,
+        time_logs,
     )
     assert time_logs == {}
     assert loss_dict["ds/not_a_long_time_metric_T=all"] == 1.5
