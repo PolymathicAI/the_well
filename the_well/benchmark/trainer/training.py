@@ -1,7 +1,7 @@
 import logging
 import os
 import time
-from typing import Callable, Optional
+from typing import Any, Callable, Dict, Optional
 
 import numpy as np
 import torch
@@ -34,6 +34,51 @@ def param_norm(parameters):
         for p in parameters:
             total_norm += p.pow(2).sum().item()
         return total_norm**0.5
+
+
+def accumulate_batch_mean(
+    accumulator: Dict[str, Any], values: Dict[str, Any], denom: float
+) -> Dict[str, Any]:
+    """Fold one batch's values into a running mean over ``denom`` batches.
+
+    ``accumulator`` is updated in place and returned. A key seen for the first time
+    starts from zero, so callers do not need to pre-populate it.
+
+    Both the scalar validation losses and the long-horizon time curves are reduced this
+    way. Keeping them on one code path is deliberate: the curves were previously merged
+    with ``|=``, which kept only the final batch, while the scalars were averaged --- an
+    asymmetry that is easy to reintroduce if the two are written out separately.
+    """
+    for name, value in values.items():
+        accumulator[name] = accumulator.get(name, 0.0) + value / denom
+    return accumulator
+
+
+def fold_batch_losses(
+    losses: Dict[str, Any],
+    split_fn: Callable,
+    dset_name: str,
+    field_names: Any,
+    denom: float,
+    loss_dict: Dict[str, Any],
+    time_logs: Dict[str, Any],
+) -> None:
+    """Fold one validation batch's losses into the running accumulators.
+
+    ``split_fn`` is ``Trainer.split_up_losses``, injected rather than reached through
+    ``self`` so this routing can be exercised without building a Trainer.
+
+    Both accumulators are running means over ``denom`` batches. The long-horizon time
+    curves in particular must be averaged and not merged: they were previously combined
+    with ``|=``, which silently kept only the final batch.
+    """
+    for k, v in losses.items():
+        sub_loss = v.mean(0)
+        new_losses, new_time_logs = split_fn(sub_loss, k, dset_name, field_names)
+        # TODO get better way to include spectral error.
+        if k in long_time_metrics or "spectral_error" in k:
+            accumulate_batch_mean(time_logs, new_time_logs, denom)
+        accumulate_batch_mean(loss_dict, new_losses, denom)
 
 
 class Trainer:
@@ -356,18 +401,15 @@ class Trainer:
                     if not isinstance(loss, dict):
                         loss = {loss_fn.__class__.__name__: loss}
                     # Split the losses and update the logging dictionary
-                    for k, v in loss.items():
-                        sub_loss = v.mean(0)
-                        new_losses, new_time_logs = self.split_up_losses(
-                            sub_loss, k, dset_name, field_names
-                        )
-                        # TODO get better way to include spectral error.
-                        if k in long_time_metrics or "spectral_error" in k:
-                            time_logs |= new_time_logs
-                        for loss_name, loss_value in new_losses.items():
-                            loss_dict[loss_name] = (
-                                loss_dict.get(loss_name, 0.0) + loss_value / denom
-                            )
+                    fold_batch_losses(
+                        loss,
+                        self.split_up_losses,
+                        dset_name,
+                        field_names,
+                        denom,
+                        loss_dict,
+                        time_logs,
+                    )
                 count += 1
                 if not full and count >= self.short_validation_length:
                     break
