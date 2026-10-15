@@ -197,16 +197,17 @@ class Trainer:
 
     def save_model(self, epoch: int, validation_loss: float, output_path: str):
         """Save the model checkpoint."""
-        torch.save(
-            {
-                "epoch": epoch,
-                "model_state_dict": self.model.state_dict(),
-                "optimizer_state_dit": self.optimizer.state_dict(),
-                "validation_loss": validation_loss,
-                "best_validation_loss": self.best_val_loss,
-            },
-            output_path,
-        )
+        checkpoint = {
+            "epoch": epoch,
+            "model_state_dict": self.model.state_dict(),
+            "optimizer_state_dict": self.optimizer.state_dict(),
+            "grad_scaler_state_dict": self.grad_scaler.state_dict(),
+            "validation_loss": validation_loss,
+            "best_validation_loss": self.best_val_loss,
+        }
+        if self.lr_scheduler is not None:
+            checkpoint["lr_scheduler_state_dict"] = self.lr_scheduler.state_dict()
+        torch.save(checkpoint, output_path)
 
     def load_checkpoint(self, checkpoint_path: str):
         """Load the model checkpoint."""
@@ -215,7 +216,21 @@ class Trainer:
         if self.model is not None:
             self.model.load_state_dict(checkpoint["model_state_dict"])
         if self.optimizer is not None:
-            self.optimizer.load_state_dict(checkpoint["optimizer_state_dit"])
+            # Checkpoints written by older versions used a misspelled key
+            optimizer_state = checkpoint.get(
+                "optimizer_state_dict", checkpoint.get("optimizer_state_dit")
+            )
+            self.optimizer.load_state_dict(optimizer_state)
+        if self.lr_scheduler is not None:
+            if "lr_scheduler_state_dict" in checkpoint:
+                self.lr_scheduler.load_state_dict(checkpoint["lr_scheduler_state_dict"])
+            else:
+                logger.warning(
+                    "Checkpoint has no learning rate scheduler state; "
+                    "the scheduler restarts from its initial state."
+                )
+        if "grad_scaler_state_dict" in checkpoint:
+            self.grad_scaler.load_state_dict(checkpoint["grad_scaler_state_dict"])
         self.best_val_loss = checkpoint["best_validation_loss"]
         self.starting_val_loss = checkpoint["validation_loss"]
         self.starting_epoch = (
