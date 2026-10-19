@@ -1,5 +1,6 @@
 import itertools
 import os
+import posixpath
 import warnings
 from dataclasses import dataclass
 from enum import Enum
@@ -106,6 +107,22 @@ class TrajectoryMetadata:
     sample_idx: int | List[int]
     time_idx: int | List[int]
     time_stride: int | List[int]
+
+
+def _is_remote_path(path) -> bool:
+    """Whether `path` is a URI handled by fsspec (e.g. ``hf://``, ``s3://``)."""
+    return "://" in str(path)
+
+
+def _join_path(base, *parts: str) -> str:
+    """Join path components, keeping forward slashes for remote URIs.
+
+    `os.path.join` inserts backslashes on Windows, which breaks fsspec URIs
+    such as ``hf://datasets/...``. Remote paths are always POSIX-style.
+    """
+    if _is_remote_path(base):
+        return posixpath.join(str(base), *parts)
+    return os.path.join(base, *parts)
 
 
 class WellDataset(Dataset):
@@ -228,24 +245,24 @@ class WellDataset(Dataset):
             if normalization_path is None:
                 normalization_path = "stats.yaml"
             if well_split_name is not None:
-                self.data_path = os.path.join(path, "data", well_split_name)
+                self.data_path = _join_path(path, "data", well_split_name)
 
         else:
             assert is_dataset_in_the_well(
                 well_dataset_name
             ), f"Dataset name {well_dataset_name} not in the expected list {WELL_DATASETS}."
-            self.data_path = os.path.join(
+            self.data_path = _join_path(
                 well_base_path, well_dataset_name, "data", well_split_name
             )
-            trunk_path = os.path.join(well_base_path, well_dataset_name)
+            trunk_path = _join_path(well_base_path, well_dataset_name)
             if normalization_path is None:
-                normalization_path = os.path.join(
+                normalization_path = _join_path(
                     well_base_path, well_dataset_name, "stats.yaml"
                 )
-        if os.path.isabs(normalization_path):
+        if os.path.isabs(normalization_path) or _is_remote_path(normalization_path):
             self.normalization_path = normalization_path
         else:
-            self.normalization_path = os.path.join(
+            self.normalization_path = _join_path(
                 trunk_path,
                 str(normalization_path).removeprefix(str(trunk_path)).lstrip("./\\"),
             )

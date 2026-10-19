@@ -356,3 +356,22 @@ def test_full_trajectory_mode_minimum_steps(tmp_path, start_output_steps_at_t):
         assert (
             ctrl_data["output_time_grid"][offset - 2] == exp_data["input_time_grid"][0]
         ), "Expected input time to be time prior to first target output time"
+
+
+def test_join_path_keeps_forward_slashes_for_remote_uris(monkeypatch):
+    """Remote URIs must not get Windows separators (see issue #91)."""
+    import ntpath
+
+    from the_well.data import datasets
+
+    monkeypatch.setattr(datasets.os, "path", ntpath)
+
+    remote = datasets._join_path(
+        "hf://datasets/polymathic-ai/", "turbulent_radiative_layer_2D", "data", "train"
+    )
+    assert (
+        remote == "hf://datasets/polymathic-ai/turbulent_radiative_layer_2D/data/train"
+    )
+
+    local = datasets._join_path("C:\\well", "turbulent_radiative_layer_2D", "data")
+    assert local == "C:\\well\\turbulent_radiative_layer_2D\\data"
