@@ -9,7 +9,7 @@
       
       
       
-        <link rel="prev" href="../rayleigh_benard/">
+        <link rel="prev" href="../rayleigh_benard_uniform/">
       
       
         <link rel="next" href="../shear_flow/">
@@ -824,7 +824,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../rayleigh_benard_uniform.md" class="md-nav__link">
+      <a href="../rayleigh_benard_uniform/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1064,6 +1064,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../viscoelastic_instability_v2/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    viscoelastic_instability_v2
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1294,7 +1315,7 @@ A(k) = \frac{1}{k\sigma\sqrt{2\pi}} \exp\Big(-\frac{(\ln (k) - \mu)^2}{2\sigma^2
 <p><strong>Approximate time to generate the data:</strong> 1 hour on 128 CPU cores for 1 simulation. 65 hours on 128 CPU cores for all simulations.</p>
 <p><strong>Hardware used to generate the data:</strong> 128 CPU core on the Ocre supercomputer at CEA, Bruyères-le-Châtel, France.</p>
 <h2 id="what-is-interesting-and-challenging-about-the-data">What is interesting and challenging about the data:<a class="headerlink" href="#what-is-interesting-and-challenging-about-the-data" title="Permanent link">&para;</a></h2>
-<p><strong>What phenomena of physical interest are catpured in the data:</strong> In this dataset, there are three key aspects of physical interest. Firstly, impact of coherence on otherwise random initial conditions. Secondly, the effect of the shape of the initial energy spectrum on the structure of the flow. Finally, the transition from the Boussinesq to the non-Boussinesq regime where the mixing width transitions from symmetric to asymmetric growth.</p>
+<p><strong>What phenomena of physical interest are captured in the data:</strong> In this dataset, there are three key aspects of physical interest. Firstly, impact of coherence on otherwise random initial conditions. Secondly, the effect of the shape of the initial energy spectrum on the structure of the flow. Finally, the transition from the Boussinesq to the non-Boussinesq regime where the mixing width transitions from symmetric to asymmetric growth.</p>
 <p><strong>How to evaluate a new simulator operating in this space:</strong></p>
 <p>From a fundamental standpoint, we would expect the density field to be advected and mixed rather than created or destroyed to give appropriate statistics. From a qualitative perspective, given that the underlying simulations are of comparable spatial resolution to the simulations run by the alpha group (Dimonte et. al. 2003), we would consider a good emulator to produce a comparable value for α as reported in their paper for an appropriately similar set of initial conditions. This parameter is derived by considering the flow after the initial transient. At this stage, the width of the turbulent mixing zone, <span class="arithmatex">\(L\)</span>, is self-similar and grows as <span class="arithmatex">\(L= \alpha * At * g * t^2\)</span>. They reported a value of <span class="arithmatex">\(\alpha\)</span>=0.025±0.003. In addition, during this self-regime, we would expect to observe energy spectra with a similar shape to those reported in Cabot and Cook 2006, specifically exhibiting an appropriate <span class="arithmatex">\(k^{-\frac53}\)</span> cascade. From a structural perspective, we would expect that for an initialization with a large variety of modes in the initial spectrum to observe a range of bubbles and spikes (upward and downward moving structures), whereas in the other limit (where this only on mode in the initial spectrum) we expect to observe a single bubble and spike.  In addition, a good emulator would exhibit symmetric mixing with for low Atwood numbers in the Boussinesq regime (defined as <span class="arithmatex">\(At\)</span> &lt; 0.1 by Andrews and Dalziel 2010) and asymmetries in the mixing with for large Atwood number.</p>
 <p>Please cite the associated paper if you use this data in your research:

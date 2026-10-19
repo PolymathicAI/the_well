@@ -824,7 +824,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../rayleigh_benard_uniform.md" class="md-nav__link">
+      <a href="../rayleigh_benard_uniform/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -924,6 +924,15 @@
   <a href="#what-is-interesting-and-challenging-about-the-data" class="md-nav__link">
     <span class="md-ellipsis">
       What is interesting and challenging about the data:
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#versions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Versions
     </span>
   </a>
   
@@ -1055,6 +1064,27 @@
   
   <span class="md-ellipsis">
     viscoelastic_instability
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../viscoelastic_instability_v2/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    viscoelastic_instability_v2
   </span>
   
 
@@ -1215,6 +1245,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#versions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Versions
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1234,6 +1273,9 @@
 
 
 <h1 id="periodic-shear-flow">Periodic shear flow<a class="headerlink" href="#periodic-shear-flow" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Update (October 2026, v2.0).</strong> In the original release (v1.0), about 80% of the validation and test trajectories were exact copies of training trajectories (same PDE parameters and same initial condition). The splits have been rebuilt so that train, validation and test use disjoint initial conditions. See <a href="#versions">Versions</a>.</p>
+</blockquote>
 <p><strong>One line description of the data:</strong> 2D periodic incompressible shear flow.</p>
 <p><strong>Longer description of the data:</strong>
 A shear flow is a type of fluid characterized by the continuous deformation of adjacent fluid layers sliding past each other with different velocities. This phenomenon is commonly observed in various natural and engineered systems, such as rivers, atmospheric boundary layers, and industrial processes involving fluid transport.
@@ -1261,6 +1303,9 @@ with the additional constraints <span class="arithmatex">\(\int p = 0\)</span> (
 \end{align*}
 \]</div>
 <p><img alt="Gif" src="https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/shear_flow/gif/tracer_normalized.gif" /></p>
+<blockquote>
+<p><strong>Note on the benchmark results below.</strong> These scores were computed on v1.0, whose test set largely overlaps with the training set. They are therefore unreliable and should not be used for comparison.</p>
+</blockquote>
 <table>
 <thead>
 <tr>
@@ -1286,7 +1331,7 @@ with the additional constraints <span class="arithmatex">\(\int p = 0\)</span> (
 <p><strong>Dimension of discretized data:</strong> 200 time-steps of 256 <span class="arithmatex">\(\times\)</span> 512 images.</p>
 <p><strong>Fields available in the data:</strong> tracer (scalar field), pressure (scalar field), velocity (vector field).</p>
 <p><strong>Number of simulations:</strong> 1120 (28 PDE parameters <span class="arithmatex">\(\times\)</span> 40 initial conditions).</p>
-<p><strong>Size of the ensemble of all simulations:</strong> 547 GB.</p>
+<p><strong>Size of the ensemble of all simulations:</strong> 437.5 GB.</p>
 <p><strong>Grid type:</strong> uniform, cartesian coordinates.</p>
 <p><strong>Initial conditions:</strong> the shear field <span class="arithmatex">\(u_x\)</span> is composed of <span class="arithmatex">\(n_\text{shear}\)</span> shears uniformly spaced along the <span class="arithmatex">\(y\)</span> direction (called "<span class="arithmatex">\(z\)</span>" in the generation script). Each shear is implemented with a tanh (hyperbolic tangent) <span class="arithmatex">\(\text{tanh}(5\frac{y-y_k}{n_\text{shear}w})\)</span> where <span class="arithmatex">\(y_k\)</span> is the vertical position of the shear and <span class="arithmatex">\(w\)</span> is a width factor.
 The velocity field <span class="arithmatex">\(u_y\)</span> is composed of sinusoids along the <span class="arithmatex">\(x\)</span> direction located at the shear. These sinusoids have an exponential decay away from the shear in the <span class="arithmatex">\(y\)</span> direction <span class="arithmatex">\(\text{sin}(n_\text{blobs}\pi x)\,e^{\frac{25}{w^2}|y-y_k|^2}\)</span>.
@@ -1315,6 +1360,13 @@ Furthermore, such flow are unstable at large Reynolds number.</p>
   publisher={APS}
 }
 </code></pre></div>
+<h2 id="versions">Versions<a class="headerlink" href="#versions" title="Permanent link">&para;</a></h2>
+<p><strong>v2.0 (October 2026, current).</strong> For each (Reynolds, Schmidt) pair, the 40 initial conditions are split into 32 train, 4 validation and 4 test, with no initial condition shared between splits.
+- Train: identical to v1.0 except for one trajectory (Reynolds <span class="arithmatex">\(10^4\)</span>, Schmidt <span class="arithmatex">\(0.1\)</span>) that duplicated another training trajectory. It was replaced by an initial condition not otherwise used in train.
+- Validation and test: rebuilt from the 8 remaining initial conditions, randomly assigned 4/4 (seed 20261010).
+- Each file now stores the initial-condition parameters of every trajectory (<span class="arithmatex">\(w\)</span>, <span class="arithmatex">\(n_\text{shear}\)</span>, <span class="arithmatex">\(n_\text{blobs}\)</span>) as scalars.
+- <code>stats.yaml</code> is unchanged.</p>
+<p><strong>v1.0 (December 2024).</strong> Original release, still available on Hugging Face under the tag <a href="https://huggingface.co/datasets/polymathic-ai/shear_flow/tree/v1.0"><code>v1.0</code></a>.</p>
 
 
 

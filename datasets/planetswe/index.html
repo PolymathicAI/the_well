@@ -882,7 +882,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../rayleigh_benard_uniform.md" class="md-nav__link">
+      <a href="../rayleigh_benard_uniform/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1055,6 +1055,27 @@
   
   <span class="md-ellipsis">
     viscoelastic_instability
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../viscoelastic_instability_v2/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    viscoelastic_instability_v2
   </span>
   
 
@@ -1250,7 +1271,7 @@
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">find_center</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
     <span class="n">time_of_day</span> <span class="o">=</span> <span class="n">t</span> <span class="o">/</span> <span class="n">day</span>
     <span class="n">time_of_year</span> <span class="o">=</span> <span class="n">t</span> <span class="o">/</span> <span class="n">year</span>
-    <span class="n">max_declination</span> <span class="o">=</span> <span class="mf">.4</span> <span class="c1"># Truncated from estimate of earth&#39;s solar decline</span>
+    <span class="n">max_declination</span> <span class="o">=</span> <span class="mf">.4</span> <span class="c1"># Truncated from estimate of earth's solar decline</span>
     <span class="n">lon_center</span> <span class="o">=</span> <span class="n">time_of_day</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="c1"># Rescale sin to 0-1 then scale to np.pi</span>
     <span class="n">lat_center</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">time_of_year</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span><span class="o">*</span><span class="n">max_declination</span>
     <span class="n">lon_anti</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">+</span> <span class="n">lon_center</span>  <span class="c1">#2*np.((np.sin(-time_of_day*2*np.pi)+1) / 2)*pi</span>

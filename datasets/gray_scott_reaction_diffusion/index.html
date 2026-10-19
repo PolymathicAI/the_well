@@ -882,7 +882,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../rayleigh_benard_uniform.md" class="md-nav__link">
+      <a href="../rayleigh_benard_uniform/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1055,6 +1055,27 @@
   
   <span class="md-ellipsis">
     viscoelastic_instability
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../viscoelastic_instability_v2/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    viscoelastic_instability_v2
   </span>
   
 
@@ -1243,7 +1264,7 @@
 <div class="arithmatex">\[
 \begin{align*}
 \frac{\partial A}{\partial t} &amp;= \delta_A\Delta A - AB^2 + f(1-A) \\
-\frac{\partial B}{\partial t} &amp;= \delta_B\Delta B - AB^2 - (f+k)B
+\frac{\partial B}{\partial t} &amp;= \delta_B\Delta B + AB^2 - (f+k)B
 \end{align*}
 \]</div>
 <p>The dimensionless parameters describing the behavior are: <span class="arithmatex">\(f\)</span> the rate at which <span class="arithmatex">\(A\)</span> is replenished (feed rate), <span class="arithmatex">\(k\)</span> the rate at which <span class="arithmatex">\(B\)</span> is removed from the system, and  <span class="arithmatex">\(\delta_A, \delta_B\)</span> the diffusion coefficients of both species.</p>
@@ -1286,7 +1307,7 @@
 <p><strong>Approximate time to generate the data:</strong> 5.5 hours per set of parameters, 33 hours total.</p>
 <p><strong>Hardware used to generate the data:</strong> 40 CPU cores.</p>
 <h2 id="what-is-interesting-and-challenging-about-the-data">What is interesting and challenging about the data:<a class="headerlink" href="#what-is-interesting-and-challenging-about-the-data" title="Permanent link">&para;</a></h2>
-<p><strong>What phenomena of physical interest are catpured in the data:</strong> Pattern formation: by sweeping the two parameters <span class="arithmatex">\(f\)</span> and <span class="arithmatex">\(k\)</span>, a multitude of steady and dynamic patterns can form from random initial conditions.</p>
+<p><strong>What phenomena of physical interest are captured in the data:</strong> Pattern formation: by sweeping the two parameters <span class="arithmatex">\(f\)</span> and <span class="arithmatex">\(k\)</span>, a multitude of steady and dynamic patterns can form from random initial conditions.</p>
 <p><strong>How to evaluate a new simulator operating in this space:</strong> It would be impressive if a simulator—trained only on some of the patterns produced by a subset of the <span class="arithmatex">\((f, k)\)</span> parameter space—could perform well on an unseen set of parameter values <span class="arithmatex">\((f, k)\)</span> that produce fundamentally different patterns. Stability for steady-state patterns over long rollout times would also be impressive.</p>
 <p><strong>Warning:</strong> Due to the nature of the problem and the possibility to reach an equilibrium for certain values of the kill and feed parameters, a constant stationary behavior can be reached. Here are the trajectories for which a stationary behavior was identified for specy <span class="arithmatex">\(A\)</span> as well as the corresponding time at which it was reached:
 - Validation set:

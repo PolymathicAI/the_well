@@ -9,7 +9,7 @@
       
       
       
-        <link rel="prev" href="../datasets/viscoelastic_instability/">
+        <link rel="prev" href="../datasets/viscoelastic_instability_v2/">
       
       
         <link rel="next" href="../api/">
@@ -819,7 +819,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../datasets/rayleigh_benard_uniform.md" class="md-nav__link">
+      <a href="../datasets/rayleigh_benard_uniform/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1001,6 +1001,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../datasets/viscoelastic_instability_v2/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    viscoelastic_instability_v2
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1162,16 +1183,16 @@ single precision fp32. We distinguish between scalar, vector, and tensor-valued 
 transformation properties.</p>
 <p>The specification is described below with example entries for a hypothetical 2D (<span class="arithmatex">\(D=2\)</span>) simulation with dimension B x T x W x H. Note that this uses HDF5 Groups, Datasets, and attributes (denoted by "@"):</p>
 <div class="highlight"><pre><span></span><code><span class="n">root</span><span class="p">:</span> <span class="n">Group</span>
-  <span class="nd">@simulation_parameters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ParamA&#39;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+  <span class="nd">@simulation_parameters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'ParamA'</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
   <span class="nd">@ParamA</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
   <span class="o">...</span> <span class="c1"># Additional listed parameters</span>
-  <span class="nd">@dataset_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;ExampleDSet&#39;</span>
-  <span class="nd">@grid_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;cartesian&#39;</span> <span class="c1"># &quot;cartesian/spherical currently supported&quot;</span>
+  <span class="nd">@dataset_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'ExampleDSet'</span>
+  <span class="nd">@grid_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'cartesian'</span> <span class="c1"># "cartesian/spherical currently supported"</span>
   <span class="nd">@n_spatial_dims</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span> <span class="c1"># Should match number of provided spatial dimensions.</span>
-  <span class="nd">@n_trajectories</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">B</span> <span class="c1"># &quot;Batch&quot; dimension of dataset</span>
+  <span class="nd">@n_trajectories</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">B</span> <span class="c1"># "Batch" dimension of dataset</span>
 
   <span class="o">-</span><span class="n">dimensions</span><span class="p">:</span> <span class="n">Group</span>
-    <span class="nd">@spatial_dims</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="c1"># Names match datasets below.</span>
+    <span class="nd">@spatial_dims</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">]</span> <span class="c1"># Names match datasets below.</span>
     <span class="n">time</span><span class="p">:</span> <span class="n">Dataset</span> <span class="o">=</span> <span class="n">float32</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
       <span class="nd">@sample_varying</span> <span class="o">=</span> <span class="kc">False</span> <span class="c1"># Does this value vary between trajectories?</span>
     <span class="o">-</span><span class="n">x</span><span class="p">:</span> <span class="n">Dataset</span> <span class="o">=</span> <span class="n">float32</span><span class="p">(</span><span class="n">W</span><span class="p">)</span> <span class="c1"># Grid coordinates in x</span>
@@ -1183,18 +1204,18 @@ transformation properties.</p>
 
   <span class="o">-</span><span class="n">boundary_conditions</span><span class="p">:</span> <span class="n">Group</span> <span class="c1"># Internal and external boundary conditions</span>
     <span class="o">-</span><span class="n">X_boundary</span><span class="p">:</span> <span class="n">Group</span>
-      <span class="nd">@associated_dims</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="c1"># Defined on x</span>
+      <span class="nd">@associated_dims</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">]</span> <span class="c1"># Defined on x</span>
       <span class="c1"># If associated with set values for given field.</span>
       <span class="nd">@associated_fields</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
       <span class="c1"># Geometric description of BC. Currently support periodic/wall/open</span>
-      <span class="nd">@bc_type</span> <span class="o">=</span> <span class="s1">&#39;periodic&#39;</span>
+      <span class="nd">@bc_type</span> <span class="o">=</span> <span class="s1">'periodic'</span>
       <span class="nd">@sample_varying</span> <span class="o">=</span> <span class="kc">False</span>
       <span class="nd">@time_varying</span> <span class="o">=</span> <span class="kc">False</span>
       <span class="o">-</span><span class="n">mask</span><span class="p">:</span> <span class="n">Dataset</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">W</span><span class="p">)</span> <span class="c1"># True on coordinates where boundary is defined.</span>
       <span class="o">-</span><span class="n">values</span><span class="p">:</span> <span class="n">Dataset</span> <span class="o">=</span> <span class="n">float32</span><span class="p">(</span><span class="n">NumTrue</span><span class="p">(</span><span class="n">mask</span><span class="p">))</span> <span class="c1"># Values defined on mask points</span>
 
   <span class="n">scalars</span><span class="p">:</span> <span class="n">Group</span> <span class="c1"># Non-spatially varying scalars.</span>
-    <span class="nd">@field_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ParamA&#39;</span><span class="p">,</span> <span class="s1">&#39;OtherScalar&#39;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="nd">@field_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'ParamA'</span><span class="p">,</span> <span class="s1">'OtherScalar'</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
     <span class="n">ParamA</span><span class="p">:</span> <span class="n">Dataset</span> <span class="o">=</span> <span class="n">float32</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
       <span class="nd">@sample_varying</span> <span class="o">=</span> <span class="kc">False</span> <span class="c1"># Does this vary between trajectories?</span>
       <span class="nd">@time_varying</span> <span class="o">=</span> <span class="kc">False</span> <span class="c1"># Does this vary over time?</span>
@@ -1204,7 +1225,7 @@ transformation properties.</p>
 
   <span class="n">t0_fields</span><span class="p">:</span> <span class="n">Group</span>
     <span class="c1"># field_names should list all datasets in this category</span>
-    <span class="nd">@field_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;FieldA&#39;</span><span class="p">,</span> <span class="s1">&#39;FieldB&#39;</span><span class="p">,</span> <span class="s1">&#39;FieldC&#39;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="nd">@field_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'FieldA'</span><span class="p">,</span> <span class="s1">'FieldB'</span><span class="p">,</span> <span class="s1">'FieldC'</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
     <span class="o">-</span><span class="n">FieldA</span><span class="p">:</span> <span class="n">Dataset</span> <span class="o">=</span> <span class="n">float32</span><span class="p">(</span><span class="n">BxTxWxH</span><span class="p">)</span>
       <span class="nd">@dim_varying</span> <span class="o">=</span> <span class="p">[</span> <span class="kc">True</span>  <span class="kc">True</span><span class="p">]</span>
       <span class="nd">@sample_varying</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1220,7 +1241,7 @@ transformation properties.</p>
     <span class="o">...</span> <span class="c1"># Additional fields</span>
 
   <span class="o">-</span><span class="n">t1_fields</span><span class="p">:</span> <span class="n">Group</span>
-    <span class="nd">@field_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;VFieldA&#39;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="nd">@field_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'VFieldA'</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
     <span class="o">-</span><span class="n">VFieldA</span><span class="p">:</span> <span class="n">Dataset</span> <span class="o">=</span> <span class="n">float32</span><span class="p">(</span><span class="n">BxTxWxHxD</span><span class="p">)</span>
       <span class="nd">@dim_varying</span> <span class="o">=</span> <span class="p">[</span> <span class="kc">True</span>  <span class="kc">True</span><span class="p">]</span>
       <span class="nd">@sample_varying</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1228,7 +1249,7 @@ transformation properties.</p>
     <span class="o">...</span> <span class="c1"># Additional fields</span>
 
   <span class="o">-</span><span class="n">t2_fields</span><span class="p">:</span> <span class="n">Group</span>
-    <span class="nd">@field_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;TFieldA&#39;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="nd">@field_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'TFieldA'</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
     <span class="o">-</span> <span class="n">TFieldA</span><span class="p">:</span> <span class="n">Dataset</span> <span class="o">=</span> <span class="n">float32</span><span class="p">(</span><span class="n">BxTxWxHxD</span><span class="o">^</span><span class="mi">2</span><span class="p">)</span>
       <span class="nd">@antisymmetric</span> <span class="o">=</span> <span class="kc">False</span>
       <span class="nd">@dim_varying</span> <span class="o">=</span> <span class="p">[</span> <span class="kc">True</span>  <span class="kc">True</span><span class="p">]</span>
