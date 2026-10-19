@@ -4,11 +4,47 @@ import os
 import subprocess
 from typing import List, Optional
 
+import h5py
 import yaml
 
 from the_well.data.utils import WELL_DATASETS
 
 WELL_REGISTRY: str = os.path.join(os.path.dirname(__file__), "registry.yaml")
+
+# Messages printed before downloading a dataset
+DATASET_NOTICES = {
+    "shear_flow": (
+        "shear_flow was updated to v2.0 in October 2026. In v1.0, about 80% of the "
+        "validation and test trajectories were exact copies of training trajectories. "
+        "Results obtained on the v1.0 validation and test sets are not comparable with v2.0. "
+        "The Hugging Face copy (hf://datasets/polymathic-ai/shear_flow) is still v1.0 for now."
+    ),
+}
+
+
+def _is_shear_flow_v1(file: str) -> bool:
+    """Whether a local shear_flow file is from v1.0, which lacks the initial condition scalars."""
+    try:
+        with h5py.File(file, "r") as f:
+            return "width" not in f["scalars"]
+    except Exception:
+        # Partially downloaded file
+        return False
+
+
+def _print_notice(dataset: str, path: str):
+    if dataset not in DATASET_NOTICES:
+        return
+    print(f"WARNING: {DATASET_NOTICES[dataset]}", flush=True)
+    if dataset == "shear_flow":
+        local_files = glob.glob(os.path.join(path, "data", "*", "*.hdf5"))
+        old_files = [file for file in local_files if _is_shear_flow_v1(file)]
+        if old_files:
+            print(
+                f"WARNING: {len(old_files)} v1.0 file(s) found in {path}. Existing files are resumed, "
+                f"not replaced, so they would be kept as they are. Delete {path} and run this command again.",
+                flush=True,
+            )
 
 
 def create_url_registry(
@@ -107,6 +143,8 @@ def well_download(
         assert (
             dataset in registry
         ), f"unknown dataset '{dataset}', expected one of {list(registry.keys())}"
+
+        _print_notice(dataset, os.path.join(base_path, f"datasets/{dataset}"))
 
         # Download file containing dataset statistics
         stat_file_url = registry[dataset]["stats"]

@@ -1,5 +1,7 @@
 # Periodic shear flow
 
+> **Update (October 2026, v2.0).** In the original release (v1.0), about 80% of the validation and test trajectories were exact copies of training trajectories (same PDE parameters and same initial condition). The splits have been rebuilt so that train, validation and test use disjoint initial conditions. See [Versions](#versions).
+
 **One line description of the data:** 2D periodic incompressible shear flow.
 
 **Longer description of the data:**
@@ -39,6 +41,8 @@ $$
 
 ![Gif](https://users.flatironinstitute.org/~polymathic/data/the_well/datasets/shear_flow/gif/tracer_normalized.gif)
 
+> **Note on the benchmark results below.** These scores were computed on v1.0, whose test set largely overlaps with the training set. They are therefore unreliable and should not be used for comparison.
+
 | Dataset    | FNO | TFNO  | Unet | CNextU-net
 |:-:|:-:|:-:|:-:|:-:|
 | `shear_flow`  | 1.189 | 1.472 | 3.447 | $\mathbf{0.8080}$ |
@@ -53,7 +57,7 @@ Table: VRMSE metrics on test sets (lower is better). Best results are shown in b
 
 **Number of simulations:** 1120 (28 PDE parameters $\times$ 40 initial conditions).
 
-**Size of the ensemble of all simulations:** 547 GB.
+**Size of the ensemble of all simulations:** 437.5 GB.
 
 **Grid type:** uniform, cartesian coordinates.
 
@@ -97,3 +101,13 @@ Please cite this associated paper if you use this data in your research:
   publisher={APS}
 }
 ```
+
+## Versions
+
+**v2.0 (October 2026, current).** For each (Reynolds, Schmidt) pair, the 40 initial conditions are split into 32 train, 4 validation and 4 test, with no initial condition shared between splits.
+- Train: identical to v1.0 except for one trajectory (Reynolds $10^4$, Schmidt $0.1$) that duplicated another training trajectory. It was replaced by an initial condition not otherwise used in train.
+- Validation and test: rebuilt from the 8 remaining initial conditions, randomly assigned 4/4 (seed 20261010).
+- Each file now stores the initial-condition parameters of every trajectory ($w$, $n_\text{shear}$, $n_\text{blobs}$) as scalars.
+- `stats.yaml` is unchanged.
+
+**v1.0 (December 2024).** Original release, still available on Hugging Face under the tag [`v1.0`](https://huggingface.co/datasets/polymathic-ai/shear_flow/tree/v1.0).

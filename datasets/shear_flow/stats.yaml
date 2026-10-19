@@ -1,36 +1,36 @@
 mean:
-  pressure: -1.2310E-09
+  pressure: -1.2314E-09
   tracer: 2.3845E-03
   velocity:
   - 2.3845E-03
   - -1.7308E-07
 mean_delta:
-  pressure: -3.0097E-12
+  pressure: -3.0118E-12
   tracer: -2.2663E-10
   velocity:
-  - -1.7552E-10
-  - 1.5735E-13
+  - -1.7553E-10
+  - 1.5731E-13
 rms:
-  pressure: 8.2052E-02
-  tracer: 3.5829E-01
-  velocity:
-  - 4.0195E-01
-  - 1.0421E-01
-rms_delta:
-  pressure: 4.5270E-03
-  tracer: 6.9233E-02
-  velocity:
-  - 8.8585E-03
-  - 9.2226E-03
-std:
-  pressure: 8.2052E-02
+  pressure: 8.2039E-02
   tracer: 3.5828E-01
   velocity:
   - 4.0194E-01
-  - 1.0421E-01
-std_delta:
-  pressure: 4.5270E-03
-  tracer: 6.9233E-02
+  - 1.0420E-01
+rms_delta:
+  pressure: 4.5256E-03
+  tracer: 6.9232E-02
   velocity:
-  - 8.8585E-03
-  - 9.2226E-03
+  - 8.8550E-03
+  - 9.2180E-03
+std:
+  pressure: 8.2039E-02
+  tracer: 3.5827E-01
+  velocity:
+  - 4.0193E-01
+  - 1.0420E-01
+std_delta:
+  pressure: 4.5256E-03
+  tracer: 6.9232E-02
+  velocity:
+  - 8.8550E-03
+  - 9.2180E-03

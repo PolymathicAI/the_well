@@ -5,8 +5,11 @@ spatial_resolution:
 - 512
 scalar_names: []
 constant_scalar_names:
-- Rayleigh
+- Reynolds
 - Schmidt
+- width
+- n_shear
+- n_blobs
 field_names:
   0:
   - tracer

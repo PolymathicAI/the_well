@@ -544,6 +544,17 @@ class WellDataset(Dataset):
         self.n_spatial_dims = int(ndims.pop())  # Number of spatial dims
         self.size_tuple = tuple(map(int, size_tuples.pop()))  # Size of spatial dims
         self.dataset_name = names.pop()  # Name of dataset
+        # shear_flow v1.0 lacks the initial condition scalars added in v2.0
+        if (
+            self.dataset_name == "shear_flow"
+            and "width" not in self.constant_scalar_names
+        ):
+            warnings.warn(
+                "This is shear_flow v1.0, in which about 80% of the validation and test "
+                "trajectories are exact copies of training trajectories. Results on its "
+                "validation and test sets are not reliable. Get the corrected v2.0 with "
+                "`the-well-download --dataset shear_flow`, after deleting any local copy."
+            )
         # BCs
         self.num_bcs = len(bcs)  # Number of boundary condition type included in data
         self.bc_types = list(bcs)  # List of boundary condition types
