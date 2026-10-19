@@ -83,7 +83,7 @@ to install the dependencies built for CUDA 12.1.
 If you want to run the benchmarks, you should install additional dependencies.
 
 ```
-pip install the_well[benchmark]
+pip install 'the_well[benchmark]'
 ```
 
 ### Downloading the Data
