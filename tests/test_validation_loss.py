@@ -384,6 +384,87 @@ def test_relative_checkpoint_keeps_its_best_source(
         pytest.fail("Relative checkpoint recovery replaced the better legacy model")
 
 
+@pytest.mark.parametrize("checkpoint_name", ["recent.pt", "checkpoint_2.pt"])
+def test_relocated_resume_preserves_best_source_across_interruption(
+    tmp_path, validation_data, checkpoint_name
+):
+    source = tmp_path / "old-run"
+    output = tmp_path / "new-run"
+    previous = resume_trainer(validation_data, source)
+    legacy_checkpoints(previous, -0.5, best_score=4.0)
+    original_best = (source / "best.pt").read_bytes()
+    resumed = resume_trainer(validation_data, output, source / "recent.pt", epochs=3)
+    resumed.val_frequency = 3
+
+    def stop_before_validation(epoch, dataloader):
+        if epoch == 3:
+            raise InterruptedError("Stopped before first scheduled validation")
+        return Trainer.train_one_epoch(resumed, epoch, dataloader)
+
+    resumed.train_one_epoch = stop_before_validation
+    with wandb.init(mode="disabled"):
+        with pytest.raises(InterruptedError, match="first scheduled validation"):
+            resumed.train()
+    if (output / "best.pt").exists():
+        pytest.fail("The interrupted run unexpectedly selected a best model")
+
+    restarted = resume_trainer(
+        validation_data, output, output / checkpoint_name, epochs=4
+    )
+    restarted.short_validation_length = len(validation_data.val_dataloader())
+    with wandb.init(mode="disabled"):
+        restarted.train()
+    if not np.isclose(restarted.best_val_loss, 2.0, atol=1e-6):
+        pytest.fail("Restart lost the better model in the original output folder")
+    if (source / "best.pt").read_bytes() != original_best:
+        pytest.fail("Restart modified the original best model")
+    current = torch.load(output / "recent.pt", weights_only=False)
+    if current["validation_loss_version"] != 1 or current.get("legacy_best_checkpoint"):
+        pytest.fail("Completed calibration retained a legacy dependency")
+
+    (source / "best.pt").unlink()
+    current_resume = resume_trainer(
+        validation_data, output, output / "recent.pt", epochs=5
+    )
+    with wandb.init(mode="disabled"):
+        current_resume.train()
+    if not np.isclose(current_resume.best_val_loss, 2.0, atol=1e-6):
+        pytest.fail("Current-format resume changed the calibrated best score")
+
+
+@pytest.mark.parametrize("checkpoint_name", ["recent.pt", "checkpoint_2.pt"])
+def test_pending_resume_moves_with_its_run_directory(
+    tmp_path, validation_data, checkpoint_name
+):
+    source = tmp_path / "original-run"
+    output = tmp_path / "relocated-run"
+    previous = resume_trainer(validation_data, source)
+    legacy_checkpoints(previous, -0.5, best_score=4.0)
+    original_best = (source / "best.pt").read_bytes()
+    resumed = resume_trainer(validation_data, source, source / "recent.pt", epochs=3)
+    resumed.val_frequency = 3
+
+    def stop_before_validation(epoch, dataloader):
+        if epoch == 3:
+            raise InterruptedError("Stopped before moving the run directory")
+        return Trainer.train_one_epoch(resumed, epoch, dataloader)
+
+    resumed.train_one_epoch = stop_before_validation
+    with wandb.init(mode="disabled"):
+        with pytest.raises(InterruptedError, match="moving the run directory"):
+            resumed.train()
+    source.rename(output)
+    restarted = resume_trainer(
+        validation_data, output, output / checkpoint_name, epochs=3
+    )
+    with wandb.init(mode="disabled"):
+        restarted.train()
+    if not np.isclose(restarted.best_val_loss, 2.0, atol=1e-6):
+        pytest.fail("Moving the run directory changed the best model score")
+    if (output / "best.pt").read_bytes() != original_best:
+        pytest.fail("Moving the run directory replaced the better legacy model")
+
+
 def test_missing_legacy_best_and_evaluation_only(tmp_path, validation_data):
     output = tmp_path / "missing-best"
     previous = resume_trainer(validation_data, output)
@@ -391,7 +472,7 @@ def test_missing_legacy_best_and_evaluation_only(tmp_path, validation_data):
     (output / "best.pt").unlink()
     trainer = resume_trainer(validation_data, output, output / "recent.pt")
     with wandb.init(mode="disabled"):
-        with pytest.raises(FileNotFoundError, match="Restore best.pt"):
+        with pytest.raises(FileNotFoundError, match="Restore this file"):
             trainer.train()
     if (output / "best.pt").exists():
         pytest.fail("A missing legacy best was silently replaced")

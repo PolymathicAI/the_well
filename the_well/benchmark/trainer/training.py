@@ -204,6 +204,12 @@ class Trainer:
 
     def save_model(self, epoch: int, validation_loss: float, output_path: str):
         """Save the model checkpoint."""
+        legacy_best_checkpoint = self._legacy_best_checkpoint
+        if legacy_best_checkpoint and os.path.realpath(
+            os.path.dirname(legacy_best_checkpoint)
+        ) == os.path.realpath(os.path.dirname(output_path) or os.curdir):
+            # A colocated best moves with the run's checkpoint directory.
+            legacy_best_checkpoint = None
         torch.save(
             {
                 "epoch": epoch,
@@ -213,6 +219,7 @@ class Trainer:
                 "best_validation_loss": self.best_val_loss,
                 # Version 1 evaluates the configured loss exactly once.
                 "validation_loss_version": 0 if self._legacy_best_checkpoint else 1,
+                "legacy_best_checkpoint": legacy_best_checkpoint,
             },
             output_path,
         )
@@ -232,9 +239,9 @@ class Trainer:
             # Bind the source directory without folding symlink/.. components.
             drive, path = os.path.splitdrive(checkpoint_path)
             checkpoint_path = os.path.join(os.path.abspath(drive or os.curdir), path)
-            self._legacy_best_checkpoint = os.path.join(
-                os.path.dirname(checkpoint_path), "best.pt"
-            )
+            self._legacy_best_checkpoint = checkpoint.get(
+                "legacy_best_checkpoint"
+            ) or os.path.join(os.path.dirname(checkpoint_path), "best.pt")
         self.best_val_loss = checkpoint["best_validation_loss"]
         self.starting_val_loss = checkpoint["validation_loss"]
         self.starting_epoch = (
@@ -251,8 +258,8 @@ class Trainer:
                 return None
             raise FileNotFoundError(
                 f"Recomputing the legacy best validation loss requires "
-                f"{self._legacy_best_checkpoint}. Restore best.pt beside the resumed "
-                "checkpoint to continue training, or use validate() for evaluation only."
+                f"{self._legacy_best_checkpoint}. Restore this file to continue "
+                "training, or use validate() for evaluation only."
             ) from error
 
         model_state = self.model.state_dict()
