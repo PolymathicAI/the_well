@@ -45,7 +45,11 @@ def power_spectrum(
     fourier_input: bool = False,
     sample_spacing: float = 1.0,
     return_counts: bool = False,
-) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, Optional[torch.Tensor]]:
+    compute_std: bool = True,
+) -> (
+    Tuple[torch.Tensor, torch.Tensor, Optional[torch.Tensor]]
+    | Tuple[torch.Tensor, torch.Tensor, Optional[torch.Tensor], torch.Tensor]
+):
     """
     Compute the isotropic power spectrum of input tensor x.
 
@@ -55,12 +59,12 @@ def power_spectrum(
         fourier_input: If True, x is assumed to be the Fourier transform of the input data. The default is False.
         sample_spacing: Sample spacing. The default is 1.0.
         return_counts: Return counts per bin. The default is False.
+        compute_std: Compute the standard deviation per bin. If False, return None for it. The default is True.
 
     Returns:
-        A four tuple (bins, ps_mean, ps_std, counts) containing the array of bin edges,
-        the power spectrum (estimated as a mean over bins),
-        the standard deviation of the power spectrum (estimated as a standard deviation over bins),
-        and the counts per bin if return_counts=True.
+        A tuple (bins, ps_mean, ps_std), with counts appended if return_counts=True.
+        The entries are the bin edges, mean power, and standard deviation per bin.
+        ps_std is None when compute_std=False.
     """
     spatial_dims = tuple(range(-meta.n_spatial_dims - 1, -1))
     spatial_shape = tuple(x.shape[dim] for dim in spatial_dims)
@@ -92,23 +96,26 @@ def power_spectrum(
     fx2 = fx2.reshape(
         x.shape[: spatial_dims[0]] + (-1, x.shape[-1])
     )  # Flatten spatial dimensions
+    # Release the local Fourier reference before bin-reduction temporaries.
+    del x
 
     # Compute power spectrum
     ps_mean = torch.sum(fx2.unsqueeze(-2) * indices_mask.unsqueeze(-1), dim=-3) / (
         counts.unsqueeze(-1) + 1e-7
     )
-    ps_std = torch.sqrt(
-        torch.sum(
-            (fx2.unsqueeze(-2) - ps_mean.unsqueeze(-3)) ** 2
-            * indices_mask.unsqueeze(-1),
-            dim=-3,
-        )
-        / (counts.unsqueeze(-1) + 1e-7)
-    )
+    ps_std = None
+    if compute_std:
+        ps_std = torch.sqrt(
+            torch.sum(
+                (fx2.unsqueeze(-2) - ps_mean.unsqueeze(-3)) ** 2
+                * indices_mask.unsqueeze(-1),
+                dim=-3,
+            )
+            / (counts.unsqueeze(-1) + 1e-7)
+        )[..., :-1, :]
 
     # Discard the last bin (which has no upper limit)
     ps_mean = ps_mean[..., :-1, :]
-    ps_std = ps_std[..., :-1, :]
 
     if return_counts:
         return bins, ps_mean, ps_std, counts
@@ -159,12 +166,22 @@ class binned_spectral_mse(Metric):
             ).to(x.device)  # Low, medium, and high frequency bins
             bins[0] = 0.0  # We start from zero
         _, ps_res_mean, _, counts = power_spectrum(
-            x - y, meta, bins=bins, fourier_input=fourier_input, return_counts=True
+            x - y,
+            meta,
+            bins=bins,
+            fourier_input=fourier_input,
+            return_counts=True,
+            compute_std=False,
         )
 
         # TODO - MAJOR DESIGN VIOLATION - BUT ITS FASTER TO IMPLEMENT THIS WAY TODAY...
         _, ps_true_mean, _, true_counts = power_spectrum(
-            y, meta, bins=bins, fourier_input=fourier_input, return_counts=True
+            y,
+            meta,
+            bins=bins,
+            fourier_input=fourier_input,
+            return_counts=True,
+            compute_std=False,
         )
 
         # Compute the mean squared error per bin (stems from Plancherel's formula)
