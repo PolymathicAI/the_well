@@ -39,7 +39,7 @@ def param_norm(parameters):
 def accumulate_batch_mean(
     accumulator: Dict[str, Any], values: Dict[str, Any], denom: float
 ) -> Dict[str, Any]:
-    """Fold one batch's values into a running mean over ``denom`` batches.
+    """Add one batch's values divided by ``denom`` to the running accumulators.
 
     ``accumulator`` is updated in place and returned. A key seen for the first time
     starts from zero, so callers do not need to pre-populate it.
@@ -68,7 +68,7 @@ def fold_batch_losses(
     ``split_fn`` is ``Trainer.split_up_losses``, injected rather than reached through
     ``self`` so this routing can be exercised without building a Trainer.
 
-    Both accumulators are running means over ``denom`` batches. The long-horizon time
+    ``denom`` divides this batch's mean in both accumulators. The long-horizon time
     curves in particular must be averaged and not merged: they were previously combined
     with ``|=``, which silently kept only the final batch.
     """
@@ -376,16 +376,11 @@ class Trainer:
         dset_name = self.dset_metadata.dataset_name
         loss_dict = {}
         time_logs = {}
-        count = 0
-        denom = (
-            len(dataloader)
-            if full
-            else min(self.short_validation_length, len(dataloader))
-        )
+        sample_count = 0
         with torch.autocast(
             self.device.type, enabled=self.enable_amp, dtype=self.amp_type
         ):
-            for i, batch in enumerate(tqdm.tqdm(dataloader)):
+            for batch_number, batch in enumerate(tqdm.tqdm(dataloader), start=1):
                 # Rollout for length of target
                 y_pred, y_ref = self.rollout_model(
                     self.model, batch, self.formatter, train=False
@@ -393,6 +388,12 @@ class Trainer:
                 assert (
                     y_ref.shape == y_pred.shape
                 ), f"Mismatching shapes between reference {y_ref.shape} and prediction {y_pred.shape}"
+                batch_size = y_ref.shape[0]
+                previous_weight = sample_count / (sample_count + batch_size)
+                sample_count += batch_size
+                for metrics in (loss_dict, time_logs):
+                    for name in metrics:
+                        metrics[name] *= previous_weight
                 # Go through losses
                 for loss_fn in self.validation_suite:
                     # Mean over batch and time per field
@@ -406,12 +407,11 @@ class Trainer:
                         self.split_up_losses,
                         dset_name,
                         field_names,
-                        denom,
+                        sample_count / batch_size,
                         loss_dict,
                         time_logs,
                     )
-                count += 1
-                if not full and count >= self.short_validation_length:
+                if not full and batch_number >= self.short_validation_length:
                     break
 
         # Last batch plots - too much work to combine from batches

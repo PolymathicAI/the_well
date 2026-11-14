@@ -307,7 +307,6 @@ class WellDataModule(AbstractDataModule):
             pin_memory=True,
             batch_size=self.batch_size,
             shuffle=shuffle,
-            drop_last=True,
             sampler=sampler,
         )
 
@@ -364,7 +363,6 @@ class WellDataModule(AbstractDataModule):
             pin_memory=True,
             batch_size=self.batch_size,
             shuffle=False,
-            drop_last=True,
             sampler=sampler,
         )
 
