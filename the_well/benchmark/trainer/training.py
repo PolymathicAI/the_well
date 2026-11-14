@@ -1,5 +1,7 @@
+import copy
 import logging
 import os
+import random
 import time
 from typing import Any, Callable, Dict, Optional
 
@@ -167,7 +169,11 @@ class Trainer:
         self.lr_scheduler = lr_scheduler
         self.loss_fn = loss_fn
         self.is_delta = isinstance(datamodule.train_dataset, DeltaWellDataset)
-        self.validation_suite = validation_metric_suite + [self.loss_fn]
+        self.validation_suite = [
+            metric
+            for metric in validation_metric_suite
+            if type(metric) is not type(self.loss_fn)
+        ] + [self.loss_fn]
         self.max_epoch = epochs
         self.checkpoint_frequency = checkpoint_frequency
         self.val_frequency = val_frequency
@@ -183,6 +189,7 @@ class Trainer:
         )
         self.is_distributed = is_distributed
         self.best_val_loss = None
+        self._legacy_best_checkpoint = None
         self.starting_val_loss = float("inf")
         self.dset_metadata = self.datamodule.train_dataset.metadata
         self.dset_norm = None
@@ -204,6 +211,8 @@ class Trainer:
                 "optimizer_state_dit": self.optimizer.state_dict(),
                 "validation_loss": validation_loss,
                 "best_validation_loss": self.best_val_loss,
+                # Version 1 evaluates the configured loss exactly once.
+                "validation_loss_version": 0 if self._legacy_best_checkpoint else 1,
             },
             output_path,
         )
@@ -216,11 +225,96 @@ class Trainer:
             self.model.load_state_dict(checkpoint["model_state_dict"])
         if self.optimizer is not None:
             self.optimizer.load_state_dict(checkpoint["optimizer_state_dit"])
+        self._legacy_best_checkpoint = None
+        if checkpoint.get("validation_loss_version", 0) == 0 and any(
+            type(metric) is type(self.loss_fn) for metric in validation_metric_suite
+        ):
+            # Bind the source directory without folding symlink/.. components.
+            drive, path = os.path.splitdrive(checkpoint_path)
+            checkpoint_path = os.path.join(os.path.abspath(drive or os.curdir), path)
+            self._legacy_best_checkpoint = os.path.join(
+                os.path.dirname(checkpoint_path), "best.pt"
+            )
         self.best_val_loss = checkpoint["best_validation_loss"]
         self.starting_val_loss = checkpoint["validation_loss"]
         self.starting_epoch = (
             checkpoint["epoch"] + 1
         )  # Saves after training loop, so start at next epoch
+
+    def _revalidate_legacy_best(self, dataloader: DataLoader, full: bool):
+        try:
+            best_state = torch.load(
+                self._legacy_best_checkpoint, map_location="cpu", weights_only=False
+            )["model_state_dict"]
+        except FileNotFoundError as error:
+            if self.best_val_loss is None:
+                return None
+            raise FileNotFoundError(
+                f"Recomputing the legacy best validation loss requires "
+                f"{self._legacy_best_checkpoint}. Restore best.pt beside the resumed "
+                "checkpoint to continue training, or use validate() for evaluation only."
+            ) from error
+
+        model_state = self.model.state_dict()
+        for name, value in model_state.items():
+            model_state[name] = (
+                value.detach().to("cpu", copy=True)
+                if isinstance(value, torch.Tensor)
+                else copy.deepcopy(value)
+            )
+        # Include non-persistent buffers, which are absent from state_dict.
+        buffers = [
+            (buffer, buffer.detach().to("cpu", copy=True))
+            for buffer in self.model.buffers()
+        ]
+        # Forward may rebind registered buffers, including None and aliases.
+        buffer_bindings = [
+            (module, module._buffers.copy(), module._non_persistent_buffers_set.copy())
+            for module in self.model.modules()
+        ]
+        modes = [(module, module.training) for module in self.model.modules()]
+        forward_param_sync = (
+            self.model.require_forward_param_sync
+            if isinstance(self.model, torch.nn.parallel.DistributedDataParallel)
+            else None
+        )
+        python_rng = random.getstate()
+        numpy_rng = np.random.get_state()
+        generators = [
+            (generator, generator.get_state())
+            for generator in (
+                dataloader.generator,
+                getattr(dataloader.sampler, "generator", None),
+            )
+            if generator is not None
+        ]
+        devices = [self.device] if self.device.type == "cuda" else []
+        with torch.random.fork_rng(devices=devices, device_type="cuda"):
+            try:
+                self.model.load_state_dict(best_state)
+                del best_state
+                best_loss, _ = self.validation_loop(
+                    dataloader, full=full, save_artifacts=False
+                )
+            finally:
+                for module, bindings, non_persistent in buffer_bindings:
+                    module._buffers.clear()
+                    module._buffers.update(bindings)
+                    module._non_persistent_buffers_set.clear()
+                    module._non_persistent_buffers_set.update(non_persistent)
+                self.model.load_state_dict(model_state)
+                with torch.no_grad():
+                    for buffer, value in buffers:
+                        buffer.copy_(value)
+                for module, training in modes:
+                    module.training = training
+                if forward_param_sync is not None:
+                    self.model.require_forward_param_sync = forward_param_sync
+                random.setstate(python_rng)
+                np.random.set_state(numpy_rng)
+                for generator, state in generators:
+                    generator.set_state(state)
+        return best_loss
 
     def normalize(self, batch_dict=None, direct_tensor=None):
         if hasattr(self, "dset_norm") and self.dset_norm:
@@ -368,8 +462,9 @@ class Trainer:
         valid_or_test: str = "valid",
         full: bool = False,
         epoch: int = 0,
+        save_artifacts: bool = True,
     ) -> float:
-        """Run validation by looping over the dataloader."""
+        """Run validation, optionally saving plots, time curves, and rollout videos."""
         self.model.eval()
         validation_loss = 0.0
         field_names = flatten_field_names(self.dset_metadata, include_constants=False)
@@ -385,7 +480,9 @@ class Trainer:
         with torch.autocast(
             self.device.type, enabled=self.enable_amp, dtype=self.amp_type
         ):
-            for i, batch in enumerate(tqdm.tqdm(dataloader)):
+            for i, batch in enumerate(
+                tqdm.tqdm(dataloader, disable=not save_artifacts)
+            ):
                 # Rollout for length of target
                 y_pred, y_ref = self.rollout_model(
                     self.model, batch, self.formatter, train=False
@@ -414,17 +511,20 @@ class Trainer:
                 if not full and count >= self.short_validation_length:
                     break
 
-        # Last batch plots - too much work to combine from batches
-        for plot_fn in validation_plots:
-            plot_fn(y_pred, y_ref, self.dset_metadata, self.viz_folder, epoch)
-        if y_ref.shape[1] > 1:
-            # Only plot if we have more than one timestep, but then track loss over timesteps
-            plot_all_time_metrics(time_logs, self.dset_metadata, self.viz_folder, epoch)
-            if self.make_rollout_videos:
-                # Make_video expects T x H [x W x D] C data so select out the batch dim
-                make_video(
-                    y_pred[0], y_ref[0], self.dset_metadata, self.viz_folder, epoch
+        if save_artifacts:
+            # Last batch plots - too much work to combine from batches
+            for plot_fn in validation_plots:
+                plot_fn(y_pred, y_ref, self.dset_metadata, self.viz_folder, epoch)
+            if y_ref.shape[1] > 1:
+                # Only plot if we have more than one timestep, but then track loss over timesteps
+                plot_all_time_metrics(
+                    time_logs, self.dset_metadata, self.viz_folder, epoch
                 )
+                if self.make_rollout_videos:
+                    # Make_video expects T x H [x W x D] C data so select out the batch dim
+                    make_video(
+                        y_pred[0], y_ref[0], self.dset_metadata, self.viz_folder, epoch
+                    )
 
         if self.is_distributed:
             for k, v in loss_dict.items():
@@ -512,19 +612,26 @@ class Trainer:
             # Check if time to perform standard validation - periodic or final
             if epoch % self.val_frequency == 0 or (epoch == self.max_epoch):
                 logger.info(f"Epoch {epoch}/{self.max_epoch}: starting validation")
+                best_val_loss = self.best_val_loss
+                if self._legacy_best_checkpoint is not None:
+                    best_val_loss = self._revalidate_legacy_best(
+                        val_dataloder, full=epoch == self.max_epoch
+                    )
                 val_loss, val_loss_dict = self.validation_loop(
                     val_dataloder, full=epoch == self.max_epoch, epoch=epoch
                 )
+                self.best_val_loss = best_val_loss
+                self._legacy_best_checkpoint = None
                 logger.info(
                     f"Epoch {epoch}/{self.max_epoch}: avg validation loss {val_loss}"
                 )
                 val_loss_dict |= {"valid": val_loss, "epoch": epoch}
                 wandb.log(val_loss_dict, step=epoch)
                 if self.best_val_loss is None or val_loss < self.best_val_loss:
+                    self.best_val_loss = val_loss
                     self.save_model(
                         epoch, val_loss, os.path.join(self.checkpoint_folder, "best.pt")
                     )
-                    self.best_val_loss = val_loss
             # Check if time for expensive validation - periodic or final
             if epoch % self.rollout_val_frequency == 0 or (epoch == self.max_epoch):
                 logger.info(
