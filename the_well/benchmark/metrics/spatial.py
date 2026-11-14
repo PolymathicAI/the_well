@@ -34,8 +34,8 @@ class PearsonR(Metric):
         # Calculate covariance
         covariance = torch.mean((x_flat - x_mean) * (y_flat - y_mean), dim=-2)
         # Calculate standard deviations
-        std_x = torch.std(x_flat, dim=-2)
-        std_y = torch.std(y_flat, dim=-2)
+        std_x = torch.std(x_flat, dim=-2, correction=0)
+        std_y = torch.std(y_flat, dim=-2, correction=0)
 
         # Calculate Pearson correlation coefficient
         correlation = covariance / (std_x * std_y + eps)
